@@ -1,18 +1,27 @@
 /// <reference types="vite-plus/client" />
-import type { ErrorComponentProps } from "@tanstack/react-router";
+import { MantineProvider } from "@mantine/core";
+import { QueryClient } from "@tanstack/react-query";
+import { createRootRouteWithContext } from "@tanstack/react-router";
 import { HeadContent, Outlet, Scripts, createRootRoute } from "@tanstack/react-router";
 import { Suspense, lazy } from "react";
 
-import appCss from "../styles.css?url";
+import { theme } from "~/lib/theme";
+import { ErrorComponent } from "~/routes/-components/error";
+import { NotFoundComponent } from "~/routes/-components/not-found";
+import { PendingComponent } from "~/routes/-components/pending";
+
+import appCss from "~/styles.css?url";
 
 const TanStackRouterDevtools = import.meta.env.DEV
   ? lazy(async () => {
-      const { TanStackRouterDevtools } = await import("../router-devtools");
+      const { TanStackRouterDevtools } = await import("~/router-devtools");
       return { default: TanStackRouterDevtools };
     })
   : null;
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{
+  queryClient: QueryClient;
+}>()({
   component: RootComponent,
   errorComponent: ErrorComponent,
   head: () => ({
@@ -34,40 +43,16 @@ function RootComponent() {
         <HeadContent />
       </head>
       <body>
-        <Outlet />
-        {TanStackRouterDevtools ? (
-          <Suspense fallback={null}>
-            <TanStackRouterDevtools position="bottom-right" />
-          </Suspense>
-        ) : null}
+        <MantineProvider theme={theme}>
+          <Outlet />
+          {TanStackRouterDevtools ? (
+            <Suspense fallback={null}>
+              <TanStackRouterDevtools position="bottom-right" />
+            </Suspense>
+          ) : null}
+        </MantineProvider>
         <Scripts />
       </body>
     </html>
-  );
-}
-
-function NotFoundComponent() {
-  return (
-    <div className="p-4">
-      <h1 className="text-2xl font-semibold">404</h1>
-      <p>ページが見つかりませんでした。</p>
-    </div>
-  );
-}
-
-function ErrorComponent({ error }: ErrorComponentProps) {
-  return (
-    <div className="p-4">
-      <h1 className="text-2xl font-semibold text-red-600">エラー</h1>
-      <p>{error.message}</p>
-    </div>
-  );
-}
-
-function PendingComponent() {
-  return (
-    <div className="p-4">
-      <p>読み込み中...</p>
-    </div>
   );
 }
