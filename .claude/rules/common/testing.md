@@ -116,4 +116,4 @@ const heading = document.querySelector(".heading-text");
 ## Related skills
 
 - `webapp-testing` — testing patterns and helpers for this project
-</content>
+  </content>

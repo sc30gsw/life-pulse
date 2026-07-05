@@ -6,20 +6,20 @@
 
 ## スタック
 
-| 領域           | 採用                                                                                            |
-| -------------- | ----------------------------------------------------------------------------------------------- |
-| フレームワーク | TanStack Start + Router、React 19（React Compiler を Babel で有効化）                           |
-| スタイル       | Tailwind CSS v4（`cn` は `cnfast`）。Mantine とは `tailwind-preset-mantine` で統合              |
-| UI             | Mantine（`@mantine/core` + `@mantine/hooks` + `@mantine/dates`）                                |
-| チャート       | `@mantine/charts`（Recharts ベース）                                                             |
-| バックエンド   | Convex（`convex` + `@convex-dev/react-query`。`convex/` ディレクトリは未実装）                  |
-| データ取得     | TanStack Query（`@tanstack/react-query`、SSR は `@tanstack/react-router-ssr-query`）            |
-| 認証           | Convex Auth（`@convex-dev/auth` のクライアント側 `ConvexAuthProvider`。フォールバックは Clerk） |
-| 検証           | Valibot（単一）                                                                                 |
+| 領域           | 採用                                                                                                       |
+| -------------- | ---------------------------------------------------------------------------------------------------------- |
+| フレームワーク | TanStack Start + Router、React 19（React Compiler を Babel で有効化）                                      |
+| スタイル       | Tailwind CSS v4（`cn` は `cnfast`）。Mantine とは `tailwind-preset-mantine` で統合                         |
+| UI             | Mantine（`@mantine/core` + `@mantine/hooks` + `@mantine/dates`）                                           |
+| チャート       | `@mantine/charts`（Recharts ベース）                                                                       |
+| バックエンド   | Convex（`convex` + `@convex-dev/react-query`。`convex/` ディレクトリは未実装）                             |
+| データ取得     | TanStack Query（`@tanstack/react-query`、SSR は `@tanstack/react-router-ssr-query`）                       |
+| 認証           | Convex Auth（`@convex-dev/auth` のクライアント側 `ConvexAuthProvider`。フォールバックは Clerk）            |
+| 検証           | Valibot（単一）                                                                                            |
 | フォーム       | Formisch（`@formisch/react`、valibot ネイティブ。`useForm({ schema })` / `<Form of>` / `<Field of path>`） |
-| エラー処理     | better-result                                                                                   |
-| テスト         | convex-test（`convexTest(schema)`、`t.withIdentity(...)`）                                      |
-| ツールチェーン | Vite+（`vp`、[AGENTS.md](./AGENTS.md) 参照）。pnpm 維持                                         |
+| エラー処理     | better-result                                                                                              |
+| テスト         | convex-test（`convexTest(schema)`、`t.withIdentity(...)`）                                                 |
+| ツールチェーン | Vite+（`vp`、[AGENTS.md](./AGENTS.md) 参照）。pnpm 維持                                                    |
 
 > **現状 vs 目標:** 上記の多くは**まだ未配線の目標規約**です（[CLAUDE.md](./CLAUDE.md) 参照）。依存は導入済みでも、`~/features/*` 等を import する前にそのモジュールが実在するか必ず確認してください。
 

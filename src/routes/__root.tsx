@@ -2,7 +2,7 @@
 import { MantineProvider } from "@mantine/core";
 import { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext } from "@tanstack/react-router";
-import { HeadContent, Outlet, Scripts, createRootRoute } from "@tanstack/react-router";
+import { HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { Suspense, lazy } from "react";
 
 import { theme } from "~/lib/theme";
