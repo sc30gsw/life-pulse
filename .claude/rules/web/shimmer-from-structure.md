@@ -86,8 +86,12 @@ export function UserMenuFallback() {
       <Group gap="xs">
         <Avatar radius="xl" size="sm" />
         <div>
-          <Text fw={600} size="sm">ユーザー名</Text>
-          <Text c="dimmed" size="xs" tt="uppercase">role</Text>
+          <Text fw={600} size="sm">
+            ユーザー名
+          </Text>
+          <Text c="dimmed" size="xs" tt="uppercase">
+            role
+          </Text>
         </div>
         <IconChevronDown size={16} />
       </Group>
@@ -96,7 +100,13 @@ export function UserMenuFallback() {
 }
 
 // WRONG: the suspending component inside its own fallback → re-suspends, boundary never resolves
-<Suspense fallback={<Shimmer loading><UserMenu /></Shimmer>}>
+<Suspense
+  fallback={
+    <Shimmer loading>
+      <UserMenu />
+    </Shimmer>
+  }
+>
   <UserMenu />
 </Suspense>;
 ```
@@ -122,8 +132,11 @@ When a component renders from props and the data is still `null`, pass `template
 
 ```tsx
 <Paper>
-  <span data-shimmer-ignore>● LIVE</span>       {/* stays visible while loading */}
-  <div data-shimmer-no-children>{value} {trend}</div> {/* one block, not three */}
+  <span data-shimmer-ignore>● LIVE</span> {/* stays visible while loading */}
+  <div data-shimmer-no-children>
+    {value} {trend}
+  </div>{" "}
+  {/* one block, not three */}
 </Paper>
 ```
 

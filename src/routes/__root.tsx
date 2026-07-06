@@ -1,6 +1,7 @@
 /// <reference types="vite-plus/client" />
 import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
+import { ShimmerProvider } from "@shimmer-from-structure/react";
 import { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext } from "@tanstack/react-router";
 import { HeadContent, Outlet, Scripts } from "@tanstack/react-router";
@@ -55,13 +56,22 @@ function RootComponent() {
       </head>
       <body>
         <MantineProvider defaultColorScheme="dark" theme={theme}>
-          <Notifications position="top-center" />
-          <Outlet />
-          {TanStackRouterDevtools ? (
-            <Suspense fallback={null}>
-              <TanStackRouterDevtools />
-            </Suspense>
-          ) : null}
+          <ShimmerProvider
+            config={{
+              backgroundColor: "var(--inset)",
+              shimmerColor: "var(--bd2)",
+              duration: 2,
+              fallbackBorderRadius: 8,
+            }}
+          >
+            <Notifications position="top-center" />
+            <Outlet />
+            {TanStackRouterDevtools ? (
+              <Suspense fallback={null}>
+                <TanStackRouterDevtools />
+              </Suspense>
+            ) : null}
+          </ShimmerProvider>
         </MantineProvider>
         <Scripts />
       </body>

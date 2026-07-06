@@ -1,5 +1,6 @@
 import { Avatar, Group, Menu, Text, UnstyledButton } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { Shimmer } from "@shimmer-from-structure/react";
 import { IconChevronDown } from "@tabler/icons-react";
 import cn from "cnfast";
 
@@ -41,5 +42,24 @@ export function UserMenu() {
         <LogoutButton />
       </Menu.Dropdown>
     </Menu>
+  );
+}
+
+export function UserMenuFallback() {
+  return (
+    <Shimmer loading>
+      <Group gap="xs">
+        <Avatar radius="xl" size="sm" />
+        <div>
+          <Text fw={600} size="sm">
+            ユーザー名
+          </Text>
+          <Text c="dimmed" size="xs" tt="uppercase">
+            role
+          </Text>
+        </div>
+        <IconChevronDown size={16} />
+      </Group>
+    </Shimmer>
   );
 }

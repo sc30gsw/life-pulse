@@ -19,6 +19,7 @@ export const viewer = query({
   ),
   handler: async (ctx) => {
     const authSubject = await getAuthUserId(ctx);
+
     if (authSubject === null) {
       return null;
     }

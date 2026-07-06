@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Suspense } from "react";
 
-import { UserMenu } from "~/features/auth/components/user-menu";
+import { UserMenu, UserMenuFallback } from "~/features/auth/components/user-menu";
 import { BoardHeader } from "~/features/dashboard/components/board-header";
 import { BoardToast } from "~/features/dashboard/components/board-toast";
 import { DogCard } from "~/features/dashboard/components/dog-card";
@@ -28,7 +29,11 @@ function Home() {
         onToggleTheme={board.onToggleTheme}
         perspective={board.perspective}
         theme={board.theme}
-        userMenuSlot={<UserMenu />}
+        userMenuSlot={
+          <Suspense fallback={<UserMenuFallback />}>
+            <UserMenu />
+          </Suspense>
+        }
       />
       <LiveStrip lastSyncRelativeLabel={board.lastSyncRelativeLabel} />
       <main className="flex flex-col gap-4 lg:flex-row lg:items-stretch">
