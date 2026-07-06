@@ -6,9 +6,9 @@ import { HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { Suspense, lazy } from "react";
 
 import { theme } from "~/lib/theme";
-import { ErrorComponent } from "~/routes/-components/error";
-import { NotFoundComponent } from "~/routes/-components/not-found";
-import { PendingComponent } from "~/routes/-components/pending";
+import { ErrorComponent } from "~/components/layouts/error";
+import { NotFoundComponent } from "~/components/layouts/not-found";
+import { PendingComponent } from "~/components/layouts/pending";
 
 import appCss from "~/styles.css?url";
 

@@ -9,7 +9,7 @@ case "$f" in
   *) exit 0 ;;
 esac
 case "$f" in
-  *routeTree.gen.ts | */lib/api/generated/*) exit 0 ;;
+  *routeTree.gen.ts | */lib/api/generated/* | */vite-env.d.ts) exit 0 ;;
 esac
 [ -f "$f" ] || exit 0
 
