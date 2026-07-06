@@ -11,7 +11,7 @@ The Zenn article recommends a pattern where public functions handle only authent
 **This project treats the official guidance as authoritative:**
 
 - The idea shared by both sources — "public functions should be thin, with logic in a separate layer" — is adopted (see CVX-02).
-- However, the delegation mechanism is **direct calls to helper functions in `convex/model/`**, not `ctx.run*` (same transaction, lower overhead).
+- However, the delegation mechanism is **direct calls to helper functions in `convex/services/<domain>/`**, not `ctx.run*` (same transaction, lower overhead).
 - `ctx.run*` may only be used for the exception cases covered by CVX-07 / CVX-08 (DB operations from an action, scheduler/crons, components, partial rollback).
 
 ---
@@ -27,21 +27,23 @@ Use the six combinations of `query` / `mutation` / `action` × (public / interna
 - action: external APIs, long-running work. No direct DB access (goes through `ctx.run*`).
 - Only make something a public function if the client calls it directly; make everything else `internalQuery` / `internalMutation` / `internalAction`.
 
-### CVX-02: Public Functions Are a "Thin API Layer"; Logic Lives in `convex/model/` 〔Zenn + Official (reconciled)〕
+### CVX-02: Public Functions Are a "Thin API Layer"; Logic Lives in `convex/services/` 〔Zenn + Official (reconciled)〕
 
-A public function's responsibility is only these three things: (1) argument validation (declared via a validator), (2) authentication/authorization, and (3) calling a model-layer helper. Business logic, multi-table operations, and derived calculations belong in plain TypeScript functions in `convex/model/<domain>.ts` (which take `QueryCtx` / `MutationCtx` as their first argument).
+A public function's responsibility is only these three things: (1) argument validation (declared via a validator), (2) authentication/authorization, and (3) calling a services-layer helper. Business logic, multi-table operations, and derived calculations belong in plain TypeScript functions in `convex/services/<domain>/<functionName>.ts` (which take `QueryCtx` / `MutationCtx` as their first argument). Per CVX-20, `queries/`, `mutations/`, `actions/`, and `services/` are each split by domain, one file per function.
 
 ```ts
-// ✅ convex/sessions.ts (API layer: thin)
+// ✅ convex/mutations/sessions/start.ts (API layer: thin)
+import { start as startSession } from "../../services/sessions/start";
+
 export const start = mutation({
   args: { category: categoryValidator, plannedMinutes: v.optional(v.number()),
           blockId: v.optional(v.id("studyBlocks")), dateJst: v.string() },
   handler: async (ctx, args) => {
     const user = await requireUser(ctx);            // auth (CVX-04)
-    return Sessions.start(ctx, user, args);          // delegate logic to model
+    return startSession(ctx, user, args);            // delegate logic to services layer
   },
 });
-// ✅ convex/model/sessions.ts (logic layer)
+// ✅ convex/services/sessions/start.ts (logic layer)
 export async function start(ctx: MutationCtx, user: Doc<"appUsers">, args: StartArgs) { ... }
 ```
 
@@ -74,7 +76,7 @@ A helper function is sufficient within the same transaction. The only exceptions
 
 ### CVX-09: Separate Pure Functions from Side Effects; Do Not Use Classes 〔Zenn〕
 
-Place computational logic (elapsed-time derivation, reschedule-candidate calculation, correlation coefficients, synthetic data generation) as side-effect-free pure functions in `convex/model/` or `src/shared/` so they are unit-testable. Keep state in the database, not in classes. Implement everything function-based.
+Place computational logic (elapsed-time derivation, reschedule-candidate calculation, correlation coefficients, synthetic data generation) as side-effect-free pure functions in `convex/services/<domain>/` or `src/shared/` so they are unit-testable. Keep state in the database, not in classes. Implement everything function-based.
 Applies to this project: `elapsed(session, now)`, `suggestRescheduleSlots(blocks, nowHm)`, `pearson(xs, ys)`, and `nextDemoMetric(prev, rand)` are extracted as pure functions.
 
 ---
@@ -141,38 +143,37 @@ Build the test environment with `convexTest(schema)`, and mock authentication wi
 
 ```
 convex/
-├── schema.ts                      // schema definition
+├── schema.ts                        // schema definition (CVX-16)
+├── auth.ts / auth.config.ts / http.ts   // Convex Auth framework files — not domain content, stay flat at convex/ root
+├── crons.ts                         // cron definitions — internal.* targets only (CVX-05)
 ├── actions/
-│   ├── articles/
-│   │   ├── publishArticle.ts      // external integration
-│   │   └── ...                    // other actions
-│   └── ...
-├── api/
-│   ├── articles/
-│   │   ├── getUserArticles.ts     // API called from the frontend
-│   │   └── ...                    // other APIs
+│   ├── <domain>/
+│   │   ├── <actionName>.ts          // external integration / "use node", one file per action
+│   │   └── ...
 │   └── ...
 ├── queries/
-│   ├── articles/
-│   │   ├── getArticle.ts          // Read (single)
-│   │   ├── getArticles.ts         // Read (list)
-│   │   └── searchArticles.ts      // Read (search)
+│   ├── <domain>/
+│   │   ├── <queryName>.ts           // public query — one file per function; this project's client-facing API (no separate api/ layer, see below)
+│   │   └── ...
 │   └── ...
 ├── mutations/
-│   ├── articles/
-│   │   ├── createArticle.ts       // Create
-│   │   ├── updateArticle.ts       // Update
-│   │   └── deleteArticle.ts       // Delete
+│   ├── <domain>/
+│   │   ├── <mutationName>.ts        // public mutation — one file per function; this project's client-facing API
+│   │   └── ...
 │   └── ...
 ├── services/
-│   ├── articles/
-│   │   ├── formatArticleForSEO.ts // pure function
-│   │   └── ...                    // other service functions
+│   ├── <domain>/
+│   │   ├── <functionName>.ts        // business logic (ctx-based, CVX-02) and side-effect-free pure functions (CVX-09) — one file per function
+│   │   └── ...
 │   └── ...
-└── ...                            // other directories
+└── lib/                             // cross-cutting, NOT split by domain: requireUser/requireSelf (CVX-04), JST date helpers, shared validators (CVX-16)
 ```
 
-This project does not adopt the queries/ mutations/ directory split shown in the Zenn article, since that level of separation is excessive for this project's scale. Instead, it uses two layers: one file per domain, plus the model layer (consistent with spec.md §2).
+This project adopts the Zenn article's `queries/` / `mutations/` / `actions/` / `services/` domain split literally, with one deliberate deviation: **no separate `api/` directory**. In Convex, a registered `query` / `mutation` / `action` is already the client-facing API (`api.queries.<domain>.<fn>`, `api.mutations.<domain>.<fn>`) — an additional `api/` wrapper layer on top would just re-export the same function and add no value (see CVX-01/CVX-02). `services/` is this project's name for what earlier drafts called `model/`: the same ctx-based business-logic helpers (CVX-02) and pure functions (CVX-09), now organized one file per function under `services/<domain>/` instead of one file per domain. `lib/` is intentionally **not** part of the domain split — it holds cross-cutting concerns (auth guards, date helpers, shared validators) used by every domain, matching its role in spec.md §2.
+
+`internalQuery` / `internalMutation` / `internalAction` (CVX-01) live in the same `queries/` / `mutations/` / `actions/` domain folder as their public counterparts, not in a separate tree — the query/mutation/action type already distinguishes them, and `crons.ts` / `ctx.scheduler.*` referencing only `internal.*` (CVX-05) is what's actually enforced, not file placement.
+
+**Note on dotted shorthand elsewhere in this document**: other rules below (e.g. CVX-05/06/07) refer to not-yet-implemented functions with a shorthand `<domain>.<function>` form (e.g. `fasting.advancePhase`, `internal.garmin.syncDaily`) predating this directory split. Under CVX-20's actual generated `api`/`internal` object, a function `<function>` exported from `convex/actions/<domain>/<function>.ts` is addressed as `internal.actions.<domain>.<function>.<function>` (module path, then export name — the same doubled final segment shown in the CVX-02 example above whenever the export name matches the filename). Treat every such shorthand mention as referring to that full path, not a literal one.
 
 ---
 
