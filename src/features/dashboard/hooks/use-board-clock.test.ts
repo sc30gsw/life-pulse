@@ -46,3 +46,12 @@ test("updates nowMs and dateJst on the one-second clock tick", () => {
   expect(result.current.nowMs).toBeGreaterThan(FIXED_NOW);
   expect(result.current.dateJst).toBe("2026-07-08");
 });
+
+test("clears the clock interval on unmount", () => {
+  const clearIntervalSpy = vi.spyOn(globalThis, "clearInterval");
+  const { unmount } = renderHook(() => useBoardClock());
+
+  unmount();
+
+  expect(clearIntervalSpy).toHaveBeenCalled();
+});

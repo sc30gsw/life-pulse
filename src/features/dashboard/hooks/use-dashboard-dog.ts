@@ -54,7 +54,7 @@ export function useDashboardDog() {
 
     modals.openConfirmModal({
       centered: true,
-      cancelProps: { className: "border-bd bg-inset text-main" },
+      cancelProps: { className: "border-bd bg-inset text-tx hover:bg-panel-2" },
       confirmProps: { style: ACCENT_SOLID_STYLE.coral },
       labels: { cancel: "キャンセル", confirm: "取り消す" },
       onConfirm: () => {
@@ -66,7 +66,7 @@ export function useDashboardDog() {
             },
             onSuccess: () => {
               notifications.show({
-                color: "gray",
+                color: "red",
                 message: `${dog.dogName}の${DOG_EVENT_LABELS[kind]}を取り消しました`,
                 title: "取り消しました",
               });

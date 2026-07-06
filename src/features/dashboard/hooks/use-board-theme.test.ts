@@ -25,3 +25,15 @@ test("onToggleTheme flips the theme and updates the document dataset", () => {
   expect(result.current.theme).toBe("light");
   expect(document.documentElement.dataset.theme).toBe("light");
 });
+
+test("onToggleTheme flips light mode back to dark mode", () => {
+  const { result } = renderHook(() => useBoardTheme());
+
+  act(() => {
+    result.current.onToggleTheme();
+    result.current.onToggleTheme();
+  });
+
+  expect(result.current.theme).toBe("dark");
+  expect(document.documentElement.dataset.theme).toBe("dark");
+});
