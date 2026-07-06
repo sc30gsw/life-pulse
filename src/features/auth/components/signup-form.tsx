@@ -6,9 +6,9 @@ import { IconLock, IconMail, IconUser, IconUserPlus, IconUsers } from "@tabler/i
 import { Result } from "better-result";
 import { ConvexError } from "convex/values";
 
-import { getFieldError } from "~/features/auth/components/field-error";
 import { SignupSchema } from "~/features/auth/schemas/signup-schema";
 import { AuthError } from "~/features/auth/types/auth-error";
+import { getFieldError } from "~/utils/field-error";
 
 export function SignupForm() {
   const { signIn } = useAuthActions();

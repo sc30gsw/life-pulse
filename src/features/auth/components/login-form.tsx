@@ -6,9 +6,9 @@ import { IconLock, IconLogin2, IconMail } from "@tabler/icons-react";
 import { Result } from "better-result";
 import { ConvexError } from "convex/values";
 
-import { getFieldError } from "~/features/auth/components/field-error";
 import { LoginSchema } from "~/features/auth/schemas/login-schema";
 import { AuthError } from "~/features/auth/types/auth-error";
+import { getFieldError } from "~/utils/field-error";
 
 export function LoginForm() {
   const { signIn } = useAuthActions();
