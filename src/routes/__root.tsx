@@ -1,15 +1,17 @@
 /// <reference types="vite-plus/client" />
 import { MantineProvider } from "@mantine/core";
+import { Notifications } from "@mantine/notifications";
 import { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext } from "@tanstack/react-router";
 import { HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { Suspense, lazy } from "react";
 
-import { theme } from "~/lib/theme";
 import { ErrorComponent } from "~/components/layouts/error";
 import { NotFoundComponent } from "~/components/layouts/not-found";
 import { PendingComponent } from "~/components/layouts/pending";
+import { theme } from "~/lib/theme";
 
+import notificationsCss from "@mantine/notifications/styles.css?url";
 import appCss from "~/styles.css?url";
 
 const TanStackRouterDevtools = import.meta.env.DEV
@@ -25,7 +27,16 @@ export const Route = createRootRouteWithContext<{
   component: RootComponent,
   errorComponent: ErrorComponent,
   head: () => ({
-    links: [{ href: appCss, rel: "stylesheet" }],
+    links: [
+      { href: "https://fonts.googleapis.com", rel: "preconnect" },
+      { crossOrigin: "anonymous", href: "https://fonts.gstatic.com", rel: "preconnect" },
+      {
+        href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap",
+        rel: "stylesheet",
+      },
+      { href: appCss, rel: "stylesheet" },
+      { href: notificationsCss, rel: "stylesheet" },
+    ],
     meta: [
       { charSet: "utf-8" },
       { content: "width=device-width, initial-scale=1", name: "viewport" },
@@ -43,7 +54,8 @@ function RootComponent() {
         <HeadContent />
       </head>
       <body>
-        <MantineProvider theme={theme}>
+        <MantineProvider defaultColorScheme="dark" theme={theme}>
+          <Notifications />
           <Outlet />
           {TanStackRouterDevtools ? (
             <Suspense fallback={null}>

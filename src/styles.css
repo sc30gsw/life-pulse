@@ -2,3 +2,69 @@
 
 @import "@mantine/dates/styles.layer.css";
 @import "@mantine/charts/styles.layer.css";
+
+/* Live Board design tokens — source of truth: docs/design/live-board.md */
+:root {
+  --bg: #0e1016;
+  --panel: #171a22;
+  --panel2: #1e222c;
+  --inset: #12141b;
+  --bd: rgba(255, 255, 255, 0.075);
+  --bd2: rgba(255, 255, 255, 0.14);
+  --tx: #e9ecf2;
+  --dim: #98a1b2;
+  --faint: #5b6474;
+  --good: oklch(0.8 0.13 152);
+  --amber: oklch(0.83 0.13 78);
+  --blue: oklch(0.77 0.12 250);
+  --coral: oklch(0.79 0.14 34);
+  --violet: oklch(0.75 0.12 305);
+  --cardsh: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 10px 30px -12px rgba(0, 0, 0, 0.7);
+  --flash: rgba(126, 206, 168, 0.16);
+}
+
+[data-theme="light"] {
+  --bg: #e9e6df;
+  --panel: #fbfaf7;
+  --panel2: #f1efe9;
+  --inset: #e4e1d9;
+  --bd: rgba(24, 24, 30, 0.09);
+  --bd2: rgba(24, 24, 30, 0.17);
+  --tx: #1b1d24;
+  --dim: #5a6270;
+  --faint: #8a92a2;
+  --good: oklch(0.6 0.15 152);
+  --amber: oklch(0.66 0.14 72);
+  --blue: oklch(0.55 0.16 255);
+  --coral: oklch(0.58 0.17 32);
+  --violet: oklch(0.55 0.16 305);
+  --cardsh: 0 1px 2px rgba(20, 20, 30, 0.05), 0 8px 24px -14px rgba(20, 20, 40, 0.35);
+  --flash: rgba(60, 160, 110, 0.14);
+}
+
+@theme {
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-panel-2: var(--panel2);
+  --color-inset: var(--inset);
+  --color-tx: var(--tx);
+  --color-dim: var(--dim);
+  --color-faint: var(--faint);
+  --color-bd: var(--bd);
+  --color-bd-2: var(--bd2);
+  --color-good: var(--good);
+  --color-amber: var(--amber);
+  --color-blue: var(--blue);
+  --color-coral: var(--coral);
+  --color-violet: var(--violet);
+  --color-flash: var(--flash);
+  --shadow-card: var(--cardsh);
+}
+
+body {
+  background: var(--bg);
+  color: var(--tx);
+  transition:
+    background 0.35s ease,
+    color 0.35s ease;
+}

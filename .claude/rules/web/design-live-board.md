@@ -5,6 +5,7 @@ alwaysApply: true
 ---
 
 # Design Adherence — Live Board
+
 You must use the prompt when you create UI.
 
 ```
@@ -19,8 +20,6 @@ Implement: Live Board.dc.html
 - Canonical design: claude_design project `9bc66e31-1c1d-4e0b-8082-c955660c6963`, file `Live Board.dc.html`
 - Repo summary + implementation mapping: `docs/design/live-board.md` — read it before any UI work
 - If this rule, the summary doc, and the design file disagree: **the design file wins**
-
-
 
 ## Rules
 
