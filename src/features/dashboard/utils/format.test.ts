@@ -86,8 +86,8 @@ test("formatRelativeTime returns days-ago for deltas of a day or more", () => {
 
 test("formatClockTime and formatClockDate format against Asia/Tokyo", () => {
   const nowMs = Date.UTC(2026, 6, 7, 3, 15, 0);
-  expect(formatClockTime(nowMs)).toBe("12:15");
-  expect(formatClockDate(nowMs)).toContain("7");
+  expect(formatClockTime(nowMs)).toBe("12:15:00");
+  expect(formatClockDate(nowMs)).toBe("2026/7/7(火)");
 });
 
 test("deriveSessionElapsedMs returns 0 when there is no session", () => {

@@ -95,6 +95,7 @@ test("opens the undo confirmation for a completed dog event", () => {
 
   expect(testState.openConfirmModal).toHaveBeenCalledWith(
     expect.objectContaining({
+      cancelProps: { className: "border-bd bg-inset text-tx hover:bg-panel-2" },
       labels: { cancel: "キャンセル", confirm: "取り消す" },
       title: "記録を取り消しますか?",
     }),
@@ -119,7 +120,7 @@ test("opens the undo confirmation for a completed dog event", () => {
   callbacks.onError();
 
   expect(testState.show).toHaveBeenCalledWith({
-    color: "gray",
+    color: "red",
     message: "ハマロの朝ごはんを取り消しました",
     title: "取り消しました",
   });
