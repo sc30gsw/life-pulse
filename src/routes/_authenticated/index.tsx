@@ -32,7 +32,7 @@ function Home() {
       />
       <LiveStrip lastSyncRelativeLabel={board.lastSyncRelativeLabel} />
       <main className="flex flex-col gap-4 lg:flex-row lg:items-stretch">
-        <section className="flex min-w-0 flex-col gap-4 lg:flex-[3]">
+        <section className="flex min-w-0 flex-col gap-4 lg:flex-3">
           <SessionFastingCard
             declarationActualMinutes={board.declarationActualMinutes}
             declarationActualPercent={board.declarationActualPercent}
@@ -56,7 +56,7 @@ function Home() {
           />
           <HealthMetricsGrid metrics={board.fixture.metrics} />
         </section>
-        <section className="flex min-w-0 flex-col gap-4 lg:flex-[2]">
+        <section className="flex min-w-0 flex-col gap-4 lg:flex-2">
           <PartnerCard
             isPartnerView={board.perspective === "partner"}
             onSetPresence={board.onSetPartnerPresence}

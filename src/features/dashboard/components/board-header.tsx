@@ -1,4 +1,5 @@
 import { ActionIcon, Box, Group, Paper, Stack, Text, UnstyledButton } from "@mantine/core";
+import { IconMoon, IconSun } from "@tabler/icons-react";
 import { cn } from "cnfast";
 import type { ReactNode } from "react";
 
@@ -122,7 +123,7 @@ export function BoardHeader({
         className="border-bd bg-inset"
         aria-label={theme === "dark" ? "ライトモードに切り替え" : "ダークモードに切り替え"}
       >
-        {theme === "dark" ? "☾" : "☀"}
+        {theme === "dark" ? <IconMoon size={16} className="text-white" /> : <IconSun size={16} />}
       </ActionIcon>
 
       {userMenuSlot}
