@@ -3,7 +3,6 @@ import { Suspense } from "react";
 
 import { PendingComponent } from "~/components/layouts/pending";
 import { UserMenu, UserMenuFallback } from "~/features/auth/components/user-menu";
-import { dashboardLiveQuery } from "~/features/dashboard/api/dashboard-live-query";
 import { BoardHeader } from "~/features/dashboard/components/board-header";
 import { BoardToast } from "~/features/dashboard/components/board-toast";
 import { DogCard } from "~/features/dashboard/components/dog-card";
@@ -12,7 +11,6 @@ import { LiveStrip } from "~/features/dashboard/components/live-strip";
 import { PartnerCard } from "~/features/dashboard/components/partner-card";
 import { SessionFastingCard } from "~/features/dashboard/components/session-fasting-card";
 import { useLiveBoard } from "~/features/dashboard/hooks/use-live-board";
-import { todayJst } from "~/utils/date-jst";
 
 export const Route = createFileRoute("/_authenticated/")({
   component: () => (
@@ -20,8 +18,6 @@ export const Route = createFileRoute("/_authenticated/")({
       <Home />
     </Suspense>
   ),
-  loader: ({ context: { queryClient } }) =>
-    queryClient.ensureQueryData(dashboardLiveQuery(todayJst())),
 });
 
 function Home() {

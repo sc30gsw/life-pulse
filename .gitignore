@@ -29,3 +29,6 @@ dist
 # docs
 docs/design/
 docs/plans/
+
+# coverage
+coverage/
