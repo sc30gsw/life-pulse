@@ -12,7 +12,7 @@ const reactDoctorRules = {
 
 export default defineConfig({
   fmt: {
-    ignorePatterns: ["**/routeTree.gen.ts"],
+    ignorePatterns: ["**/routeTree.gen.ts", "convex/_generated/**"],
     sortImports: {
       partitionByComment: true,
     },
@@ -40,7 +40,7 @@ export default defineConfig({
     },
     overrides: [
       {
-        files: ["src/router.tsx", "*.config.ts"],
+        files: ["src/router.tsx", "*.config.ts", "convex/schema.ts", "convex/http.ts"],
         rules: {
           "no-default-export": "off",
         },
@@ -75,6 +75,6 @@ export default defineConfig({
     babel({ presets: [reactCompilerPreset()] }),
   ],
   test: {
-    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+    include: ["src/**/*.test.ts", "src/**/*.test.tsx", "convex/**/*.test.ts"],
   },
 });

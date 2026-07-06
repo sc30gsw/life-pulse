@@ -1,6 +1,7 @@
 ---
 description: "Builds reusable Convex components with isolated tables and app-facing APIs. Use for new components, reusable backend modules, integrations, or component boundary work."
 ---
+
 # Convex Create Component
 
 Create reusable Convex components with clear boundaries and a small app-facing
@@ -126,9 +127,7 @@ export const listUnread = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("notifications")
-      .withIndex("by_user_read", (q) =>
-        q.eq("userId", args.userId).eq("read", false),
-      )
+      .withIndex("by_user_read", (q) => q.eq("userId", args.userId).eq("read", false))
       .collect();
   },
 });
