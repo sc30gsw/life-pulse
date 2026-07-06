@@ -94,10 +94,10 @@ export const DOG_EVENT_LABELS = {
   walk_pm: "夜散歩",
 } as const satisfies Record<DogEventKind, string>;
 
-export type ToastAccent = "good" | "amber" | "blue" | "coral" | "violet" | "faint";
+export type AccentName = "good" | "amber" | "blue" | "coral" | "violet" | "faint";
 
 // Shared accent → Tailwind token class mapping. All chips/dots/pills across the board
-// (session status, fasting phase, partner presence, dog care, toasts) key off this
+// (session status, fasting phase, partner presence, dog care) key off this
 // single map so accent colors stay consistent without hardcoding hex anywhere.
 export const ACCENT_CLASSES = {
   amber: { bg: "bg-amber/16", border: "border-amber", text: "text-amber" },
@@ -106,7 +106,7 @@ export const ACCENT_CLASSES = {
   faint: { bg: "bg-inset", border: "border-bd-2", text: "text-faint" },
   good: { bg: "bg-good/16", border: "border-good", text: "text-good" },
   violet: { bg: "bg-violet/16", border: "border-violet", text: "text-violet" },
-} as const satisfies Record<ToastAccent, Record<"bg" | "border" | "text", string>>;
+} as const satisfies Record<AccentName, Record<"bg" | "border" | "text", string>>;
 
 // Raw CSS custom-property references, for Mantine props that apply a color directly
 // without computing a light/dark variant (Progress `color`, RingProgress section `color`).
@@ -117,7 +117,7 @@ export const ACCENT_VARS = {
   faint: "var(--faint)",
   good: "var(--good)",
   violet: "var(--violet)",
-} as const satisfies Record<ToastAccent, string>;
+} as const satisfies Record<AccentName, string>;
 
 // Ready-made {backgroundColor, color} pairs for solid Mantine elements (Button, Badge)
 // whose built-in variant/auto-contrast color math cannot resolve an opaque CSS custom
@@ -131,13 +131,6 @@ export const ACCENT_SOLID_STYLE = {
   faint: { backgroundColor: "var(--faint)", color: "var(--bg)" },
   good: { backgroundColor: "var(--good)", color: "var(--bg)" },
   violet: { backgroundColor: "var(--violet)", color: "var(--bg)" },
-} as const satisfies Record<ToastAccent, Record<"backgroundColor" | "color", string>>;
-
-export type BoardToast = {
-  accent: ToastAccent;
-  id: number;
-  text: string;
-  who: string;
-};
+} as const satisfies Record<AccentName, Record<"backgroundColor" | "color", string>>;
 
 export type ThemeMode = "dark" | "light";

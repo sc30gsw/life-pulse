@@ -2,7 +2,7 @@
 import { expect, test } from "vite-plus/test";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
-import { HealthMetricsGrid } from "~/features/dashboard/components/health-metrics-grid";
+import { HealthMetricsGridView } from "~/features/dashboard/components/health-metrics-grid";
 import { renderWithMantine } from "~/test-utils";
 
 function buildMetrics(overrides: Partial<Doc<"healthMetrics">> = {}): Doc<"healthMetrics"> {
@@ -17,7 +17,7 @@ function buildMetrics(overrides: Partial<Doc<"healthMetrics">> = {}): Doc<"healt
 }
 
 test("renders 未計測 when metrics is null", () => {
-  const { getByText } = renderWithMantine(<HealthMetricsGrid metrics={null} />);
+  const { getByText } = renderWithMantine(<HealthMetricsGridView metrics={null} />);
 
   expect(getByText("未計測")).toBeDefined();
 });
@@ -32,7 +32,7 @@ test("renders the source label and full metric values", () => {
     source: "garmin",
     steps: 8_432,
   });
-  const { getByText } = renderWithMantine(<HealthMetricsGrid metrics={metrics} />);
+  const { getByText } = renderWithMantine(<HealthMetricsGridView metrics={metrics} />);
 
   expect(getByText("source: garmin")).toBeDefined();
   expect(getByText("72")).toBeDefined();
@@ -44,7 +44,9 @@ test("renders the source label and full metric values", () => {
 
 test("falls back to defaults/dashes when optional metrics are undefined", () => {
   const metrics = buildMetrics({ source: "manual" });
-  const { getByText, getAllByText } = renderWithMantine(<HealthMetricsGrid metrics={metrics} />);
+  const { getByText, getAllByText } = renderWithMantine(
+    <HealthMetricsGridView metrics={metrics} />,
+  );
 
   expect(getByText("source: manual")).toBeDefined();
   // sleepHoursLabel, hrv, and restingHr each fall back to "—" independently.

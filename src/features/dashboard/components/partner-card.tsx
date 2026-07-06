@@ -10,9 +10,10 @@ import {
   UnstyledButton,
 } from "@mantine/core";
 import { cn } from "cnfast";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
-import type { useLiveBoard } from "~/features/dashboard/hooks/use-live-board";
+import { useDashboardPresence } from "~/features/dashboard/hooks/use-dashboard-presence";
+import { useDashboardViewer } from "~/features/dashboard/hooks/use-dashboard-viewer";
 import {
   ACCENT_CLASSES,
   ACCENT_SOLID_STYLE,
@@ -32,16 +33,11 @@ const PRESENCE_ACCENTS = {
 
 const PRESENCE_STATES = Object.keys(PRESENCE_LABELS) as PresenceState[];
 
-export function PartnerCard({
-  isPartnerView,
-  onSetPresence,
-  partner,
-  partnerFlash,
-  partnerUpdatedRelativeLabel,
-}: Pick<
-  ReturnType<typeof useLiveBoard>,
-  "isPartnerView" | "onSetPresence" | "partner" | "partnerFlash" | "partnerUpdatedRelativeLabel"
->) {
+export function PartnerCard() {
+  const { partner, partnerFlash, partnerUpdatedRelativeLabel } = useDashboardPresence();
+  const viewer = useDashboardViewer();
+  const isPartnerView = viewer.role === "partner";
+
   const [etaInput, setEtaInput] = useState("");
   const accent = partner === null ? "faint" : PRESENCE_ACCENTS[partner.state];
 

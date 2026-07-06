@@ -3,7 +3,7 @@ import type { ComponentProps } from "react";
 import { expect, test, vi } from "vite-plus/test";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
-import { SessionFastingCard } from "~/features/dashboard/components/session-fasting-card";
+import { SessionFastingCardView } from "~/features/dashboard/components/session-fasting-card";
 import { renderWithMantine } from "~/test-utils";
 
 function buildSession(overrides: Partial<Doc<"studySessions">> = {}): Doc<"studySessions"> {
@@ -35,7 +35,7 @@ function buildFasting(overrides: Partial<Doc<"fastingWindows">> = {}): Doc<"fast
   } as unknown as Doc<"fastingWindows">;
 }
 
-const BASE_PROPS: ComponentProps<typeof SessionFastingCard> = {
+const BASE_PROPS: ComponentProps<typeof SessionFastingCardView> = {
   declarationActualMinutes: 30,
   declarationActualPercent: 50,
   declarationTotalMinutes: 60,
@@ -58,7 +58,7 @@ const BASE_PROPS: ComponentProps<typeof SessionFastingCard> = {
 };
 
 test("renders 待機 and a start button when there is no session (idle)", () => {
-  const { getByText, getByRole } = renderWithMantine(<SessionFastingCard {...BASE_PROPS} />);
+  const { getByText, getByRole } = renderWithMantine(<SessionFastingCardView {...BASE_PROPS} />);
 
   expect(getByText("待機")).toBeDefined();
   expect(getByRole("button", { name: "セッション開始" })).toBeDefined();
@@ -66,7 +66,7 @@ test("renders 待機 and a start button when there is no session (idle)", () => 
 
 test("renders 勉強中, category, and pause reasons for an active session", () => {
   const { getByText, getByRole } = renderWithMantine(
-    <SessionFastingCard {...BASE_PROPS} session={buildSession({ status: "active" })} />,
+    <SessionFastingCardView {...BASE_PROPS} session={buildSession({ status: "active" })} />,
   );
 
   expect(getByText("勉強中")).toBeDefined();
@@ -79,7 +79,7 @@ test("renders 勉強中, category, and pause reasons for an active session", () 
 
 test("renders 中断中 and resume/complete buttons for a paused session", () => {
   const { getByText, getByRole } = renderWithMantine(
-    <SessionFastingCard {...BASE_PROPS} session={buildSession({ status: "paused" })} />,
+    <SessionFastingCardView {...BASE_PROPS} session={buildSession({ status: "paused" })} />,
   );
 
   expect(getByText("中断中")).toBeDefined();
@@ -89,7 +89,7 @@ test("renders 中断中 and resume/complete buttons for a paused session", () =>
 
 test("renders 完了 and a start button for a completed session", () => {
   const { getByText, getByRole } = renderWithMantine(
-    <SessionFastingCard {...BASE_PROPS} session={buildSession({ status: "completed" })} />,
+    <SessionFastingCardView {...BASE_PROPS} session={buildSession({ status: "completed" })} />,
   );
 
   expect(getByText("完了")).toBeDefined();
@@ -98,28 +98,32 @@ test("renders 完了 and a start button for a completed session", () => {
 
 test("renders 放置終了 for an abandoned session", () => {
   const { getByText } = renderWithMantine(
-    <SessionFastingCard {...BASE_PROPS} session={buildSession({ status: "abandoned" })} />,
+    <SessionFastingCardView {...BASE_PROPS} session={buildSession({ status: "abandoned" })} />,
   );
 
   expect(getByText("放置終了")).toBeDefined();
 });
 
 test("shows the YOU badge in self view", () => {
-  const { getByText } = renderWithMantine(<SessionFastingCard {...BASE_PROPS} isSelfView={true} />);
+  const { getByText } = renderWithMantine(
+    <SessionFastingCardView {...BASE_PROPS} isSelfView={true} />,
+  );
 
   expect(getByText("YOU")).toBeDefined();
 });
 
 test("hides the YOU badge outside self view", () => {
   const { queryByText } = renderWithMantine(
-    <SessionFastingCard {...BASE_PROPS} isSelfView={false} />,
+    <SessionFastingCardView {...BASE_PROPS} isSelfView={false} />,
   );
 
   expect(queryByText("YOU")).toBeNull();
 });
 
 test("renders 未開始 when fasting is null", () => {
-  const { getByText } = renderWithMantine(<SessionFastingCard {...BASE_PROPS} fasting={null} />);
+  const { getByText } = renderWithMantine(
+    <SessionFastingCardView {...BASE_PROPS} fasting={null} />,
+  );
 
   expect(getByText("未開始")).toBeDefined();
   expect(getByText("断食を開始していません")).toBeDefined();
@@ -127,7 +131,7 @@ test("renders 未開始 when fasting is null", () => {
 
 test("renders the early-phase label and sub-label when fasting", () => {
   const { getByText } = renderWithMantine(
-    <SessionFastingCard {...BASE_PROPS} fasting={buildFasting({ phase: "early" })} />,
+    <SessionFastingCardView {...BASE_PROPS} fasting={buildFasting({ phase: "early" })} />,
   );
 
   expect(getByText("空腹期")).toBeDefined();
@@ -136,7 +140,7 @@ test("renders the early-phase label and sub-label when fasting", () => {
 
 test("renders the fatburn-phase label and sub-label when fasting", () => {
   const { getByText } = renderWithMantine(
-    <SessionFastingCard {...BASE_PROPS} fasting={buildFasting({ phase: "fatburn" })} />,
+    <SessionFastingCardView {...BASE_PROPS} fasting={buildFasting({ phase: "fatburn" })} />,
   );
 
   expect(getByText("脂肪燃焼帯")).toBeDefined();
@@ -145,7 +149,7 @@ test("renders the fatburn-phase label and sub-label when fasting", () => {
 
 test("renders the goal-phase label and sub-label when fasting", () => {
   const { getByText } = renderWithMantine(
-    <SessionFastingCard {...BASE_PROPS} fasting={buildFasting({ phase: "goal" })} />,
+    <SessionFastingCardView {...BASE_PROPS} fasting={buildFasting({ phase: "goal" })} />,
   );
 
   expect(getByText("目標達成")).toBeDefined();

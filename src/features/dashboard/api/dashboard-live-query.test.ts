@@ -2,15 +2,13 @@ import { getFunctionName } from "convex/server";
 import { expect, test } from "vite-plus/test";
 
 import { api } from "~/../convex/_generated/api";
-import {
-  dashboardDogQuery,
-  dashboardFastingQuery,
-  dashboardHealthQuery,
-  dashboardLiveQuery,
-  dashboardPresenceQuery,
-  dashboardStudyQuery,
-  dashboardViewerQuery,
-} from "~/features/dashboard/api/dashboard-live-query";
+import { dashboardDogQuery } from "~/features/dashboard/api/dashboard-dog-query";
+import { dashboardFastingQuery } from "~/features/dashboard/api/dashboard-fasting-query";
+import { dashboardHealthQuery } from "~/features/dashboard/api/dashboard-health-query";
+import { dashboardLiveQuery } from "~/features/dashboard/api/dashboard-live-query";
+import { dashboardPresenceQuery } from "~/features/dashboard/api/dashboard-presence-query";
+import { dashboardStudyQuery } from "~/features/dashboard/api/dashboard-study-query";
+import { dashboardViewerQuery } from "~/features/dashboard/api/dashboard-viewer-query";
 
 test("dashboardLiveQuery targets api.queries.dashboard.live.live with dateJst", () => {
   expect(dashboardLiveQuery("2026-07-07")).toEqual({

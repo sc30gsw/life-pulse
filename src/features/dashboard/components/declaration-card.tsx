@@ -1,6 +1,6 @@
 import { Box, Group, Progress, Stack, Text } from "@mantine/core";
 
-import type { useLiveBoard } from "~/features/dashboard/hooks/use-live-board";
+import type { useDashboardStudy } from "~/features/dashboard/hooks/use-dashboard-study";
 import {
   ACCENT_VARS,
   CATEGORY_LABELS,
@@ -17,10 +17,10 @@ const STATUS_ACCENT = {
 } as const satisfies Record<DeclarationStatus, keyof typeof ACCENT_VARS>;
 
 type DeclarationCardProps = {
-  actualMinutes: ReturnType<typeof useLiveBoard>["declarationActualMinutes"];
-  actualPercent: ReturnType<typeof useLiveBoard>["declarationActualPercent"];
-  declarations: ReturnType<typeof useLiveBoard>["declarations"];
-  totalMinutes: ReturnType<typeof useLiveBoard>["declarationTotalMinutes"];
+  actualMinutes: ReturnType<typeof useDashboardStudy>["declarationActualMinutes"];
+  actualPercent: ReturnType<typeof useDashboardStudy>["declarationActualPercent"];
+  declarations: ReturnType<typeof useDashboardStudy>["declarations"];
+  totalMinutes: ReturnType<typeof useDashboardStudy>["declarationTotalMinutes"];
 };
 
 export function DeclarationCard({

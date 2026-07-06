@@ -1,23 +1,16 @@
 import { ActionIcon, Box, Group, Stack, Text } from "@mantine/core";
 import { IconMoon, IconSun } from "@tabler/icons-react";
-import type { JSX } from "react";
+import { Suspense } from "react";
 
-import type { useLiveBoard } from "~/features/dashboard/hooks/use-live-board";
+import { UserMenu, UserMenuFallback } from "~/features/auth/components/user-menu";
+import { useBoardClock } from "~/features/dashboard/hooks/use-board-clock";
+import { useBoardTheme } from "~/features/dashboard/hooks/use-board-theme";
 import { ACCENT_VARS } from "~/features/dashboard/types/dashboard";
 
-type BoardHeaderProps = Pick<
-  ReturnType<typeof useLiveBoard>,
-  "clockDateLabel" | "clockTime" | "onToggleTheme" | "theme"
-> &
-  Record<"userMenuSlot", JSX.Element>;
+export function BoardHeader() {
+  const { clockDateLabel, clockTime } = useBoardClock();
+  const { onToggleTheme, theme } = useBoardTheme();
 
-export function BoardHeader({
-  clockDateLabel,
-  clockTime,
-  onToggleTheme,
-  theme,
-  userMenuSlot,
-}: BoardHeaderProps) {
   return (
     <Group component="header" wrap="wrap" gap="md" align="center">
       <Group mr="auto" gap={11}>
@@ -58,7 +51,9 @@ export function BoardHeader({
         {theme === "dark" ? <IconMoon size={16} className="text-white" /> : <IconSun size={16} />}
       </ActionIcon>
 
-      {userMenuSlot}
+      <Suspense fallback={<UserMenuFallback />}>
+        <UserMenu />
+      </Suspense>
     </Group>
   );
 }

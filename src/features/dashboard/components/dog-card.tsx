@@ -1,7 +1,7 @@
 import { Badge, Box, Group, Paper, Stack, Text, UnstyledButton } from "@mantine/core";
 import { cn } from "cnfast";
 
-import type { useLiveBoard } from "~/features/dashboard/hooks/use-live-board";
+import { useDashboardDog } from "~/features/dashboard/hooks/use-dashboard-dog";
 import {
   ACCENT_CLASSES,
   ACCENT_SOLID_STYLE,
@@ -9,12 +9,8 @@ import {
   DOG_EVENT_LABELS,
 } from "~/features/dashboard/types/dashboard";
 
-export function DogCard({
-  dogCare,
-  dogFlash,
-  dogName,
-  onToggleDogCare,
-}: Pick<ReturnType<typeof useLiveBoard>, "dogCare" | "dogFlash" | "dogName" | "onToggleDogCare">) {
+export function DogCard() {
+  const { dogCare, dogFlash, dogName, onToggleDogCare } = useDashboardDog();
   const pendingCount = dogCare.filter((item) => !item.done).length;
   const pendingAccent = pendingCount > 0 ? ACCENT_CLASSES.coral : ACCENT_CLASSES.good;
 

@@ -2,12 +2,12 @@
 import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vite-plus/test";
 
-import { PartnerCard } from "~/features/dashboard/components/partner-card";
+import { PartnerCardView } from "~/features/dashboard/components/partner-card";
 import { renderWithMantine } from "~/test-utils";
 
 test("shows 未設定 when partner is null", () => {
   const { getByText } = renderWithMantine(
-    <PartnerCard
+    <PartnerCardView
       isPartnerView={false}
       onSetPresence={vi.fn()}
       partner={null}
@@ -22,7 +22,7 @@ test("shows 未設定 when partner is null", () => {
 
 test("shows the presence label and sub-label when there is no ETA", () => {
   const { getByText } = renderWithMantine(
-    <PartnerCard
+    <PartnerCardView
       isPartnerView={false}
       onSetPresence={vi.fn()}
       partner={{ etaHm: undefined, state: "home", updatedAt: 0 }}
@@ -38,7 +38,7 @@ test("shows the presence label and sub-label when there is no ETA", () => {
 
 test("shows the ETA text instead of the sub-label when an ETA is set", () => {
   const { getByText } = renderWithMantine(
-    <PartnerCard
+    <PartnerCardView
       isPartnerView={false}
       onSetPresence={vi.fn()}
       partner={{ etaHm: "20:30", state: "commuting_home", updatedAt: 0 }}
@@ -52,7 +52,7 @@ test("shows the ETA text instead of the sub-label when an ETA is set", () => {
 
 test("hides the YOU badge and presence buttons when not the partner view", () => {
   const { queryByText, queryByRole } = renderWithMantine(
-    <PartnerCard
+    <PartnerCardView
       isPartnerView={false}
       onSetPresence={vi.fn()}
       partner={null}
@@ -69,7 +69,7 @@ test("shows the YOU badge and presence buttons, calling onSetPresence on click, 
   const onSetPresence = vi.fn();
   const user = userEvent.setup();
   const { getByText, getByRole } = renderWithMantine(
-    <PartnerCard
+    <PartnerCardView
       isPartnerView={true}
       onSetPresence={onSetPresence}
       partner={{ etaHm: undefined, state: "home", updatedAt: 0 }}
@@ -87,7 +87,7 @@ test("shows the YOU badge and presence buttons, calling onSetPresence on click, 
 
 test("hides the ETA input when not the partner view, even while commuting home", () => {
   const { queryByLabelText } = renderWithMantine(
-    <PartnerCard
+    <PartnerCardView
       isPartnerView={false}
       onSetPresence={vi.fn()}
       partner={{ etaHm: undefined, state: "commuting_home", updatedAt: 0 }}
@@ -101,7 +101,7 @@ test("hides the ETA input when not the partner view, even while commuting home",
 
 test("hides the ETA input in the partner view when the state is not commuting home", () => {
   const { queryByLabelText } = renderWithMantine(
-    <PartnerCard
+    <PartnerCardView
       isPartnerView={true}
       onSetPresence={vi.fn()}
       partner={{ etaHm: undefined, state: "home", updatedAt: 0 }}
@@ -117,7 +117,7 @@ test("shows the ETA input while commuting home in the partner view and submits t
   const onSetPresence = vi.fn();
   const user = userEvent.setup();
   const { getByLabelText, getByRole } = renderWithMantine(
-    <PartnerCard
+    <PartnerCardView
       isPartnerView={true}
       onSetPresence={onSetPresence}
       partner={{ etaHm: undefined, state: "commuting_home", updatedAt: 0 }}
@@ -136,7 +136,7 @@ test("submits undefined when the ETA input is left empty", async () => {
   const onSetPresence = vi.fn();
   const user = userEvent.setup();
   const { getByRole } = renderWithMantine(
-    <PartnerCard
+    <PartnerCardView
       isPartnerView={true}
       onSetPresence={onSetPresence}
       partner={{ etaHm: undefined, state: "commuting_home", updatedAt: 0 }}

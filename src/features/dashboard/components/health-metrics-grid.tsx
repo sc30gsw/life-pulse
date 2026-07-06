@@ -1,9 +1,11 @@
 import { Group, Paper, RingProgress, Stack, Text } from "@mantine/core";
 
-import type { useLiveBoard } from "~/features/dashboard/hooks/use-live-board";
+import { useDashboardHealth } from "~/features/dashboard/hooks/use-dashboard-health";
 import { ACCENT_VARS, HEALTH_SOURCE_LABELS } from "~/features/dashboard/types/dashboard";
 
-export function HealthMetricsGrid({ metrics }: Pick<ReturnType<typeof useLiveBoard>, "metrics">) {
+export function HealthMetricsGrid() {
+  const { metrics } = useDashboardHealth();
+
   if (metrics === null) {
     return (
       <Paper radius={18} p="lg" className="bg-panel border-bd shadow-card border">

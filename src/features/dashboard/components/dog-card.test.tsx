@@ -2,7 +2,7 @@
 import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vite-plus/test";
 
-import { DogCard } from "~/features/dashboard/components/dog-card";
+import { DogCardView } from "~/features/dashboard/components/dog-card";
 import { renderWithMantine } from "~/test-utils";
 
 const PENDING_ITEM = { at: null, by: null, done: false, kind: "walk_am" as const };
@@ -11,7 +11,7 @@ const DONE_PARTNER_ITEM = { at: 2000, by: "partner" as const, done: true, kind: 
 
 test("renders the dog name and its initial letter", () => {
   const { getByText } = renderWithMantine(
-    <DogCard dogCare={[]} dogFlash={false} dogName="ハマロ" onToggleDogCare={vi.fn()} />,
+    <DogCardView dogCare={[]} dogFlash={false} dogName="ハマロ" onToggleDogCare={vi.fn()} />,
   );
 
   expect(getByText("ハマロ")).toBeDefined();
@@ -20,7 +20,7 @@ test("renders the dog name and its initial letter", () => {
 
 test("shows the pending-count badge when some items are not done", () => {
   const { getByText } = renderWithMantine(
-    <DogCard
+    <DogCardView
       dogCare={[PENDING_ITEM, DONE_SELF_ITEM]}
       dogFlash={false}
       dogName="ハマロ"
@@ -33,7 +33,7 @@ test("shows the pending-count badge when some items are not done", () => {
 
 test("shows the all-done badge when every item is done", () => {
   const { getByText } = renderWithMantine(
-    <DogCard
+    <DogCardView
       dogCare={[DONE_SELF_ITEM, DONE_PARTNER_ITEM]}
       dogFlash={false}
       dogName="ハマロ"
@@ -46,7 +46,7 @@ test("shows the all-done badge when every item is done", () => {
 
 test("shows self/partner actor label for done items", () => {
   const { getByText } = renderWithMantine(
-    <DogCard
+    <DogCardView
       dogCare={[DONE_SELF_ITEM, DONE_PARTNER_ITEM]}
       dogFlash={false}
       dogName="ハマロ"
@@ -62,7 +62,7 @@ test("shows 未 for a pending item and calls onToggleDogCare with its kind on cl
   const onToggleDogCare = vi.fn();
   const user = userEvent.setup();
   const { getByText, getByRole } = renderWithMantine(
-    <DogCard
+    <DogCardView
       dogCare={[PENDING_ITEM]}
       dogFlash={false}
       dogName="ハマロ"
