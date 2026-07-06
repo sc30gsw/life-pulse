@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 
+import { PendingComponent } from "~/components/layouts/pending";
 import { UserMenu, UserMenuFallback } from "~/features/auth/components/user-menu";
+import { dashboardLiveQuery } from "~/features/dashboard/api/dashboard-live-query";
 import { BoardHeader } from "~/features/dashboard/components/board-header";
 import { BoardToast } from "~/features/dashboard/components/board-toast";
 import { DogCard } from "~/features/dashboard/components/dog-card";
@@ -9,25 +11,28 @@ import { HealthMetricsGrid } from "~/features/dashboard/components/health-metric
 import { LiveStrip } from "~/features/dashboard/components/live-strip";
 import { PartnerCard } from "~/features/dashboard/components/partner-card";
 import { SessionFastingCard } from "~/features/dashboard/components/session-fasting-card";
-import { useDemoBoard } from "~/features/dashboard/hooks/use-demo-board";
+import { useLiveBoard } from "~/features/dashboard/hooks/use-live-board";
+import { todayJst } from "~/utils/date-jst";
 
 export const Route = createFileRoute("/_authenticated/")({
-  component: Home,
+  component: () => (
+    <Suspense fallback={<PendingComponent />}>
+      <Home />
+    </Suspense>
+  ),
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(dashboardLiveQuery(todayJst())),
 });
 
 function Home() {
-  const board = useDemoBoard();
+  const board = useLiveBoard();
 
   return (
     <div className="min-h-dvh px-4 py-5 pb-16 sm:px-8 sm:py-6">
       <BoardHeader
         clockDateLabel={board.clockDateLabel}
         clockTime={board.clockTime}
-        isDemoRunning={board.isDemoRunning}
-        onSetPerspective={board.onSetPerspective}
-        onToggleDemo={board.onToggleDemo}
         onToggleTheme={board.onToggleTheme}
-        perspective={board.perspective}
         theme={board.theme}
         userMenuSlot={
           <Suspense fallback={<UserMenuFallback />}>
@@ -42,37 +47,37 @@ function Home() {
             declarationActualMinutes={board.declarationActualMinutes}
             declarationActualPercent={board.declarationActualPercent}
             declarationTotalMinutes={board.declarationTotalMinutes}
-            declarations={board.fixture.declarations}
+            declarations={board.declarations}
             fasting={board.fasting}
             fastingElapsedLabel={board.fastingElapsedLabel}
             fastingFlash={board.fastingFlash}
             fastingRemainLabel={board.fastingRemainLabel}
             fastingRingPercent={board.fastingRingPercent}
-            isSelfView={board.perspective === "self"}
-            onCompleteSession={board.onCompleteSession}
-            onPauseSession={board.onPauseSession}
-            onResumeSession={board.onResumeSession}
-            onStartSession={board.onStartSession}
-            session={board.fixture.session}
+            isSelfView={board.isSelfView}
+            onCompleteSession={() => {}}
+            onPauseSession={() => {}}
+            onResumeSession={() => {}}
+            onStartSession={() => {}}
+            session={board.session}
             sessionElapsedLabel={board.sessionElapsedLabel}
             sessionFlash={board.sessionFlash}
             sessionGoalLabel={board.sessionGoalLabel}
             sessionProgressPercent={board.sessionProgressPercent}
           />
-          <HealthMetricsGrid metrics={board.fixture.metrics} />
+          <HealthMetricsGrid metrics={board.metrics} />
         </section>
         <section className="flex min-w-0 flex-col gap-4 lg:flex-2">
           <PartnerCard
-            isPartnerView={board.perspective === "partner"}
-            onSetPresence={board.onSetPartnerPresence}
-            partner={board.fixture.partner}
+            isPartnerView={board.isPartnerView}
+            onSetPresence={board.onSetPresence}
+            partner={board.partner}
             partnerFlash={board.partnerFlash}
             partnerUpdatedRelativeLabel={board.partnerUpdatedRelativeLabel}
           />
           <DogCard
-            dogCare={board.fixture.dogCare}
+            dogCare={board.dogCare}
             dogFlash={board.dogFlash}
-            dogName={board.fixture.dogName}
+            dogName={board.dogName}
             onToggle={board.onToggleDogCare}
           />
         </section>
