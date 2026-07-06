@@ -10,7 +10,7 @@ import {
   UnstyledButton,
 } from "@mantine/core";
 import { cn } from "cnfast";
-import { Suspense, useState } from "react";
+import { useState } from "react";
 
 import { useDashboardPresence } from "~/features/dashboard/hooks/use-dashboard-presence";
 import { useDashboardViewer } from "~/features/dashboard/hooks/use-dashboard-viewer";
@@ -34,7 +34,8 @@ const PRESENCE_ACCENTS = {
 const PRESENCE_STATES = Object.keys(PRESENCE_LABELS) as PresenceState[];
 
 export function PartnerCard() {
-  const { partner, partnerFlash, partnerUpdatedRelativeLabel } = useDashboardPresence();
+  const { onSetPresence, partner, partnerFlash, partnerUpdatedRelativeLabel } =
+    useDashboardPresence();
   const viewer = useDashboardViewer();
   const isPartnerView = viewer.role === "partner";
 
