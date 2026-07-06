@@ -1,5 +1,5 @@
 ---
-description: convex-test is the primary testing approach — convexTest(schema), auth mocking, minimum CVX-19 coverage; Testing Library query priority reserved for future UI tests
+description: convex-test is the primary testing approach — convexTest(schema), auth mocking, minimum CVX-19 coverage; Testing Library + happy-dom for UI component tests
 globs: ["**/*.{test,spec}.{ts,tsx}"]
 alwaysApply: true
 ---
