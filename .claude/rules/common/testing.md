@@ -92,9 +92,36 @@ test("elapsed derives minutes from session start to now", () => {
 });
 ```
 
-## Future: UI component testing (not yet in use)
+## UI component testing
 
-No Testing Library package is installed, and none of this project's current test suite renders components — today's coverage is entirely `convex-test` against `convex/`. If/when UI component tests are introduced later, use this query priority:
+`@testing-library/react` + `@testing-library/user-event` + `happy-dom` are installed. `@testing-library/jest-dom` is **not** installed (its entry point imports `vitest` directly, which conflicts with this project's `vite-plus/test`-only rule) — assert with `toBeDefined()` / `toHaveBeenCalledWith(...)` / plain DOM properties instead of `toBeInTheDocument()` etc.
+
+### Environment: per-file docblock
+
+The project's default Vitest environment is Node (convex-test needs it). Opt a component test file into a DOM environment with a docblock at the top of the file — do not change the global `test.environment`:
+
+```typescript
+// @vitest-environment happy-dom
+```
+
+### Rendering: `renderWithMantine`
+
+Use `renderWithMantine` from `~/test-utils` instead of Testing Library's `render` directly — it wraps the tree in the project's `MantineProvider`/theme, which most components require. Importing `~/test-utils` also registers a shared `afterEach(cleanup)` (this project disables Vitest's `globals`, so `@testing-library/react`'s automatic cleanup never fires on its own):
+
+```typescript
+// @vitest-environment happy-dom
+import { expect, test } from "vite-plus/test";
+
+import { UserMenu } from "~/features/auth/components/user-menu";
+import { renderWithMantine } from "~/test-utils";
+
+test("shows the viewer's display name", () => {
+  const { getByText } = renderWithMantine(<UserMenu />);
+  expect(getByText("テスト太郎")).toBeDefined();
+});
+```
+
+### Query priority
 
 1. **`getByRole`** — most accessible, matches semantic HTML
 2. **`getByText`** — for visible text content
@@ -103,15 +130,41 @@ No Testing Library package is installed, and none of this project's current test
 
 ```typescript
 // CORRECT: role-based query
-const button = screen.getByRole("button", { name: "送信" });
-expect(screen.getByRole("heading", { name: "ユーザー一覧" })).toBeInTheDocument();
+const button = getByRole("button", { name: "送信" });
 
 // WRONG: testId or DOM selectors
-const button = screen.getByTestId("submit-button");
+const button = getByTestId("submit-button");
 const heading = document.querySelector(".heading-text");
 ```
 
 **`data-testid` is forbidden.** If an element has no accessible role or text, add an `aria-label` instead.
+
+### Mantine label text: required-field asterisk
+
+Mantine appends a visually-hidden `*` to a field's `<label>` when `required` is set, so the label's full text content is `"メールアドレス *"`, not `"メールアドレス"`. `getByLabelText("メールアドレス")` (exact match) will not find it — use a regex instead: `getByLabelText(/メールアドレス/)`. When two labels share a prefix (e.g. `"パスワード"` vs `"パスワード(確認)"`), anchor and disambiguate: `getByLabelText(/^パスワード(\s|$)/)` and `getByLabelText(/パスワード\(確認\)/)` (escape literal parens — unescaped `(...)` in a regex is a capture group, not literal text).
+
+### Mocking: `vi.mock` + `vi.hoisted`
+
+Mock the auth/router/data hooks a component depends on, not the framework internals:
+
+```typescript
+const { signInMock } = vi.hoisted(() => ({ signInMock: vi.fn().mockResolvedValue(undefined) }));
+
+vi.mock("@convex-dev/auth/react", () => ({
+  useAuthActions: () => ({ signIn: signInMock, signOut: vi.fn() }),
+}));
+```
+
+### Floating UI popovers/menus/selects: `{ hidden: true }`
+
+Mantine's `Menu`, `Select`, and other Popover-based components position their dropdown via Floating UI, which cannot measure real layout in `happy-dom` and leaves the dropdown at `display: none` even after it opens. Testing Library's `getByRole` excludes elements it considers hidden by default — pass `{ hidden: true }` to reach options/menu items anyway:
+
+```typescript
+await user.click(getByRole("combobox", { name: /ロール/ }));
+await user.click(getByRole("option", { hidden: true, name: "本人" }));
+```
+
+A `Select`'s target input has `role="combobox"`, not `"textbox"`.
 
 ## Related skills
 
