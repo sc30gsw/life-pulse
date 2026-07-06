@@ -38,6 +38,9 @@ importers:
       '@mantine/notifications':
         specifier: ^9.4.1
         version: 9.4.1(@mantine/core@9.4.1(@mantine/hooks@9.4.1(react@19.2.7))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@mantine/hooks@9.4.1(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@shimmer-from-structure/react':
+        specifier: ^2.4.6
+        version: 2.4.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@tabler/icons-react':
         specifier: ^3.44.0
         version: 3.44.0(react@19.2.7)
@@ -1919,6 +1922,15 @@ packages:
     peerDependenciesMeta:
       vite:
         optional: true
+
+  '@shimmer-from-structure/core@2.4.6':
+    resolution: {integrity: sha512-g0pC2rNtSCUdOwgfTS02x47TR8J07Rl2l1Fn4wL07LjBpg6lMvZf/NlkFdSwYxl/cvmpOL3KdpFacNLi9nocuQ==}
+
+  '@shimmer-from-structure/react@2.4.6':
+    resolution: {integrity: sha512-suVqNxdQ7xdBWgPzoMycIBytvFubV4wHk0pqcRNr/WKCJdkdxj3U10vDgrwWH5r349HElp5oaiJXDUFo2QYQPw==}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
@@ -5067,6 +5079,14 @@ snapshots:
       vite: '@voidzero-dev/vite-plus-core@0.2.1(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sugarss@5.0.1(postcss@8.5.15))(tsx@4.23.0)(typescript@6.0.3)(yaml@2.9.0)'
     transitivePeerDependencies:
       - supports-color
+
+  '@shimmer-from-structure/core@2.4.6': {}
+
+  '@shimmer-from-structure/react@2.4.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+    dependencies:
+      '@shimmer-from-structure/core': 2.4.6
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
 
   '@standard-schema/spec@1.1.0': {}
 
