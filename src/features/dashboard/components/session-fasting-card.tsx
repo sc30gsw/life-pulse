@@ -1,5 +1,6 @@
 import {
   Badge,
+  Box,
   Button,
   Divider,
   Group,
@@ -9,12 +10,13 @@ import {
   Text,
   UnstyledButton,
 } from "@mantine/core";
+import { Shimmer } from "@shimmer-from-structure/react";
 import { cn } from "cnfast";
 import { Suspense } from "react";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
 import { DeclarationCard } from "~/features/dashboard/components/declaration-card";
-import { FastingGroup } from "~/features/dashboard/components/fasting-group";
+import { FastingGroup, FastingGroupFallback } from "~/features/dashboard/components/fasting-group";
 import { useDashboardStudy } from "~/features/dashboard/hooks/use-dashboard-study";
 import { useDashboardViewer } from "~/features/dashboard/hooks/use-dashboard-viewer";
 import {
@@ -67,7 +69,7 @@ export function SessionFastingCard({ sessionFlash }: Record<"sessionFlash", bool
           >
             本人 · 発注者
           </Text>
-          <Suspense>
+          <Suspense fallback={<SelfBadgeFallback />}>
             <SelfBadge />
           </Suspense>
         </Group>
@@ -75,7 +77,7 @@ export function SessionFastingCard({ sessionFlash }: Record<"sessionFlash", bool
           study session
         </Text>
       </Group>
-      <Suspense>
+      <Suspense fallback={<SessionStatusGroupFallback />}>
         <SessionStatusGroup
           fastingFlash={false}
           onCompleteSession={() => {}}
@@ -99,6 +101,16 @@ function SelfBadge() {
     <Badge variant="filled" style={ACCENT_SOLID_STYLE.good} size="xs">
       YOU
     </Badge>
+  );
+}
+
+function SelfBadgeFallback() {
+  return (
+    <Shimmer loading>
+      <Badge variant="filled" style={ACCENT_SOLID_STYLE.good} size="xs">
+        YOU
+      </Badge>
+    </Shimmer>
   );
 }
 
@@ -259,7 +271,7 @@ function SessionStatusGroup({
       <Divider my="lg" className="border-bd" />
 
       <Group wrap="wrap" gap="xl" align="stretch">
-        <Suspense>
+        <Suspense fallback={<FastingGroupFallback />}>
           <FastingGroup fastingFlash={fastingFlash} />
         </Suspense>
 
@@ -271,5 +283,140 @@ function SessionStatusGroup({
         />
       </Group>
     </>
+  );
+}
+
+function SessionStatusGroupFallback() {
+  return (
+    <Shimmer loading>
+      <Group align="flex-end" gap={16} wrap="wrap">
+        <Stack gap={6}>
+          <Group gap={9} align="center">
+            <Badge
+              variant="outline"
+              size="sm"
+              className={cn(
+                ACCENT_CLASSES.good.border,
+                ACCENT_CLASSES.good.bg,
+                ACCENT_CLASSES.good.text,
+                "border",
+              )}
+            >
+              勉強中
+            </Badge>
+            <Text size="sm" c="dimmed">
+              TOEIC
+            </Text>
+          </Group>
+          <Text
+            fw={600}
+            className="leading-none tabular-nums"
+            style={{ fontSize: "clamp(2.5rem,7vw,3.9rem)" }}
+          >
+            00:42:00
+          </Text>
+        </Stack>
+        <Stack gap={3}>
+          <Text size="xs" c="dimmed">
+            目標 60分
+          </Text>
+          <Text size="xs" c="dimmed">
+            中断 0 回
+          </Text>
+        </Stack>
+      </Group>
+
+      <Progress value={42} color={ACCENT_VARS.good} size="sm" mt="md" />
+
+      <Group wrap="wrap" gap={8} mt="md" align="center">
+        <Button disabled variant="filled" style={ACCENT_SOLID_STYLE.good} size="sm">
+          完了して記録
+        </Button>
+        <Text size="xs" c={ACCENT_VARS.faint}>
+          中断:
+        </Text>
+        {INTERRUPTION_REASONS.map((reason) => (
+          <Box
+            key={reason}
+            className={cn(
+              ACCENT_CLASSES.amber.border,
+              "bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-semibold",
+            )}
+          >
+            {REASON_LABELS[reason]}
+          </Box>
+        ))}
+      </Group>
+
+      <Divider my="lg" className="border-bd" />
+
+      <Group wrap="wrap" gap="xl" align="stretch">
+        <FastingGroupFallback />
+        <Box className="flex min-w-0 flex-1 flex-col gap-2">
+          <Group justify="space-between" align="baseline">
+            <Text
+              size="10.5px"
+              fw={600}
+              tt="uppercase"
+              c={ACCENT_VARS.faint}
+              style={{ letterSpacing: "0.13em" }}
+            >
+              今日の学習
+            </Text>
+            <Text size="xs" c="dimmed">
+              宣言 vs 実績
+            </Text>
+          </Group>
+          <Group gap={8} align="baseline">
+            <Text size="26px" fw={600}>
+              30
+            </Text>
+            <Text size="sm" c="dimmed">
+              / 60 分
+            </Text>
+          </Group>
+          <Progress
+            value={50}
+            color={ACCENT_VARS.good}
+            size="sm"
+            className="rounded-md"
+            style={{ background: "var(--inset)" }}
+          />
+        </Box>
+      </Group>
+    </Shimmer>
+  );
+}
+
+export function SessionFastingCardFallback() {
+  return (
+    <Shimmer loading>
+      <Paper
+        radius={18}
+        p="lg"
+        className="bg-panel border-bd shadow-card relative overflow-hidden border"
+      >
+        <Group justify="space-between" mb="md">
+          <Group gap={10}>
+            <Text
+              size="11px"
+              fw={600}
+              tt="uppercase"
+              c={ACCENT_VARS.faint}
+              style={{ letterSpacing: "0.14em" }}
+            >
+              本人 · 発注者
+            </Text>
+            <Badge variant="filled" style={ACCENT_SOLID_STYLE.good} size="xs">
+              YOU
+            </Badge>
+          </Group>
+          <Text size="xs" c="dimmed">
+            study session
+          </Text>
+        </Group>
+        <SessionStatusGroupFallback />
+      </Paper>
+    </Shimmer>
   );
 }

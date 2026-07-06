@@ -1,9 +1,18 @@
 // @vitest-environment happy-dom
-import { expect, test } from "vite-plus/test";
+import { expect, test, vi } from "vite-plus/test";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
-import { HealthMetricsGridView } from "~/features/dashboard/components/health-metrics-grid";
+import {
+  HealthMetricsGrid,
+  HealthMetricsGridFallback,
+} from "~/features/dashboard/components/health-metrics-grid";
 import { renderWithMantine } from "~/test-utils";
+
+let metrics: Doc<"healthMetrics"> | null = null;
+
+vi.mock("~/features/dashboard/hooks/use-dashboard-health", () => ({
+  useDashboardHealth: () => ({ lastSyncRelativeLabel: "5分前", metrics }),
+}));
 
 function buildMetrics(overrides: Partial<Doc<"healthMetrics">> = {}): Doc<"healthMetrics"> {
   return {
@@ -17,13 +26,15 @@ function buildMetrics(overrides: Partial<Doc<"healthMetrics">> = {}): Doc<"healt
 }
 
 test("renders 未計測 when metrics is null", () => {
-  const { getByText } = renderWithMantine(<HealthMetricsGridView metrics={null} />);
+  metrics = null;
+
+  const { getByText } = renderWithMantine(<HealthMetricsGrid />);
 
   expect(getByText("未計測")).toBeDefined();
 });
 
 test("renders the source label and full metric values", () => {
-  const metrics = buildMetrics({
+  metrics = buildMetrics({
     bodyBattery: 72,
     hrv: 45,
     restingHr: 58,
@@ -32,7 +43,8 @@ test("renders the source label and full metric values", () => {
     source: "garmin",
     steps: 8_432,
   });
-  const { getByText } = renderWithMantine(<HealthMetricsGridView metrics={metrics} />);
+
+  const { getByText } = renderWithMantine(<HealthMetricsGrid />);
 
   expect(getByText("source: garmin")).toBeDefined();
   expect(getByText("72")).toBeDefined();
@@ -42,15 +54,19 @@ test("renders the source label and full metric values", () => {
   expect(getByText("8,432")).toBeDefined();
 });
 
-test("falls back to defaults/dashes when optional metrics are undefined", () => {
-  const metrics = buildMetrics({ source: "manual" });
-  const { getByText, getAllByText } = renderWithMantine(
-    <HealthMetricsGridView metrics={metrics} />,
-  );
+test("falls back to defaults and dashes when optional metrics are missing", () => {
+  metrics = buildMetrics({ source: "manual" });
+
+  const { getAllByText, getByText } = renderWithMantine(<HealthMetricsGrid />);
 
   expect(getByText("source: manual")).toBeDefined();
-  // sleepHoursLabel, hrv, and restingHr each fall back to "—" independently.
   expect(getAllByText("—")).toHaveLength(3);
-  // bodyBattery, sleepScore, and steps all default to 0.
   expect(getAllByText("0")).toHaveLength(3);
+});
+
+test("renders a structure-aware shimmer fallback", () => {
+  const { getByText } = renderWithMantine(<HealthMetricsGridFallback />);
+
+  expect(getByText("健康メトリクス · Garmin")).toBeDefined();
+  expect(getByText("source: garmin")).toBeDefined();
 });

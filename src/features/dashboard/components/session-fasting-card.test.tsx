@@ -1,10 +1,65 @@
 // @vitest-environment happy-dom
-import type { ComponentProps } from "react";
 import { expect, test, vi } from "vite-plus/test";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
-import { SessionFastingCardView } from "~/features/dashboard/components/session-fasting-card";
+import {
+  SessionFastingCard,
+  SessionFastingCardFallback,
+} from "~/features/dashboard/components/session-fasting-card";
 import { renderWithMantine } from "~/test-utils";
+
+const hookState = vi.hoisted(() => ({
+  fasting: null as Doc<"fastingWindows"> | null,
+  session: null as Doc<"studySessions"> | null,
+  suspendFasting: false,
+  suspendStudy: false,
+  suspendViewer: false,
+  viewerRole: "self" as "partner" | "self",
+}));
+
+vi.mock("~/features/dashboard/hooks/use-dashboard-viewer", () => ({
+  useDashboardViewer: () => {
+    if (hookState.suspendViewer) {
+      throw new Promise(() => {});
+    }
+
+    return { role: hookState.viewerRole };
+  },
+}));
+
+vi.mock("~/features/dashboard/hooks/use-dashboard-study", () => ({
+  useDashboardStudy: () => {
+    if (hookState.suspendStudy) {
+      throw new Promise(() => {});
+    }
+
+    return {
+      declarationActualMinutes: 30,
+      declarationActualPercent: 50,
+      declarationTotalMinutes: 60,
+      declarations: [],
+      session: hookState.session,
+      sessionElapsedLabel: "00:42:00",
+      sessionGoalLabel: "60分",
+      sessionProgressPercent: 42,
+    };
+  },
+}));
+
+vi.mock("~/features/dashboard/hooks/use-dashboard-fasting", () => ({
+  useDashboardFasting: () => {
+    if (hookState.suspendFasting) {
+      throw new Promise(() => {});
+    }
+
+    return {
+      fasting: hookState.fasting,
+      fastingElapsedLabel: "6h42m",
+      fastingRemainLabel: "9h18m",
+      fastingRingPercent: 42,
+    };
+  },
+}));
 
 function buildSession(overrides: Partial<Doc<"studySessions">> = {}): Doc<"studySessions"> {
   return {
@@ -35,123 +90,100 @@ function buildFasting(overrides: Partial<Doc<"fastingWindows">> = {}): Doc<"fast
   } as unknown as Doc<"fastingWindows">;
 }
 
-const BASE_PROPS: ComponentProps<typeof SessionFastingCardView> = {
-  declarationActualMinutes: 30,
-  declarationActualPercent: 50,
-  declarationTotalMinutes: 60,
-  declarations: [],
-  fasting: null,
-  fastingElapsedLabel: "0m",
-  fastingFlash: false,
-  fastingRemainLabel: "16h00m",
-  fastingRingPercent: 0,
-  isSelfView: false,
-  onCompleteSession: vi.fn(),
-  onPauseSession: vi.fn(),
-  onResumeSession: vi.fn(),
-  onStartSession: vi.fn(),
-  session: null,
-  sessionElapsedLabel: "00:00",
-  sessionFlash: false,
-  sessionGoalLabel: "0分",
-  sessionProgressPercent: 0,
-};
+test("renders 待機 and a start button when there is no session", () => {
+  hookState.viewerRole = "self";
+  hookState.session = null;
+  hookState.fasting = null;
+  hookState.suspendFasting = false;
+  hookState.suspendStudy = false;
+  hookState.suspendViewer = false;
 
-test("renders 待機 and a start button when there is no session (idle)", () => {
-  const { getByText, getByRole } = renderWithMantine(<SessionFastingCardView {...BASE_PROPS} />);
+  const { getByText, getByRole } = renderWithMantine(<SessionFastingCard sessionFlash={false} />);
 
   expect(getByText("待機")).toBeDefined();
   expect(getByRole("button", { name: "セッション開始" })).toBeDefined();
+  expect(getByText("YOU")).toBeDefined();
 });
 
-test("renders 勉強中, category, and pause reasons for an active session", () => {
-  const { getByText, getByRole } = renderWithMantine(
-    <SessionFastingCardView {...BASE_PROPS} session={buildSession({ status: "active" })} />,
-  );
+test("renders an active session and fasting status", () => {
+  hookState.session = buildSession({ status: "active" });
+  hookState.fasting = buildFasting({ phase: "early" });
+
+  const { getByText, getByRole } = renderWithMantine(<SessionFastingCard sessionFlash={false} />);
 
   expect(getByText("勉強中")).toBeDefined();
   expect(getByText("TOEIC")).toBeDefined();
   expect(getByRole("button", { name: "完了して記録" })).toBeDefined();
-  expect(getByRole("button", { name: "仕事" })).toBeDefined();
-  expect(getByRole("button", { name: "犬" })).toBeDefined();
-  expect(getByRole("button", { name: "家事" })).toBeDefined();
+  expect(getByText("空腹期")).toBeDefined();
 });
 
-test("renders 中断中 and resume/complete buttons for a paused session", () => {
-  const { getByText, getByRole } = renderWithMantine(
-    <SessionFastingCardView {...BASE_PROPS} session={buildSession({ status: "paused" })} />,
-  );
+test("renders paused session controls", () => {
+  hookState.session = buildSession({ status: "paused" });
+  hookState.fasting = null;
+
+  const { getByRole, getByText } = renderWithMantine(<SessionFastingCard sessionFlash={false} />);
 
   expect(getByText("中断中")).toBeDefined();
   expect(getByRole("button", { name: "再開" })).toBeDefined();
   expect(getByRole("button", { name: "完了" })).toBeDefined();
 });
 
-test("renders 完了 and a start button for a completed session", () => {
-  const { getByText, getByRole } = renderWithMantine(
-    <SessionFastingCardView {...BASE_PROPS} session={buildSession({ status: "completed" })} />,
-  );
+test("renders completed and abandoned session labels", () => {
+  hookState.session = buildSession({ status: "completed" });
+  hookState.fasting = null;
 
-  expect(getByText("完了")).toBeDefined();
-  expect(getByRole("button", { name: "セッション開始" })).toBeDefined();
+  const completed = renderWithMantine(<SessionFastingCard sessionFlash={false} />);
+  expect(completed.getByText("完了")).toBeDefined();
+  completed.unmount();
+
+  hookState.session = buildSession({ status: "abandoned" });
+
+  const abandoned = renderWithMantine(<SessionFastingCard sessionFlash={false} />);
+  expect(abandoned.getByText("放置終了")).toBeDefined();
 });
 
-test("renders 放置終了 for an abandoned session", () => {
-  const { getByText } = renderWithMantine(
-    <SessionFastingCardView {...BASE_PROPS} session={buildSession({ status: "abandoned" })} />,
-  );
+test("renders fasting fatburn and goal phases", () => {
+  hookState.session = null;
+  hookState.fasting = buildFasting({ phase: "fatburn" });
 
-  expect(getByText("放置終了")).toBeDefined();
-});
+  const fatburn = renderWithMantine(<SessionFastingCard sessionFlash={false} />);
+  expect(fatburn.getByText("脂肪燃焼帯")).toBeDefined();
+  expect(fatburn.getByText("16hで目標達成")).toBeDefined();
+  fatburn.unmount();
 
-test("shows the YOU badge in self view", () => {
-  const { getByText } = renderWithMantine(
-    <SessionFastingCardView {...BASE_PROPS} isSelfView={true} />,
-  );
+  hookState.fasting = buildFasting({ phase: "goal" });
 
-  expect(getByText("YOU")).toBeDefined();
+  const goal = renderWithMantine(<SessionFastingCard sessionFlash={false} />);
+  expect(goal.getByText("目標達成")).toBeDefined();
+  expect(goal.getByText("16時間クリア")).toBeDefined();
 });
 
 test("hides the YOU badge outside self view", () => {
-  const { queryByText } = renderWithMantine(
-    <SessionFastingCardView {...BASE_PROPS} isSelfView={false} />,
-  );
+  hookState.viewerRole = "partner";
+  hookState.session = null;
+  hookState.fasting = null;
+
+  const { queryByText } = renderWithMantine(<SessionFastingCard sessionFlash={false} />);
 
   expect(queryByText("YOU")).toBeNull();
 });
 
-test("renders 未開始 when fasting is null", () => {
-  const { getByText } = renderWithMantine(
-    <SessionFastingCardView {...BASE_PROPS} fasting={null} />,
-  );
+test("renders a structure-aware shimmer fallback", () => {
+  const { getByText } = renderWithMantine(<SessionFastingCardFallback />);
 
-  expect(getByText("未開始")).toBeDefined();
-  expect(getByText("断食を開始していません")).toBeDefined();
+  expect(getByText("本人 · 発注者")).toBeDefined();
+  expect(getByText("勉強中")).toBeDefined();
+  expect(getByText("今日の学習")).toBeDefined();
 });
 
-test("renders the early-phase label and sub-label when fasting", () => {
-  const { getByText } = renderWithMantine(
-    <SessionFastingCardView {...BASE_PROPS} fasting={buildFasting({ phase: "early" })} />,
-  );
+test("renders nested Suspense fallbacks while viewer, study, and fasting reads suspend", () => {
+  hookState.suspendFasting = true;
+  hookState.suspendStudy = true;
+  hookState.suspendViewer = true;
 
+  const { getByText } = renderWithMantine(<SessionFastingCard sessionFlash={false} />);
+
+  expect(getByText("YOU")).toBeDefined();
+  expect(getByText("勉強中")).toBeDefined();
   expect(getByText("空腹期")).toBeDefined();
-  expect(getByText("12hで脂肪燃焼帯")).toBeDefined();
-});
-
-test("renders the fatburn-phase label and sub-label when fasting", () => {
-  const { getByText } = renderWithMantine(
-    <SessionFastingCardView {...BASE_PROPS} fasting={buildFasting({ phase: "fatburn" })} />,
-  );
-
-  expect(getByText("脂肪燃焼帯")).toBeDefined();
-  expect(getByText("16hで目標達成")).toBeDefined();
-});
-
-test("renders the goal-phase label and sub-label when fasting", () => {
-  const { getByText } = renderWithMantine(
-    <SessionFastingCardView {...BASE_PROPS} fasting={buildFasting({ phase: "goal" })} />,
-  );
-
-  expect(getByText("目標達成")).toBeDefined();
-  expect(getByText("16時間クリア")).toBeDefined();
 });

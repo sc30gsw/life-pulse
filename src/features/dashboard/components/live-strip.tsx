@@ -1,4 +1,5 @@
 import { Box, Divider, Group, Text } from "@mantine/core";
+import { Shimmer } from "@shimmer-from-structure/react";
 import { Suspense } from "react";
 
 import { useDashboardHealth } from "~/features/dashboard/hooks/use-dashboard-health";
@@ -10,6 +11,16 @@ function LiveStripLastSyncLabel() {
     <Text component="span" size="xs" c="var(--tx)">
       {lastSyncRelativeLabel}
     </Text>
+  );
+}
+
+function LiveStripLastSyncLabelFallback() {
+  return (
+    <Shimmer loading>
+      <Text component="span" size="xs" c="var(--tx)">
+        たった今
+      </Text>
+    </Shimmer>
   );
 }
 
@@ -27,7 +38,7 @@ export function LiveStrip() {
 
       <Text size="xs" c="dimmed">
         Garmin 最終同期 ·
-        <Suspense>
+        <Suspense fallback={<LiveStripLastSyncLabelFallback />}>
           <LiveStripLastSyncLabel />
         </Suspense>
       </Text>

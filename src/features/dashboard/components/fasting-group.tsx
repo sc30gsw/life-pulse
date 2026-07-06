@@ -1,4 +1,5 @@
 import { Group, RingProgress, Stack, Text } from "@mantine/core";
+import { Shimmer } from "@shimmer-from-structure/react";
 import cn from "cnfast";
 
 import { useDashboardFasting } from "~/features/dashboard/hooks/use-dashboard-fasting";
@@ -72,5 +73,49 @@ export function FastingGroup({ fastingFlash }: Record<"fastingFlash", boolean>) 
         </Text>
       </Stack>
     </Group>
+  );
+}
+
+export function FastingGroupFallback() {
+  return (
+    <Shimmer loading>
+      <Group gap="md" wrap="nowrap" className="relative min-w-[240px] flex-1">
+        <RingProgress
+          size={96}
+          thickness={8}
+          sections={[{ value: 42, color: ACCENT_VARS.blue }]}
+          label={
+            <Stack gap={1} align="center">
+              <Text fw={600} size="lg" c={ACCENT_VARS.blue}>
+                06h42m
+              </Text>
+              <Text size="9px" c={ACCENT_VARS.faint}>
+                FAST
+              </Text>
+            </Stack>
+          }
+        />
+        <Stack gap={4}>
+          <Text
+            size="10.5px"
+            fw={600}
+            tt="uppercase"
+            c={ACCENT_VARS.faint}
+            style={{ letterSpacing: "0.13em" }}
+          >
+            断食
+          </Text>
+          <Text fw={600} size="lg" c={ACCENT_VARS.blue}>
+            空腹期
+          </Text>
+          <Text size="sm" c="dimmed">
+            12hで脂肪燃焼帯
+          </Text>
+          <Text size="xs" c="dimmed">
+            経過 06h42m · 残 09h18m
+          </Text>
+        </Stack>
+      </Group>
+    </Shimmer>
   );
 }

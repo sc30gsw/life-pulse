@@ -1,4 +1,5 @@
 import { Group, Paper, RingProgress, Stack, Text } from "@mantine/core";
+import { Shimmer } from "@shimmer-from-structure/react";
 
 import { useDashboardHealth } from "~/features/dashboard/hooks/use-dashboard-health";
 import { ACCENT_VARS, HEALTH_SOURCE_LABELS } from "~/features/dashboard/types/dashboard";
@@ -157,5 +158,51 @@ export function HealthMetricsGrid() {
         </Paper>
       </Group>
     </Paper>
+  );
+}
+
+export function HealthMetricsGridFallback() {
+  return (
+    <Shimmer loading>
+      <Paper radius={18} p="lg" className="bg-panel border-bd shadow-card border">
+        <Group justify="space-between" mb="md">
+          <Text
+            size="10.5px"
+            fw={600}
+            tt="uppercase"
+            c={ACCENT_VARS.faint}
+            style={{ letterSpacing: "0.13em" }}
+          >
+            健康メトリクス · Garmin
+          </Text>
+          <Text size="xs" c="dimmed">
+            source: garmin
+          </Text>
+        </Group>
+        <Group wrap="wrap" gap="md">
+          {["Body Battery", "睡眠スコア", "HRV", "歩数"].map((label) => (
+            <Paper
+              key={label}
+              radius="md"
+              p="sm"
+              className="bg-panel-2 border-bd flex-1 border"
+              style={{ minWidth: 110 }}
+            >
+              <Stack gap={2} justify="center">
+                <Text size="xs" c="dimmed">
+                  {label}
+                </Text>
+                <Text size="xl" fw={600}>
+                  88
+                </Text>
+                <Text size="xs" c="dimmed">
+                  起床時
+                </Text>
+              </Stack>
+            </Paper>
+          ))}
+        </Group>
+      </Paper>
+    </Shimmer>
   );
 }

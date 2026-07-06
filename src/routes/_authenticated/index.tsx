@@ -3,11 +3,17 @@ import { Suspense } from "react";
 
 import { PendingComponent } from "~/components/layouts/pending";
 import { BoardHeader } from "~/features/dashboard/components/board-header";
-import { DogCard } from "~/features/dashboard/components/dog-card";
-import { HealthMetricsGrid } from "~/features/dashboard/components/health-metrics-grid";
+import { DogCard, DogCardFallback } from "~/features/dashboard/components/dog-card";
+import {
+  HealthMetricsGrid,
+  HealthMetricsGridFallback,
+} from "~/features/dashboard/components/health-metrics-grid";
 import { LiveStrip } from "~/features/dashboard/components/live-strip";
-import { PartnerCard } from "~/features/dashboard/components/partner-card";
-import { SessionFastingCard } from "~/features/dashboard/components/session-fasting-card";
+import { PartnerCard, PartnerCardFallback } from "~/features/dashboard/components/partner-card";
+import {
+  SessionFastingCard,
+  SessionFastingCardFallback,
+} from "~/features/dashboard/components/session-fasting-card";
 
 export const Route = createFileRoute("/_authenticated/")({
   component: () => (
@@ -24,18 +30,18 @@ function Home() {
       <LiveStrip />
       <main className="flex flex-col gap-4 lg:flex-row lg:items-stretch">
         <section className="flex min-w-0 flex-col gap-4 lg:flex-3">
-          <Suspense fallback={<PendingComponent />}>
+          <Suspense fallback={<SessionFastingCardFallback />}>
             <SessionFastingCard sessionFlash={false} />
           </Suspense>
-          <Suspense fallback={<PendingComponent />}>
+          <Suspense fallback={<HealthMetricsGridFallback />}>
             <HealthMetricsGrid />
           </Suspense>
         </section>
         <section className="flex min-w-0 flex-col gap-4 lg:flex-2">
-          <Suspense fallback={<PendingComponent />}>
+          <Suspense fallback={<PartnerCardFallback />}>
             <PartnerCard />
           </Suspense>
-          <Suspense fallback={<PendingComponent />}>
+          <Suspense fallback={<DogCardFallback />}>
             <DogCard />
           </Suspense>
         </section>
