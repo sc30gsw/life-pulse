@@ -1,23 +1,20 @@
 import { Badge, Box, Group, Paper, Stack, Text, UnstyledButton } from "@mantine/core";
 import { cn } from "cnfast";
 
+import type { useLiveBoard } from "~/features/dashboard/hooks/use-live-board";
 import {
   ACCENT_CLASSES,
   ACCENT_SOLID_STYLE,
   ACCENT_VARS,
   DOG_EVENT_LABELS,
-  type DogCareItem,
-  type DogEventKind,
 } from "~/features/dashboard/types/dashboard";
 
-type DogCardProps = {
-  dogCare: DogCareItem[];
-  dogFlash: boolean;
-  dogName: string;
-  onToggle: (kind: DogEventKind) => void;
-};
-
-export function DogCard({ dogCare, dogFlash, dogName, onToggle }: DogCardProps) {
+export function DogCard({
+  dogCare,
+  dogFlash,
+  dogName,
+  onToggleDogCare,
+}: Pick<ReturnType<typeof useLiveBoard>, "dogCare" | "dogFlash" | "dogName" | "onToggleDogCare">) {
   const pendingCount = dogCare.filter((item) => !item.done).length;
   const pendingAccent = pendingCount > 0 ? ACCENT_CLASSES.coral : ACCENT_CLASSES.good;
 
@@ -71,7 +68,7 @@ export function DogCard({ dogCare, dogFlash, dogName, onToggle }: DogCardProps) 
             key={item.kind}
             type="button"
             aria-pressed={item.done}
-            onClick={() => onToggle(item.kind)}
+            onClick={() => onToggleDogCare(item.kind)}
             className={cn(
               "flex w-full items-center gap-3 rounded-xl border px-3.5 py-2.5 text-left",
               item.done

@@ -78,7 +78,7 @@ function Home() {
             dogCare={board.dogCare}
             dogFlash={board.dogFlash}
             dogName={board.dogName}
-            onToggle={board.onToggleDogCare}
+            onToggleDogCare={board.onToggleDogCare}
           />
         </section>
       </main>

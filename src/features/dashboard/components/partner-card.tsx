@@ -1,23 +1,15 @@
 import { Badge, Box, Group, Paper, Stack, Text, UnstyledButton } from "@mantine/core";
 import { cn } from "cnfast";
 
+import type { useLiveBoard } from "~/features/dashboard/hooks/use-live-board";
 import {
   ACCENT_CLASSES,
   ACCENT_SOLID_STYLE,
   ACCENT_VARS,
   PRESENCE_LABELS,
   PRESENCE_SUB_LABELS,
-  type PartnerState,
   type PresenceState,
 } from "~/features/dashboard/types/dashboard";
-
-type PartnerCardProps = {
-  isPartnerView: boolean;
-  onSetPresence: (state: PresenceState) => void;
-  partner: PartnerState;
-  partnerFlash: boolean;
-  partnerUpdatedRelativeLabel: string;
-};
 
 const PRESENCE_ACCENTS = {
   commuting_home: "blue",
@@ -35,8 +27,11 @@ export function PartnerCard({
   partner,
   partnerFlash,
   partnerUpdatedRelativeLabel,
-}: PartnerCardProps) {
-  const accent = PRESENCE_ACCENTS[partner.state];
+}: Pick<
+  ReturnType<typeof useLiveBoard>,
+  "isPartnerView" | "onSetPresence" | "partner" | "partnerFlash" | "partnerUpdatedRelativeLabel"
+>) {
+  const accent = partner === null ? "faint" : PRESENCE_ACCENTS[partner.state];
 
   return (
     <Paper
@@ -76,10 +71,14 @@ export function PartnerCard({
         </Box>
         <Stack gap={3}>
           <Text fw={600} size="22px" c={ACCENT_VARS[accent]}>
-            {PRESENCE_LABELS[partner.state]}
+            {partner === null ? "未設定" : PRESENCE_LABELS[partner.state]}
           </Text>
           <Text size="sm" c="dimmed">
-            {partner.etaHm ? `ETA ${partner.etaHm}` : PRESENCE_SUB_LABELS[partner.state]}
+            {partner === null
+              ? "まだステータスが更新されていません"
+              : partner.etaHm
+                ? `ETA ${partner.etaHm}`
+                : PRESENCE_SUB_LABELS[partner.state]}
           </Text>
           <Text size="xs" c={ACCENT_VARS.faint}>
             更新 {partnerUpdatedRelativeLabel}
@@ -87,29 +86,36 @@ export function PartnerCard({
         </Stack>
       </Group>
 
-      <Group gap={8} wrap="wrap">
-        {PRESENCE_STATES.map((state) => {
-          const isActive = state === partner.state;
-          const stateAccent = ACCENT_CLASSES[PRESENCE_ACCENTS[state]];
+      {isPartnerView && (
+        <Group gap={8} wrap="wrap">
+          {PRESENCE_STATES.map((state) => {
+            const isActive = partner !== null && state === partner.state;
+            const stateAccent = ACCENT_CLASSES[PRESENCE_ACCENTS[state]];
 
-          return (
-            <UnstyledButton
-              key={state}
-              type="button"
-              aria-pressed={isActive}
-              className={cn(
-                "rounded-lg px-3 py-1.5 text-xs",
-                isActive
-                  ? cn(stateAccent.border, stateAccent.bg, stateAccent.text, "border font-semibold")
-                  : "border-bd-2 bg-inset text-dim border font-medium",
-              )}
-              onClick={() => onSetPresence(state)}
-            >
-              {PRESENCE_LABELS[state]}
-            </UnstyledButton>
-          );
-        })}
-      </Group>
+            return (
+              <UnstyledButton
+                key={state}
+                type="button"
+                aria-pressed={isActive}
+                className={cn(
+                  "rounded-lg px-3 py-1.5 text-xs",
+                  isActive
+                    ? cn(
+                        stateAccent.border,
+                        stateAccent.bg,
+                        stateAccent.text,
+                        "border font-semibold",
+                      )
+                    : "border-bd-2 bg-inset text-dim border font-medium",
+                )}
+                onClick={() => onSetPresence(state)}
+              >
+                {PRESENCE_LABELS[state]}
+              </UnstyledButton>
+            );
+          })}
+        </Group>
+      )}
     </Paper>
   );
 }

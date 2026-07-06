@@ -1,16 +1,38 @@
 import { Group, Paper, RingProgress, Stack, Text } from "@mantine/core";
 
-import {
-  ACCENT_VARS,
-  HEALTH_SOURCE_LABELS,
-  type HealthMetrics,
-} from "~/features/dashboard/types/dashboard";
+import type { useLiveBoard } from "~/features/dashboard/hooks/use-live-board";
+import { ACCENT_VARS, HEALTH_SOURCE_LABELS } from "~/features/dashboard/types/dashboard";
 
-type HealthMetricsGridProps = {
-  metrics: HealthMetrics;
-};
+export function HealthMetricsGrid({ metrics }: Pick<ReturnType<typeof useLiveBoard>, "metrics">) {
+  if (metrics === null) {
+    return (
+      <Paper radius={18} p="lg" className="bg-panel border-bd shadow-card border">
+        <Group justify="space-between" mb="md">
+          <Text
+            size="10.5px"
+            fw={600}
+            tt="uppercase"
+            c={ACCENT_VARS.faint}
+            style={{ letterSpacing: "0.13em" }}
+          >
+            健康メトリクス · Garmin
+          </Text>
+        </Group>
+        <Text size="sm" c="dimmed">
+          未計測
+        </Text>
+      </Paper>
+    );
+  }
 
-export function HealthMetricsGrid({ metrics }: HealthMetricsGridProps) {
+  const bodyBattery = metrics.bodyBattery ?? 0;
+  const sleepScore = metrics.sleepScore ?? 0;
+  const sleepHoursLabel =
+    metrics.sleepMinutes === undefined ? "—" : `${(metrics.sleepMinutes / 60).toFixed(1)}h`;
+  const hrv = metrics.hrv ?? "—";
+  const restingHr = metrics.restingHr ?? "—";
+  const steps = metrics.steps ?? 0;
+
   return (
     <Paper radius={18} p="lg" className="bg-panel border-bd shadow-card border">
       <Group justify="space-between" mb="md">
@@ -38,10 +60,10 @@ export function HealthMetricsGrid({ metrics }: HealthMetricsGridProps) {
             <RingProgress
               size={56}
               thickness={6}
-              sections={[{ value: metrics.bodyBattery, color: ACCENT_VARS.good }]}
+              sections={[{ value: bodyBattery, color: ACCENT_VARS.good }]}
               label={
                 <Text size="16px" fw={600} ta="center">
-                  {metrics.bodyBattery}
+                  {bodyBattery}
                 </Text>
               }
             />
@@ -66,10 +88,10 @@ export function HealthMetricsGrid({ metrics }: HealthMetricsGridProps) {
             <RingProgress
               size={56}
               thickness={6}
-              sections={[{ value: metrics.sleepScore, color: ACCENT_VARS.violet }]}
+              sections={[{ value: sleepScore, color: ACCENT_VARS.violet }]}
               label={
                 <Text size="16px" fw={600} ta="center">
-                  {metrics.sleepScore}
+                  {sleepScore}
                 </Text>
               }
             />
@@ -78,7 +100,7 @@ export function HealthMetricsGrid({ metrics }: HealthMetricsGridProps) {
                 睡眠スコア
               </Text>
               <Text size="11px" c="dimmed">
-                {(metrics.sleepMinutes / 60).toFixed(1)}h
+                {sleepHoursLabel}
               </Text>
             </Stack>
           </Group>
@@ -95,7 +117,7 @@ export function HealthMetricsGrid({ metrics }: HealthMetricsGridProps) {
               HRV
             </Text>
             <Text size="xl" fw={600}>
-              {metrics.hrv}
+              {hrv}
               <Text component="span" size="xs" c="dimmed">
                 {" "}
                 ms
@@ -104,7 +126,7 @@ export function HealthMetricsGrid({ metrics }: HealthMetricsGridProps) {
             <Text size="xs" c="dimmed">
               安静時心拍{" "}
               <Text component="span" c="var(--tx)">
-                {metrics.restingHr}
+                {restingHr}
               </Text>
             </Text>
           </Stack>
@@ -121,7 +143,7 @@ export function HealthMetricsGrid({ metrics }: HealthMetricsGridProps) {
               歩数
             </Text>
             <Text size="xl" fw={600}>
-              {metrics.steps.toLocaleString("en-US")}
+              {steps.toLocaleString("en-US")}
             </Text>
             <Text size="xs" c="dimmed">
               HIIT{" "}

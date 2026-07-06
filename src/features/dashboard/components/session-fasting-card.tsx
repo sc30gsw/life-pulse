@@ -12,7 +12,9 @@ import {
 } from "@mantine/core";
 import { cn } from "cnfast";
 
+import type { Doc } from "~/../convex/_generated/dataModel";
 import { DeclarationCard } from "~/features/dashboard/components/declaration-card";
+import type { useLiveBoard } from "~/features/dashboard/hooks/use-live-board";
 import {
   ACCENT_CLASSES,
   ACCENT_SOLID_STYLE,
@@ -21,26 +23,28 @@ import {
   FASTING_PHASE_LABELS,
   FASTING_PHASE_SUB_LABELS,
   REASON_LABELS,
-  type DeclarationItem,
-  type FastingState,
   type InterruptionReason,
-  type SessionState,
 } from "~/features/dashboard/types/dashboard";
 
-// Single consumer: maps session status to its accent key + Japanese label for the status pill.
+// Single consumer: maps session status ("idle" = no session document at all) to its
+// accent key + Japanese label for the status pill.
 const SESSION_STATUS_ACCENT = {
+  abandoned: ["faint", "放置終了"],
   active: ["good", "勉強中"],
   completed: ["faint", "完了"],
   idle: ["faint", "待機"],
   paused: ["amber", "中断中"],
-} as const satisfies Record<SessionState["status"], readonly [keyof typeof ACCENT_VARS, string]>;
+} as const satisfies Record<
+  "idle" | Doc<"studySessions">["status"],
+  readonly [keyof typeof ACCENT_VARS, string]
+>;
 
 // Single consumer: maps fasting phase to its accent key for the ring/labels.
 const FASTING_PHASE_ACCENT = {
   early: "blue",
   fatburn: "amber",
   goal: "good",
-} as const satisfies Record<FastingState["phase"], keyof typeof ACCENT_VARS>;
+} as const satisfies Record<Doc<"fastingWindows">["phase"], keyof typeof ACCENT_VARS>;
 
 const INTERRUPTION_REASONS = [
   "work",
@@ -49,26 +53,28 @@ const INTERRUPTION_REASONS = [
   "other",
 ] as const satisfies readonly InterruptionReason[];
 
-type SessionFastingCardProps = {
-  declarationActualMinutes: number;
-  declarationActualPercent: number;
-  declarationTotalMinutes: number;
-  declarations: DeclarationItem[];
-  fasting: FastingState;
-  fastingElapsedLabel: string;
-  fastingFlash: boolean;
-  fastingRemainLabel: string;
-  fastingRingPercent: number;
-  isSelfView: boolean;
+type SessionFastingCardProps = Pick<
+  ReturnType<typeof useLiveBoard>,
+  | "declarationActualMinutes"
+  | "declarationActualPercent"
+  | "declarationTotalMinutes"
+  | "declarations"
+  | "fasting"
+  | "fastingElapsedLabel"
+  | "fastingFlash"
+  | "fastingRemainLabel"
+  | "fastingRingPercent"
+  | "session"
+  | "sessionElapsedLabel"
+  | "sessionFlash"
+  | "sessionGoalLabel"
+  | "sessionProgressPercent"
+  | "isSelfView"
+> & {
   onCompleteSession: () => void;
   onPauseSession: (reason: InterruptionReason) => void;
   onResumeSession: () => void;
   onStartSession: () => void;
-  session: SessionState;
-  sessionElapsedLabel: string;
-  sessionFlash: boolean;
-  sessionGoalLabel: string;
-  sessionProgressPercent: number;
 };
 
 export function SessionFastingCard({
@@ -92,8 +98,10 @@ export function SessionFastingCard({
   sessionGoalLabel,
   sessionProgressPercent,
 }: SessionFastingCardProps) {
-  const [statusAccent, statusLabel] = SESSION_STATUS_ACCENT[session.status];
-  const phaseAccent = FASTING_PHASE_ACCENT[fasting.phase];
+  const sessionStatus = session === null ? "idle" : session.status;
+  const [statusAccent, statusLabel] = SESSION_STATUS_ACCENT[sessionStatus];
+  const fastingPhase = fasting?.phase ?? "early";
+  const phaseAccent = FASTING_PHASE_ACCENT[fastingPhase];
 
   return (
     <Paper
@@ -141,9 +149,11 @@ export function SessionFastingCard({
             >
               {statusLabel}
             </Badge>
-            <Text size="sm" c="dimmed">
-              {CATEGORY_LABELS[session.category]}
-            </Text>
+            {session !== null && (
+              <Text size="sm" c="dimmed">
+                {CATEGORY_LABELS[session.category]}
+              </Text>
+            )}
           </Group>
           <Text
             fw={600}
@@ -163,7 +173,7 @@ export function SessionFastingCard({
           <Text size="xs" c="dimmed">
             中断{" "}
             <Text component="span" size="xs" c="var(--tx)">
-              {session.interruptionCount}
+              {session?.interruptionCount ?? 0}
             </Text>{" "}
             回
           </Text>
@@ -172,10 +182,13 @@ export function SessionFastingCard({
 
       <Progress value={sessionProgressPercent} color={ACCENT_VARS.good} size="sm" mt="md" />
 
+      {/* Session controls are disabled in W1 — start/pause/resume/complete mutations
+          land in W2 (docs/plans/2026-07-07-live-board-wiring.md, out of scope here). */}
       <Group wrap="wrap" gap={8} mt="md" align="center">
-        {session.status === "active" && (
+        {sessionStatus === "active" && (
           <>
             <Button
+              disabled
               variant="filled"
               style={ACCENT_SOLID_STYLE.good}
               size="sm"
@@ -189,10 +202,11 @@ export function SessionFastingCard({
             {INTERRUPTION_REASONS.map((reason) => (
               <UnstyledButton
                 key={reason}
+                disabled
                 onClick={() => onPauseSession(reason)}
                 className={cn(
                   ACCENT_CLASSES.amber.border,
-                  "bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-semibold",
+                  "bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-semibold disabled:opacity-40",
                 )}
               >
                 {REASON_LABELS[reason]}
@@ -200,9 +214,10 @@ export function SessionFastingCard({
             ))}
           </>
         )}
-        {session.status === "paused" && (
+        {sessionStatus === "paused" && (
           <>
             <Button
+              disabled
               variant="filled"
               style={ACCENT_SOLID_STYLE.good}
               size="sm"
@@ -211,6 +226,7 @@ export function SessionFastingCard({
               再開
             </Button>
             <Button
+              disabled
               variant="outline"
               size="sm"
               className="border-bd-2 text-tx"
@@ -218,16 +234,14 @@ export function SessionFastingCard({
             >
               完了
             </Button>
-            {session.lastInterruptionReason !== null && (
-              <Text size="xs" c={ACCENT_VARS.amber}>
-                中断中 · {REASON_LABELS[session.lastInterruptionReason]}
-              </Text>
-            )}
           </>
         )}
-        {(session.status === "idle" || session.status === "completed") && (
+        {(sessionStatus === "idle" ||
+          sessionStatus === "completed" ||
+          sessionStatus === "abandoned") && (
           <>
             <Button
+              disabled
               variant="filled"
               style={ACCENT_SOLID_STYLE.good}
               size="sm"
@@ -276,10 +290,10 @@ export function SessionFastingCard({
               断食
             </Text>
             <Text fw={600} size="lg" c={ACCENT_VARS[phaseAccent]}>
-              {FASTING_PHASE_LABELS[fasting.phase]}
+              {fasting === null ? "未開始" : FASTING_PHASE_LABELS[fastingPhase]}
             </Text>
             <Text size="sm" c="dimmed">
-              {FASTING_PHASE_SUB_LABELS[fasting.phase]}
+              {fasting === null ? "断食を開始していません" : FASTING_PHASE_SUB_LABELS[fastingPhase]}
             </Text>
             <Text size="xs" c="dimmed">
               経過{" "}

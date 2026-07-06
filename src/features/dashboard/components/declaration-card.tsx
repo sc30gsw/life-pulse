@@ -1,25 +1,26 @@
 import { Box, Group, Progress, Stack, Text } from "@mantine/core";
 
+import type { useLiveBoard } from "~/features/dashboard/hooks/use-live-board";
 import {
   ACCENT_VARS,
   CATEGORY_LABELS,
   DECLARATION_STATUS_LABELS,
-  type DeclarationItem,
   type DeclarationStatus,
+  type SessionCategory,
 } from "~/features/dashboard/types/dashboard";
 
-// Single consumer: maps a declaration status to the accent key used for its dot + status text.
 const STATUS_ACCENT = {
   done: "good",
   eroded: "coral",
   planned: "faint",
+  rescheduled: "violet",
 } as const satisfies Record<DeclarationStatus, keyof typeof ACCENT_VARS>;
 
 type DeclarationCardProps = {
-  actualMinutes: number;
-  actualPercent: number;
-  declarations: DeclarationItem[];
-  totalMinutes: number;
+  actualMinutes: ReturnType<typeof useLiveBoard>["declarationActualMinutes"];
+  actualPercent: ReturnType<typeof useLiveBoard>["declarationActualPercent"];
+  declarations: ReturnType<typeof useLiveBoard>["declarations"];
+  totalMinutes: ReturnType<typeof useLiveBoard>["declarationTotalMinutes"];
 };
 
 export function DeclarationCard({
@@ -75,7 +76,7 @@ export function DeclarationCard({
               <Text size="xs" c="dimmed">
                 {item.startHm}
               </Text>
-              <Text size="xs">{CATEGORY_LABELS[item.category]}</Text>
+              <Text size="xs">{CATEGORY_LABELS[item.category as SessionCategory]}</Text>
               <Text size="11px" c={ACCENT_VARS[accent]} className="ml-auto">
                 {DECLARATION_STATUS_LABELS[item.status]}
               </Text>
