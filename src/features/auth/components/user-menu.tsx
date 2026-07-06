@@ -1,7 +1,9 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Avatar, Group, Menu, Text, UnstyledButton } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import { IconChevronDown, IconLogout } from "@tabler/icons-react";
 import { useNavigate } from "@tanstack/react-router";
+import cn from "cnfast";
 import { useTransition } from "react";
 
 import { useViewer } from "~/features/auth/hooks/use-viewer";
@@ -10,6 +12,7 @@ export function UserMenu() {
   const { signOut } = useAuthActions();
   const navigate = useNavigate();
   const [isPending, startTransition] = useTransition();
+  const [opened, { toggle }] = useDisclosure(false);
   const { data: viewer } = useViewer();
 
   if (viewer === null) {
@@ -17,7 +20,7 @@ export function UserMenu() {
   }
 
   return (
-    <Menu position="bottom-end" shadow="md" width={200}>
+    <Menu opened={opened} onChange={toggle} position="bottom-end" shadow="md" width={200}>
       <Menu.Target>
         <UnstyledButton>
           <Group gap="xs">
@@ -32,7 +35,10 @@ export function UserMenu() {
                 {viewer.role}
               </Text>
             </div>
-            <IconChevronDown size={16} />
+            <IconChevronDown
+              size={16}
+              className={cn("transition-transform duration-200", opened && "rotate-180")}
+            />
           </Group>
         </UnstyledButton>
       </Menu.Target>
