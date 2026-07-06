@@ -3,11 +3,10 @@ import { Shimmer } from "@shimmer-from-structure/react";
 
 export function PendingComponent() {
   return (
-    <div
+    <output
       aria-busy
       aria-label="読み込み中"
-      className="min-h-dvh px-4 py-5 pb-16 sm:px-8 sm:py-6"
-      role="status"
+      className="block min-h-dvh px-4 py-5 pb-16 sm:px-8 sm:py-6"
     >
       <Shimmer loading>
         <Group align="center" gap="md" wrap="wrap">
@@ -44,6 +43,6 @@ export function PendingComponent() {
           </div>
         </div>
       </Shimmer>
-    </div>
+    </output>
   );
 }
