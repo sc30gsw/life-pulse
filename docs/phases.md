@@ -16,7 +16,7 @@
 - [x] Scaffold(TanStack Start + Convex + Vite+)
 - [x] FR-9 認証(Convex Auth Password / オープンサインアップ / requireUser・requireSelf)— PR #2
 - [x] FR-1 ライブボード UI 骨格(fixtures 駆動、デザイン: `docs/design/live-board.md`)
-- [ ] **auth フロントエンドテスト追加(Phase 0)** → [2026-07-07-live-board-wiring.md](./2026-07-07-live-board-wiring.md)
+- [ ] **auth フロントエンドテスト追加(Phase 0)** → [2026-07-07-live-board-wiring.md](./plans/2026-07-07-live-board-wiring.md)
 - [ ] **schema.ts 全テーブル確定(spec §3)(Phase 1)** → 同上
 - [ ] **dashboard.live クエリ + FR-5 犬 mutations + FR-8 presence mutation(Phase 2)** → 同上
 - [ ] **ライブボード実配線(fixtures → Convex 購読、段階的削除)(Phase 3)** → 同上
