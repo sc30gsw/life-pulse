@@ -62,6 +62,11 @@ export default defineConfig({
   staged: {
     "*.{js,jsx,ts,tsx,json,css}": "vp check --fix",
   },
+  resolve: {
+    alias: {
+      "~": new URL("./src", import.meta.url).pathname,
+    },
+  },
   plugins: [
     tailwindcss(),
     tanstackStart(),

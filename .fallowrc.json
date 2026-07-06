@@ -1,4 +1,5 @@
 {
   "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
-  "ignoreDependencies": ["better-typescript-lib"]
+  // postcss-preset-mantine / postcss-simple-vars: only referenced from postcss.config.cjs, invisible to fallow's import graph
+  "ignoreDependencies": ["better-typescript-lib", "postcss-preset-mantine", "postcss-simple-vars"]
 }
