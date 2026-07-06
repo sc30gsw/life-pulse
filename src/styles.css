@@ -5,6 +5,7 @@
 
 /* Live Board design tokens — source of truth: docs/design/live-board.md */
 :root {
+  color-scheme: dark;
   --bg: #0e1016;
   --panel: #171a22;
   --panel2: #1e222c;
@@ -24,6 +25,7 @@
 }
 
 [data-theme="light"] {
+  color-scheme: light;
   --bg: #e9e6df;
   --panel: #fbfaf7;
   --panel2: #f1efe9;
@@ -67,4 +69,56 @@ body {
   transition:
     background 0.35s ease,
     color 0.35s ease;
+}
+
+@keyframes lp-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(0.7);
+  }
+}
+
+@keyframes lp-flash {
+  0% {
+    background: var(--flash);
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+@keyframes lp-toast-in {
+  0% {
+    opacity: 0;
+    transform: translateX(16px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.lp-pulse {
+  animation: lp-pulse 2s ease-in-out infinite;
+}
+
+.lp-flash {
+  animation: lp-flash 0.95s ease-out;
+}
+
+.lp-toast-in {
+  animation: lp-toast-in 0.32s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-pulse,
+  .lp-flash,
+  .lp-toast-in {
+    animation: none;
+  }
 }

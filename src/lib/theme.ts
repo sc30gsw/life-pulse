@@ -1,6 +1,6 @@
 import { createTheme } from "@mantine/core";
 
 export const theme = createTheme({
-  fontFamily: "'Space Grotesk', system-ui, sans-serif",
+  fontFamily: "'JetBrains Mono', monospace",
   fontFamilyMonospace: "'JetBrains Mono', monospace",
 });
