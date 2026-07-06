@@ -64,6 +64,10 @@ test("formatRelativeTime returns たった今 for deltas under 8 seconds", () =>
   expect(formatRelativeTime(1_000, 5_000)).toBe("たった今");
 });
 
+test("formatRelativeTime clamps a negative delta (server clock ahead of client) to たった今", () => {
+  expect(formatRelativeTime(10_000, 5_000)).toBe("たった今");
+});
+
 test("formatRelativeTime returns seconds-ago for deltas under 60 seconds", () => {
   expect(formatRelativeTime(0, 30_000)).toBe("30秒前");
 });

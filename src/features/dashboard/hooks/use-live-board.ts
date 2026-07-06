@@ -1,11 +1,16 @@
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import type { FunctionArgs } from "convex/server";
 import { useEffect, useRef, useState } from "react";
 
-import { api } from "~/../convex/_generated/api";
-import { dashboardLiveQuery } from "~/features/dashboard/api/dashboard-live-query";
+import {
+  dashboardDogQuery,
+  dashboardFastingQuery,
+  dashboardHealthQuery,
+  dashboardPresenceQuery,
+  dashboardStudyQuery,
+  dashboardViewerQuery,
+} from "~/features/dashboard/api/dashboard-live-query";
 import { useLogDogEvent } from "~/features/dashboard/hooks/use-log-dog-event";
 import { useSetPresence } from "~/features/dashboard/hooks/use-set-presence";
 import { useUndoDogEvent } from "~/features/dashboard/hooks/use-undo-dog-event";
@@ -30,8 +35,6 @@ import {
 } from "~/features/dashboard/utils/format";
 import { toDateJst, todayJst } from "~/utils/date-jst";
 
-type LiveQueryArgs = FunctionArgs<typeof api.queries.dashboard.live.live>;
-
 const MINUTE_MS = 60_000;
 const CLOCK_TICK_MS = 1_000;
 const TOAST_LIFETIME_MS = 4_200;
@@ -40,7 +43,7 @@ const DEFAULT_FASTING_TARGET_MINUTES = 960;
 
 export function useLiveBoard() {
   const [nowMs, setNowMs] = useState(() => Date.now());
-  const [dateJst, setDateJst] = useState<LiveQueryArgs["dateJst"]>(() => todayJst());
+  const [dateJst, setDateJst] = useState(() => todayJst());
   const [theme, setTheme] = useState<ThemeMode>("dark");
   const [toasts, setToasts] = useState<BoardToast[]>([]);
 
@@ -73,7 +76,8 @@ export function useLiveBoard() {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
 
-  // 1s clock tick, also detects a JST day rollover and re-points the live query at the new day.
+  // 1s clock tick, also detects a JST day rollover and re-points card queries
+  // at the new date. Data stays card-scoped; this hook only owns the shared key.
   useEffect(() => {
     const id = setInterval(() => {
       const tickNow = Date.now();
@@ -87,11 +91,19 @@ export function useLiveBoard() {
     };
   }, []);
 
-  const { data } = useSuspenseQuery(dashboardLiveQuery(dateJst));
+  const { data: viewer } = useSuspenseQuery(dashboardViewerQuery());
+  const { data: study } = useSuspenseQuery(dashboardStudyQuery(dateJst));
+  const { data: fasting } = useSuspenseQuery(dashboardFastingQuery());
+  const { data: health } = useSuspenseQuery(dashboardHealthQuery(dateJst));
+  const { data: dog } = useSuspenseQuery(dashboardDogQuery(dateJst));
+  const { data: partnerPresence } = useSuspenseQuery(dashboardPresenceQuery());
 
   const logDogEvent = useLogDogEvent();
   const undoDogEvent = useUndoDogEvent();
   const setPresence = useSetPresence();
+
+  const declarations = toDeclarationItems(study.blocks);
+  const dogCare = toDogCareItems(dog.events);
 
   function onToggleTheme() {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
@@ -112,11 +124,7 @@ export function useLiveBoard() {
             notifications.show({ color: "red", message: "記録に失敗しました", title: "エラー" });
           },
           onSuccess: () => {
-            pushToast(
-              `${data.dog.dogName}の${DOG_EVENT_LABELS[kind]} ✓ 記録`,
-              "coral",
-              "自分の操作",
-            );
+            pushToast(`${dog.dogName}の${DOG_EVENT_LABELS[kind]} ✓ 記録`, "coral", "自分の操作");
           },
         },
       );
@@ -124,7 +132,7 @@ export function useLiveBoard() {
       return;
     }
 
-    const loggedEvent = data.dog.events.find((event) => event.kind === kind);
+    const loggedEvent = dog.events.find((event) => event.kind === kind);
     if (loggedEvent === undefined) {
       return;
     }
@@ -141,11 +149,7 @@ export function useLiveBoard() {
               notifications.show({ color: "red", message: "取消に失敗しました", title: "エラー" });
             },
             onSuccess: () => {
-              pushToast(
-                `${data.dog.dogName}の${DOG_EVENT_LABELS[kind]} 取消`,
-                "faint",
-                "自分の操作",
-              );
+              pushToast(`${dog.dogName}の${DOG_EVENT_LABELS[kind]} 取消`, "faint", "自分の操作");
             },
           },
         );
@@ -154,10 +158,9 @@ export function useLiveBoard() {
     });
   }
 
-  function onSetPresence(state: PresenceState) {
-    // FR-8.1's ETA is optional; a dedicated ETA input is a future enhancement, not part of W1.
+  function onSetPresence(state: PresenceState, etaHm?: string) {
     setPresence.mutate(
-      { state },
+      { etaHm, state },
       {
         onError: () => {
           notifications.show({ color: "red", message: "更新に失敗しました", title: "エラー" });
@@ -169,26 +172,25 @@ export function useLiveBoard() {
     );
   }
 
-  const declarations = toDeclarationItems(data.blocks);
-  const dogCare = toDogCareItems(data.dog.events);
-
-  const sessionElapsedMs = deriveSessionElapsedMs(data.session, nowMs);
-  const fastingTargetMinutes = data.fasting?.targetMinutes ?? DEFAULT_FASTING_TARGET_MINUTES;
+  const sessionElapsedMs = deriveSessionElapsedMs(study.session, nowMs);
+  const fastingTargetMinutes = fasting?.targetMinutes ?? DEFAULT_FASTING_TARGET_MINUTES;
   const fastingElapsedMinutes =
-    data.fasting === null ? 0 : deriveFastingElapsedMinutes(data.fasting.startedAt, nowMs);
+    fasting === null ? 0 : deriveFastingElapsedMinutes(fasting.startedAt, nowMs);
 
   const declarationTotalMinutes = declarations.reduce((sum, item) => sum + item.plannedMinutes, 0);
   const inProgressMinutes =
-    data.session !== null && (data.session.status === "active" || data.session.status === "paused")
+    study.session !== null &&
+    (study.session.status === "active" || study.session.status === "paused")
       ? Math.round(sessionElapsedMs / MINUTE_MS)
       : 0;
-  const declarationActualMinutes = data.todayActualMinutes + inProgressMinutes;
+  const declarationActualMinutes = study.todayActualMinutes + inProgressMinutes;
 
-  const goalMinutes = data.session?.plannedMinutes ?? 0;
+  const goalMinutes = study.session?.plannedMinutes ?? 0;
 
   return {
     clockDateLabel: formatClockDate(nowMs),
     clockTime: formatClockTime(nowMs),
+    dateJst,
     declarationActualMinutes,
     declarationActualPercent:
       declarationTotalMinutes > 0
@@ -199,8 +201,8 @@ export function useLiveBoard() {
     dogCare,
     // Flash-on-remote-update (server push detection) is deferred past W1 — see the wiring plan.
     dogFlash: false,
-    dogName: data.dog.dogName,
-    fasting: data.fasting,
+    dogName: dog.dogName,
+    fasting,
     fastingElapsedLabel: formatMinutesAsHm(fastingElapsedMinutes),
     fastingFlash: false,
     fastingRemainLabel: formatMinutesAsHm(
@@ -210,21 +212,20 @@ export function useLiveBoard() {
       100,
       Math.round((fastingElapsedMinutes / fastingTargetMinutes) * 100),
     ),
-    isPartnerView: data.viewer.role === "partner",
-    isSelfView: data.viewer.role === "self",
-    lastSyncRelativeLabel:
-      data.health === null ? "未同期" : formatRelativeTime(data.health.syncedAt, nowMs),
-    metrics: data.health,
+    isPartnerView: viewer.role === "partner",
+    isSelfView: viewer.role === "self",
+    lastSyncRelativeLabel: health === null ? "未同期" : formatRelativeTime(health.syncedAt, nowMs),
+    metrics: health,
+    nowMs,
     onSetPresence,
     onToggleDogCare,
     onToggleTheme,
-    partner: data.partnerPresence,
+    partner: partnerPresence,
     partnerFlash: false,
     partnerUpdatedRelativeLabel:
-      data.partnerPresence === null
-        ? "未更新"
-        : formatRelativeTime(data.partnerPresence.updatedAt, nowMs),
-    session: data.session,
+      partnerPresence === null ? "未更新" : formatRelativeTime(partnerPresence.updatedAt, nowMs),
+    pushToast,
+    session: study.session,
     sessionElapsedLabel: formatElapsedClock(sessionElapsedMs),
     sessionFlash: false,
     sessionGoalLabel: `${goalMinutes}分`,

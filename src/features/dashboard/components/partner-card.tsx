@@ -1,5 +1,16 @@
-import { Badge, Box, Group, Paper, Stack, Text, UnstyledButton } from "@mantine/core";
+import {
+  Badge,
+  Box,
+  Button,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  TextInput,
+  UnstyledButton,
+} from "@mantine/core";
 import { cn } from "cnfast";
+import { useState } from "react";
 
 import type { useLiveBoard } from "~/features/dashboard/hooks/use-live-board";
 import {
@@ -31,6 +42,7 @@ export function PartnerCard({
   ReturnType<typeof useLiveBoard>,
   "isPartnerView" | "onSetPresence" | "partner" | "partnerFlash" | "partnerUpdatedRelativeLabel"
 >) {
+  const [etaInput, setEtaInput] = useState("");
   const accent = partner === null ? "faint" : PRESENCE_ACCENTS[partner.state];
 
   return (
@@ -85,6 +97,28 @@ export function PartnerCard({
           </Text>
         </Stack>
       </Group>
+
+      {/* FR-8.1 / plan §3-5: the ETA input appears only while 帰宅中 is the active state. */}
+      {isPartnerView && partner?.state === "commuting_home" && (
+        <Group gap={8} mb="sm" wrap="nowrap">
+          <TextInput
+            aria-label="帰宅ETA"
+            onChange={(event) => setEtaInput(event.currentTarget.value)}
+            placeholder="20:30"
+            size="xs"
+            value={etaInput}
+          />
+          <Button
+            className="border-bd-2 text-tx"
+            onClick={() => onSetPresence("commuting_home", etaInput === "" ? undefined : etaInput)}
+            size="xs"
+            type="button"
+            variant="outline"
+          >
+            ETA設定
+          </Button>
+        </Group>
+      )}
 
       {isPartnerView && (
         <Group gap={8} wrap="wrap">

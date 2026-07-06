@@ -13,7 +13,6 @@ import type {
   healthSourceValidator,
   interruptionReasonValidator,
   presenceStateValidator,
-  roleValidator,
 } from "~/../convex/lib/validators";
 
 export type SessionCategory = Infer<typeof categoryValidator>;
@@ -94,8 +93,6 @@ export const DOG_EVENT_LABELS = {
   walk_am: "朝散歩",
   walk_pm: "夜散歩",
 } as const satisfies Record<DogEventKind, string>;
-
-export type DogCareBy = Infer<typeof roleValidator>;
 
 export type ToastAccent = "good" | "amber" | "blue" | "coral" | "violet" | "faint";
 

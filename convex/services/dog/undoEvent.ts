@@ -1,11 +1,11 @@
 import { ConvexError } from "convex/values";
 
-import type { Doc, Id } from "../../_generated/dataModel";
+import type { Doc } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
 
 type UndoEventArgs = {
   dateJst: Doc<"dogEvents">["dateJst"];
-  eventId: Id<"dogEvents">;
+  eventId: Doc<"dogEvents">["_id"];
 };
 
 export async function undoEvent(ctx: MutationCtx, args: UndoEventArgs) {

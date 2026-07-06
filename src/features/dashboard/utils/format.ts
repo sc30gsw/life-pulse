@@ -1,10 +1,9 @@
 import type { FunctionReturnType } from "convex/server";
 
+import type { api } from "~/../convex/_generated/api";
 import type { Doc } from "~/../convex/_generated/dataModel";
 import type { DogEventKind } from "~/features/dashboard/types/dashboard";
 import { dayjs } from "~/utils/dayjs";
-
-import type { api } from "../../../../convex/_generated/api";
 
 // Fixed daily checklist (FR-1.4 / design) — deliberately excludes "toilet" and "other",
 // which are logged but not part of the at-a-glance done/pending board.
@@ -49,13 +48,13 @@ export function formatMinutesAsHm(rawMinutes: number) {
 
 export function formatRelativeTime(
   pastMs:
-    | NonNullable<FunctionReturnType<typeof api.queries.dashboard.live.live>["health"]>["syncedAt"]
-    | NonNullable<
-        FunctionReturnType<typeof api.queries.dashboard.live.live>["partnerPresence"]
-      >["updatedAt"],
+    | NonNullable<FunctionReturnType<typeof api.queries.dashboard.health.health>>["syncedAt"]
+    | NonNullable<FunctionReturnType<typeof api.queries.dashboard.presence.presence>>["updatedAt"],
   nowMs: number,
 ) {
-  const deltaSeconds = Math.floor((nowMs - pastMs) / TIME_CONSTANTS.SECOND_MS);
+  // Server timestamps can sit slightly ahead of the client clock — clamp so skew
+  // never produces a negative delta.
+  const deltaSeconds = Math.max(0, Math.floor((nowMs - pastMs) / TIME_CONSTANTS.SECOND_MS));
   if (deltaSeconds < TIME_CONSTANTS.JUST_NOW_THRESHOLD_SECONDS) {
     return "たった今";
   }
@@ -99,7 +98,7 @@ export function deriveSessionElapsedMs(session: Doc<"studySessions"> | null, now
 
 export function deriveFastingElapsedMinutes(
   fastingStartedAt: NonNullable<
-    FunctionReturnType<typeof api.queries.dashboard.live.live>["fasting"]
+    FunctionReturnType<typeof api.queries.dashboard.fasting.fasting>
   >["startedAt"],
   nowMs: number,
 ) {
@@ -116,7 +115,7 @@ export function toDeclarationItems(blocks: Doc<"studyBlocks">[]) {
 }
 
 export function toDogCareItems(
-  events: FunctionReturnType<typeof api.queries.dashboard.live.live>["dog"]["events"],
+  events: FunctionReturnType<typeof api.queries.dashboard.dog.dog>["events"],
 ) {
   return DOG_CARE_KINDS.map((kind) => {
     const event = events.find((candidate) => candidate.kind === kind);

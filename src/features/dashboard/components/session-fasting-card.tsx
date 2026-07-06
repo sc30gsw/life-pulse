@@ -202,6 +202,7 @@ export function SessionFastingCard({
             {INTERRUPTION_REASONS.map((reason) => (
               <UnstyledButton
                 key={reason}
+                type="button"
                 disabled
                 onClick={() => onPauseSession(reason)}
                 className={cn(
