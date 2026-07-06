@@ -1,17 +1,12 @@
-import { useAuthActions } from "@convex-dev/auth/react";
 import { Avatar, Group, Menu, Text, UnstyledButton } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { IconChevronDown, IconLogout } from "@tabler/icons-react";
-import { useNavigate } from "@tanstack/react-router";
+import { IconChevronDown } from "@tabler/icons-react";
 import cn from "cnfast";
-import { useTransition } from "react";
 
+import { LogoutButton } from "~/features/auth/components/logout-button";
 import { useViewer } from "~/features/auth/hooks/use-viewer";
 
 export function UserMenu() {
-  const { signOut } = useAuthActions();
-  const navigate = useNavigate();
-  const [isPending, startTransition] = useTransition();
   const [opened, { toggle }] = useDisclosure(false);
   const { data: viewer } = useViewer();
 
@@ -43,19 +38,7 @@ export function UserMenu() {
         </UnstyledButton>
       </Menu.Target>
       <Menu.Dropdown>
-        <Menu.Item
-          color="red"
-          disabled={isPending}
-          leftSection={<IconLogout size={16} />}
-          onClick={() => {
-            startTransition(async () => {
-              await signOut();
-              navigate({ to: "/login" });
-            });
-          }}
-        >
-          ログアウト
-        </Menu.Item>
+        <LogoutButton />
       </Menu.Dropdown>
     </Menu>
   );
