@@ -1,11 +1,7 @@
-import type { FunctionArgs, FunctionReturnType } from "convex/server";
+import type { FunctionReturnType } from "convex/server";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
-import type {
-  DogCareBy,
-  DogEventKind,
-  SessionCategory,
-} from "~/features/dashboard/types/dashboard";
+import type { DogEventKind } from "~/features/dashboard/types/dashboard";
 import { dayjs } from "~/utils/dayjs";
 
 import type { api } from "../../../../convex/_generated/api";
@@ -88,22 +84,31 @@ export function formatClockDate(nowMs: number) {
 }
 
 export function deriveSessionElapsedMs(session: Doc<"studySessions"> | null, nowMs: number) {
-  if (session === null) return 0;
-  if (session.status !== "active") return session.accumulatedMs;
-  // A session that just resumed may have lastResumedAt set slightly after startedAt on
-  // first activation — fall back to startedAt so this never reads as undefined.
+  if (session === null) {
+    return 0;
+  }
+
+  if (session.status !== "active") {
+    return session.accumulatedMs;
+  }
+
+  //* A session that just resumed may have lastResumedAt set slightly after startedAt on
+  //* first activation — fall back to startedAt so this never reads as undefined.
   return session.accumulatedMs + Math.max(0, nowMs - (session.lastResumedAt ?? session.startedAt));
 }
 
-export function deriveFastingElapsedMinutes(fastingStartedAt: number, nowMs: number) {
+export function deriveFastingElapsedMinutes(
+  fastingStartedAt: NonNullable<
+    FunctionReturnType<typeof api.queries.dashboard.live.live>["fasting"]
+  >["startedAt"],
+  nowMs: number,
+) {
   return Math.max(0, (nowMs - fastingStartedAt) / TIME_CONSTANTS.MINUTE_MS);
 }
 
 export function toDeclarationItems(blocks: Doc<"studyBlocks">[]) {
   return blocks.map((block) => ({
-    // studyBlocks.category is a plain v.string() in the schema, not the categoryValidator
-    // enum studySessions.category uses — this cast bridges that schema asymmetry.
-    category: block.category as SessionCategory,
+    category: block.category,
     plannedMinutes: block.plannedMinutes,
     startHm: block.startHm,
     status: block.status,
@@ -111,7 +116,7 @@ export function toDeclarationItems(blocks: Doc<"studyBlocks">[]) {
 }
 
 export function toDogCareItems(
-  events: Array<{ at: number; byRole: DogCareBy; kind: DogEventKind }>,
+  events: FunctionReturnType<typeof api.queries.dashboard.live.live>["dog"]["events"],
 ) {
   return DOG_CARE_KINDS.map((kind) => {
     const event = events.find((candidate) => candidate.kind === kind);

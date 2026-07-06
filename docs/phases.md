@@ -19,7 +19,7 @@
 - [x] **auth フロントエンドテスト追加(Phase 0)** → [2026-07-07-live-board-wiring.md](./plans/2026-07-07-live-board-wiring.md)
 - [x] **schema.ts 全テーブル確定(spec §3)(Phase 1)** → 同上
 - [x] **dashboard.live クエリ + FR-5 犬 mutations + FR-8 presence mutation(Phase 2)** → 同上
-- [ ] **ライブボード実配線(fixtures → Convex 購読、段階的削除)(Phase 3)** → 同上
+- [x] **ライブボード実配線(fixtures → Convex 購読、段階的削除)(Phase 3)** → 同上
 - [ ] **検証 + PR(Phase 4)** → 同上
 
 ## W2 — 学習セッション + 枠(FR-2 / FR-3)

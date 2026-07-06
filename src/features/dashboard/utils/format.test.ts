@@ -1,6 +1,6 @@
 import { expect, test } from "vite-plus/test";
 
-import type { Doc } from "~/../convex/_generated/dataModel";
+import type { Doc, Id } from "~/../convex/_generated/dataModel";
 import {
   deriveFastingElapsedMinutes,
   deriveSessionElapsedMs,
@@ -151,14 +151,30 @@ test("toDogCareItems returns all five fixed kinds as pending when no events exis
 });
 
 test("toDogCareItems marks a logged kind as done with its actor and time", () => {
-  const items = toDogCareItems([{ at: 1000, byRole: "partner", kind: "meal_am" }]);
+  const items = toDogCareItems([
+    {
+      at: 1000,
+      byDisplayName: "パートナー",
+      byRole: "partner",
+      id: "event_1" as Id<"dogEvents">,
+      kind: "meal_am",
+    },
+  ]);
   const mealAm = items.find((item) => item.kind === "meal_am");
 
   expect(mealAm).toEqual({ at: 1000, by: "partner", done: true, kind: "meal_am" });
 });
 
 test("toDogCareItems ignores logged kinds outside the fixed checklist", () => {
-  const items = toDogCareItems([{ at: 1000, byRole: "self", kind: "toilet" }]);
+  const items = toDogCareItems([
+    {
+      at: 1000,
+      byDisplayName: "本人",
+      byRole: "self",
+      id: "event_2" as Id<"dogEvents">,
+      kind: "toilet",
+    },
+  ]);
 
   expect(items.every((item) => !item.done)).toBe(true);
 });
