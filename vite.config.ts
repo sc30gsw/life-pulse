@@ -12,7 +12,7 @@ const reactDoctorRules = {
 
 export default defineConfig({
   fmt: {
-    ignorePatterns: ["**/routeTree.gen.ts"],
+    ignorePatterns: ["**/routeTree.gen.ts", "convex/_generated/**"],
     sortImports: {
       partitionByComment: true,
     },
