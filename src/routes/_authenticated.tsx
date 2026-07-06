@@ -20,7 +20,7 @@ function AuthenticatedLayout() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-dvh">
       <header className="border-bd flex items-center justify-end border-b px-6 py-3">
         <UserMenu />
       </header>

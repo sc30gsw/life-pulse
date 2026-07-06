@@ -1,20 +1,17 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Field, Form, useForm } from "@formisch/react";
-import { Button, Loader, PasswordInput, Select, Stack, TextInput } from "@mantine/core";
+import { Button, PasswordInput, Select, Stack, TextInput } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { useNavigate } from "@tanstack/react-router";
+import { IconLock, IconMail, IconUser, IconUserPlus, IconUsers } from "@tabler/icons-react";
 import { Result } from "better-result";
 import { ConvexError } from "convex/values";
 
 import { getFieldError } from "~/features/auth/components/field-error";
-import { useEnsureUser } from "~/features/auth/hooks/use-ensure-user";
 import { SignupSchema } from "~/features/auth/schemas/signup-schema";
 import { AuthError } from "~/features/auth/types/auth-error";
 
 export function SignupForm() {
   const { signIn } = useAuthActions();
-  const ensureUser = useEnsureUser();
-  const navigate = useNavigate();
   const form = useForm({ revalidate: "input", schema: SignupSchema, validate: "blur" });
 
   return (
@@ -27,15 +24,14 @@ export function SignupForm() {
               cause,
               message: cause instanceof ConvexError ? String(cause.data) : "登録に失敗しました",
             }),
-          try: async () => {
-            await signIn("password", { email: output.email, password: output.password });
-            await ensureUser.mutateAsync({
+          try: () =>
+            signIn("password", {
               displayName: output.displayName,
+              email: output.email,
+              flow: "signUp",
+              password: output.password,
               role: output.role,
-            });
-
-            await navigate({ to: "/" });
-          },
+            }),
         });
 
         if (Result.isError(result)) {
@@ -51,10 +47,12 @@ export function SignupForm() {
               autoComplete="username"
               error={getFieldError(field, form.isSubmitted)}
               label="メールアドレス"
+              leftSection={<IconMail size={16} />}
               placeholder="you@example.com"
               required
               type="email"
               value={field.input}
+              disabled={form.isSubmitting}
             />
           )}
         </Field>
@@ -65,9 +63,11 @@ export function SignupForm() {
               autoComplete="name"
               error={getFieldError(field, form.isSubmitted)}
               label="表示名"
-              placeholder="山田 太郎"
+              leftSection={<IconUser size={16} />}
+              placeholder="John Doe"
               required
               value={field.input}
+              disabled={form.isSubmitting}
             />
           )}
         </Field>
@@ -85,11 +85,13 @@ export function SignupForm() {
               ]}
               error={getFieldError(field, form.isSubmitted)}
               label="ロール"
+              leftSection={<IconUsers size={16} />}
               onChange={(value) =>
                 field.onChange((value ?? undefined) as "partner" | "self" | undefined)
               }
               placeholder="選択してください"
               value={field.input ?? null}
+              disabled={form.isSubmitting}
             />
           )}
         </Field>
@@ -100,9 +102,11 @@ export function SignupForm() {
               autoComplete="new-password"
               error={getFieldError(field, form.isSubmitted)}
               label="パスワード"
+              leftSection={<IconLock size={16} />}
               placeholder="12文字以上・英大小文字+数字"
               required
               value={field.input}
+              disabled={form.isSubmitting}
             />
           )}
         </Field>
@@ -113,15 +117,22 @@ export function SignupForm() {
               autoComplete="new-password"
               error={getFieldError(field, form.isSubmitted)}
               label="パスワード(確認)"
+              leftSection={<IconLock size={16} />}
               placeholder="もう一度入力"
               required
               value={field.input}
+              disabled={form.isSubmitting}
             />
           )}
         </Field>
-        <Button fullWidth loading={form.isSubmitting} type="submit">
+        <Button
+          fullWidth
+          leftSection={<IconUserPlus size={18} />}
+          loading={form.isSubmitting}
+          disabled={form.isSubmitting}
+          type="submit"
+        >
           アカウント作成
-          {form.isSubmitting ? <Loader size="sm" /> : null}
         </Button>
       </Stack>
     </Form>

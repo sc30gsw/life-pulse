@@ -1,5 +1,7 @@
 import { Center, Paper, Stack, Text, Title } from "@mantine/core";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { IconLogin2 } from "@tabler/icons-react";
+import { Link, Navigate, createFileRoute } from "@tanstack/react-router";
+import { useConvexAuth } from "convex/react";
 
 import { SignupForm } from "~/features/auth/components/signup-form";
 
@@ -8,8 +10,14 @@ export const Route = createFileRoute("/signup")({
 });
 
 function SignupPage() {
+  const { isAuthenticated } = useConvexAuth();
+
+  if (isAuthenticated) {
+    return <Navigate to="/" />;
+  }
+
   return (
-    <Center className="bg-bg text-tx" mih="100vh" p="md">
+    <Center className="bg-bg text-tx" mih="100dvh" p="md">
       <Paper className="border-bd bg-panel shadow-card w-full max-w-sm border" p="xl" radius="lg">
         <Stack gap="lg">
           <div>
@@ -23,7 +31,8 @@ function SignupPage() {
           <SignupForm />
           <Text c="dimmed" size="sm" ta="center">
             アカウントをお持ちの方は{" "}
-            <Link className="text-blue" to="/login">
+            <Link className="text-blue inline-flex items-center gap-1" to="/login">
+              <IconLogin2 aria-hidden size={14} />
               ログイン
             </Link>
           </Text>

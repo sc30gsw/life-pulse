@@ -1,14 +1,13 @@
-import type { Infer } from "convex/values";
-
+import type { Doc } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
-import type { roleValidator } from "../../lib/validators";
 
-type EnsureUserArgs = {
-  displayName: string;
-  role: Infer<typeof roleValidator>;
-};
+type EnsureUserArgs = Pick<Doc<"appUsers">, "displayName" | "role">;
 
-export async function ensureUser(ctx: MutationCtx, authSubject: string, args: EnsureUserArgs) {
+export async function ensureUser(
+  ctx: MutationCtx,
+  authSubject: Doc<"appUsers">["authSubject"],
+  args: EnsureUserArgs,
+) {
   const existing = await ctx.db
     .query("appUsers")
     .withIndex("by_subject", (q) => q.eq("authSubject", authSubject))

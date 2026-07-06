@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_authenticated/")({
 function Home() {
   const [isBlue, setIsBlue] = useState(false);
   return (
-    <main className="grid min-h-screen place-items-center">
+    <main className="grid min-h-dvh place-items-center">
       <div className="space-y-4">
         <h1 className={cn("text-5xl font-bold text-red-500", isBlue && "text-blue-500")}>
           Hello World!

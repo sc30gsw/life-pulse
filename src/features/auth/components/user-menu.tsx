@@ -1,12 +1,15 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Avatar, Group, Menu, Text, UnstyledButton } from "@mantine/core";
+import { IconChevronDown, IconLogout } from "@tabler/icons-react";
 import { useNavigate } from "@tanstack/react-router";
+import { useTransition } from "react";
 
 import { useViewer } from "~/features/auth/hooks/use-viewer";
 
 export function UserMenu() {
   const { signOut } = useAuthActions();
   const navigate = useNavigate();
+  const [isPending, startTransition] = useTransition();
   const { data: viewer } = useViewer();
 
   if (viewer === null) {
@@ -29,13 +32,20 @@ export function UserMenu() {
                 {viewer.role}
               </Text>
             </div>
+            <IconChevronDown size={16} />
           </Group>
         </UnstyledButton>
       </Menu.Target>
       <Menu.Dropdown>
         <Menu.Item
+          color="red"
+          disabled={isPending}
+          leftSection={<IconLogout size={16} />}
           onClick={() => {
-            void signOut().then(() => navigate({ to: "/login" }));
+            startTransition(async () => {
+              await signOut();
+              navigate({ to: "/login" });
+            });
           }}
         >
           ログアウト

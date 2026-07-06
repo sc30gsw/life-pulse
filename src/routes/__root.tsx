@@ -55,11 +55,11 @@ function RootComponent() {
       </head>
       <body>
         <MantineProvider defaultColorScheme="dark" theme={theme}>
-          <Notifications />
+          <Notifications position="top-center" />
           <Outlet />
           {TanStackRouterDevtools ? (
             <Suspense fallback={null}>
-              <TanStackRouterDevtools position="bottom-right" />
+              <TanStackRouterDevtools />
             </Suspense>
           ) : null}
         </MantineProvider>

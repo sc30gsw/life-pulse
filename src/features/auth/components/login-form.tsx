@@ -1,8 +1,8 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Field, Form, useForm } from "@formisch/react";
-import { Button, Loader, PasswordInput, Stack, TextInput } from "@mantine/core";
+import { Button, PasswordInput, Stack, TextInput } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { useNavigate } from "@tanstack/react-router";
+import { IconLock, IconLogin2, IconMail } from "@tabler/icons-react";
 import { Result } from "better-result";
 import { ConvexError } from "convex/values";
 
@@ -12,7 +12,6 @@ import { AuthError } from "~/features/auth/types/auth-error";
 
 export function LoginForm() {
   const { signIn } = useAuthActions();
-  const navigate = useNavigate();
   const form = useForm({ revalidate: "input", schema: LoginSchema, validate: "blur" });
 
   return (
@@ -25,10 +24,13 @@ export function LoginForm() {
               cause,
               message: cause instanceof ConvexError ? String(cause.data) : "ログインに失敗しました",
             }),
-          try: async () => {
-            await signIn("password", { email: output.email, password: output.password });
-            await navigate({ to: "/" });
-          },
+
+          try: () =>
+            signIn("password", {
+              email: output.email,
+              flow: "signIn",
+              password: output.password,
+            }),
         });
 
         if (Result.isError(result)) {
@@ -48,10 +50,12 @@ export function LoginForm() {
               autoComplete="username"
               error={getFieldError(field, form.isSubmitted)}
               label="メールアドレス"
+              leftSection={<IconMail size={16} />}
               placeholder="you@example.com"
               required
               type="email"
               value={field.input}
+              disabled={form.isSubmitting}
             />
           )}
         </Field>
@@ -62,14 +66,22 @@ export function LoginForm() {
               autoComplete="current-password"
               error={getFieldError(field, form.isSubmitted)}
               label="パスワード"
+              leftSection={<IconLock size={16} />}
               placeholder="パスワードを入力"
               required
               value={field.input}
+              disabled={form.isSubmitting}
             />
           )}
         </Field>
-        <Button fullWidth loading={form.isSubmitting} type="submit">
-          ログイン {form.isSubmitting ? <Loader size="sm" /> : null}
+        <Button
+          fullWidth
+          leftSection={<IconLogin2 size={18} />}
+          loading={form.isSubmitting}
+          disabled={form.isSubmitting}
+          type="submit"
+        >
+          ログイン
         </Button>
       </Stack>
     </Form>
