@@ -101,3 +101,7 @@ Default label vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `read
 ### Domain docs
 
 Single-context layout — `CONTEXT.md` + `docs/adr/` at repo root (not yet created). See `docs/agents/domain.md`.
+
+## Design
+
+The UI design source of truth is the claude_design project `9bc66e31-1c1d-4e0b-8082-c955660c6963`, file `Live Board.dc.html`, summarized with an implementation mapping in `docs/design/live-board.md`. All screens — including auth pages (`/login`, `/signup`) — must follow that design language (dark theme, JetBrains Mono, card UI, CSS-var tokens mapped into `src/lib/theme.ts`). Enforcement rule: `.claude/rules/web/design-live-board.md`.
