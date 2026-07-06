@@ -25,3 +25,7 @@ dist
 .DS_Store
 
 .env.local
+
+# docs
+docs/design/
+docs/plans/
