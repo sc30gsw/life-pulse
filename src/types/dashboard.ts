@@ -9,10 +9,12 @@ import type {
   blockStatusValidator,
   categoryValidator,
   dogEventKindValidator,
+  erosionReasonValidator,
   fastingPhaseValidator,
   healthSourceValidator,
   interruptionReasonValidator,
   presenceStateValidator,
+  sessionStatusValidator,
 } from "~/../convex/lib/validators";
 
 export type SessionCategory = Infer<typeof categoryValidator>;
@@ -32,6 +34,24 @@ export const REASON_LABELS = {
   other: "その他",
   work: "仕事",
 } as const satisfies Record<InterruptionReason, string>;
+
+export type ErosionReason = Infer<typeof erosionReasonValidator>;
+
+export const EROSION_REASON_LABELS = {
+  fatigue: "疲労",
+  interruption: "割り込み",
+  other: "その他",
+  work: "仕事",
+} as const satisfies Record<ErosionReason, string>;
+
+export type SessionStatus = Infer<typeof sessionStatusValidator>;
+
+export const SESSION_STATUS_LABELS = {
+  abandoned: "放置終了",
+  active: "進行中",
+  completed: "完了",
+  paused: "中断中",
+} as const satisfies Record<SessionStatus, string>;
 
 type FastingPhase = Infer<typeof fastingPhaseValidator>;
 

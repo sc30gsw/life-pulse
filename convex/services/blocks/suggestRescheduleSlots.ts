@@ -18,16 +18,16 @@ export function suggestRescheduleSlots(
     return [];
   }
 
-  const plannedRanges = blocks
-    .filter((block) => block.status === "planned")
-    .map((block) => ({
-      end: hmToMinutes(block.endHm),
-      start: hmToMinutes(block.startHm),
-    }))
-    .filter(
-      (range): range is Record<"end" | "start", number> =>
-        range.start !== null && range.end !== null,
-    );
+  const plannedRanges = blocks.flatMap((block) => {
+    if (block.status !== "planned") {
+      return [];
+    }
+
+    const start = hmToMinutes(block.startHm);
+    const end = hmToMinutes(block.endHm);
+
+    return start === null || end === null ? [] : [{ end, start }];
+  });
 
   const firstCandidate = Math.ceil(now / SLOT_STEP_MINUTES) * SLOT_STEP_MINUTES;
   const suggestions: string[] = [];
