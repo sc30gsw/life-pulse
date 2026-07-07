@@ -4,20 +4,13 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 
 import { GlowCard } from "~/components/glow-card";
-import { healthRangeQuery } from "~/features/health/api/health-range-query";
 import { HiitSection } from "~/features/health/components/hiit-section";
 import { ManualInputForm } from "~/features/health/components/manual-input-form";
 import { MetricsTrend, MetricsTrendFallback } from "~/features/health/components/metrics-trend";
-import { metricsRangeJst } from "~/features/health/utils/metrics-range";
 import { ACCENT_VARS } from "~/types/dashboard";
 
 export const Route = createFileRoute("/_authenticated/_self/health")({
   component: HealthPage,
-  loader: ({ context: { queryClient } }) => {
-    const { fromDateJst, toDateJst } = metricsRangeJst();
-
-    return queryClient.ensureQueryData(healthRangeQuery(fromDateJst, toDateJst));
-  },
 });
 
 function SectionLabel({ label }: Record<"label", string>) {

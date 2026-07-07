@@ -4,7 +4,6 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 
 import { GlowCard } from "~/components/glow-card";
-import { settingsQuery } from "~/features/settings/api/settings-query";
 import {
   DemoModeSwitch,
   DemoModeSwitchFallback,
@@ -14,7 +13,6 @@ import { ACCENT_VARS } from "~/types/dashboard";
 
 export const Route = createFileRoute("/_authenticated/_self/settings")({
   component: SettingsPage,
-  loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(settingsQuery()),
 });
 
 function SectionLabel({ label }: Record<"label", string>) {
