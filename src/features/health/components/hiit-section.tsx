@@ -2,6 +2,7 @@ import { Button, Group, Text } from "@mantine/core";
 import { Suspense, useState } from "react";
 
 import { HiitLogModal, type HiitLogModalTarget } from "~/features/health/components/hiit-log-modal";
+import { HiitTrend, HiitTrendFallback } from "~/features/health/components/hiit-trend";
 import { WorkoutList, WorkoutListFallback } from "~/features/health/components/workout-list";
 import { ACCENT_SOLID_STYLE, ACCENT_VARS } from "~/types/dashboard";
 
@@ -31,6 +32,10 @@ export function HiitSection() {
           記録
         </Button>
       </Group>
+
+      <Suspense fallback={<HiitTrendFallback />}>
+        <HiitTrend />
+      </Suspense>
 
       <Suspense fallback={<WorkoutListFallback />}>
         <WorkoutList onEdit={setTarget} />

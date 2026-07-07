@@ -21,6 +21,11 @@ vi.mock("~/features/health/components/workout-list", () => ({
   WorkoutListFallback: () => <div>loading workouts</div>,
 }));
 
+vi.mock("~/features/health/components/hiit-trend", () => ({
+  HiitTrend: () => <div>hiit trend</div>,
+  HiitTrendFallback: () => <div>loading hiit trend</div>,
+}));
+
 test("renders the recent workout section and opens the log modal", async () => {
   componentState.modalTargets = [];
   const user = userEvent.setup();
