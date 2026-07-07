@@ -23,6 +23,9 @@ importers:
       '@formisch/react':
         specifier: ^1.0.0-rc.0
         version: 1.0.0-rc.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@6.0.3)(valibot@1.4.2(typescript@6.0.3))
+      '@holiday-jp/holiday_jp':
+        specifier: ^2.5.1
+        version: 2.5.1
       '@mantine/charts':
         specifier: ^9.4.1
         version: 9.4.1(@mantine/core@9.4.1(@mantine/hooks@9.4.1(react@19.2.7))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@mantine/hooks@9.4.1(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(recharts@3.9.2(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react-is@17.0.2)(react@19.2.7)(redux@5.0.1))
@@ -822,6 +825,9 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
+
+  '@holiday-jp/holiday_jp@2.5.1':
+    resolution: {integrity: sha512-KuXfzsp0xlP830WDZRbsHj99wJzamx4fS55usUJFz+oHZmZ4gJfVdyiyv/rIWK+O7RgfHSi5j5Ajy0ZK/Vlnyg==}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -4490,6 +4496,8 @@ snapshots:
       valibot: 1.4.2(typescript@6.0.3)
     optionalDependencies:
       typescript: 6.0.3
+
+  '@holiday-jp/holiday_jp@2.5.1': {}
 
   '@humanfs/core@0.19.2':
     dependencies:

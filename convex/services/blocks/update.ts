@@ -5,11 +5,20 @@ import type { MutationCtx } from "../../_generated/server";
 import { assertDateJst, todayJst } from "../../lib/date-range";
 import { hmToMinutes } from "../../lib/hm";
 
-type DeclareArgs = Pick<Doc<"studyBlocks">, "category" | "dateJst" | "endHm" | "startHm">;
+type UpdateArgs = Pick<Doc<"studyBlocks">, "category" | "dateJst" | "endHm" | "startHm"> &
+  Record<"blockId", Doc<"studyBlocks">["_id"]>;
 
-export async function declare(ctx: MutationCtx, user: Doc<"appUsers">, args: DeclareArgs) {
-  // A malformed dateJst would create an orphan block that no dateJst-keyed
-  // query can ever see — reject it at the boundary.
+export async function update(ctx: MutationCtx, user: Doc<"appUsers">, args: UpdateArgs) {
+  const block = await ctx.db.get("studyBlocks", args.blockId);
+
+  if (block === null || block.userId !== user._id) {
+    throw new ConvexError("BLOCK_NOT_FOUND");
+  }
+
+  if (block.status !== "planned") {
+    throw new ConvexError("NOT_PLANNED");
+  }
+
   assertDateJst(args.dateJst);
   if (args.dateJst < todayJst()) {
     throw new ConvexError("PAST_DATE");
@@ -22,17 +31,11 @@ export async function declare(ctx: MutationCtx, user: Doc<"appUsers">, args: Dec
     throw new ConvexError("INVALID_RANGE");
   }
 
-  // plannedMinutes is derived server-side from the time range so the two can
-  // never drift (decided in the W2 planning interview: the form only inputs
-  // startHm / endHm / category).
-  return await ctx.db.insert("studyBlocks", {
+  await ctx.db.patch("studyBlocks", block._id, {
     category: args.category,
     dateJst: args.dateJst,
     endHm: args.endHm,
     plannedMinutes: end - start,
-    source: "manual",
     startHm: args.startHm,
-    status: "planned",
-    userId: user._id,
   });
 }

@@ -2,8 +2,13 @@ import { convexTest } from "convex-test";
 import { expect, test } from "vite-plus/test";
 
 import { api } from "../../_generated/api";
+import { addDaysJst, todayJst } from "../../lib/date-range";
 import schema from "../../schema";
 import { testModules } from "../../test.setup";
+
+function tomorrowJst() {
+  return addDaysJst(todayJst(), 1);
+}
 
 test("declares a planned block with server-derived plannedMinutes", async () => {
   const t = convexTest(schema, testModules);
@@ -14,7 +19,7 @@ test("declares a planned block with server-derived plannedMinutes", async () => 
 
   const blockId = await asSelf.mutation(api.mutations.blocks.declare.declare, {
     category: "toeic",
-    dateJst: "2026-07-07",
+    dateJst: tomorrowJst(),
     endHm: "07:00",
     startHm: "06:00",
   });
@@ -36,7 +41,7 @@ test("rejects an inverted or malformed time range", async () => {
   await expect(
     asSelf.mutation(api.mutations.blocks.declare.declare, {
       category: "toeic",
-      dateJst: "2026-07-07",
+      dateJst: tomorrowJst(),
       endHm: "06:00",
       startHm: "07:00",
     }),
@@ -45,7 +50,7 @@ test("rejects an inverted or malformed time range", async () => {
   await expect(
     asSelf.mutation(api.mutations.blocks.declare.declare, {
       category: "toeic",
-      dateJst: "2026-07-07",
+      dateJst: tomorrowJst(),
       endHm: "7pm",
       startHm: "06:00",
     }),
@@ -69,13 +74,30 @@ test("rejects a malformed dateJst", async () => {
   ).rejects.toThrow();
 });
 
+test("rejects a past dateJst", async () => {
+  const t = convexTest(schema, testModules);
+  const asSelf = t.withIdentity({ subject: "user_1" });
+  await t.run((ctx) =>
+    ctx.db.insert("appUsers", { authSubject: "user_1", displayName: "本人", role: "self" }),
+  );
+
+  await expect(
+    asSelf.mutation(api.mutations.blocks.declare.declare, {
+      category: "toeic",
+      dateJst: "2000-01-01",
+      endHm: "07:00",
+      startHm: "06:00",
+    }),
+  ).rejects.toThrow();
+});
+
 test("rejects an unauthenticated call", async () => {
   const t = convexTest(schema, testModules);
 
   await expect(
     t.mutation(api.mutations.blocks.declare.declare, {
       category: "toeic",
-      dateJst: "2026-07-07",
+      dateJst: tomorrowJst(),
       endHm: "07:00",
       startHm: "06:00",
     }),

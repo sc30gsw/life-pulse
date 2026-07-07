@@ -2,7 +2,7 @@ import { groupBy, map, sortBy } from "remeda";
 
 import type { Doc } from "../../_generated/dataModel";
 import type { QueryCtx } from "../../_generated/server";
-import { assertHistoryRange } from "../../lib/dateRange";
+import { assertHistoryRange } from "../../lib/date-range";
 
 type HistoryArgs = Record<"fromDateJst" | "toDateJst", Doc<"studySessions">["dateJst"]>;
 

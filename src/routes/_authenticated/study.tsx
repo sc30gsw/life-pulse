@@ -9,6 +9,10 @@ import {
   SessionHistoryList,
   SessionHistoryListFallback,
 } from "~/features/study/components/session-history-list";
+import {
+  UpcomingBlockList,
+  UpcomingBlockListFallback,
+} from "~/features/study/components/upcoming-block-list";
 import { ACCENT_VARS } from "~/types/dashboard";
 
 export const Route = createFileRoute("/_authenticated/study")({
@@ -74,6 +78,17 @@ function StudyPage() {
             <SectionLabel label="今日の枠" />
             <Suspense fallback={<BlockListFallback />}>
               <BlockList />
+            </Suspense>
+          </GlowCard>
+
+          <GlowCard
+            className="bg-panel border-bd shadow-card relative overflow-hidden border"
+            p="lg"
+            radius={18}
+          >
+            <SectionLabel label="予定" />
+            <Suspense fallback={<UpcomingBlockListFallback />}>
+              <UpcomingBlockList />
             </Suspense>
           </GlowCard>
         </section>

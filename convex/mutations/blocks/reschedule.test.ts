@@ -2,8 +2,13 @@ import { convexTest } from "convex-test";
 import { expect, test } from "vite-plus/test";
 
 import { api } from "../../_generated/api";
+import { addDaysJst, todayJst } from "../../lib/date-range";
 import schema from "../../schema";
 import { testModules } from "../../test.setup";
+
+function tomorrowJst() {
+  return addDaysJst(todayJst(), 1);
+}
 
 async function seedErodedBlock(t: ReturnType<typeof convexTest>) {
   const asSelf = t.withIdentity({ subject: "user_1" });
@@ -13,7 +18,7 @@ async function seedErodedBlock(t: ReturnType<typeof convexTest>) {
 
   const blockId = await asSelf.mutation(api.mutations.blocks.declare.declare, {
     category: "toeic",
-    dateJst: "2026-07-07",
+    dateJst: tomorrowJst(),
     endHm: "07:00",
     startHm: "06:00",
   });

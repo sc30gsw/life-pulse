@@ -1,21 +1,34 @@
 import { ConvexError } from "convex/values";
+import dayjsBase from "dayjs";
+import utc from "dayjs/plugin/utc";
 
 import type { Doc } from "../_generated/dataModel";
 
-const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const DATE_JST_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 export const MAX_HISTORY_RANGE_DAYS = 31;
 
 type DateJst = Doc<"dogEvents">["dateJst"];
 
+dayjsBase.extend(utc);
+
 // A malformed dateJst must never reach an index range condition: lexicographic
 // bounds like gte("0")/lte("a") span every real "YYYY-MM-DD" value, turning the
 // index-bounded read into a full scan (CVX-11).
 export function assertDateJst(dateJst: DateJst) {
-  if (!DATE_JST_PATTERN.test(dateJst) || Number.isNaN(Date.parse(`${dateJst}T00:00:00Z`))) {
+  if (!DATE_JST_PATTERN.test(dateJst) || !dayjsBase.utc(dateJst, "YYYY-MM-DD", true).isValid()) {
     throw new ConvexError("INVALID_DATE");
   }
+}
+
+export function todayJst() {
+  return dayjsBase().utcOffset(9).format("YYYY-MM-DD");
+}
+
+export function addDaysJst(dateJst: DateJst, days: number) {
+  assertDateJst(dateJst);
+
+  return dayjsBase.utc(dateJst, "YYYY-MM-DD", true).add(days, "day").format("YYYY-MM-DD");
 }
 
 // Guards a history query's dateJst range: rejects malformed dates, inverted
@@ -33,7 +46,7 @@ export function assertHistoryRange(fromDateJst: DateJst, toDateJst: DateJst) {
 }
 
 function rangeDays(fromDateJst: DateJst, toDateJst: DateJst) {
-  const fromMs = Date.parse(`${fromDateJst}T00:00:00Z`);
-  const toMs = Date.parse(`${toDateJst}T00:00:00Z`);
-  return Math.round((toMs - fromMs) / ONE_DAY_MS);
+  return dayjsBase
+    .utc(toDateJst, "YYYY-MM-DD", true)
+    .diff(dayjsBase.utc(fromDateJst, "YYYY-MM-DD", true), "day");
 }

@@ -2,8 +2,13 @@ import { convexTest } from "convex-test";
 import { expect, test } from "vite-plus/test";
 
 import { api } from "../../_generated/api";
+import { addDaysJst, todayJst } from "../../lib/date-range";
 import schema from "../../schema";
 import { testModules } from "../../test.setup";
+
+function tomorrowJst() {
+  return addDaysJst(todayJst(), 1);
+}
 
 test("erodes a planned block with the given reason", async () => {
   const t = convexTest(schema, testModules);
@@ -14,7 +19,7 @@ test("erodes a planned block with the given reason", async () => {
 
   const blockId = await asSelf.mutation(api.mutations.blocks.declare.declare, {
     category: "toeic",
-    dateJst: "2026-07-07",
+    dateJst: tomorrowJst(),
     endHm: "07:00",
     startHm: "06:00",
   });
@@ -35,7 +40,7 @@ test("rejects eroding a block that is not planned", async () => {
 
   const blockId = await asSelf.mutation(api.mutations.blocks.declare.declare, {
     category: "toeic",
-    dateJst: "2026-07-07",
+    dateJst: tomorrowJst(),
     endHm: "07:00",
     startHm: "06:00",
   });
@@ -63,7 +68,7 @@ test("rejects eroding another user's block", async () => {
 
   const blockId = await asSelf.mutation(api.mutations.blocks.declare.declare, {
     category: "toeic",
-    dateJst: "2026-07-07",
+    dateJst: tomorrowJst(),
     endHm: "07:00",
     startHm: "06:00",
   });
