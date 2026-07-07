@@ -1,4 +1,5 @@
 import { Modal } from "@mantine/core";
+import type { UseDisclosureReturnValue } from "@mantine/hooks";
 import type { ComponentProps } from "react";
 
 import { HiitLogForm, type EditableWorkout } from "~/features/health/components/hiit-log-form";
@@ -13,7 +14,7 @@ const MODAL_STYLES = {
 export type HiitLogModalTarget = EditableWorkout | "new" | null;
 
 type HiitLogModalProps = {
-  onClose: () => void;
+  onClose: UseDisclosureReturnValue[1]["close"];
   target: HiitLogModalTarget;
 };
 
