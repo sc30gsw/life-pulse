@@ -1,7 +1,13 @@
 import { Avatar, Group, Menu, Text, UnstyledButton } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Shimmer } from "@shimmer-from-structure/react";
-import { IconBook2, IconChevronDown, IconHourglass } from "@tabler/icons-react";
+import {
+  IconBook2,
+  IconChevronDown,
+  IconHeartbeat,
+  IconHourglass,
+  IconSettings,
+} from "@tabler/icons-react";
 import { Link } from "@tanstack/react-router";
 import cn from "cnfast";
 
@@ -15,6 +21,8 @@ export function UserMenu() {
   if (viewer === null) {
     return null;
   }
+
+  const isSelf = viewer.role === "self";
 
   return (
     <Menu opened={opened} onChange={toggle} position="bottom-end" shadow="md" width={200}>
@@ -46,6 +54,16 @@ export function UserMenu() {
         <Menu.Item component={Link} leftSection={<IconHourglass size={14} />} to="/fasting">
           断食
         </Menu.Item>
+        {isSelf && (
+          <Menu.Item component={Link} leftSection={<IconHeartbeat size={14} />} to="/health">
+            健康
+          </Menu.Item>
+        )}
+        {isSelf && (
+          <Menu.Item component={Link} leftSection={<IconSettings size={14} />} to="/settings">
+            設定
+          </Menu.Item>
+        )}
         <Menu.Divider />
         <LogoutButton />
       </Menu.Dropdown>
