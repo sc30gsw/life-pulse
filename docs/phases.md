@@ -29,7 +29,7 @@ plan: [2026-07-07_01-live-board-wiring.md](./plans/2026-07-07_01-live-board-wiri
 ### FR-1 ライブボード【P0】
 
 - [x] FR-1.1 本人/パートナー/犬の 3 カード表示・全カードリアルタイム更新(fixtures → Convex 購読へ実配線済み)
-- [ ] FR-1.2 本人カードの全指標(学習セッション状態・断食状態・Body Battery/睡眠・宣言 vs 実績)⏳ 学習セッション・宣言 vs 実績・断食状態は実データ流入済み。残りは FR-6(健康データ)= W3 PR2 に依存
+- [x] FR-1.2 本人カードの全指標(学習セッション状態・断食状態・Body Battery/睡眠・宣言 vs 実績)
 - [x] FR-1.3 パートナーカード(ステータス+最終更新時刻)
 - [x] FR-1.4 犬カード(当日ケア項目の済・未+実施者・時刻)
 - [x] FR-1.5 self / partner どちらでも同一内容を閲覧可能
@@ -91,6 +91,7 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 - [x] FR-4.2 フェーズ遷移は scheduled function がサーバ側で書き換え(ポーリング禁止)。AC-2 のデモ短縮は開始時の `targetMinutes` 指定だけで実現(専用の隠し設定画面は不要、v1.2 補足)
 - [x] FR-4.3 「食事開始」で実績確定+予約済み未来遷移ジョブのキャンセル。断食中でない状態での終了操作は無視/エラー(v1.2 補足、FR-2 の二重操作ガードと同方針)
 - [x] FR-4.4 ライブボード+セッション画面に経過・現フェーズ・残りを常時表示(FR-1.2 の一部を解消)
+- [x] FR-4.5 専用ページ `/fasting`(両ロール閲覧・操作は self)で現在状態と過去断食の簡易履歴を閲覧できる(`/fasting` ルート + `queries/fasting/history`)
 
 ### FR-4 UI 配線(PR1)
 
@@ -98,10 +99,10 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 
 ### FR-6 健康データ流入(手動+デモ)【P0】(PR2)
 
-- [ ] FR-6.1 日次メトリクス(睡眠スコア/睡眠時間/Body Battery/HRV/安静時心拍/歩数、本人のみ)のスキーマ・表示
-- [ ] FR-6.2 手動入力 UI(health.upsertManual + `/health` ルート、source="manual"、`_self.tsx` role ガード同時追加 — spec §2 注意書き)。同日再入力は upsert、全項目任意入力(v1.2 補足)
-- [ ] FR-6.4 デモモード(demo.setDemoMode + tick 自己再帰、source="demo" 分離、間隔 20 秒 = NFR-5 の ≥15s を満たす)。OFF で自動的にジョブ cancel + demo データ一括削除(専用削除ボタンなし、v1.2 補足)
-- [ ] FR-6.5 HIIT 記録(health.logWorkout、種別・時刻・時間・主観強度。時刻は既定で現在時刻、後から編集可)
+- [x] FR-6.1 日次メトリクス(睡眠スコア/睡眠時間/Body Battery/HRV/安静時心拍/歩数、本人のみ)のスキーマ・表示
+- [x] FR-6.2 手動入力 UI(health.upsertManual + `/health` ルート、source="manual"、`_self.tsx` role ガード同時追加 — spec §2 注意書き)。同日再入力は upsert、全項目任意入力(v1.2 補足)
+- [x] FR-6.4 デモモード(demo.setDemoMode + tick 自己再帰、source="demo" 分離、間隔 20 秒 = NFR-5 の ≥15s を満たす)。OFF で自動的にジョブ cancel + demo データ一括削除(専用削除ボタンなし、v1.2 補足)
+- [x] FR-6.5 HIIT 記録(health.logWorkout、種別・時刻・時間・主観強度。時刻は既定で現在時刻、後から編集可)
 
 ### FR-6 UI 配線(PR2)
 
