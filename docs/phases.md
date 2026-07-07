@@ -1,53 +1,137 @@
 # Life Pulse — フェーズ管理ロードマップ
 
-- 目的: 発表(W4 末)までの実装フェーズをチェックボックスで管理する長命ドキュメント。
-- 運用: 各フェーズの詳細手順は `docs/plans/YYYY-MM-DD-*.md`(使い捨て plan)に切り出し、ここからリンクする。**タスク完了時・plan 完了時に実装エージェントがこのファイルのチェックボックスを更新すること。**
+- 目的: 発表(W4 末)までの実装フェーズを **requirements.md の FR-x.y / AC-x と同期した** チェックボックスで管理する長命ドキュメント。
+- 運用:
+  - チェックポイントは `docs/requirements.md` の受け入れ条件(FR-x.y)を正とする。**要件を増減する場合は requirements.md を先に改訂し、本ファイルを追従させる。**
+  - 各フェーズの詳細手順は `docs/plans/YYYY-MM-DD-*.md`(使い捨て plan)に切り出し、各項目からリンクする。**タスク完了時・plan 完了時に実装エージェントがこのファイルのチェックボックスを更新すること。**
+  - 「今どの段階か」= 未チェックの最初の週。「どこまでできているか」= FR-x.y 単位のチェック状態。
 - 参照: 要件 = `docs/requirements.md`、技術仕様 = `docs/spec.md`、Convex 規約 = `.claude/rules/convex-rules.md`(CVX-01〜20)
 
 ## ステータス凡例
 
 - `[x]` 完了(main マージ済み)
 - `[ ]` 未着手 / 進行中
+- 部分完了は `[ ]` のまま「⏳」注記で残依存 FR を明示する
 
 ---
 
-## W1 — 土台(FR-9 / FR-1 骨格 / FR-5)
+## W1 — 土台(FR-9 / FR-1 骨格 / FR-5 / FR-8)
 
-- [x] Scaffold(TanStack Start + Convex + Vite+)
-- [x] FR-9 認証(Convex Auth Password / オープンサインアップ / requireUser・requireSelf)— PR #2
-- [x] FR-1 ライブボード UI 骨格(fixtures 駆動、デザイン: `docs/design/live-board.md`)
-- [x] **auth フロントエンドテスト追加(Phase 0)** → [2026-07-07-live-board-wiring.md](./plans/2026-07-07-live-board-wiring.md)
-- [x] **schema.ts 全テーブル確定(spec §3)(Phase 1)** → 同上
-- [x] **dashboard.live クエリ + FR-5 犬 mutations + FR-8 presence mutation(Phase 2)** → 同上
-- [x] **ライブボード実配線(fixtures → Convex 購読、段階的削除)(Phase 3)** → 同上
-- [x] **検証 + PR(Phase 4)** → 同上
+plan: [2026-07-07-live-board-wiring.md](./plans/2026-07-07-live-board-wiring.md)(完了)
+
+### FR-9 認証・アカウント【P0】— PR #2
+
+- [x] FR-9.1 認証必須。未認証は `/login` へリダイレクト
+- [x] FR-9.2 全 Convex 関数がサーバ側で認証検証(requireUser)
+- [x] FR-9.3 オープンサインアップ(email+パスワード 12 文字以上・英大小・数字+表示名+ロール自己選択)
+- [x] FR-9.4 self 専用ページ(`/health` `/insights` `/settings`)の role ガード+サーバ側 requireSelf
+
+### FR-1 ライブボード【P0】
+
+- [x] FR-1.1 本人/パートナー/犬の 3 カード表示・全カードリアルタイム更新(fixtures → Convex 購読へ実配線済み)
+- [ ] FR-1.2 本人カードの全指標(学習セッション状態・断食状態・Body Battery/睡眠・宣言 vs 実績)⏳ 表示枠は完了。データ流入は FR-2(W2)/ FR-4・FR-6(W3)に依存
+- [x] FR-1.3 パートナーカード(ステータス+最終更新時刻)
+- [x] FR-1.4 犬カード(当日ケア項目の済・未+実施者・時刻)
+- [x] FR-1.5 self / partner どちらでも同一内容を閲覧可能
+- [ ] FR-1.6 2 端末で <1s 反映のデモ検証(AC-1 ゲートで最終確認)
+
+### FR-5 犬のクイックアクション【P0】
+
+- [x] FR-5.1 定義済みケア項目のワンタップ記録(実施者・時刻自動付与)
+- [x] FR-5.2 記録・取り消しが両ユーザーから可能・即時反映(logEvent / undoEvent)
+- [x] FR-5.3 未実施項目の視覚強調+二重実施の UI 抑止
+- [ ] FR-5.4 過去日履歴の簡易リスト(P1 — W4 の磨き込みで判断)
+
+### FR-8 パートナーステータス【P0】
+
+- [x] FR-8.1 状態(在宅/出社中/帰宅中+ETA/外出/就寝)のワンタップ+任意 ETA 更新
+- [x] FR-8.2 本人ライブボードへ即時反映(履歴は当日分)
 
 ## W2 — 学習セッション + 枠(FR-2 / FR-3)
 
-- [ ] FR-2 sessions: start / pause / resume / complete mutations + current クエリ(§4.1 ステートマシン、二重 start 拒否)
-- [ ] FR-2.7 autoAbandon(scheduler、6h)
-- [ ] FR-3 blocks: declare / erode / reschedule + todayWithSuggestions(リスケ候補は純関数)
+plan: [2026-07-07-study-sessions.md](./plans/2026-07-07-study-sessions.md)(進行中)
+
+### FR-2 学習ライブセッション【P0】
+
+- [ ] FR-2.1 サーバ側ステートマシン(idle → active ⇄ paused → completed / abandoned)
+- [ ] FR-2.2 開始時にカテゴリ+任意目標分数を指定、宣言済み枠(FR-3)へ紐づけ可能
+- [ ] FR-2.3 経過時間は `startedAt / accumulatedMs / lastResumedAt` からサーバ値で導出(全デバイス同一値)
+- [ ] FR-2.4 ワンタップ中断(理由: 仕事/犬/家事/その他)+どのデバイスからも操作・即時反映
+- [ ] FR-2.5 アクティブ同時 1 つ制約(既存アクティブ時の start 拒否/誘導)
+- [ ] FR-2.6 完了時に実績分数・中断回数・中断内訳を確定保存
+- [ ] FR-2.7 放置 6h で scheduled function が abandoned に自動遷移(autoAbandon)
+
+### FR-3 学習枠の宣言と防衛(Lv2)【P0】
+
+- [ ] FR-3.1 日単位で枠(開始・終了時刻、カテゴリ、予定分数)を複数宣言
+- [ ] FR-3.2 planned → done / eroded(理由付き) / rescheduled の遷移
+- [ ] FR-3.3 侵食時に当日残り時間帯からリスケ候補提示→選択で新枠生成(元枠リンク保持、候補算出は純関数)
+- [ ] FR-3.4 「宣言 vs 実績」当日サマリがライブボードに表示(FR-1.2 の一部を解消)
+- [ ] FR-3.5 スキーマに `source: "manual" | "suggested"` を保持
+
+### UI 配線
+
 - [ ] `/study` ルート(枠宣言 UI・侵食→リスケ)
 - [ ] ライブボードのセッション操作ボタン配線(W1 では表示のみ・disabled)
 
 ## W3 — 断食 + 健康データ + デモモード(FR-4 / FR-6.2 / FR-6.4 / FR-6.5)
 
-- [ ] FR-4 fasting: start / end + advancePhase(scheduler 時限遷移、AC-2 分単位短縮対応)
+plan: 未作成(W2 完了後に切り出す)
+
+### FR-4 断食ステートマシン【P0】
+
+- [ ] FR-4.1 「断食開始」で eating → fasting、目標既定 16h(変更可)
+- [ ] FR-4.2 フェーズ遷移は scheduled function がサーバ側で書き換え(ポーリング禁止)。AC-2 用に分単位短縮の隠し設定
+- [ ] FR-4.3 「食事開始」で実績確定+予約済み未来遷移ジョブのキャンセル
+- [ ] FR-4.4 ライブボード+セッション画面に経過・現フェーズ・残りを常時表示(FR-1.2 の一部を解消)
+
+### FR-6 健康データ流入(手動+デモ)【P0】
+
+- [ ] FR-6.1 日次メトリクス(睡眠スコア/睡眠時間/Body Battery/HRV/安静時心拍/歩数、本人のみ)のスキーマ・表示
+- [ ] FR-6.2 手動入力 UI(health.upsertManual + `/health` ルート、source="manual"、`_self.tsx` role ガード同時追加 — spec §2 注意書き)
+- [ ] FR-6.4 デモモード(demo.setDemoMode + tick 自己再帰、source="demo" 分離・一括削除、間隔 ≥15s = NFR-5)
+- [ ] FR-6.5 HIIT 記録(health.logWorkout、種別・時刻・時間・主観強度)
+
+### UI 配線
+
 - [ ] ライブボードの断食操作ボタン配線
-- [ ] FR-6.2 健康データ手動入力(health.upsertManual + `/health` ルート、`_self.tsx` role ガードと同時追加 — spec §2 の注意書き参照)
-- [ ] FR-6.4 デモモード(demo.setDemoMode + tick 自己再帰、AC-3)
-- [ ] FR-6.5 HIIT 記録(health.logWorkout)
 - [ ] `/settings`(デモモードトグル・断食目標・犬の名前)
 
 ## W4 — 外部連携 + 相関 + 磨き込み(FR-6.3 / FR-7)
 
-- [ ] FR-6.3 Garmin 実連携("use node" action + cron JST6:30、失敗時 syncLogs)— 難航時は打ち切り可(P1)
-- [ ] FR-7 相関ビュー(correlations.sleepVsStudy + `/insights`、pearson 純関数)
+plan: 未作成
+
+### FR-6.3 Garmin 実連携【P1 — 難航時は打ち切り可】
+
+- [ ] FR-6.3 `garmin-connect`(npm)+ "use node" action + cron(JST 6:30)、認証情報は Convex 環境変数のみ(NFR-4)、失敗は syncLogs+「最終同期」表示
+
+### FR-7 相関ビュー【P1】
+
+- [ ] FR-7.1 直近 28 日の「睡眠×学習分数」「Body Battery×学習分数」「HIIT 翌日 Body Battery」表示
+- [ ] FR-7.2 Convex クエリ内 join で導出、元データ変更で自動再計算・再描画(`/insights`、pearson 純関数)
+
+### 磨き込み・発表準備
+
 - [ ] UI 磨き込み・モバイル 375px 検証(NFR-2)
-- [ ] デモ録画(AC-5)+ `docs/demo-script.md`
+- [ ] デモ録画+ `docs/demo-script.md`(AC-5、NFR-6 のデモ失敗保険)
 - [ ] 本番デプロイ + 本番環境変数チェックリスト(spec §7)
+
+---
+
+## 受け入れ基準ゲート(requirements.md §8 — 発表可能の定義)
+
+各週の FR が揃ったら該当 AC を 2 ブラウザ実機で検証し、ここをチェックする。**AC-1〜5 が全て `[x]` になった時点で発表可能。**
+
+| AC | 内容 | 依存 FR | 検証可能になる週 |
+| --- | --- | --- | --- |
+| [ ] AC-1 | 片方の操作(セッション開始/中断、犬ごはん記録、ステータス更新)が他方に 1 秒以内に反映 | FR-1.6, FR-2.4, FR-5.2, FR-8.2 | W2(犬・ステータスは W1 済、セッション操作待ち) |
+| [ ] AC-2 | 断食 16h 到達(分単位短縮設定)で無操作のまま両画面のフェーズが切替 | FR-4.1〜4.3 | W3 |
+| [ ] AC-3 | デモモード ON で無操作のままグラフ/メトリクスが自動更新 | FR-6.4 | W3 |
+| [ ] AC-4 | 枠の宣言→侵食→リスケの一連がワンタップ主体で完結 | FR-3.1〜3.3 | W2 |
+| [ ] AC-5 | AC-1〜3 の様子が録画済みで発表資料に埋め込める | AC-1〜3 + デモ録画 | W4 |
 
 ## 横断タスク
 
 - [ ] `CLAUDE.md` の「Current Implementation Status」を各フェーズ完了時に更新
-- [ ] `.claude/rules/common/testing.md` を Testing Library 導入後に更新(Phase 0 に含む)
+- [x] `.claude/rules/common/testing.md` を Testing Library 導入後に更新(W1 Phase 0 で完了)
+- [ ] NFR-3 タイムゾーン検証(日付境界 = JST 0:00、cron の UTC 変換)— W3 の cron/scheduler 実装時に確認
