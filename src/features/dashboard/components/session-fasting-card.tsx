@@ -8,12 +8,13 @@ import {
   Progress,
   Stack,
   Text,
+  Tooltip,
   UnstyledButton,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Shimmer } from "@shimmer-from-structure/react";
 import { cn } from "cnfast";
-import { Suspense } from "react";
+import { Suspense, type ComponentProps } from "react";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
 import { GlowCard } from "~/components/glow-card";
@@ -50,6 +51,24 @@ const INTERRUPTION_REASONS = [
   "chore",
   "other",
 ] as const satisfies readonly InterruptionReason[];
+
+// FR-2.4: each chip pauses the running session and records this reason — the
+// tooltip spells that out since the bare "中断:" prefix alone is ambiguous.
+const REASON_TOOLTIPS = {
+  chore: "家事の割り込みを中断理由として記録",
+  dog: "犬の世話を中断理由として記録",
+  other: "その他の理由を中断理由として記録",
+  work: "仕事の割り込みを中断理由として記録",
+} as const satisfies Record<InterruptionReason, string>;
+
+const TOOLTIP_STYLES = {
+  tooltip: {
+    backgroundColor: "var(--panel2)",
+    border: "1px solid var(--bd2)",
+    color: "var(--tx)",
+    fontSize: "11px",
+  },
+} as const satisfies ComponentProps<typeof Tooltip>["styles"];
 
 export function SessionFastingCard({ sessionFlash }: Record<"sessionFlash", boolean>) {
   return (
@@ -202,17 +221,18 @@ function SessionStatusGroup({ fastingFlash }: Record<"fastingFlash", boolean>) {
               中断:
             </Text>
             {INTERRUPTION_REASONS.map((reason) => (
-              <UnstyledButton
-                key={reason}
-                type="button"
-                onClick={() => onPauseSession(reason)}
-                className={cn(
-                  ACCENT_CLASSES.amber.border,
-                  "bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-semibold disabled:opacity-40",
-                )}
-              >
-                {REASON_LABELS[reason]}
-              </UnstyledButton>
+              <Tooltip key={reason} label={REASON_TOOLTIPS[reason]} styles={TOOLTIP_STYLES}>
+                <UnstyledButton
+                  type="button"
+                  onClick={() => onPauseSession(reason)}
+                  className={cn(
+                    ACCENT_CLASSES.amber.border,
+                    "bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-semibold disabled:opacity-40",
+                  )}
+                >
+                  {REASON_LABELS[reason]}
+                </UnstyledButton>
+              </Tooltip>
             ))}
           </>
         )}

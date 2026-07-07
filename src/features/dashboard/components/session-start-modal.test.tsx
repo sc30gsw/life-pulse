@@ -25,17 +25,31 @@ test("submits the default category and planned minutes when opened", async () =>
   expect(onStart).toHaveBeenCalledWith("toeic", 60);
 });
 
-test("submits the category selected via the segmented control", async () => {
+test("submits the category selected via the category pills", async () => {
   const onStart = vi.fn();
   const user = userEvent.setup();
   const { getByRole } = renderWithMantine(
     <SessionStartModal onClose={vi.fn()} onStart={onStart} opened />,
   );
 
-  await user.click(getByRole("radio", { name: "英会話" }));
+  await user.click(getByRole("button", { name: "英会話" }));
   await user.click(getByRole("button", { name: "開始する" }));
 
   expect(onStart).toHaveBeenCalledWith("eikaiwa", 60);
+});
+
+test("marks only the selected category pill as pressed", async () => {
+  const user = userEvent.setup();
+  const { getByRole } = renderWithMantine(
+    <SessionStartModal onClose={vi.fn()} onStart={vi.fn()} opened />,
+  );
+
+  expect(getByRole("button", { name: "TOEIC" }).getAttribute("aria-pressed")).toBe("true");
+
+  await user.click(getByRole("button", { name: "読書" }));
+
+  expect(getByRole("button", { name: "読書" }).getAttribute("aria-pressed")).toBe("true");
+  expect(getByRole("button", { name: "TOEIC" }).getAttribute("aria-pressed")).toBe("false");
 });
 
 test("submits undefined planned minutes when the field is cleared", async () => {

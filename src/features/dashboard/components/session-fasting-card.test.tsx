@@ -262,7 +262,7 @@ test("submits the category selected in the start modal", async () => {
   const { getByRole } = renderWithMantine(<SessionFastingCard sessionFlash={false} />);
 
   await user.click(getByRole("button", { name: "セッション開始" }));
-  await user.click(getByRole("radio", { name: "英会話" }));
+  await user.click(getByRole("button", { name: "英会話" }));
   await user.click(getByRole("button", { name: "開始する" }));
 
   expect(hookState.onStartSession).toHaveBeenCalledWith("eikaiwa", 60);

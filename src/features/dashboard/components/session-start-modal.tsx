@@ -1,20 +1,20 @@
 import { Field, Form, useForm } from "@formisch/react";
-import { Button, Modal, NumberInput, SegmentedControl, Stack } from "@mantine/core";
+import { Button, Group, Modal, NumberInput, Stack, Text, UnstyledButton } from "@mantine/core";
 import type { UseDisclosureReturnValue } from "@mantine/hooks";
+import { cn } from "cnfast";
 import type { ComponentProps } from "react";
 
 import type { useDashboardStudy } from "~/features/dashboard/hooks/use-dashboard-study";
 import { StartSessionSchema } from "~/features/dashboard/schemas/start-session-schema";
 import {
+  ACCENT_CLASSES,
   ACCENT_SOLID_STYLE,
+  ACCENT_VARS,
   CATEGORY_LABELS,
   type SessionCategory,
 } from "~/features/dashboard/types/dashboard";
 
-const CATEGORY_OPTIONS = (Object.keys(CATEGORY_LABELS) as SessionCategory[]).map((value) => ({
-  label: CATEGORY_LABELS[value],
-  value,
-}));
+const CATEGORY_VALUES = Object.keys(CATEGORY_LABELS) as SessionCategory[];
 
 const MODAL_STYLES = {
   body: { color: "var(--tx)" },
@@ -45,16 +45,50 @@ export function SessionStartModal({ opened, onClose, onStart }: SessionStartModa
         }}
       >
         <Stack gap="md">
-          <Field of={startSessionForm} path={["category"]}>
-            {(field) => (
-              <SegmentedControl
-                data={CATEGORY_OPTIONS}
-                fullWidth
-                onChange={(value) => field.onChange(value as SessionCategory)}
-                value={field.input}
-              />
-            )}
-          </Field>
+          <Stack gap={6}>
+            <Text
+              component="span"
+              size="10.5px"
+              fw={600}
+              tt="uppercase"
+              c={ACCENT_VARS.faint}
+              style={{ letterSpacing: "0.13em" }}
+            >
+              カテゴリ
+            </Text>
+            <Field of={startSessionForm} path={["category"]}>
+              {(field) => (
+                <Group component="fieldset" gap={8} m={0} p={0} style={{ border: 0 }} wrap="wrap">
+                  <legend className="sr-only">カテゴリ</legend>
+                  {CATEGORY_VALUES.map((category) => {
+                    const isActive = field.input === category;
+
+                    return (
+                      <UnstyledButton
+                        key={category}
+                        type="button"
+                        aria-pressed={isActive}
+                        onClick={() => field.onChange(category)}
+                        className={cn(
+                          "rounded-lg border px-3 py-1.5 text-xs",
+                          isActive
+                            ? cn(
+                                ACCENT_CLASSES.good.border,
+                                ACCENT_CLASSES.good.bg,
+                                ACCENT_CLASSES.good.text,
+                                "font-semibold",
+                              )
+                            : "border-bd-2 bg-inset text-dim font-medium",
+                        )}
+                      >
+                        {CATEGORY_LABELS[category]}
+                      </UnstyledButton>
+                    );
+                  })}
+                </Group>
+              )}
+            </Field>
+          </Stack>
           <Field of={startSessionForm} path={["plannedMinutes"]}>
             {(field) => (
               <NumberInput
