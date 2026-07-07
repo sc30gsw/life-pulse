@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { expect, test } from "vite-plus/test";
+import { expect, test, vi } from "vite-plus/test";
 
 import { ErrorComponent } from "~/components/layouts/error";
 import { NotFoundComponent } from "~/components/layouts/not-found";
@@ -8,7 +8,7 @@ import { renderWithMantine } from "~/test-utils";
 
 test("renders route errors with the error message", () => {
   const { getByRole, getByText } = renderWithMantine(
-    <ErrorComponent error={new Error("boom")} info={{ componentStack: "" }} />,
+    <ErrorComponent error={new Error("boom")} info={{ componentStack: "" }} reset={vi.fn()} />,
   );
 
   expect(getByRole("heading", { name: "エラー" })).toBeDefined();

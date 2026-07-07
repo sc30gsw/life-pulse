@@ -106,11 +106,12 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 
 ### FR-6 UI 配線(PR2)
 
-- [ ] `/settings`(デモモードトグル・断食目標・犬の名前)
+- [x] `/settings`(デモモードトグル・断食目標・犬の名前)(`_self/settings.tsx` + `features/settings/` の DemoModeSwitch / SettingsForm、テスト込み)
 
 ## W4 — 外部連携 + 相関 + 磨き込み(FR-6.3 / FR-7)
 
-plan: 未作成
+- PR1: Garmin 実連携(FR-6.3)— plan: [2026-07-07_05-garmin-sync.md](./plans/2026-07-07_05-garmin-sync.md)
+- PR2: 相関ビュー(FR-7)— plan: 未作成
 
 ### FR-6.3 Garmin 実連携【P1 — 難航時は打ち切り可】
 
