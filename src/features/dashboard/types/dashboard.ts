@@ -1,8 +1,21 @@
-// Display-oriented types for the Live Board UI (see docs/design/live-board.md).
-// Union literals mirror the future `dashboard.live` Convex query shape (docs/spec.md §3)
-// so swapping the demo fixture for a real subscription later requires no prop-shape changes.
+// Display-oriented labels/tokens for the Live Board UI (see docs/design/live-board.md).
+// Data-shape types are NOT duplicated here — components import `Doc`/`FunctionReturnType`
+// from Convex's generated types directly, so convex/schema.ts stays the single source of
+// truth. Only label-map key types (which Convex has no concept of) are re-derived below
+// via `Infer` from convex/lib/validators.ts, per CVX-16.
+import type { Infer } from "convex/values";
 
-export type SessionCategory = "eikaiwa" | "toeic" | "reading" | "other";
+import type {
+  blockStatusValidator,
+  categoryValidator,
+  dogEventKindValidator,
+  fastingPhaseValidator,
+  healthSourceValidator,
+  interruptionReasonValidator,
+  presenceStateValidator,
+} from "~/../convex/lib/validators";
+
+export type SessionCategory = Infer<typeof categoryValidator>;
 
 export const CATEGORY_LABELS = {
   eikaiwa: "英会話",
@@ -11,9 +24,7 @@ export const CATEGORY_LABELS = {
   toeic: "TOEIC",
 } as const satisfies Record<SessionCategory, string>;
 
-export type SessionStatus = "idle" | "active" | "paused" | "completed";
-
-export type InterruptionReason = "work" | "dog" | "chore" | "other";
+export type InterruptionReason = Infer<typeof interruptionReasonValidator>;
 
 export const REASON_LABELS = {
   chore: "家事",
@@ -22,19 +33,7 @@ export const REASON_LABELS = {
   work: "仕事",
 } as const satisfies Record<InterruptionReason, string>;
 
-export type SessionState = {
-  accumulatedMs: number;
-  category: SessionCategory;
-  goalMinutes: number;
-  interruptionCount: number;
-  lastInterruptionReason: InterruptionReason | null;
-  lastResumedAt: number;
-  startedAt: number;
-  status: SessionStatus;
-};
-
-export type FastingPhase = "early" | "fatburn" | "goal";
-export type FastingStatus = "fasting" | "ended";
+type FastingPhase = Infer<typeof fastingPhaseValidator>;
 
 export const FASTING_PHASE_LABELS = {
   early: "空腹期",
@@ -48,15 +47,7 @@ export const FASTING_PHASE_SUB_LABELS = {
   goal: "16時間クリア",
 } as const satisfies Record<FastingPhase, string>;
 
-export type FastingState = {
-  // Stored, scheduler-advanced field (docs/spec.md §4.2) — not purely derived from elapsed time.
-  phase: FastingPhase;
-  startedAt: number;
-  status: FastingStatus;
-  targetMinutes: number;
-};
-
-export type HealthMetricsSource = "garmin" | "manual" | "demo";
+type HealthMetricsSource = Infer<typeof healthSourceValidator>;
 
 export const HEALTH_SOURCE_LABELS = {
   demo: "source: demo",
@@ -64,32 +55,16 @@ export const HEALTH_SOURCE_LABELS = {
   manual: "source: manual",
 } as const satisfies Record<HealthMetricsSource, string>;
 
-export type HealthMetrics = {
-  bodyBattery: number;
-  hrv: number;
-  restingHr: number;
-  sleepMinutes: number;
-  sleepScore: number;
-  source: HealthMetricsSource;
-  steps: number;
-};
-
-export type DeclarationStatus = "planned" | "done" | "eroded";
+export type DeclarationStatus = Infer<typeof blockStatusValidator>;
 
 export const DECLARATION_STATUS_LABELS = {
   done: "済",
   eroded: "侵食",
   planned: "予定",
+  rescheduled: "リスケ済",
 } as const satisfies Record<DeclarationStatus, string>;
 
-export type DeclarationItem = {
-  category: SessionCategory;
-  plannedMinutes: number;
-  startHm: string;
-  status: DeclarationStatus;
-};
-
-export type PresenceState = "home" | "office" | "commuting_home" | "out" | "sleeping";
+export type PresenceState = Infer<typeof presenceStateValidator>;
 
 export const PRESENCE_LABELS = {
   commuting_home: "帰宅中",
@@ -107,20 +82,7 @@ export const PRESENCE_SUB_LABELS = {
   sleeping: "おやすみ",
 } as const satisfies Record<PresenceState, string>;
 
-export type PartnerState = {
-  etaHm: string | null;
-  state: PresenceState;
-  updatedAt: number;
-};
-
-export type DogEventKind =
-  | "walk_am"
-  | "walk_pm"
-  | "meal_am"
-  | "meal_pm"
-  | "meds"
-  | "toilet"
-  | "other";
+export type DogEventKind = Infer<typeof dogEventKindValidator>;
 
 export const DOG_EVENT_LABELS = {
   meal_am: "朝ごはん",
@@ -132,19 +94,10 @@ export const DOG_EVENT_LABELS = {
   walk_pm: "夜散歩",
 } as const satisfies Record<DogEventKind, string>;
 
-export type DogCareBy = "self" | "partner";
-
-export type DogCareItem = {
-  at: number | null;
-  by: DogCareBy | null;
-  done: boolean;
-  kind: DogEventKind;
-};
-
-export type ToastAccent = "good" | "amber" | "blue" | "coral" | "violet" | "faint";
+export type AccentName = "good" | "amber" | "blue" | "coral" | "violet" | "faint";
 
 // Shared accent → Tailwind token class mapping. All chips/dots/pills across the board
-// (session status, fasting phase, partner presence, dog care, toasts) key off this
+// (session status, fasting phase, partner presence, dog care) key off this
 // single map so accent colors stay consistent without hardcoding hex anywhere.
 export const ACCENT_CLASSES = {
   amber: { bg: "bg-amber/16", border: "border-amber", text: "text-amber" },
@@ -153,7 +106,7 @@ export const ACCENT_CLASSES = {
   faint: { bg: "bg-inset", border: "border-bd-2", text: "text-faint" },
   good: { bg: "bg-good/16", border: "border-good", text: "text-good" },
   violet: { bg: "bg-violet/16", border: "border-violet", text: "text-violet" },
-} as const satisfies Record<ToastAccent, Record<"bg" | "border" | "text", string>>;
+} as const satisfies Record<AccentName, Record<"bg" | "border" | "text", string>>;
 
 // Raw CSS custom-property references, for Mantine props that apply a color directly
 // without computing a light/dark variant (Progress `color`, RingProgress section `color`).
@@ -164,7 +117,7 @@ export const ACCENT_VARS = {
   faint: "var(--faint)",
   good: "var(--good)",
   violet: "var(--violet)",
-} as const satisfies Record<ToastAccent, string>;
+} as const satisfies Record<AccentName, string>;
 
 // Ready-made {backgroundColor, color} pairs for solid Mantine elements (Button, Badge)
 // whose built-in variant/auto-contrast color math cannot resolve an opaque CSS custom
@@ -178,27 +131,6 @@ export const ACCENT_SOLID_STYLE = {
   faint: { backgroundColor: "var(--faint)", color: "var(--bg)" },
   good: { backgroundColor: "var(--good)", color: "var(--bg)" },
   violet: { backgroundColor: "var(--violet)", color: "var(--bg)" },
-} as const satisfies Record<ToastAccent, Record<"backgroundColor" | "color", string>>;
+} as const satisfies Record<AccentName, Record<"backgroundColor" | "color", string>>;
 
-export type BoardToast = {
-  accent: ToastAccent;
-  id: number;
-  text: string;
-  who: string;
-};
-
-export type Perspective = "self" | "partner";
 export type ThemeMode = "dark" | "light";
-
-// Raw fixture shape — stands in for the future `dashboard.live` Convex query result.
-export type DashboardFixture = {
-  declarations: DeclarationItem[];
-  dogCare: DogCareItem[];
-  dogName: string;
-  fasting: FastingState;
-  lastSyncAt: number;
-  metrics: HealthMetrics;
-  partner: PartnerState;
-  session: SessionState;
-  todayActualMinutes: number;
-};

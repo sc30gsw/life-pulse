@@ -1,46 +1,46 @@
 import {
   Badge,
+  Box,
   Button,
   Divider,
   Group,
   Paper,
   Progress,
-  RingProgress,
   Stack,
   Text,
   UnstyledButton,
 } from "@mantine/core";
+import { Shimmer } from "@shimmer-from-structure/react";
 import { cn } from "cnfast";
+import { Suspense } from "react";
 
+import type { Doc } from "~/../convex/_generated/dataModel";
+import { GlowCard } from "~/components/glow-card";
 import { DeclarationCard } from "~/features/dashboard/components/declaration-card";
+import { FastingGroup, FastingGroupFallback } from "~/features/dashboard/components/fasting-group";
+import { useDashboardStudy } from "~/features/dashboard/hooks/use-dashboard-study";
+import { useDashboardViewer } from "~/features/dashboard/hooks/use-dashboard-viewer";
 import {
   ACCENT_CLASSES,
   ACCENT_SOLID_STYLE,
   ACCENT_VARS,
   CATEGORY_LABELS,
-  FASTING_PHASE_LABELS,
-  FASTING_PHASE_SUB_LABELS,
   REASON_LABELS,
-  type DeclarationItem,
-  type FastingState,
   type InterruptionReason,
-  type SessionState,
 } from "~/features/dashboard/types/dashboard";
 
-// Single consumer: maps session status to its accent key + Japanese label for the status pill.
+// Single consumer: maps session status ("idle" = no session document at all) to its
+// accent key + Japanese label for the status pill.
 const SESSION_STATUS_ACCENT = {
+  abandoned: ["faint", "放置終了"],
   active: ["good", "勉強中"],
   completed: ["faint", "完了"],
   idle: ["faint", "待機"],
   paused: ["amber", "中断中"],
-} as const satisfies Record<SessionState["status"], readonly [keyof typeof ACCENT_VARS, string]>;
-
-// Single consumer: maps fasting phase to its accent key for the ring/labels.
-const FASTING_PHASE_ACCENT = {
-  early: "blue",
-  fatburn: "amber",
-  goal: "good",
-} as const satisfies Record<FastingState["phase"], keyof typeof ACCENT_VARS>;
+} as const satisfies Record<
+  "idle" | Doc<"studySessions">["status"],
+  readonly [keyof typeof ACCENT_VARS, string]
+>;
 
 const INTERRUPTION_REASONS = [
   "work",
@@ -49,54 +49,9 @@ const INTERRUPTION_REASONS = [
   "other",
 ] as const satisfies readonly InterruptionReason[];
 
-type SessionFastingCardProps = {
-  declarationActualMinutes: number;
-  declarationActualPercent: number;
-  declarationTotalMinutes: number;
-  declarations: DeclarationItem[];
-  fasting: FastingState;
-  fastingElapsedLabel: string;
-  fastingFlash: boolean;
-  fastingRemainLabel: string;
-  fastingRingPercent: number;
-  isSelfView: boolean;
-  onCompleteSession: () => void;
-  onPauseSession: (reason: InterruptionReason) => void;
-  onResumeSession: () => void;
-  onStartSession: () => void;
-  session: SessionState;
-  sessionElapsedLabel: string;
-  sessionFlash: boolean;
-  sessionGoalLabel: string;
-  sessionProgressPercent: number;
-};
-
-export function SessionFastingCard({
-  declarationActualMinutes,
-  declarationActualPercent,
-  declarationTotalMinutes,
-  declarations,
-  fasting,
-  fastingElapsedLabel,
-  fastingFlash,
-  fastingRemainLabel,
-  fastingRingPercent,
-  isSelfView,
-  onCompleteSession,
-  onPauseSession,
-  onResumeSession,
-  onStartSession,
-  session,
-  sessionElapsedLabel,
-  sessionFlash,
-  sessionGoalLabel,
-  sessionProgressPercent,
-}: SessionFastingCardProps) {
-  const [statusAccent, statusLabel] = SESSION_STATUS_ACCENT[session.status];
-  const phaseAccent = FASTING_PHASE_ACCENT[fasting.phase];
-
+export function SessionFastingCard({ sessionFlash }: Record<"sessionFlash", boolean>) {
   return (
-    <Paper
+    <GlowCard
       radius={18}
       p="lg"
       className={cn(
@@ -115,17 +70,82 @@ export function SessionFastingCard({
           >
             本人 · 発注者
           </Text>
-          {isSelfView && (
-            <Badge variant="filled" style={ACCENT_SOLID_STYLE.good} size="xs">
-              YOU
-            </Badge>
-          )}
+          <Suspense fallback={<SelfBadgeFallback />}>
+            <SelfBadge />
+          </Suspense>
         </Group>
         <Text size="xs" c="dimmed">
           study session
         </Text>
       </Group>
+      <Suspense fallback={<SessionStatusGroupFallback />}>
+        <SessionStatusGroup
+          fastingFlash={false}
+          onCompleteSession={() => {}}
+          onPauseSession={() => {}}
+          onResumeSession={() => {}}
+          onStartSession={() => {}}
+        />
+      </Suspense>
+    </GlowCard>
+  );
+}
 
+function SelfBadge() {
+  const viewer = useDashboardViewer();
+
+  if (viewer.role !== "self") {
+    return null;
+  }
+
+  return (
+    <Badge variant="filled" style={ACCENT_SOLID_STYLE.good} size="xs">
+      YOU
+    </Badge>
+  );
+}
+
+function SelfBadgeFallback() {
+  return (
+    <Shimmer loading>
+      <Badge variant="filled" style={ACCENT_SOLID_STYLE.good} size="xs">
+        YOU
+      </Badge>
+    </Shimmer>
+  );
+}
+
+type SessionStatusGroupProps = {
+  fastingFlash: boolean;
+  onCompleteSession: () => void;
+  onPauseSession: (reason: InterruptionReason) => void;
+  onResumeSession: () => void;
+  onStartSession: () => void;
+};
+
+function SessionStatusGroup({
+  fastingFlash,
+  onCompleteSession,
+  onPauseSession,
+  onResumeSession,
+  onStartSession,
+}: SessionStatusGroupProps) {
+  const {
+    declarationActualMinutes,
+    declarationActualPercent,
+    declarations,
+    declarationTotalMinutes,
+    session,
+    sessionElapsedLabel,
+    sessionGoalLabel,
+    sessionProgressPercent,
+  } = useDashboardStudy();
+
+  const sessionStatus = session === null ? "idle" : session.status;
+  const [statusAccent, statusLabel] = SESSION_STATUS_ACCENT[sessionStatus];
+
+  return (
+    <>
       <Group align="flex-end" gap={16} wrap="wrap">
         <Stack gap={6}>
           <Group gap={9} align="center">
@@ -141,13 +161,15 @@ export function SessionFastingCard({
             >
               {statusLabel}
             </Badge>
-            <Text size="sm" c="dimmed">
-              {CATEGORY_LABELS[session.category]}
-            </Text>
+            {session !== null && (
+              <Text size="sm" c="dimmed">
+                {CATEGORY_LABELS[session.category]}
+              </Text>
+            )}
           </Group>
           <Text
             fw={600}
-            className="leading-none tabular-nums"
+            className="lp-brandtext leading-none tabular-nums"
             style={{ fontSize: "clamp(2.5rem,7vw,3.9rem)" }}
           >
             {sessionElapsedLabel}
@@ -163,7 +185,7 @@ export function SessionFastingCard({
           <Text size="xs" c="dimmed">
             中断{" "}
             <Text component="span" size="xs" c="var(--tx)">
-              {session.interruptionCount}
+              {session?.interruptionCount ?? 0}
             </Text>{" "}
             回
           </Text>
@@ -172,10 +194,13 @@ export function SessionFastingCard({
 
       <Progress value={sessionProgressPercent} color={ACCENT_VARS.good} size="sm" mt="md" />
 
+      {/* Session controls are disabled in W1 — start/pause/resume/complete mutations
+      land in W2 (docs/plans/2026-07-07-live-board-wiring.md, out of scope here). */}
       <Group wrap="wrap" gap={8} mt="md" align="center">
-        {session.status === "active" && (
+        {sessionStatus === "active" && (
           <>
             <Button
+              disabled
               variant="filled"
               style={ACCENT_SOLID_STYLE.good}
               size="sm"
@@ -189,10 +214,12 @@ export function SessionFastingCard({
             {INTERRUPTION_REASONS.map((reason) => (
               <UnstyledButton
                 key={reason}
+                type="button"
+                disabled
                 onClick={() => onPauseSession(reason)}
                 className={cn(
                   ACCENT_CLASSES.amber.border,
-                  "bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-semibold",
+                  "bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-semibold disabled:opacity-40",
                 )}
               >
                 {REASON_LABELS[reason]}
@@ -200,9 +227,10 @@ export function SessionFastingCard({
             ))}
           </>
         )}
-        {session.status === "paused" && (
+        {sessionStatus === "paused" && (
           <>
             <Button
+              disabled
               variant="filled"
               style={ACCENT_SOLID_STYLE.good}
               size="sm"
@@ -211,6 +239,7 @@ export function SessionFastingCard({
               再開
             </Button>
             <Button
+              disabled
               variant="outline"
               size="sm"
               className="border-bd-2 text-tx"
@@ -218,16 +247,14 @@ export function SessionFastingCard({
             >
               完了
             </Button>
-            {session.lastInterruptionReason !== null && (
-              <Text size="xs" c={ACCENT_VARS.amber}>
-                中断中 · {REASON_LABELS[session.lastInterruptionReason]}
-              </Text>
-            )}
           </>
         )}
-        {(session.status === "idle" || session.status === "completed") && (
+        {(sessionStatus === "idle" ||
+          sessionStatus === "completed" ||
+          sessionStatus === "abandoned") && (
           <>
             <Button
+              disabled
               variant="filled"
               style={ACCENT_SOLID_STYLE.good}
               size="sm"
@@ -245,54 +272,9 @@ export function SessionFastingCard({
       <Divider my="lg" className="border-bd" />
 
       <Group wrap="wrap" gap="xl" align="stretch">
-        <Group
-          gap="md"
-          wrap="nowrap"
-          className={cn("relative min-w-[240px] flex-1", fastingFlash && "lp-flash")}
-        >
-          <RingProgress
-            size={96}
-            thickness={8}
-            sections={[{ value: fastingRingPercent, color: ACCENT_VARS[phaseAccent] }]}
-            label={
-              <Stack gap={1} align="center">
-                <Text fw={600} size="lg" c={ACCENT_VARS[phaseAccent]}>
-                  {fastingElapsedLabel}
-                </Text>
-                <Text size="9px" c={ACCENT_VARS.faint}>
-                  FAST
-                </Text>
-              </Stack>
-            }
-          />
-          <Stack gap={4}>
-            <Text
-              size="10.5px"
-              fw={600}
-              tt="uppercase"
-              c={ACCENT_VARS.faint}
-              style={{ letterSpacing: "0.13em" }}
-            >
-              断食
-            </Text>
-            <Text fw={600} size="lg" c={ACCENT_VARS[phaseAccent]}>
-              {FASTING_PHASE_LABELS[fasting.phase]}
-            </Text>
-            <Text size="sm" c="dimmed">
-              {FASTING_PHASE_SUB_LABELS[fasting.phase]}
-            </Text>
-            <Text size="xs" c="dimmed">
-              経過{" "}
-              <Text component="span" size="xs" c="var(--tx)">
-                {fastingElapsedLabel}
-              </Text>{" "}
-              · 残{" "}
-              <Text component="span" size="xs" c="var(--tx)">
-                {fastingRemainLabel}
-              </Text>
-            </Text>
-          </Stack>
-        </Group>
+        <Suspense fallback={<FastingGroupFallback />}>
+          <FastingGroup fastingFlash={fastingFlash} />
+        </Suspense>
 
         <DeclarationCard
           actualMinutes={declarationActualMinutes}
@@ -301,6 +283,141 @@ export function SessionFastingCard({
           totalMinutes={declarationTotalMinutes}
         />
       </Group>
-    </Paper>
+    </>
+  );
+}
+
+function SessionStatusGroupFallback() {
+  return (
+    <Shimmer loading>
+      <Group align="flex-end" gap={16} wrap="wrap">
+        <Stack gap={6}>
+          <Group gap={9} align="center">
+            <Badge
+              variant="outline"
+              size="sm"
+              className={cn(
+                ACCENT_CLASSES.good.border,
+                ACCENT_CLASSES.good.bg,
+                ACCENT_CLASSES.good.text,
+                "border",
+              )}
+            >
+              勉強中
+            </Badge>
+            <Text size="sm" c="dimmed">
+              TOEIC
+            </Text>
+          </Group>
+          <Text
+            fw={600}
+            className="lp-brandtext leading-none tabular-nums"
+            style={{ fontSize: "clamp(2.5rem,7vw,3.9rem)" }}
+          >
+            00:42:00
+          </Text>
+        </Stack>
+        <Stack gap={3}>
+          <Text size="xs" c="dimmed">
+            目標 60分
+          </Text>
+          <Text size="xs" c="dimmed">
+            中断 0 回
+          </Text>
+        </Stack>
+      </Group>
+
+      <Progress value={42} color={ACCENT_VARS.good} size="sm" mt="md" />
+
+      <Group wrap="wrap" gap={8} mt="md" align="center">
+        <Button disabled variant="filled" style={ACCENT_SOLID_STYLE.good} size="sm">
+          完了して記録
+        </Button>
+        <Text size="xs" c={ACCENT_VARS.faint}>
+          中断:
+        </Text>
+        {INTERRUPTION_REASONS.map((reason) => (
+          <Box
+            key={reason}
+            className={cn(
+              ACCENT_CLASSES.amber.border,
+              "bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-semibold",
+            )}
+          >
+            {REASON_LABELS[reason]}
+          </Box>
+        ))}
+      </Group>
+
+      <Divider my="lg" className="border-bd" />
+
+      <Group wrap="wrap" gap="xl" align="stretch">
+        <FastingGroupFallback />
+        <Box className="flex min-w-0 flex-1 flex-col gap-2">
+          <Group justify="space-between" align="baseline">
+            <Text
+              size="10.5px"
+              fw={600}
+              tt="uppercase"
+              c={ACCENT_VARS.faint}
+              style={{ letterSpacing: "0.13em" }}
+            >
+              今日の学習
+            </Text>
+            <Text size="xs" c="dimmed">
+              宣言 vs 実績
+            </Text>
+          </Group>
+          <Group gap={8} align="baseline">
+            <Text className="lp-brandtext" size="26px" fw={600}>
+              30
+            </Text>
+            <Text size="sm" c="dimmed">
+              / 60 分
+            </Text>
+          </Group>
+          <Progress
+            value={50}
+            color={ACCENT_VARS.good}
+            size="sm"
+            className="rounded-md"
+            style={{ background: "var(--inset)" }}
+          />
+        </Box>
+      </Group>
+    </Shimmer>
+  );
+}
+
+export function SessionFastingCardFallback() {
+  return (
+    <Shimmer loading>
+      <Paper
+        radius={18}
+        p="lg"
+        className="bg-panel border-bd shadow-card relative overflow-hidden border"
+      >
+        <Group justify="space-between" mb="md">
+          <Group gap={10}>
+            <Text
+              size="11px"
+              fw={600}
+              tt="uppercase"
+              c={ACCENT_VARS.faint}
+              style={{ letterSpacing: "0.14em" }}
+            >
+              本人 · 発注者
+            </Text>
+            <Badge variant="filled" style={ACCENT_SOLID_STYLE.good} size="xs">
+              YOU
+            </Badge>
+          </Group>
+          <Text size="xs" c="dimmed">
+            study session
+          </Text>
+        </Group>
+        <SessionStatusGroupFallback />
+      </Paper>
+    </Shimmer>
   );
 }

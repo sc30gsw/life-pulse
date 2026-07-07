@@ -1,9 +1,10 @@
-import { Center, Paper, Stack, Text, Title } from "@mantine/core";
+import { Center, Stack, Text, Title } from "@mantine/core";
 import { Shimmer } from "@shimmer-from-structure/react";
 import { IconLogin2 } from "@tabler/icons-react";
 import { Link, Navigate, createFileRoute } from "@tanstack/react-router";
 import { useConvexAuth } from "convex/react";
 
+import { GlowCard } from "~/components/glow-card";
 import { SignupForm } from "~/features/auth/components/signup-form";
 
 export const Route = createFileRoute("/signup")({
@@ -20,7 +21,11 @@ function SignupPage() {
   return (
     <Center className="bg-bg text-tx" mih="100dvh" p="md">
       <Shimmer loading={isLoading}>
-        <Paper className="border-bd bg-panel shadow-card w-full max-w-sm border" p="xl" radius="lg">
+        <GlowCard
+          className="border-bd bg-panel shadow-card relative w-full max-w-sm overflow-hidden border"
+          p="xl"
+          radius="lg"
+        >
           <Stack gap="lg">
             <div>
               <Title className="font-mono" order={2} ta="center">
@@ -39,7 +44,7 @@ function SignupPage() {
               </Link>
             </Text>
           </Stack>
-        </Paper>
+        </GlowCard>
       </Shimmer>
     </Center>
   );

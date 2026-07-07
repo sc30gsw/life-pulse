@@ -1,5 +1,6 @@
 /// <reference types="vite-plus/client" />
 import { MantineProvider } from "@mantine/core";
+import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
 import { ShimmerProvider } from "@shimmer-from-structure/react";
 import { QueryClient } from "@tanstack/react-query";
@@ -64,13 +65,15 @@ function RootComponent() {
               fallbackBorderRadius: 8,
             }}
           >
-            <Notifications position="top-center" />
-            <Outlet />
-            {TanStackRouterDevtools ? (
-              <Suspense fallback={null}>
-                <TanStackRouterDevtools />
-              </Suspense>
-            ) : null}
+            <ModalsProvider>
+              <Notifications position="top-center" />
+              <Outlet />
+              {TanStackRouterDevtools ? (
+                <Suspense fallback={null}>
+                  <TanStackRouterDevtools />
+                </Suspense>
+              ) : null}
+            </ModalsProvider>
           </ShimmerProvider>
         </MantineProvider>
         <Scripts />

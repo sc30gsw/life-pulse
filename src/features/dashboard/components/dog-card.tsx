@@ -1,28 +1,23 @@
 import { Badge, Box, Group, Paper, Stack, Text, UnstyledButton } from "@mantine/core";
+import { Shimmer } from "@shimmer-from-structure/react";
 import { cn } from "cnfast";
 
+import { GlowCard } from "~/components/glow-card";
+import { useDashboardDog } from "~/features/dashboard/hooks/use-dashboard-dog";
 import {
   ACCENT_CLASSES,
   ACCENT_SOLID_STYLE,
   ACCENT_VARS,
   DOG_EVENT_LABELS,
-  type DogCareItem,
-  type DogEventKind,
 } from "~/features/dashboard/types/dashboard";
 
-type DogCardProps = {
-  dogCare: DogCareItem[];
-  dogFlash: boolean;
-  dogName: string;
-  onToggle: (kind: DogEventKind) => void;
-};
-
-export function DogCard({ dogCare, dogFlash, dogName, onToggle }: DogCardProps) {
+export function DogCard() {
+  const { dogCare, dogFlash, dogName, onToggleDogCare } = useDashboardDog();
   const pendingCount = dogCare.filter((item) => !item.done).length;
   const pendingAccent = pendingCount > 0 ? ACCENT_CLASSES.coral : ACCENT_CLASSES.good;
 
   return (
-    <Paper
+    <GlowCard
       className={cn(
         "bg-panel border-bd shadow-card relative flex flex-1 flex-col overflow-hidden border",
         dogFlash && "lp-flash",
@@ -71,7 +66,7 @@ export function DogCard({ dogCare, dogFlash, dogName, onToggle }: DogCardProps) 
             key={item.kind}
             type="button"
             aria-pressed={item.done}
-            onClick={() => onToggle(item.kind)}
+            onClick={() => onToggleDogCare(item.kind)}
             className={cn(
               "flex w-full items-center gap-3 rounded-xl border px-3.5 py-2.5 text-left",
               item.done
@@ -98,6 +93,55 @@ export function DogCard({ dogCare, dogFlash, dogName, onToggle }: DogCardProps) 
           </UnstyledButton>
         ))}
       </Stack>
-    </Paper>
+    </GlowCard>
+  );
+}
+
+export function DogCardFallback() {
+  return (
+    <Shimmer loading>
+      <Paper
+        className="bg-panel border-bd shadow-card relative flex flex-1 flex-col overflow-hidden border"
+        p="lg"
+        radius={18}
+      >
+        <Group justify="space-between" mb="md">
+          <Group gap={11}>
+            <Box className="border-coral bg-coral/16 text-coral flex h-8.5 w-8.5 items-center justify-center rounded-lg border font-bold">
+              ハ
+            </Box>
+            <Stack gap={0}>
+              <Text size="sm" fw={600}>
+                ハマロ
+              </Text>
+              <Text size="10.5px" fw={600} tt="uppercase" c={ACCENT_VARS.faint}>
+                トイプードル · 今日のケア
+              </Text>
+            </Stack>
+          </Group>
+          <Badge variant="outline" className="border-coral bg-coral/16 text-coral">
+            未実施 3 件
+          </Badge>
+        </Group>
+
+        <Stack gap={8}>
+          {["朝散歩", "朝ごはん", "薬", "トイレ"].map((label) => (
+            <Group
+              key={label}
+              className="border-bd bg-panel-2 rounded-xl border px-3.5 py-2.5"
+              gap={12}
+            >
+              <Box className="border-coral h-5 w-5 rounded-full border-2" />
+              <Text size="sm" fw={500}>
+                {label}
+              </Text>
+              <Text size="xs" c="dimmed" className="ml-auto">
+                未
+              </Text>
+            </Group>
+          ))}
+        </Stack>
+      </Paper>
+    </Shimmer>
   );
 }

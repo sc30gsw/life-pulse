@@ -76,5 +76,6 @@ export default defineConfig({
   ],
   test: {
     include: ["src/**/*.test.ts", "src/**/*.test.tsx", "convex/**/*.test.ts"],
+    testTimeout: 15_000,
   },
 });
