@@ -159,6 +159,7 @@ export default defineSchema({
       v.literal("done"),
       v.literal("eroded"),
       v.literal("rescheduled"),
+      v.literal("declined"), // リスケしない選択(FR-3.7)
     ),
     erosionReason: v.optional(
       v.union(
@@ -293,6 +294,7 @@ end(): status="ended", actualMinutes確定, phaseJobIds を全て scheduler.canc
 ```
 planned --erode(reason)--> eroded --reschedule(startHm,endHm)--> (新block planned, source="manual", 元blockに rescheduledToId)
 planned --(紐づくsession complete)--> done
+eroded --decline()--> declined --undoDecline()--> eroded (FR-3.7, 確認ダイアログ経由・取り消し可能)
 ```
 
 リスケ候補の提示ロジック(サーバquery): 当日の残り時間帯(now以降〜22:00)から、既存planned枠と重ならない30分刻みの開始候補を最大5件返す。単純実装で良い。
