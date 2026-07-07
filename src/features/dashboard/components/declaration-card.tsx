@@ -10,6 +10,7 @@ import {
 } from "~/types/dashboard";
 
 const STATUS_ACCENT = {
+  declined: "blue",
   done: "good",
   eroded: "coral",
   planned: "faint",

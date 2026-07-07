@@ -10,11 +10,13 @@ import { useStudyBlocks } from "~/features/study/hooks/use-study-blocks";
 import { useUpcomingBlocks } from "~/features/study/hooks/use-upcoming-blocks";
 
 const hookState = vi.hoisted(() => ({
+  declineMutate: vi.fn(),
   erodeMutate: vi.fn(),
   navigate: vi.fn(),
   removeMutate: vi.fn(),
   rescheduleMutate: vi.fn(),
   startMutate: vi.fn(),
+  undoDeclineMutate: vi.fn(),
 }));
 
 vi.mock("@mantine/modals", () => ({
@@ -37,6 +39,10 @@ vi.mock("~/features/study/hooks/use-study-clock", () => ({
   useStudyClock: () => ({ dateJst: "2099-01-01", nowHm: "06:00" }),
 }));
 
+vi.mock("~/features/study/hooks/use-decline-block", () => ({
+  useDeclineBlock: () => ({ mutate: hookState.declineMutate }),
+}));
+
 vi.mock("~/features/study/hooks/use-erode-block", () => ({
   useErodeBlock: () => ({ mutate: hookState.erodeMutate }),
 }));
@@ -51,6 +57,10 @@ vi.mock("~/features/study/hooks/use-reschedule-block", () => ({
 
 vi.mock("~/features/study/hooks/use-start-session", () => ({
   useStartSession: () => ({ mutate: hookState.startMutate }),
+}));
+
+vi.mock("~/features/study/hooks/use-undo-decline-block", () => ({
+  useUndoDeclineBlock: () => ({ mutate: hookState.undoDeclineMutate }),
 }));
 
 function buildBlock(overrides: Partial<Doc<"studyBlocks">> = {}): Doc<"studyBlocks"> {
@@ -79,10 +89,12 @@ test("study block actions call mutations and surface outcomes", () => {
   vi.mocked(useSuspenseQuery).mockReturnValueOnce({
     data: { blocks: [buildBlock()], suggestions: ["08:00"] },
   } as never);
+  hookState.declineMutate.mockClear();
   hookState.erodeMutate.mockClear();
   hookState.navigate.mockClear();
   hookState.rescheduleMutate.mockClear();
   hookState.startMutate.mockClear();
+  hookState.undoDeclineMutate.mockClear();
   vi.mocked(notifications.show).mockClear();
 
   const result = useStudyBlocks();
@@ -115,6 +127,50 @@ test("study block actions call mutations and surface outcomes", () => {
   );
   expect(notifications.show).toHaveBeenCalledWith(
     expect.objectContaining({ message: "進行中のセッションがあります" }),
+  );
+
+  result.onUndoDecline("block_1" as Doc<"studyBlocks">["_id"]);
+  const undoDeclineOptions = hookState.undoDeclineMutate.mock.calls[0]?.[1] as {
+    onSuccess: () => void;
+  };
+  undoDeclineOptions.onSuccess();
+  expect(hookState.undoDeclineMutate).toHaveBeenCalledWith(
+    { blockId: "block_1" },
+    expect.any(Object),
+  );
+  expect(notifications.show).toHaveBeenCalledWith(
+    expect.objectContaining({ message: "リスケ候補から選び直せます" }),
+  );
+});
+
+test("declining an eroded block opens a confirm modal and records on confirm", () => {
+  vi.mocked(useSuspenseQuery).mockReturnValueOnce({
+    data: { blocks: [buildBlock({ status: "eroded" })], suggestions: [] },
+  } as never);
+  hookState.declineMutate.mockClear();
+  vi.mocked(modals.openConfirmModal).mockClear();
+  vi.mocked(notifications.show).mockClear();
+
+  const result = useStudyBlocks();
+  result.onDecline(buildBlock({ status: "eroded" }));
+
+  const modalOptions = vi.mocked(modals.openConfirmModal).mock.calls[0]?.[0] as {
+    onConfirm: () => void;
+  };
+  modalOptions.onConfirm();
+  const declineOptions = hookState.declineMutate.mock.calls[0]?.[1] as {
+    onError: () => void;
+    onSuccess: () => void;
+  };
+  declineOptions.onSuccess();
+  declineOptions.onError();
+
+  expect(hookState.declineMutate).toHaveBeenCalledWith({ blockId: "block_1" }, expect.any(Object));
+  expect(notifications.show).toHaveBeenCalledWith(
+    expect.objectContaining({ message: "この枠はリスケせず終了しました" }),
+  );
+  expect(notifications.show).toHaveBeenCalledWith(
+    expect.objectContaining({ message: "リスケしないの記録に失敗しました" }),
   );
 });
 

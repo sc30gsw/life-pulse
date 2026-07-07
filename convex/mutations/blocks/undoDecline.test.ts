@@ -2,7 +2,7 @@ import { convexTest } from "convex-test";
 import { expect, test } from "vite-plus/test";
 
 import { api } from "../../_generated/api";
-import { addDaysJst, todayJst } from "../../lib/date-range";
+import { addDaysJst, todayJst } from "../../lib/dateRange";
 import schema from "../../schema";
 import { testModules } from "../../test.setup";
 

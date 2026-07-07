@@ -1,6 +1,6 @@
 import { expect, test } from "vite-plus/test";
 
-import { addDaysJst, todayJst } from "./date-range";
+import { addDaysJst, todayJst } from "./dateRange";
 
 test("todayJst returns a YYYY-MM-DD formatted string", () => {
   expect(todayJst()).toMatch(/^\d{4}-\d{2}-\d{2}$/);

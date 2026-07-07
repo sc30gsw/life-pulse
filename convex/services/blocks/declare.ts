@@ -2,7 +2,7 @@ import { ConvexError } from "convex/values";
 
 import type { Doc } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
-import { assertDateJst, todayJst } from "../../lib/date-range";
+import { assertDateJst, todayJst } from "../../lib/dateRange";
 import { hmToMinutes } from "../../lib/hm";
 
 type DeclareArgs = Pick<Doc<"studyBlocks">, "category" | "dateJst" | "endHm" | "startHm">;

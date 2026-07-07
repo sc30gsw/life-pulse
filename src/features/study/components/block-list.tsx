@@ -1,4 +1,15 @@
-import { Badge, Box, Button, Group, Stack, Text, Tooltip, UnstyledButton } from "@mantine/core";
+import {
+  Badge,
+  Box,
+  Button,
+  Chip,
+  Grid,
+  Group,
+  Stack,
+  Text,
+  Tooltip,
+  UnstyledButton,
+} from "@mantine/core";
 import { Shimmer } from "@shimmer-from-structure/react";
 import { cn } from "cnfast";
 import { useState, type ComponentProps } from "react";
@@ -19,6 +30,7 @@ import {
 } from "~/types/dashboard";
 
 const STATUS_ACCENT = {
+  declined: "blue",
   done: "good",
   eroded: "coral",
   planned: "faint",
@@ -40,7 +52,8 @@ const TOOLTIP_STYLES = {
 } as const satisfies ComponentProps<typeof Tooltip>["styles"];
 
 export function BlockList() {
-  const { blocks, onErode, onReschedule, onStartFromBlock, suggestions } = useStudyBlocks();
+  const { blocks, onDecline, onErode, onReschedule, onStartFromBlock, onUndoDecline, suggestions } =
+    useStudyBlocks();
   const [erodingBlockId, setErodingBlockId] = useState<Doc<"studyBlocks">["_id"] | null>(null);
 
   if (blocks.length === 0) {
@@ -62,7 +75,19 @@ export function BlockList() {
               <Text className="tabular-nums" size="sm" fw={600}>
                 {block.startHm}〜{block.endHm}
               </Text>
-              <Text size="sm">{CATEGORY_LABELS[block.category as SessionCategory]}</Text>
+              <Chip
+                classNames={{
+                  label: cn(
+                    "rounded-lg border px-3 py-1.5 text-xs",
+                    ACCENT_CLASSES.good.border,
+                    ACCENT_CLASSES.good.bg,
+                    ACCENT_CLASSES.good.text,
+                    "font-semibold",
+                  ),
+                }}
+              >
+                {CATEGORY_LABELS[block.category as SessionCategory]}
+              </Chip>
               <Text c="dimmed" size="xs">
                 {block.plannedMinutes}分
               </Text>
@@ -88,6 +113,7 @@ export function BlockList() {
                   style={ACCENT_SOLID_STYLE.good}
                   type="button"
                   variant="filled"
+                  className="hover:brightness-110"
                 >
                   この枠で開始
                 </Button>
@@ -117,7 +143,7 @@ export function BlockList() {
                       <UnstyledButton
                         className={cn(
                           ACCENT_CLASSES.coral.border,
-                          "bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-semibold",
+                          "bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-semibold hover:brightness-120",
                         )}
                         key={reason}
                         onClick={() => {
@@ -135,35 +161,83 @@ export function BlockList() {
             )}
 
             {block.status === "eroded" && (
-              <Group gap={8} mt={10} wrap="wrap">
-                <Text c={ACCENT_VARS.coral} size="xs">
-                  侵食
-                  {block.erosionReason !== undefined
-                    ? `(${EROSION_REASON_LABELS[block.erosionReason]})`
-                    : ""}
-                  · リスケ候補:
-                </Text>
+              <Grid align="center" mt={10}>
+                <Grid.Col span={12}>
+                  <Chip
+                    classNames={{
+                      label: cn(
+                        "border px-3 py-1.5 text-xs",
+                        ACCENT_CLASSES.coral.border,
+                        ACCENT_CLASSES.coral.bg,
+                        ACCENT_CLASSES.coral.text,
+                        "font-semibold",
+                      ),
+                    }}
+                  >
+                    侵食
+                    {block.erosionReason !== undefined
+                      ? `(${EROSION_REASON_LABELS[block.erosionReason]})`
+                      : ""}{" "}
+                    · リスケ候補:
+                  </Chip>
+                </Grid.Col>
                 {suggestions.length === 0 ? (
-                  <Text c="dimmed" size="xs">
-                    本日の空き枠なし
-                  </Text>
+                  <Grid.Col span="content">
+                    <Text c="dimmed" size="xs">
+                      本日の空き枠なし
+                    </Text>
+                  </Grid.Col>
                 ) : (
                   suggestions.map((slot) => (
-                    <UnstyledButton
-                      className={cn(
-                        ACCENT_CLASSES.violet.border,
-                        ACCENT_CLASSES.violet.bg,
-                        ACCENT_CLASSES.violet.text,
-                        "rounded-lg border px-3 py-1.5 text-xs font-semibold tabular-nums",
-                      )}
-                      key={slot}
-                      onClick={() => onReschedule(block, slot)}
-                      type="button"
-                    >
-                      {slot}〜
-                    </UnstyledButton>
+                    <Grid.Col key={slot} span={2.35}>
+                      <UnstyledButton
+                        className={cn(
+                          ACCENT_CLASSES.violet.border,
+                          ACCENT_CLASSES.violet.bg,
+                          ACCENT_CLASSES.violet.text,
+                          "rounded-lg border px-3 py-1.5 text-xs font-semibold tabular-nums hover:brightness-110",
+                        )}
+                        onClick={() => onReschedule(block, slot)}
+                        type="button"
+                      >
+                        {slot}〜
+                      </UnstyledButton>
+                    </Grid.Col>
                   ))
                 )}
+                <Grid.Col span={12}>
+                  <Button
+                    className={cn(
+                      ACCENT_CLASSES.faint.border,
+                      ACCENT_CLASSES.faint.text,
+                      "hover:bg-inset w-full transition-colors hover:brightness-120",
+                    )}
+                    onClick={() => onDecline(block)}
+                    size="xs"
+                    type="button"
+                    variant="outline"
+                  >
+                    リスケしない
+                  </Button>
+                </Grid.Col>
+              </Grid>
+            )}
+
+            {block.status === "declined" && (
+              <Group gap={8} mt={10} wrap="wrap">
+                <Text c={ACCENT_VARS.blue} size="xs">
+                  リスケしないを選択しました
+                </Text>
+                <UnstyledButton
+                  className={cn(
+                    ACCENT_CLASSES.blue.border,
+                    "bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-semibold",
+                  )}
+                  onClick={() => onUndoDecline(block._id)}
+                  type="button"
+                >
+                  元に戻す
+                </UnstyledButton>
               </Group>
             )}
           </Box>

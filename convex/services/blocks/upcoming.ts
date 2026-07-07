@@ -2,7 +2,7 @@ import { sortBy } from "remeda";
 
 import type { Doc } from "../../_generated/dataModel";
 import type { QueryCtx } from "../../_generated/server";
-import { addDaysJst, assertDateJst } from "../../lib/date-range";
+import { addDaysJst, assertDateJst } from "../../lib/dateRange";
 
 type UpcomingArgs = Record<"todayJst", Doc<"studyBlocks">["dateJst"]>;
 

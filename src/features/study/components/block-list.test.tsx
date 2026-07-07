@@ -8,9 +8,11 @@ import { renderWithMantine } from "~/test-utils";
 
 const hookState = vi.hoisted(() => ({
   blocks: [] as Partial<Doc<"studyBlocks">>[],
+  onDecline: vi.fn(),
   onErode: vi.fn(),
   onReschedule: vi.fn(),
   onStartFromBlock: vi.fn(),
+  onUndoDecline: vi.fn(),
   suggestions: [] as string[],
 }));
 
@@ -84,6 +86,31 @@ test("an eroded block offers reschedule slot chips", async () => {
     expect.objectContaining({ _id: "block_1" }),
     "13:30",
   );
+});
+
+test("an eroded block offers a decline-reschedule button", async () => {
+  hookState.blocks = [buildBlock({ erosionReason: "work", status: "eroded" })];
+  hookState.suggestions = ["13:30"];
+  hookState.onDecline.mockClear();
+
+  const user = userEvent.setup();
+  const { getByRole } = renderWithMantine(<BlockList />);
+
+  await user.click(getByRole("button", { name: "リスケしない" }));
+  expect(hookState.onDecline).toHaveBeenCalledWith(expect.objectContaining({ _id: "block_1" }));
+});
+
+test("a declined block offers an undo button", async () => {
+  hookState.blocks = [buildBlock({ erosionReason: "work", status: "declined" })];
+  hookState.onUndoDecline.mockClear();
+
+  const user = userEvent.setup();
+  const { getByRole, getByText } = renderWithMantine(<BlockList />);
+
+  expect(getByText("見送り")).toBeDefined();
+
+  await user.click(getByRole("button", { name: "元に戻す" }));
+  expect(hookState.onUndoDecline).toHaveBeenCalledWith("block_1");
 });
 
 test("renders a structure-aware shimmer fallback", () => {

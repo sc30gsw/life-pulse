@@ -1,4 +1,4 @@
-import { Badge, Group, Stack, Text } from "@mantine/core";
+import { Badge, Chip, Group, Stack, Text } from "@mantine/core";
 import { Shimmer } from "@shimmer-from-structure/react";
 import { cn } from "cnfast";
 
@@ -64,7 +64,19 @@ export function SessionHistoryList() {
                 <Text c="dimmed" className="tabular-nums" size="xs">
                   {formatStartTime(session.startedAt)}
                 </Text>
-                <Text size="sm">{CATEGORY_LABELS[session.category]}</Text>
+                <Chip
+                  classNames={{
+                    label: cn(
+                      "rounded-lg border px-3 py-1.5 text-xs",
+                      ACCENT_CLASSES.good.border,
+                      ACCENT_CLASSES.good.bg,
+                      ACCENT_CLASSES.good.text,
+                      "font-semibold",
+                    ),
+                  }}
+                >
+                  {CATEGORY_LABELS[session.category]}
+                </Chip>
                 <Text className="tabular-nums" size="xs">
                   {session.actualMinutes}分
                 </Text>

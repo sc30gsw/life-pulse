@@ -220,7 +220,7 @@ export function DeclareBlockForm({ block, onDone }: DeclareBlockFormProps = {}) 
                       aria-pressed={isActive}
                       onClick={() => field.onChange(category)}
                       className={cn(
-                        "rounded-lg border px-3 py-1.5 text-xs",
+                        "rounded-lg border px-3 py-1.5 text-xs hover:brightness-120",
                         isActive
                           ? cn(
                               ACCENT_CLASSES.good.border,
@@ -230,6 +230,7 @@ export function DeclareBlockForm({ block, onDone }: DeclareBlockFormProps = {}) 
                             )
                           : "border-bd-2 bg-inset text-dim font-medium",
                       )}
+                      disabled={declareForm.isSubmitting}
                     >
                       {CATEGORY_LABELS[category]}
                     </UnstyledButton>
@@ -260,6 +261,7 @@ export function DeclareBlockForm({ block, onDone }: DeclareBlockFormProps = {}) 
                 valueFormat="YYYY-MM-DD HH:mm"
                 weekendDays={[0]}
                 withSeconds={false}
+                disabled={declareForm.isSubmitting}
               />
             )}
           </Field>
@@ -282,12 +284,19 @@ export function DeclareBlockForm({ block, onDone }: DeclareBlockFormProps = {}) 
                 valueFormat="YYYY-MM-DD HH:mm"
                 weekendDays={[0]}
                 withSeconds={false}
+                disabled={declareForm.isSubmitting}
               />
             )}
           </Field>
         </Group>
 
-        <Button style={ACCENT_SOLID_STYLE.good} type="submit">
+        <Button
+          className="hover:brightness-120"
+          loading={declareForm.isSubmitting}
+          disabled={declareForm.isSubmitting}
+          style={ACCENT_SOLID_STYLE.good}
+          type="submit"
+        >
           {isEditing ? "予定を更新する" : "枠を宣言する"}
         </Button>
       </Stack>

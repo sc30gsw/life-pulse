@@ -31,8 +31,9 @@ test("renders each declaration's time, category label, and status label", () => 
         { category: "reading", plannedMinutes: 20, startHm: "21:00", status: "done" },
         { category: "eikaiwa", plannedMinutes: 20, startHm: "22:00", status: "eroded" },
         { category: "other", plannedMinutes: 10, startHm: "23:00", status: "rescheduled" },
+        { category: "toeic", plannedMinutes: 15, startHm: "23:30", status: "declined" },
       ]}
-      totalMinutes={80}
+      totalMinutes={95}
     />,
   );
 
@@ -48,4 +49,6 @@ test("renders each declaration's time, category label, and status label", () => 
 
   expect(getByText("その他")).toBeDefined();
   expect(getByText("リスケ済")).toBeDefined();
+
+  expect(getByText("見送り")).toBeDefined();
 });

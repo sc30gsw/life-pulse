@@ -1,4 +1,4 @@
-import { Badge, Box, Button, Group, Stack, Text } from "@mantine/core";
+import { Badge, Box, Button, Chip, Group, Stack, Text, UnstyledButton } from "@mantine/core";
 import { Shimmer } from "@shimmer-from-structure/react";
 import { cn } from "cnfast";
 import { useState } from "react";
@@ -52,7 +52,19 @@ export function UpcomingBlockList() {
                     {holiday}
                   </Badge>
                 )}
-                <Text size="sm">{CATEGORY_LABELS[block.category as SessionCategory]}</Text>
+                <Chip
+                  classNames={{
+                    label: cn(
+                      "rounded-lg border px-3 py-1.5 text-xs",
+                      ACCENT_CLASSES.good.border,
+                      ACCENT_CLASSES.good.bg,
+                      ACCENT_CLASSES.good.text,
+                      "font-semibold",
+                    ),
+                  }}
+                >
+                  {CATEGORY_LABELS[block.category as SessionCategory]}
+                </Chip>
                 <Text c="dimmed" size="xs">
                   {block.plannedMinutes}分
                 </Text>

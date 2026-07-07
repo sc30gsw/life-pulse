@@ -81,7 +81,7 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 
 **2 本の plan に分割する(W2 の PR1/PR2 分割と同じ方針)。実装順序は PR1 → PR2。**
 
-- PR1: 断食(FR-4)— plan: 未作成
+- PR1: 断食(FR-4)— plan: [2026-07-07_03-fasting.md](./plans/2026-07-07_03-fasting.md)(`/fasting` ページ新設・appSettings 読み取りfallback 等の合意事項は plan §0 参照)
 - PR2: 健康データ手動入力 + デモモード + HIIT(FR-6.2 / FR-6.4 / FR-6.5)— plan: 未作成
 
 ### FR-4 断食ステートマシン【P0】(PR1)

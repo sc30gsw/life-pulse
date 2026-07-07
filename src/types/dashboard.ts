@@ -78,6 +78,7 @@ export const HEALTH_SOURCE_LABELS = {
 export type DeclarationStatus = Infer<typeof blockStatusValidator>;
 
 export const DECLARATION_STATUS_LABELS = {
+  declined: "見送り",
   done: "済",
   eroded: "侵食",
   planned: "予定",

@@ -28,6 +28,7 @@ export const blockStatusValidator = v.union(
   v.literal("done"),
   v.literal("eroded"),
   v.literal("rescheduled"),
+  v.literal("declined"),
 );
 
 export const erosionReasonValidator = v.union(
