@@ -4,10 +4,13 @@ import type { ComponentProps } from "react";
 
 import { dayjs } from "~/utils/dayjs";
 
+type HolidayMap = Record<string, Record<"name", string>>;
+
 export function holidayName(
   dateStr: Parameters<NonNullable<ComponentProps<typeof DateTimePicker>["renderDay"]>>[0],
 ) {
-  const date = dayjs.tz(dateStr, "Asia/Tokyo").toDate();
+  const dateKey =
+    typeof dateStr === "string" ? dateStr.slice(0, 10) : dayjs(dateStr).format("YYYY-MM-DD");
 
-  return holiday_jp.between(date, date)[0]?.name ?? null;
+  return (holiday_jp.holidays as HolidayMap)[dateKey]?.name ?? null;
 }

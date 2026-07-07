@@ -11,6 +11,7 @@ import { useUpcomingBlocks } from "~/features/study/hooks/use-upcoming-blocks";
 
 const hookState = vi.hoisted(() => ({
   erodeMutate: vi.fn(),
+  navigate: vi.fn(),
   removeMutate: vi.fn(),
   rescheduleMutate: vi.fn(),
   startMutate: vi.fn(),
@@ -26,6 +27,10 @@ vi.mock("@mantine/notifications", () => ({
 
 vi.mock("@tanstack/react-query", () => ({
   useSuspenseQuery: vi.fn(),
+}));
+
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => hookState.navigate,
 }));
 
 vi.mock("~/features/study/hooks/use-study-clock", () => ({
@@ -75,6 +80,7 @@ test("study block actions call mutations and surface outcomes", () => {
     data: { blocks: [buildBlock()], suggestions: ["08:00"] },
   } as never);
   hookState.erodeMutate.mockClear();
+  hookState.navigate.mockClear();
   hookState.rescheduleMutate.mockClear();
   hookState.startMutate.mockClear();
   vi.mocked(notifications.show).mockClear();
