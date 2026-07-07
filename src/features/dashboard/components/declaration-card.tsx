@@ -7,7 +7,7 @@ import {
   DECLARATION_STATUS_LABELS,
   type DeclarationStatus,
   type SessionCategory,
-} from "~/features/dashboard/types/dashboard";
+} from "~/types/dashboard";
 
 const STATUS_ACCENT = {
   done: "good",

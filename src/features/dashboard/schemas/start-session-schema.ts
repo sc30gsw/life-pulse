@@ -1,6 +1,6 @@
 import * as v from "valibot";
 
-import { CATEGORY_LABELS, type SessionCategory } from "~/features/dashboard/types/dashboard";
+import { CATEGORY_LABELS, type SessionCategory } from "~/types/dashboard";
 
 const CATEGORY_VALUES = Object.keys(CATEGORY_LABELS) as SessionCategory[];
 

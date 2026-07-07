@@ -8,12 +8,12 @@ import { useCompleteSession } from "~/features/dashboard/hooks/use-complete-sess
 import { usePauseSession } from "~/features/dashboard/hooks/use-pause-session";
 import { useResumeSession } from "~/features/dashboard/hooks/use-resume-session";
 import { useStartSession } from "~/features/dashboard/hooks/use-start-session";
-import type { InterruptionReason, SessionCategory } from "~/features/dashboard/types/dashboard";
 import {
   deriveSessionElapsedMs,
   formatElapsedClock,
   toDeclarationItems,
 } from "~/features/dashboard/utils/format";
+import type { InterruptionReason, SessionCategory } from "~/types/dashboard";
 
 const MINUTE_MS = 60_000;
 

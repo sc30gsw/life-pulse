@@ -23,7 +23,7 @@ import {
   PRESENCE_LABELS,
   PRESENCE_SUB_LABELS,
   type PresenceState,
-} from "~/features/dashboard/types/dashboard";
+} from "~/types/dashboard";
 
 const PRESENCE_ACCENTS = {
   commuting_home: "blue",

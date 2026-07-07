@@ -1,7 +1,7 @@
 import { useLocalStorage } from "@mantine/hooks";
 import { useEffect } from "react";
 
-import type { ThemeMode } from "~/features/dashboard/types/dashboard";
+import type { ThemeMode } from "~/types/dashboard";
 
 export function useBoardTheme() {
   const [theme, setTheme] = useLocalStorage<ThemeMode>({

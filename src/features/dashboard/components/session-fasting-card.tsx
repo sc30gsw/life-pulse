@@ -30,7 +30,7 @@ import {
   CATEGORY_LABELS,
   REASON_LABELS,
   type InterruptionReason,
-} from "~/features/dashboard/types/dashboard";
+} from "~/types/dashboard";
 
 // Single consumer: maps session status ("idle" = no session document at all) to its
 // accent key + Japanese label for the status pill.

@@ -12,7 +12,7 @@ import {
   ACCENT_VARS,
   CATEGORY_LABELS,
   type SessionCategory,
-} from "~/features/dashboard/types/dashboard";
+} from "~/types/dashboard";
 
 const CATEGORY_VALUES = Object.keys(CATEGORY_LABELS) as SessionCategory[];
 
