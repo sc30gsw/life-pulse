@@ -17,7 +17,7 @@
 
 ## W1 — 土台(FR-9 / FR-1 骨格 / FR-5 / FR-8)
 
-plan: [2026-07-07-live-board-wiring.md](./plans/2026-07-07-live-board-wiring.md)(完了)
+plan: [2026-07-07-live-board-wiring.md](./plans/2026-07-07-live-board-wiring.md)(初回分マージ済み。**FR-5.4 / FR-1.6 追補分(plan Phase 2-4 / 3-7 / 4-3)が未実装**)
 
 ### FR-9 認証・アカウント【P0】— PR #2
 
@@ -33,14 +33,14 @@ plan: [2026-07-07-live-board-wiring.md](./plans/2026-07-07-live-board-wiring.md)
 - [x] FR-1.3 パートナーカード(ステータス+最終更新時刻)
 - [x] FR-1.4 犬カード(当日ケア項目の済・未+実施者・時刻)
 - [x] FR-1.5 self / partner どちらでも同一内容を閲覧可能
-- [ ] FR-1.6 2 端末で <1s 反映のデモ検証(AC-1 ゲートで最終確認)
+- [ ] FR-1.6 2 端末で <1s 反映のデモ検証 → plan Phase 4-3 の手動 2 ブラウザ検証で消化(AC-1 ゲートで最終確認)
 
 ### FR-5 犬のクイックアクション【P0】
 
 - [x] FR-5.1 定義済みケア項目のワンタップ記録(実施者・時刻自動付与)
 - [x] FR-5.2 記録・取り消しが両ユーザーから可能・即時反映(logEvent / undoEvent)
 - [x] FR-5.3 未実施項目の視覚強調+二重実施の UI 抑止
-- [ ] FR-5.4 過去日履歴の簡易リスト(P1 — W4 の磨き込みで判断)
+- [ ] FR-5.4 過去日履歴の簡易リスト(P1)→ plan Phase 2-4(dog.history query)+ 3-7(履歴モーダル UI)に追補済み
 
 ### FR-8 パートナーステータス【P0】
 
