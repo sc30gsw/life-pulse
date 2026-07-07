@@ -1,10 +1,12 @@
 import { Field, Form, useForm } from "@formisch/react";
-import { Button, Modal, NumberInput, Stack } from "@mantine/core";
+import { Button, Modal, Stack } from "@mantine/core";
+import { TimePicker } from "@mantine/dates";
 import type { UseDisclosureReturnValue } from "@mantine/hooks";
 import type { ComponentProps } from "react";
 
 import { useStartFasting } from "~/features/fasting/hooks/use-start-fasting";
 import { StartFastingSchema } from "~/features/fasting/schemas/start-fasting-schema";
+import { hhmmToMinutes, minutesToHhmm } from "~/features/fasting/utils/fasting-utils";
 import { ACCENT_SOLID_STYLE } from "~/types/dashboard";
 
 const MODAL_STYLES = {
@@ -47,13 +49,17 @@ export function FastingStartModal({ opened, onClose, onSuccess }: FastingStartMo
         <Stack gap="md">
           <Field of={startFastingForm} path={["targetMinutes"]}>
             {(field) => (
-              <NumberInput
+              <TimePicker
                 {...field.props}
-                description="省略時は16時間(960分)。デモ用に短い分数も指定可能です。"
+                description="省略時は16:00(16時間)。デモ用に短い時間も指定可能です。"
                 error={field.errors?.[0]}
-                label="目標時間(分・任意)"
-                onChange={(value) => field.onChange(value === "" ? undefined : Number(value))}
-                value={field.input ?? ""}
+                label="目標時間(時:分・任意)"
+                onBlur={(event) =>
+                  field.props.onBlur(event as unknown as Parameters<typeof field.props.onBlur>[0])
+                }
+                onChange={(value) => field.onChange(hhmmToMinutes(value))}
+                type="duration"
+                value={minutesToHhmm(field.input)}
                 disabled={startFastingForm.isSubmitting}
               />
             )}
