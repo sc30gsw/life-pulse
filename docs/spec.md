@@ -84,6 +84,7 @@
 │   │   └── _authenticated/
 │   │       ├── index.tsx    # ライブボード(FR-1)
 │   │       ├── study.tsx    # セッション+枠(FR-2/3)
+│   │       ├── fasting.tsx  # 断食の現在状態+履歴(FR-4/4.5、両ロール閲覧・操作はself)
 │   │       ├── _self.tsx    # roleガード(partner→ / +通知, FR-9.4)。**TanStack Routerはpathless layoutに子ルートが1つも無い状態を許容しない**(index.tsx等と "/" が衝突しビルドエラーになる)。health/insights/settingsのうち最初の1つと**同じ変更でセットで追加**すること。単独では作らない
 │   │       └── _self/
 │   │           ├── health.tsx    # メトリクス+HIIT+断食詳細(FR-4/6)
@@ -336,6 +337,7 @@ eroded --decline()--> declined --undoDecline()--> eroded (FR-3.7, 確認ダイ�
   - `/login` / `/signup`(未認証専用、認証済みは `/` へ): Formisch+valibotフォーム。signupは email / password(確認入力付き) / displayName / role(self|partner 自己選択)。成功後 `users.ensureUser` を呼ぶ(FR-9.1/9.3)。
   - `/`(ライブボード): `dashboard.live` を購読する3カード+今日の宣言vs実績バー。各カードにクイック操作(犬: 未項目のワンタップ、セッション: 開始/中断/再開、断食: 開始/終了、presence: 自分の状態変更)。**この画面だけでデモが完結する**ことを目標にする。
   - `/study`: 枠の宣言UI(時刻ピッカー)、枠一覧(planned/eroded/done)、侵食→リスケ候補選択、セッション詳細(中断内訳)。
+  - `/fasting`: 断食の現在状態(フェーズタイムライン+経過/残り、開始/終了操作は self のみ)の拡大カードと、過去断食の簡易履歴(直近30件、編集・削除なし)(FR-4.5)。**注**: FR-4.4 の「セッション画面」はライブボードの `session-fasting-card`(セッションと断食が同居するカード)を指すものと解釈する。
   - `/health`: メトリクス推移(Recharts)、手動入力フォーム、HIIT記録、断食履歴、最終同期表示。
   - `/insights`: 相関ビュー(散布図2枚+相関係数、HIIT翌日比較)。
   - `/settings`: デモモードトグル(FR-6.4)、断食目標(分単位入力可=AC-2の短縮デモ用)、犬の名前。

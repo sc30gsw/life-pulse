@@ -10,9 +10,11 @@ export async function history(ctx: QueryCtx) {
     return [];
   }
 
-  return await ctx.db
+  const windows = await ctx.db
     .query("fastingWindows")
     .withIndex("by_user_status", (q) => q.eq("userId", selfUser._id).eq("status", "ended"))
     .order("desc")
     .take(30);
+
+  return windows.map((window) => ({ ...window, status: "ended" as const }));
 }
