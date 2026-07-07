@@ -22,7 +22,7 @@ test("renders nothing in the declaration list when there are no declarations", (
 });
 
 test("renders each declaration's time, category label, and status label", () => {
-  const { getByText } = renderWithMantine(
+  const { getAllByText, getByText } = renderWithMantine(
     <DeclarationCard
       actualMinutes={30}
       actualPercent={50}
@@ -37,11 +37,8 @@ test("renders each declaration's time, category label, and status label", () => 
     />,
   );
 
-  expect(getByText("23:30")).toBeDefined();
-  expect(getByText("見送り")).toBeDefined();
-
   expect(getByText("06:00")).toBeDefined();
-  expect(getByText("TOEIC")).toBeDefined();
+  expect(getAllByText("TOEIC")).toHaveLength(2);
   expect(getByText("予定")).toBeDefined();
 
   expect(getByText("読書")).toBeDefined();
@@ -53,5 +50,6 @@ test("renders each declaration's time, category label, and status label", () => 
   expect(getByText("その他")).toBeDefined();
   expect(getByText("リスケ済")).toBeDefined();
 
+  expect(getByText("23:30")).toBeDefined();
   expect(getByText("見送り")).toBeDefined();
 });
