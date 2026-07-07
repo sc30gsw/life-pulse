@@ -2,6 +2,7 @@
 import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vite-plus/test";
 
+import type { Doc, Id } from "~/../convex/_generated/dataModel";
 import { DogCard, DogCardFallback } from "~/features/dashboard/components/dog-card";
 import { renderWithMantine } from "~/test-utils";
 
@@ -12,6 +13,16 @@ const hookState = vi.hoisted(() => ({
     { at: 1000, by: "self", done: true, kind: "meal_am" },
     { at: 2000, by: "partner", done: true, kind: "meds" },
   ],
+  historyDays: [] as {
+    dateJst: Doc<"dogEvents">["dateJst"];
+    events: {
+      at: Doc<"dogEvents">["at"];
+      byDisplayName: Doc<"appUsers">["displayName"];
+      id: Doc<"dogEvents">["_id"];
+      kind: Doc<"dogEvents">["kind"];
+    }[];
+  }[],
+  openModal: vi.fn(),
 }));
 
 vi.mock("~/features/dashboard/hooks/use-dashboard-dog", () => ({
@@ -22,6 +33,16 @@ vi.mock("~/features/dashboard/hooks/use-dashboard-dog", () => ({
     onToggleDogCare,
   }),
 }));
+
+vi.mock("@mantine/modals", () => ({ modals: { open: hookState.openModal } }));
+
+vi.mock("@tanstack/react-query", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@tanstack/react-query")>();
+  return {
+    ...actual,
+    useSuspenseQuery: () => ({ data: { days: hookState.historyDays } }),
+  };
+});
 
 test("renders the dog name, pending count, and actor labels", () => {
   const { getByText } = renderWithMantine(<DogCard />);
@@ -58,4 +79,52 @@ test("renders a structure-aware shimmer fallback", () => {
 
   expect(getByText("ハマロ")).toBeDefined();
   expect(getByText("未実施 3 件")).toBeDefined();
+});
+
+test("clicking 履歴 opens the history modal", async () => {
+  hookState.openModal.mockClear();
+  const user = userEvent.setup();
+  const { getByRole } = renderWithMantine(<DogCard />);
+
+  await user.click(getByRole("button", { name: "履歴" }));
+
+  expect(hookState.openModal).toHaveBeenCalledWith(
+    expect.objectContaining({ children: expect.anything(), title: "犬のお世話履歴" }),
+  );
+});
+
+test("history modal content shows events grouped by date", async () => {
+  hookState.openModal.mockClear();
+  hookState.historyDays = [
+    {
+      dateJst: "2026-07-05",
+      events: [
+        { at: 1000, byDisplayName: "本人", id: "event_1" as Id<"dogEvents">, kind: "walk_am" },
+      ],
+    },
+  ];
+  const user = userEvent.setup();
+  const { getByRole } = renderWithMantine(<DogCard />);
+
+  await user.click(getByRole("button", { name: "履歴" }));
+
+  const modalChildren = hookState.openModal.mock.calls[0]?.[0].children;
+  const { getByText } = renderWithMantine(modalChildren);
+
+  expect(getByText("2026-07-05")).toBeDefined();
+  expect(getByText("朝散歩")).toBeDefined();
+});
+
+test("history modal content shows 履歴なし when there are no past events", async () => {
+  hookState.openModal.mockClear();
+  hookState.historyDays = [];
+  const user = userEvent.setup();
+  const { getByRole } = renderWithMantine(<DogCard />);
+
+  await user.click(getByRole("button", { name: "履歴" }));
+
+  const modalChildren = hookState.openModal.mock.calls[0]?.[0].children;
+  const { getByText } = renderWithMantine(modalChildren);
+
+  expect(getByText("履歴なし")).toBeDefined();
 });

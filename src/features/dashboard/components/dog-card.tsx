@@ -1,8 +1,22 @@
-import { Badge, Box, Group, Paper, Stack, Text, UnstyledButton } from "@mantine/core";
+import {
+  Badge,
+  Box,
+  Button,
+  Group,
+  Modal,
+  Paper,
+  Stack,
+  Text,
+  UnstyledButton,
+} from "@mantine/core";
+import { modals } from "@mantine/modals";
 import { Shimmer } from "@shimmer-from-structure/react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { cn } from "cnfast";
+import { Suspense, type ComponentProps } from "react";
 
 import { GlowCard } from "~/components/glow-card";
+import { dogHistoryQuery } from "~/features/dashboard/api/dog-history-query";
 import { useDashboardDog } from "~/features/dashboard/hooks/use-dashboard-dog";
 import {
   ACCENT_CLASSES,
@@ -10,6 +24,26 @@ import {
   ACCENT_VARS,
   DOG_EVENT_LABELS,
 } from "~/features/dashboard/types/dashboard";
+import { formatClockTime } from "~/features/dashboard/utils/format";
+import { pastDateJstRange, todayJst } from "~/utils/date-jst";
+
+const HISTORY_RANGE_DAYS = 7;
+
+const HISTORY_MODAL_STYLES = {
+  body: { color: "var(--tx)" },
+  content: { backgroundColor: "var(--panel)", border: "1px solid var(--bd2)", color: "var(--tx)" },
+  header: { backgroundColor: "var(--panel)", color: "var(--tx)" },
+  title: { color: "var(--tx)", fontWeight: 700 },
+} as const satisfies ComponentProps<typeof Modal>["styles"];
+
+function openHistoryModal() {
+  modals.open({
+    centered: true,
+    children: <DogHistoryModalContent />,
+    styles: HISTORY_MODAL_STYLES,
+    title: "犬のお世話履歴",
+  });
+}
 
 export function DogCard() {
   const { dogCare, dogFlash, dogName, onToggleDogCare } = useDashboardDog();
@@ -52,12 +86,23 @@ export function DogCard() {
             </Text>
           </Stack>
         </Group>
-        <Badge
-          variant="outline"
-          className={cn(pendingAccent.border, pendingAccent.bg, pendingAccent.text)}
-        >
-          {pendingCount > 0 ? `未実施 ${pendingCount} 件` : "すべて完了"}
-        </Badge>
+        <Group gap={8}>
+          <Badge
+            variant="outline"
+            className={cn(pendingAccent.border, pendingAccent.bg, pendingAccent.text)}
+          >
+            {pendingCount > 0 ? `未実施 ${pendingCount} 件` : "すべて完了"}
+          </Badge>
+          <Button
+            className="border-bd-2 text-tx"
+            onClick={openHistoryModal}
+            size="xs"
+            type="button"
+            variant="outline"
+          >
+            履歴
+          </Button>
+        </Group>
       </Group>
 
       <Stack gap={8}>
@@ -94,6 +139,71 @@ export function DogCard() {
         ))}
       </Stack>
     </GlowCard>
+  );
+}
+
+function DogHistoryModalContent() {
+  return (
+    <Suspense fallback={<DogHistoryListFallback />}>
+      <DogHistoryList />
+    </Suspense>
+  );
+}
+
+function DogHistoryList() {
+  const { fromDateJst, toDateJst } = pastDateJstRange(todayJst(), HISTORY_RANGE_DAYS);
+  const history = useSuspenseQuery(dogHistoryQuery(fromDateJst, toDateJst)).data;
+
+  if (history.days.length === 0) {
+    return (
+      <Text c="dimmed" size="sm">
+        履歴なし
+      </Text>
+    );
+  }
+
+  return (
+    <Stack gap="md">
+      {history.days.map((day) => (
+        <Stack gap={6} key={day.dateJst}>
+          <Text fw={600} size="sm">
+            {day.dateJst}
+          </Text>
+          {day.events.map((event) => (
+            <Group justify="space-between" key={event.id}>
+              <Text size="sm">{DOG_EVENT_LABELS[event.kind]}</Text>
+              <Text c="dimmed" size="xs">
+                {event.byDisplayName} · {formatClockTime(event.at)}
+              </Text>
+            </Group>
+          ))}
+        </Stack>
+      ))}
+    </Stack>
+  );
+}
+
+function DogHistoryListFallback() {
+  return (
+    <Shimmer loading>
+      <Stack gap="md">
+        {[0, 1].map((groupIndex) => (
+          <Stack gap={6} key={groupIndex}>
+            <Text fw={600} size="sm">
+              2026-07-0{groupIndex + 1}
+            </Text>
+            {[0, 1].map((rowIndex) => (
+              <Group justify="space-between" key={rowIndex}>
+                <Text size="sm">朝散歩</Text>
+                <Text c="dimmed" size="xs">
+                  本人 · 06:30:00
+                </Text>
+              </Group>
+            ))}
+          </Stack>
+        ))}
+      </Stack>
+    </Shimmer>
   );
 }
 

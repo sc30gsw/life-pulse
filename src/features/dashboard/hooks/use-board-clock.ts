@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useInterval } from "@mantine/hooks";
+import { useState } from "react";
 
 import { formatClockDate, formatClockTime } from "~/features/dashboard/utils/format";
 import { toDateJst, todayJst } from "~/utils/date-jst";
@@ -11,18 +12,16 @@ export function useBoardClock() {
 
   // 1s clock tick, also detects a JST day rollover and re-points card queries
   // at the new date. Data stays card-scoped; this hook only owns the shared key.
-  useEffect(() => {
-    const id = setInterval(() => {
+  useInterval(
+    () => {
       const tickNow = Date.now();
       setNowMs(tickNow);
       const tickDateJst = toDateJst(tickNow);
       setDateJst((prev) => (prev === tickDateJst ? prev : tickDateJst));
-    }, CLOCK_TICK_MS);
-
-    return () => {
-      clearInterval(id);
-    };
-  }, []);
+    },
+    CLOCK_TICK_MS,
+    { autoInvoke: true },
+  );
 
   return {
     clockDateLabel: formatClockDate(nowMs),
