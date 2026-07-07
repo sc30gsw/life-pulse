@@ -8,7 +8,9 @@ import {
   ACCENT_CLASSES,
   ACCENT_VARS,
   CATEGORY_LABELS,
+  REASON_LABELS,
   SESSION_STATUS_LABELS,
+  type InterruptionReason,
   type SessionStatus,
 } from "~/types/dashboard";
 import { dayjs } from "~/utils/dayjs";
@@ -22,6 +24,18 @@ const STATUS_ACCENT = {
 
 function formatStartTime(startedAt: Doc<"studySessions">["startedAt"]) {
   return dayjs(startedAt).tz("Asia/Tokyo").format("HH:mm");
+}
+
+function formatReasonBreakdown(reasons: InterruptionReason[]) {
+  const counts = new Map<InterruptionReason, number>();
+
+  for (const reason of reasons) {
+    counts.set(reason, (counts.get(reason) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .map(([reason, count]) => `${REASON_LABELS[reason]}×${count}`)
+    .join(" · ");
 }
 
 export function SessionHistoryList() {
@@ -56,6 +70,7 @@ export function SessionHistoryList() {
                 </Text>
                 <Text c="dimmed" size="xs">
                   中断 {session.interruptionCount} 回
+                  {session.reasons.length > 0 && `(${formatReasonBreakdown(session.reasons)})`}
                 </Text>
                 <Badge
                   className={cn(

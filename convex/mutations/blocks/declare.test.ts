@@ -52,6 +52,23 @@ test("rejects an inverted or malformed time range", async () => {
   ).rejects.toThrow();
 });
 
+test("rejects a malformed dateJst", async () => {
+  const t = convexTest(schema, testModules);
+  const asSelf = t.withIdentity({ subject: "user_1" });
+  await t.run((ctx) =>
+    ctx.db.insert("appUsers", { authSubject: "user_1", displayName: "本人", role: "self" }),
+  );
+
+  await expect(
+    asSelf.mutation(api.mutations.blocks.declare.declare, {
+      category: "toeic",
+      dateJst: "today",
+      endHm: "07:00",
+      startHm: "06:00",
+    }),
+  ).rejects.toThrow();
+});
+
 test("rejects an unauthenticated call", async () => {
   const t = convexTest(schema, testModules);
 

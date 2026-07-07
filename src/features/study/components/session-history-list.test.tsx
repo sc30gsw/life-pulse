@@ -15,6 +15,7 @@ const hookState = vi.hoisted(() => ({
       category: "eikaiwa" | "other" | "reading" | "toeic";
       id: string;
       interruptionCount: number;
+      reasons: ("chore" | "dog" | "other" | "work")[];
       startedAt: number;
       status: "abandoned" | "active" | "completed" | "paused";
     }[];
@@ -42,7 +43,8 @@ test("renders sessions grouped by date with category, minutes, and status", () =
           actualMinutes: 30,
           category: "toeic",
           id: "session_1",
-          interruptionCount: 2,
+          interruptionCount: 3,
+          reasons: ["dog", "dog", "work"],
           startedAt: Date.UTC(2026, 6, 5, 21, 0), // 06:00 JST
           status: "completed",
         },
@@ -55,7 +57,8 @@ test("renders sessions grouped by date with category, minutes, and status", () =
   expect(getByText("2026-07-05")).toBeDefined();
   expect(getByText("TOEIC")).toBeDefined();
   expect(getByText("30分")).toBeDefined();
-  expect(getByText("中断 2 回")).toBeDefined();
+  expect(getByText(/中断 3 回/)).toBeDefined();
+  expect(getByText(/犬×2 · 仕事×1/)).toBeDefined();
   expect(getByText("完了")).toBeDefined();
 });
 

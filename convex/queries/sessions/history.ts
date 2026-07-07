@@ -2,7 +2,11 @@ import { v } from "convex/values";
 
 import { query } from "../../_generated/server";
 import { requireUser } from "../../lib/auth";
-import { categoryValidator, sessionStatusValidator } from "../../lib/validators";
+import {
+  categoryValidator,
+  interruptionReasonValidator,
+  sessionStatusValidator,
+} from "../../lib/validators";
 import { history as historyService } from "../../services/sessions/history";
 
 export const history = query({
@@ -17,6 +21,7 @@ export const history = query({
             category: categoryValidator,
             id: v.id("studySessions"),
             interruptionCount: v.number(),
+            reasons: v.array(interruptionReasonValidator),
             startedAt: v.number(),
             status: sessionStatusValidator,
           }),

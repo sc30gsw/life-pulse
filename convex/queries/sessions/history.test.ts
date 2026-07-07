@@ -43,10 +43,22 @@ test("groups the caller's sessions by date, newest first", async () => {
     ctx.db.insert("appUsers", { authSubject: "user_1", displayName: "本人", role: "self" }),
   );
   await seedSession(t, userId, { dateJst: "2026-07-05", startedAt: 2_000 });
-  await seedSession(t, userId, { accumulatedMs: 600_000, dateJst: "2026-07-05", startedAt: 1_000 });
+  const earlySessionId = await seedSession(t, userId, {
+    accumulatedMs: 600_000,
+    dateJst: "2026-07-05",
+    startedAt: 1_000,
+  });
   await seedSession(t, userId, { dateJst: "2026-07-03" });
   // Outside the requested range — must not appear.
   await seedSession(t, userId, { dateJst: "2026-06-01" });
+
+  // FR-2.8: interruption reasons are joined per session, ordered by pausedAt.
+  await t.run((ctx) =>
+    ctx.db.insert("interruptions", { pausedAt: 2_000, reason: "work", sessionId: earlySessionId }),
+  );
+  await t.run((ctx) =>
+    ctx.db.insert("interruptions", { pausedAt: 1_000, reason: "dog", sessionId: earlySessionId }),
+  );
 
   const result = await asSelf.query(api.queries.sessions.history.history, {
     fromDateJst: "2026-07-01",
@@ -58,6 +70,8 @@ test("groups the caller's sessions by date, newest first", async () => {
   expect(result.days[0]?.sessions.map((session) => session.actualMinutes)).toEqual([10, 30]);
   expect(result.days[0]?.sessions[0]?.interruptionCount).toBe(1);
   expect(result.days[0]?.sessions[0]?.status).toBe("completed");
+  expect(result.days[0]?.sessions[0]?.reasons).toEqual(["dog", "work"]);
+  expect(result.days[0]?.sessions[1]?.reasons).toEqual([]);
 });
 
 test("does not include another user's sessions", async () => {
@@ -81,6 +95,23 @@ test("does not include another user's sessions", async () => {
   });
 
   expect(result.days).toEqual([]);
+});
+
+test("rejects a malformed dateJst that would bypass the range cap", async () => {
+  const t = convexTest(schema, testModules);
+  const asSelf = t.withIdentity({ subject: "user_1" });
+  await t.run((ctx) =>
+    ctx.db.insert("appUsers", { authSubject: "user_1", displayName: "本人", role: "self" }),
+  );
+
+  // "0" > "a" is false and Date.parse gives NaN — without a format guard this
+  // slips past both checks and turns the index range into a full scan.
+  await expect(
+    asSelf.query(api.queries.sessions.history.history, {
+      fromDateJst: "0",
+      toDateJst: "a",
+    }),
+  ).rejects.toThrow();
 });
 
 test("rejects an inverted or too-wide range", async () => {

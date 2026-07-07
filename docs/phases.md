@@ -60,7 +60,7 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 - [x] FR-2.5 アクティブ同時 1 つ制約(既存アクティブ時の start 拒否/誘導、`SESSION_EXISTS`)
 - [x] FR-2.6 完了時に実績分数・中断回数・中断内訳を確定保存
 - [x] FR-2.7 放置 6h で scheduled function が abandoned に自動遷移(autoAbandon、convex-test で検証済み)
-- [x] FR-2.8 過去セッション履歴の簡易リスト(P1、v1.3 追加)(sessions.history query + `/study` の履歴セクション、直近 7 日)
+- [x] FR-2.8 過去セッション履歴の簡易リスト(P1、v1.3 追加)(sessions.history query + `/study` の履歴セクション、直近 7 日。中断要因の内訳併記 = v1.4 補足、interruptions join)
 
 ### FR-3 学習枠の宣言と防衛(Lv2)【P0】
 
