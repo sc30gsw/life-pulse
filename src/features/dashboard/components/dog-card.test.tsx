@@ -1,10 +1,15 @@
 // @vitest-environment happy-dom
 import userEvent from "@testing-library/user-event";
+import type { FunctionArgs, FunctionReturnType } from "convex/server";
 import { expect, test, vi } from "vite-plus/test";
 
-import type { Doc, Id } from "~/../convex/_generated/dataModel";
+import { api } from "~/../convex/_generated/api";
+import type { Id } from "~/../convex/_generated/dataModel";
 import { DogCard, DogCardFallback } from "~/features/dashboard/components/dog-card";
 import { renderWithMantine } from "~/test-utils";
+
+type HistoryQueryArgs = FunctionArgs<typeof api.queries.dog.history.history>;
+type HistoryQueryResult = FunctionReturnType<typeof api.queries.dog.history.history>;
 
 const onToggleDogCare = vi.fn();
 const hookState = vi.hoisted(() => ({
@@ -13,15 +18,7 @@ const hookState = vi.hoisted(() => ({
     { at: 1000, by: "self", done: true, kind: "meal_am" },
     { at: 2000, by: "partner", done: true, kind: "meds" },
   ],
-  historyDays: [] as {
-    dateJst: Doc<"dogEvents">["dateJst"];
-    events: {
-      at: Doc<"dogEvents">["at"];
-      byDisplayName: Doc<"appUsers">["displayName"];
-      id: Doc<"dogEvents">["_id"];
-      kind: Doc<"dogEvents">["kind"];
-    }[];
-  }[],
+  historyDays: [] as HistoryQueryResult["days"],
   openModal: vi.fn(),
 }));
 
@@ -36,11 +33,39 @@ vi.mock("~/features/dashboard/hooks/use-dashboard-dog", () => ({
 
 vi.mock("@mantine/modals", () => ({ modals: { open: hookState.openModal } }));
 
+vi.mock("~/features/dashboard/api/dog-history-query", () => ({
+  dogHistoryQuery: (
+    fromDateJst: HistoryQueryArgs["fromDateJst"],
+    toDateJst: HistoryQueryArgs["toDateJst"],
+    includeOlderDays: HistoryQueryArgs["includeOlderDays"] = false,
+  ) => ({
+    fromDateJst,
+    includeOlderDays,
+    toDateJst,
+  }),
+}));
+
 vi.mock("@tanstack/react-query", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@tanstack/react-query")>();
   return {
     ...actual,
-    useSuspenseQuery: () => ({ data: { days: hookState.historyDays } }),
+    useSuspenseQuery: (query: { includeOlderDays?: boolean }) => {
+      const days = query.includeOlderDays
+        ? hookState.historyDays
+        : hookState.historyDays.slice(0, 2);
+
+      return {
+        data: {
+          days,
+          summary: {
+            eventCount: hookState.historyDays.reduce((total, day) => total + day.events.length, 0),
+            hasOlderDays: hookState.historyDays.length > 2,
+            olderDayCount: Math.max(hookState.historyDays.length - 2, 0),
+            totalDayCount: hookState.historyDays.length,
+          },
+        },
+      };
+    },
   };
 });
 
@@ -113,6 +138,45 @@ test("history modal content shows events grouped by date", async () => {
 
   expect(getByText("2026-07-05")).toBeDefined();
   expect(getByText("朝散歩")).toBeDefined();
+});
+
+test("history modal initially limits older days and can expand them", async () => {
+  hookState.openModal.mockClear();
+  hookState.historyDays = [
+    {
+      dateJst: "2026-07-07",
+      events: [
+        { at: 1000, byDisplayName: "本人", id: "event_1" as Id<"dogEvents">, kind: "walk_am" },
+      ],
+    },
+    {
+      dateJst: "2026-07-06",
+      events: [
+        { at: 2000, byDisplayName: "本人", id: "event_2" as Id<"dogEvents">, kind: "meal_am" },
+      ],
+    },
+    {
+      dateJst: "2026-07-05",
+      events: [
+        { at: 3000, byDisplayName: "本人", id: "event_3" as Id<"dogEvents">, kind: "meal_pm" },
+      ],
+    },
+  ];
+  const user = userEvent.setup();
+  const { getByRole } = renderWithMantine(<DogCard />);
+
+  await user.click(getByRole("button", { name: "履歴" }));
+
+  const modalChildren = hookState.openModal.mock.calls[0]?.[0].children;
+  const modal = renderWithMantine(modalChildren);
+
+  expect(modal.getByText("2026-07-07")).toBeDefined();
+  expect(modal.getByText("2026-07-06")).toBeDefined();
+  expect(modal.queryByText("2026-07-05")).toBeNull();
+
+  await user.click(modal.getByRole("button", { name: "過去 1 日を表示" }));
+
+  expect(modal.getByText("2026-07-05")).toBeDefined();
 });
 
 test("history modal content shows 履歴なし when there are no past events", async () => {

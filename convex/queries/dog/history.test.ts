@@ -71,6 +71,54 @@ test("groups events by date, newest first, with resolved actor names", async () 
   expect(result.days[0]?.events.map((event) => event.kind)).toEqual(["walk_am", "meal_pm"]);
   expect(result.days[0]?.events[0]?.byDisplayName).toBe("本人");
   expect(result.days[0]?.events[1]?.byDisplayName).toBe("パートナー");
+  expect(result.summary).toEqual({
+    eventCount: 3,
+    hasOlderDays: false,
+    olderDayCount: 0,
+    totalDayCount: 2,
+  });
+});
+
+test("limits history to recent days by default and includes older days on request", async () => {
+  const t = convexTest(schema, testModules);
+  const asSelf = t.withIdentity({ subject: "self_1" });
+  const selfId = await t.run((ctx) =>
+    ctx.db.insert("appUsers", { authSubject: "self_1", displayName: "本人", role: "self" }),
+  );
+
+  for (const [index, dateJst] of ["2026-07-07", "2026-07-06", "2026-07-05"].entries()) {
+    await t.run((ctx) =>
+      ctx.db.insert("dogEvents", {
+        at: index + 1,
+        byUserId: selfId,
+        dateJst,
+        kind: "walk_am",
+      }),
+    );
+  }
+
+  const initial = await asSelf.query(api.queries.dog.history.history, {
+    fromDateJst: "2026-07-01",
+    toDateJst: "2026-07-07",
+  });
+  const expanded = await asSelf.query(api.queries.dog.history.history, {
+    fromDateJst: "2026-07-01",
+    includeOlderDays: true,
+    toDateJst: "2026-07-07",
+  });
+
+  expect(initial.days.map((day) => day.dateJst)).toEqual(["2026-07-07", "2026-07-06"]);
+  expect(initial.summary).toEqual({
+    eventCount: 3,
+    hasOlderDays: true,
+    olderDayCount: 1,
+    totalDayCount: 3,
+  });
+  expect(expanded.days.map((day) => day.dateJst)).toEqual([
+    "2026-07-07",
+    "2026-07-06",
+    "2026-07-05",
+  ]);
 });
 
 test("rejects when fromDateJst is after toDateJst", async () => {

@@ -5,11 +5,14 @@ import type { QueryCtx } from "../../_generated/server";
 import { assertHistoryRange } from "../../lib/dateRange";
 
 type HistoryArgs = Record<"fromDateJst" | "toDateJst", Doc<"dogEvents">["dateJst"]>;
+type HistoryOptions = HistoryArgs & Partial<Record<"includeOlderDays", boolean>>;
 
 type HistoryEvent = Pick<Doc<"dogEvents">, "_id" | "at" | "dateJst" | "kind"> &
   Record<"byDisplayName", Doc<"appUsers">["displayName"]>;
 
-export async function history(ctx: QueryCtx, args: HistoryArgs) {
+const INITIAL_HISTORY_DAY_COUNT = 2;
+
+export async function history(ctx: QueryCtx, args: HistoryOptions) {
   assertHistoryRange(args.fromDateJst, args.toDateJst);
 
   const rawEvents = await ctx.db
@@ -39,7 +42,19 @@ export async function history(ctx: QueryCtx, args: HistoryArgs) {
     })
     .filter((event) => event !== null);
 
-  return { days: groupByDateDesc(eventsWithActor) };
+  const allDays = groupByDateDesc(eventsWithActor);
+  const olderDayCount = Math.max(allDays.length - INITIAL_HISTORY_DAY_COUNT, 0);
+  const days = args.includeOlderDays ? allDays : allDays.slice(0, INITIAL_HISTORY_DAY_COUNT);
+
+  return {
+    days,
+    summary: {
+      eventCount: eventsWithActor.length,
+      hasOlderDays: olderDayCount > 0,
+      olderDayCount,
+      totalDayCount: allDays.length,
+    },
+  };
 }
 
 async function resolveActorsById(ctx: QueryCtx, userIds: Id<"appUsers">[]) {

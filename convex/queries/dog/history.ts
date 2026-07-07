@@ -6,7 +6,11 @@ import { dogEventKindValidator } from "../../lib/validators";
 import { history as historyService } from "../../services/dog/history";
 
 export const history = query({
-  args: { fromDateJst: v.string(), toDateJst: v.string() },
+  args: {
+    fromDateJst: v.string(),
+    includeOlderDays: v.optional(v.boolean()),
+    toDateJst: v.string(),
+  },
   returns: v.object({
     days: v.array(
       v.object({
@@ -21,6 +25,12 @@ export const history = query({
         ),
       }),
     ),
+    summary: v.object({
+      eventCount: v.number(),
+      hasOlderDays: v.boolean(),
+      olderDayCount: v.number(),
+      totalDayCount: v.number(),
+    }),
   }),
   handler: async (ctx, args) => {
     await requireUser(ctx);
