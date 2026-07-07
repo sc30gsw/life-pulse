@@ -16,7 +16,7 @@ export function BoardHeader() {
       <Group mr="auto" gap={11}>
         <Box className="bg-good lp-pulse h-2.5 w-2.5 rounded-full shadow-[0_0_12px_var(--good)]" />
         <Stack gap={0}>
-          <Text component="h1" fw={700} size="lg" m={0}>
+          <Text className="lp-brandtext" component="h1" fw={700} size="lg" m={0}>
             Life Pulse
           </Text>
           <Text

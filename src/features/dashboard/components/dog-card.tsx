@@ -2,6 +2,7 @@ import { Badge, Box, Group, Paper, Stack, Text, UnstyledButton } from "@mantine/
 import { Shimmer } from "@shimmer-from-structure/react";
 import { cn } from "cnfast";
 
+import { GlowCard } from "~/components/glow-card";
 import { useDashboardDog } from "~/features/dashboard/hooks/use-dashboard-dog";
 import {
   ACCENT_CLASSES,
@@ -16,7 +17,7 @@ export function DogCard() {
   const pendingAccent = pendingCount > 0 ? ACCENT_CLASSES.coral : ACCENT_CLASSES.good;
 
   return (
-    <Paper
+    <GlowCard
       className={cn(
         "bg-panel border-bd shadow-card relative flex flex-1 flex-col overflow-hidden border",
         dogFlash && "lp-flash",
@@ -92,7 +93,7 @@ export function DogCard() {
           </UnstyledButton>
         ))}
       </Stack>
-    </Paper>
+    </GlowCard>
   );
 }
 

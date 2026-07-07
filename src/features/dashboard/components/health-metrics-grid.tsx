@@ -1,6 +1,7 @@
 import { Group, Paper, RingProgress, Stack, Text } from "@mantine/core";
 import { Shimmer } from "@shimmer-from-structure/react";
 
+import { GlowCard } from "~/components/glow-card";
 import { useDashboardHealth } from "~/features/dashboard/hooks/use-dashboard-health";
 import { ACCENT_VARS, HEALTH_SOURCE_LABELS } from "~/features/dashboard/types/dashboard";
 
@@ -9,7 +10,11 @@ export function HealthMetricsGrid() {
 
   if (metrics === null) {
     return (
-      <Paper radius={18} p="lg" className="bg-panel border-bd shadow-card border">
+      <GlowCard
+        radius={18}
+        p="lg"
+        className="bg-panel border-bd shadow-card relative overflow-hidden border"
+      >
         <Group justify="space-between" mb="md">
           <Text
             size="10.5px"
@@ -24,7 +29,7 @@ export function HealthMetricsGrid() {
         <Text size="sm" c="dimmed">
           未計測
         </Text>
-      </Paper>
+      </GlowCard>
     );
   }
 
@@ -37,7 +42,11 @@ export function HealthMetricsGrid() {
   const steps = metrics.steps ?? 0;
 
   return (
-    <Paper radius={18} p="lg" className="bg-panel border-bd shadow-card border">
+    <GlowCard
+      radius={18}
+      p="lg"
+      className="bg-panel border-bd shadow-card relative overflow-hidden border"
+    >
       <Group justify="space-between" mb="md">
         <Text
           size="10.5px"
@@ -157,7 +166,7 @@ export function HealthMetricsGrid() {
           </Stack>
         </Paper>
       </Group>
-    </Paper>
+    </GlowCard>
   );
 }
 

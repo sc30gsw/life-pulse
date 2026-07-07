@@ -13,6 +13,7 @@ import { Shimmer } from "@shimmer-from-structure/react";
 import { cn } from "cnfast";
 import { useState } from "react";
 
+import { GlowCard } from "~/components/glow-card";
 import { useDashboardPresence } from "~/features/dashboard/hooks/use-dashboard-presence";
 import { useDashboardViewer } from "~/features/dashboard/hooks/use-dashboard-viewer";
 import {
@@ -44,7 +45,7 @@ export function PartnerCard() {
   const accent = partner === null ? "faint" : PRESENCE_ACCENTS[partner.state];
 
   return (
-    <Paper
+    <GlowCard
       className={cn(
         "bg-panel border-bd shadow-card relative overflow-hidden border",
         partnerFlash && "lp-flash",
@@ -148,7 +149,7 @@ export function PartnerCard() {
           })}
         </Group>
       )}
-    </Paper>
+    </GlowCard>
   );
 }
 

@@ -47,7 +47,7 @@ export function DeclarationCard({
       </Group>
 
       <Group gap={8} align="baseline">
-        <Text size="26px" fw={600}>
+        <Text className="lp-brandtext" size="26px" fw={600}>
           {actualMinutes}
         </Text>
         <Text size="sm" c="dimmed">

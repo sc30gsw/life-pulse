@@ -15,6 +15,7 @@ import { cn } from "cnfast";
 import { Suspense } from "react";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
+import { GlowCard } from "~/components/glow-card";
 import { DeclarationCard } from "~/features/dashboard/components/declaration-card";
 import { FastingGroup, FastingGroupFallback } from "~/features/dashboard/components/fasting-group";
 import { useDashboardStudy } from "~/features/dashboard/hooks/use-dashboard-study";
@@ -50,7 +51,7 @@ const INTERRUPTION_REASONS = [
 
 export function SessionFastingCard({ sessionFlash }: Record<"sessionFlash", boolean>) {
   return (
-    <Paper
+    <GlowCard
       radius={18}
       p="lg"
       className={cn(
@@ -86,7 +87,7 @@ export function SessionFastingCard({ sessionFlash }: Record<"sessionFlash", bool
           onStartSession={() => {}}
         />
       </Suspense>
-    </Paper>
+    </GlowCard>
   );
 }
 
@@ -168,7 +169,7 @@ function SessionStatusGroup({
           </Group>
           <Text
             fw={600}
-            className="leading-none tabular-nums"
+            className="lp-brandtext leading-none tabular-nums"
             style={{ fontSize: "clamp(2.5rem,7vw,3.9rem)" }}
           >
             {sessionElapsedLabel}
@@ -310,7 +311,7 @@ function SessionStatusGroupFallback() {
           </Group>
           <Text
             fw={600}
-            className="leading-none tabular-nums"
+            className="lp-brandtext leading-none tabular-nums"
             style={{ fontSize: "clamp(2.5rem,7vw,3.9rem)" }}
           >
             00:42:00
@@ -368,7 +369,7 @@ function SessionStatusGroupFallback() {
             </Text>
           </Group>
           <Group gap={8} align="baseline">
-            <Text size="26px" fw={600}>
+            <Text className="lp-brandtext" size="26px" fw={600}>
               30
             </Text>
             <Text size="sm" c="dimmed">

@@ -75,11 +75,11 @@ export function formatRelativeTime(
 }
 
 export function formatClockTime(nowMs: number) {
-  return dayjs(nowMs).tz("Asia/Tokyo").format("HH:mm");
+  return dayjs(nowMs).tz("Asia/Tokyo").format("HH:mm:ss");
 }
 
 export function formatClockDate(nowMs: number) {
-  return dayjs(nowMs).tz("Asia/Tokyo").format("M月D日(ddd)");
+  return dayjs(nowMs).tz("Asia/Tokyo").format("YYYY/M/D(ddd)");
 }
 
 export function deriveSessionElapsedMs(session: Doc<"studySessions"> | null, nowMs: number) {

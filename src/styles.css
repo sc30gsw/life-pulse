@@ -22,6 +22,10 @@
   --violet: oklch(0.75 0.12 305);
   --cardsh: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 10px 30px -12px rgba(0, 0, 0, 0.7);
   --flash: rgba(126, 206, 168, 0.16);
+  --brand: linear-gradient(90deg, rgba(255, 255, 255, 0.95), rgba(150, 180, 255, 0.72));
+  --glow: rgba(255, 255, 255, 0.9);
+  --streak: rgba(255, 255, 255, 0.85);
+  --sheen: linear-gradient(115deg, #ffffff 18%, #98a4be 50%, #ffffff 82%);
 }
 
 [data-theme="light"] {
@@ -42,6 +46,10 @@
   --violet: oklch(0.55 0.16 305);
   --cardsh: 0 1px 2px rgba(20, 20, 30, 0.05), 0 8px 24px -14px rgba(20, 20, 40, 0.35);
   --flash: rgba(60, 160, 110, 0.14);
+  --brand: linear-gradient(90deg, rgba(40, 45, 60, 0.95), rgba(70, 100, 200, 0.68));
+  --glow: rgba(70, 100, 220, 0.5);
+  --streak: rgba(30, 32, 44, 0.5);
+  --sheen: linear-gradient(115deg, #20222b 18%, #7b8496 50%, #20222b 82%);
 }
 
 @theme {
@@ -103,6 +111,27 @@ body {
   }
 }
 
+@property --angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes lp-rotate {
+  to {
+    --angle: 360deg;
+  }
+}
+
+@keyframes lp-shine {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
 .lp-pulse {
   animation: lp-pulse 2s ease-in-out infinite;
 }
@@ -115,10 +144,115 @@ body {
   animation: lp-toast-in 0.32s cubic-bezier(0.2, 0.9, 0.3, 1);
 }
 
+/* Gradient/sheen text — Cursor-style off-white shine sliding across the glyphs */
+.lp-brandtext {
+  background: var(--sheen);
+  background-size: 220% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: lp-shine 6s linear infinite;
+}
+
+/* Cursor-tracking card glow — rotating conic-gradient border streak (ambient,
+   Vercel-style) plus a --mx/--my/--gop cursor-follow spotlight driven by
+   useCursorGlow (src/hooks/use-cursor-glow.ts). */
+.lp-glow-card {
+  --mx: 50%;
+  --my: 50%;
+  --gop: 0;
+  background: linear-gradient(165deg, var(--panel), var(--panel2));
+  box-shadow: var(--cardsh);
+  transition: box-shadow 0.4s ease;
+}
+
+.lp-glow-card:hover {
+  box-shadow:
+    var(--cardsh),
+    0 10px 46px -10px color-mix(in oklch, var(--glow) 42%, transparent);
+}
+
+.lp-glow-streak {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  padding: 1.3px;
+  background: conic-gradient(
+    from var(--angle, 0deg),
+    transparent 0deg,
+    var(--streak) 42deg,
+    transparent 96deg,
+    transparent 210deg,
+    var(--streak) 244deg,
+    transparent 296deg
+  );
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  opacity: 0.6;
+  pointer-events: none;
+  animation: lp-rotate 6s linear infinite;
+}
+
+.lp-glow-spot {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  background: radial-gradient(
+    240px circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in oklch, var(--glow) 20%, transparent),
+    transparent 55%
+  );
+  opacity: var(--gop, 0);
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.lp-glow-border {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  padding: 1.3px;
+  background: radial-gradient(
+    300px circle at var(--mx, 50%) var(--my, 50%),
+    var(--glow),
+    transparent 62%
+  );
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  opacity: var(--gop, 0);
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lp-pulse,
   .lp-flash,
-  .lp-toast-in {
+  .lp-toast-in,
+  .lp-brandtext,
+  .lp-glow-streak {
     animation: none;
+  }
+
+  .lp-glow-card,
+  .lp-glow-spot,
+  .lp-glow-border {
+    transition: none;
   }
 }
