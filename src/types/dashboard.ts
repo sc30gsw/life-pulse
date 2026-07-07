@@ -15,6 +15,7 @@ import type {
   interruptionReasonValidator,
   presenceStateValidator,
   sessionStatusValidator,
+  workoutKindValidator,
 } from "~/../convex/lib/validators";
 
 export type SessionCategory = Infer<typeof categoryValidator>;
@@ -74,6 +75,14 @@ export const HEALTH_SOURCE_LABELS = {
   garmin: "source: garmin",
   manual: "source: manual",
 } as const satisfies Record<HealthMetricsSource, string>;
+
+export type WorkoutKind = Infer<typeof workoutKindValidator>;
+
+export const WORKOUT_KIND_LABELS = {
+  hiit: "HIIT",
+  other: "その他",
+  walk: "ウォーキング",
+} as const satisfies Record<WorkoutKind, string>;
 
 export type DeclarationStatus = Infer<typeof blockStatusValidator>;
 

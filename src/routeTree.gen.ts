@@ -15,6 +15,8 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedStudyRouteImport } from './routes/_authenticated/study'
 import { Route as AuthenticatedFastingRouteImport } from './routes/_authenticated/fasting'
+import { Route as AuthenticatedSelfRouteImport } from './routes/_authenticated/_self'
+import { Route as AuthenticatedSelfHealthRouteImport } from './routes/_authenticated/_self/health'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -45,6 +47,15 @@ const AuthenticatedFastingRoute = AuthenticatedFastingRouteImport.update({
   path: '/fasting',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedSelfRoute = AuthenticatedSelfRouteImport.update({
+  id: '/_self',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedSelfHealthRoute = AuthenticatedSelfHealthRouteImport.update({
+  id: '/health',
+  path: '/health',
+  getParentRoute: () => AuthenticatedSelfRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -52,36 +63,42 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/fasting': typeof AuthenticatedFastingRoute
   '/study': typeof AuthenticatedStudyRoute
+  '/health': typeof AuthenticatedSelfHealthRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/': typeof AuthenticatedIndexRoute
   '/fasting': typeof AuthenticatedFastingRoute
   '/study': typeof AuthenticatedStudyRoute
-  '/': typeof AuthenticatedIndexRoute
+  '/health': typeof AuthenticatedSelfHealthRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/_authenticated/_self': typeof AuthenticatedSelfRouteWithChildren
   '/_authenticated/fasting': typeof AuthenticatedFastingRoute
   '/_authenticated/study': typeof AuthenticatedStudyRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/_self/health': typeof AuthenticatedSelfHealthRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/signup' | '/fasting' | '/study'
+  fullPaths: '/' | '/login' | '/signup' | '/fasting' | '/study' | '/health'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/signup' | '/fasting' | '/study' | '/'
+  to: '/login' | '/signup' | '/' | '/fasting' | '/study' | '/health'
   id:
     | '__root__'
     | '/_authenticated'
     | '/login'
     | '/signup'
+    | '/_authenticated/_self'
     | '/_authenticated/fasting'
     | '/_authenticated/study'
     | '/_authenticated/'
+    | '/_authenticated/_self/health'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -134,16 +151,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFastingRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/_self': {
+      id: '/_authenticated/_self'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedSelfRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/_self/health': {
+      id: '/_authenticated/_self/health'
+      path: '/health'
+      fullPath: '/health'
+      preLoaderRoute: typeof AuthenticatedSelfHealthRouteImport
+      parentRoute: typeof AuthenticatedSelfRoute
+    }
   }
 }
 
+interface AuthenticatedSelfRouteChildren {
+  AuthenticatedSelfHealthRoute: typeof AuthenticatedSelfHealthRoute
+}
+
+const AuthenticatedSelfRouteChildren: AuthenticatedSelfRouteChildren = {
+  AuthenticatedSelfHealthRoute: AuthenticatedSelfHealthRoute,
+}
+
+const AuthenticatedSelfRouteWithChildren =
+  AuthenticatedSelfRoute._addFileChildren(AuthenticatedSelfRouteChildren)
+
 interface AuthenticatedRouteChildren {
+  AuthenticatedSelfRoute: typeof AuthenticatedSelfRouteWithChildren
   AuthenticatedFastingRoute: typeof AuthenticatedFastingRoute
   AuthenticatedStudyRoute: typeof AuthenticatedStudyRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedSelfRoute: AuthenticatedSelfRouteWithChildren,
   AuthenticatedFastingRoute: AuthenticatedFastingRoute,
   AuthenticatedStudyRoute: AuthenticatedStudyRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
