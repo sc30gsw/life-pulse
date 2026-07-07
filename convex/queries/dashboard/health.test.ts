@@ -15,7 +15,7 @@ test("health rejects an unauthenticated call", async () => {
   ).rejects.toThrow();
 });
 
-test("health ignores demo rows and returns the real metric for the date", async () => {
+test("health ignores demo rows and returns the real metric for the date when demoMode is off (default)", async () => {
   const t = convexTest(schema, testModules);
   const asSelf = t.withIdentity({ subject: "self_1" });
 
@@ -38,4 +38,37 @@ test("health ignores demo rows and returns the real metric for the date", async 
 
   expect(health?.source).toBe("manual");
   expect(health?.bodyBattery).toBe(72);
+});
+
+test("health prefers the demo row for the date when demoMode is on", async () => {
+  const t = convexTest(schema, testModules);
+  const asSelf = t.withIdentity({ subject: "self_1" });
+
+  await t.run((ctx) =>
+    ctx.db.insert("appUsers", { authSubject: "self_1", displayName: "本人", role: "self" }),
+  );
+  await t.run((ctx) =>
+    ctx.db.insert("appSettings", { demoMode: true, dogName: "ハマロ", fastingDefaultMinutes: 960 }),
+  );
+  await t.run((ctx) =>
+    ctx.db.insert("healthMetrics", {
+      bodyBattery: 72,
+      dateJst: DATE_JST,
+      source: "manual",
+      syncedAt: 1000,
+    }),
+  );
+  await t.run((ctx) =>
+    ctx.db.insert("healthMetrics", {
+      bodyBattery: 88,
+      dateJst: DATE_JST,
+      source: "demo",
+      syncedAt: 2000,
+    }),
+  );
+
+  const health = await asSelf.query(api.queries.dashboard.health.health, { dateJst: DATE_JST });
+
+  expect(health?.source).toBe("demo");
+  expect(health?.bodyBattery).toBe(88);
 });
