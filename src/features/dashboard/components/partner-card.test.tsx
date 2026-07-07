@@ -38,8 +38,9 @@ test("shows 未設定 when partner is null", () => {
 });
 
 test("hides the YOU badge and presence buttons when not the partner view", () => {
-  const { queryByRole, queryByText } = renderWithMantine(<PartnerCard />);
+  const { getByText, queryByRole, queryByText } = renderWithMantine(<PartnerCard />);
 
+  expect(getByText("パートナー")).toBeDefined();
   expect(queryByText("YOU")).toBeNull();
   expect(queryByRole("button")).toBeNull();
 });
@@ -50,6 +51,7 @@ test("shows the YOU badge and calls onSetPresence from presence buttons in the p
   const user = userEvent.setup();
   const { getAllByText, getByRole, getByText } = renderWithMantine(<PartnerCard />);
 
+  expect(getByText("本人")).toBeDefined();
   expect(getByText("YOU")).toBeDefined();
   expect(getAllByText("在宅").length).toBeGreaterThan(0);
   expect(getByText("家にいます")).toBeDefined();
@@ -74,7 +76,7 @@ test("shows the ETA input while commuting home and submits the typed value", asy
 test("renders a structure-aware shimmer fallback", () => {
   const { getAllByText, getByText } = renderWithMantine(<PartnerCardFallback />);
 
-  expect(getByText("パートナー · 妻")).toBeDefined();
+  expect(getByText("パートナー")).toBeDefined();
   expect(getAllByText("在宅").length).toBeGreaterThan(0);
   expect(getByText("更新 たった今")).toBeDefined();
 });

@@ -7,6 +7,7 @@ import { dashboardFastingQuery } from "~/features/dashboard/api/dashboard-fastin
 import { dashboardHealthQuery } from "~/features/dashboard/api/dashboard-health-query";
 import { dashboardLiveQuery } from "~/features/dashboard/api/dashboard-live-query";
 import { dashboardPresenceQuery } from "~/features/dashboard/api/dashboard-presence-query";
+import { dashboardSelfPresenceQuery } from "~/features/dashboard/api/dashboard-self-presence-query";
 import { dashboardStudyQuery } from "~/features/dashboard/api/dashboard-study-query";
 import { dashboardViewerQuery } from "~/features/dashboard/api/dashboard-viewer-query";
 
@@ -71,6 +72,13 @@ test("dashboardDogQuery targets api.queries.dashboard.dog.dog with dateJst", () 
 test("dashboardPresenceQuery targets api.queries.dashboard.presence.presence with no args", () => {
   expect(dashboardPresenceQuery()).toEqual({
     queryKey: ["convexQuery", getFunctionName(api.queries.dashboard.presence.presence), {}],
+    staleTime: Infinity,
+  });
+});
+
+test("dashboardSelfPresenceQuery targets api.queries.dashboard.selfPresence.selfPresence with no args", () => {
+  expect(dashboardSelfPresenceQuery()).toEqual({
+    queryKey: ["convexQuery", getFunctionName(api.queries.dashboard.selfPresence.selfPresence), {}],
     staleTime: Infinity,
   });
 });

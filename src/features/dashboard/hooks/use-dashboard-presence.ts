@@ -1,5 +1,6 @@
 import { notifications } from "@mantine/notifications";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import type { FunctionArgs } from "convex/server";
 
 import { dashboardPresenceQuery } from "~/features/dashboard/api/dashboard-presence-query";
 import { useBoardClock } from "~/features/dashboard/hooks/use-board-clock";
@@ -7,12 +8,17 @@ import { useSetPresence } from "~/features/dashboard/hooks/use-set-presence";
 import { formatRelativeTime } from "~/features/dashboard/utils/format";
 import { type PresenceState } from "~/types/dashboard";
 
+import type { api } from "../../../../convex/_generated/api";
+
 export function useDashboardPresence() {
   const { nowMs } = useBoardClock();
   const partner = useSuspenseQuery(dashboardPresenceQuery()).data;
   const setPresence = useSetPresence();
 
-  function onSetPresence(state: PresenceState, etaHm?: string) {
+  function onSetPresence(
+    state: PresenceState,
+    etaHm?: FunctionArgs<typeof api.mutations.partnerStatus.setStatus.setStatus>["etaHm"],
+  ) {
     setPresence.mutate(
       { etaHm, state },
       {

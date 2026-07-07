@@ -48,9 +48,11 @@ export const dogEventKindValidator = v.union(
   v.literal("walk_am"),
   v.literal("walk_pm"),
   v.literal("meal_am"),
+  v.literal("meal_noon"),
   v.literal("meal_pm"),
   v.literal("meds"),
   v.literal("toilet"),
+  v.literal("brush_teeth"),
   v.literal("other"),
 );
 

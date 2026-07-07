@@ -85,6 +85,14 @@ export const live = query({
         updatedAt: v.number(),
       }),
     ),
+    selfPresence: v.union(
+      v.null(),
+      v.object({
+        etaHm: v.optional(v.string()),
+        state: presenceStateValidator,
+        updatedAt: v.number(),
+      }),
+    ),
     session: v.union(
       v.null(),
       v.object({

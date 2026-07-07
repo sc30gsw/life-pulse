@@ -10,9 +10,11 @@ import { dayjs } from "~/utils/dayjs";
 const DOG_CARE_KINDS = [
   "walk_am",
   "meal_am",
+  "meal_noon",
   "meds",
   "walk_pm",
   "meal_pm",
+  "brush_teeth",
 ] as const satisfies DogEventKind[];
 
 const TIME_CONSTANTS = {

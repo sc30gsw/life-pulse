@@ -14,6 +14,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedStudyRouteImport } from './routes/_authenticated/study'
+import { Route as AuthenticatedFastingRouteImport } from './routes/_authenticated/fasting'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -39,16 +40,23 @@ const AuthenticatedStudyRoute = AuthenticatedStudyRouteImport.update({
   path: '/study',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedFastingRoute = AuthenticatedFastingRouteImport.update({
+  id: '/fasting',
+  path: '/fasting',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/fasting': typeof AuthenticatedFastingRoute
   '/study': typeof AuthenticatedStudyRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/fasting': typeof AuthenticatedFastingRoute
   '/study': typeof AuthenticatedStudyRoute
   '/': typeof AuthenticatedIndexRoute
 }
@@ -57,19 +65,21 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/_authenticated/fasting': typeof AuthenticatedFastingRoute
   '/_authenticated/study': typeof AuthenticatedStudyRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/signup' | '/study'
+  fullPaths: '/' | '/login' | '/signup' | '/fasting' | '/study'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/signup' | '/study' | '/'
+  to: '/login' | '/signup' | '/fasting' | '/study' | '/'
   id:
     | '__root__'
     | '/_authenticated'
     | '/login'
     | '/signup'
+    | '/_authenticated/fasting'
     | '/_authenticated/study'
     | '/_authenticated/'
   fileRoutesById: FileRoutesById
@@ -117,15 +127,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudyRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/fasting': {
+      id: '/_authenticated/fasting'
+      path: '/fasting'
+      fullPath: '/fasting'
+      preLoaderRoute: typeof AuthenticatedFastingRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedFastingRoute: typeof AuthenticatedFastingRoute
   AuthenticatedStudyRoute: typeof AuthenticatedStudyRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedFastingRoute: AuthenticatedFastingRoute,
   AuthenticatedStudyRoute: AuthenticatedStudyRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
