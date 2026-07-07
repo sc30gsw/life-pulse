@@ -39,6 +39,7 @@ import type * as mutations_sessions_complete from "../mutations/sessions/complet
 import type * as mutations_sessions_pause from "../mutations/sessions/pause.js";
 import type * as mutations_sessions_resume from "../mutations/sessions/resume.js";
 import type * as mutations_sessions_start from "../mutations/sessions/start.js";
+import type * as mutations_settings_update from "../mutations/settings/update.js";
 import type * as queries_blocks_todayWithSuggestions from "../queries/blocks/todayWithSuggestions.js";
 import type * as queries_blocks_upcoming from "../queries/blocks/upcoming.js";
 import type * as queries_dashboard_dog from "../queries/dashboard/dog.js";
@@ -54,6 +55,7 @@ import type * as queries_fasting_history from "../queries/fasting/history.js";
 import type * as queries_health_range from "../queries/health/range.js";
 import type * as queries_health_workouts from "../queries/health/workouts.js";
 import type * as queries_sessions_history from "../queries/sessions/history.js";
+import type * as queries_settings_get from "../queries/settings/get.js";
 import type * as queries_users_viewer from "../queries/users/viewer.js";
 import type * as services_appSettings_getFastingDefaultMinutes from "../services/appSettings/getFastingDefaultMinutes.js";
 import type * as services_blocks_declare from "../services/blocks/declare.js";
@@ -102,6 +104,8 @@ import type * as services_sessions_pause from "../services/sessions/pause.js";
 import type * as services_sessions_resolveCurrentSession from "../services/sessions/resolveCurrentSession.js";
 import type * as services_sessions_resume from "../services/sessions/resume.js";
 import type * as services_sessions_start from "../services/sessions/start.js";
+import type * as services_settings_get from "../services/settings/get.js";
+import type * as services_settings_update from "../services/settings/update.js";
 import type * as services_users_ensureUser from "../services/users/ensureUser.js";
 import type * as services_users_viewer from "../services/users/viewer.js";
 
@@ -143,6 +147,7 @@ declare const fullApi: ApiFromModules<{
   "mutations/sessions/pause": typeof mutations_sessions_pause;
   "mutations/sessions/resume": typeof mutations_sessions_resume;
   "mutations/sessions/start": typeof mutations_sessions_start;
+  "mutations/settings/update": typeof mutations_settings_update;
   "queries/blocks/todayWithSuggestions": typeof queries_blocks_todayWithSuggestions;
   "queries/blocks/upcoming": typeof queries_blocks_upcoming;
   "queries/dashboard/dog": typeof queries_dashboard_dog;
@@ -158,6 +163,7 @@ declare const fullApi: ApiFromModules<{
   "queries/health/range": typeof queries_health_range;
   "queries/health/workouts": typeof queries_health_workouts;
   "queries/sessions/history": typeof queries_sessions_history;
+  "queries/settings/get": typeof queries_settings_get;
   "queries/users/viewer": typeof queries_users_viewer;
   "services/appSettings/getFastingDefaultMinutes": typeof services_appSettings_getFastingDefaultMinutes;
   "services/blocks/declare": typeof services_blocks_declare;
@@ -206,6 +212,8 @@ declare const fullApi: ApiFromModules<{
   "services/sessions/resolveCurrentSession": typeof services_sessions_resolveCurrentSession;
   "services/sessions/resume": typeof services_sessions_resume;
   "services/sessions/start": typeof services_sessions_start;
+  "services/settings/get": typeof services_settings_get;
+  "services/settings/update": typeof services_settings_update;
   "services/users/ensureUser": typeof services_users_ensureUser;
   "services/users/viewer": typeof services_users_viewer;
 }>;
