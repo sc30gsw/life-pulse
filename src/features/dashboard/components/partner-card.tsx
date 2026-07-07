@@ -9,9 +9,9 @@ import {
   TextInput,
   UnstyledButton,
 } from "@mantine/core";
+import { useInputState } from "@mantine/hooks";
 import { Shimmer } from "@shimmer-from-structure/react";
 import { cn } from "cnfast";
-import { useState } from "react";
 
 import { GlowCard } from "~/components/glow-card";
 import { useDashboardPresence } from "~/features/dashboard/hooks/use-dashboard-presence";
@@ -23,7 +23,7 @@ import {
   PRESENCE_LABELS,
   PRESENCE_SUB_LABELS,
   type PresenceState,
-} from "~/features/dashboard/types/dashboard";
+} from "~/types/dashboard";
 
 const PRESENCE_ACCENTS = {
   commuting_home: "blue",
@@ -41,7 +41,7 @@ export function PartnerCard() {
   const viewer = useDashboardViewer();
   const isPartnerView = viewer.role === "partner";
 
-  const [etaInput, setEtaInput] = useState("");
+  const [etaInput, setEtaInput] = useInputState("");
   const accent = partner === null ? "faint" : PRESENCE_ACCENTS[partner.state];
 
   return (
@@ -102,7 +102,7 @@ export function PartnerCard() {
         <Group gap={8} mb="sm" wrap="nowrap">
           <TextInput
             aria-label="帰宅ETA"
-            onChange={(event) => setEtaInput(event.currentTarget.value)}
+            onChange={setEtaInput}
             placeholder="20:30"
             size="xs"
             value={etaInput}

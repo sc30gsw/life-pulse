@@ -2,7 +2,7 @@ import type { FunctionReturnType } from "convex/server";
 
 import type { api } from "~/../convex/_generated/api";
 import type { Doc } from "~/../convex/_generated/dataModel";
-import type { DogEventKind } from "~/features/dashboard/types/dashboard";
+import type { DogEventKind } from "~/types/dashboard";
 import { dayjs } from "~/utils/dayjs";
 
 // Fixed daily checklist (FR-1.4 / design) — deliberately excludes "toilet" and "other",

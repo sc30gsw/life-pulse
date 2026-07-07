@@ -3,11 +3,7 @@ import { Shimmer } from "@shimmer-from-structure/react";
 import cn from "cnfast";
 
 import { useDashboardFasting } from "~/features/dashboard/hooks/use-dashboard-fasting";
-import {
-  ACCENT_VARS,
-  FASTING_PHASE_LABELS,
-  FASTING_PHASE_SUB_LABELS,
-} from "~/features/dashboard/types/dashboard";
+import { ACCENT_VARS, FASTING_PHASE_LABELS, FASTING_PHASE_SUB_LABELS } from "~/types/dashboard";
 
 import type { Doc } from "../../../../convex/_generated/dataModel";
 

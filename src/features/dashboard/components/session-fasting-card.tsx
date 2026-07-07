@@ -8,16 +8,19 @@ import {
   Progress,
   Stack,
   Text,
+  Tooltip,
   UnstyledButton,
 } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import { Shimmer } from "@shimmer-from-structure/react";
 import { cn } from "cnfast";
-import { Suspense } from "react";
+import { Suspense, type ComponentProps } from "react";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
 import { GlowCard } from "~/components/glow-card";
 import { DeclarationCard } from "~/features/dashboard/components/declaration-card";
 import { FastingGroup, FastingGroupFallback } from "~/features/dashboard/components/fasting-group";
+import { SessionStartModal } from "~/features/dashboard/components/session-start-modal";
 import { useDashboardStudy } from "~/features/dashboard/hooks/use-dashboard-study";
 import { useDashboardViewer } from "~/features/dashboard/hooks/use-dashboard-viewer";
 import {
@@ -27,7 +30,7 @@ import {
   CATEGORY_LABELS,
   REASON_LABELS,
   type InterruptionReason,
-} from "~/features/dashboard/types/dashboard";
+} from "~/types/dashboard";
 
 // Single consumer: maps session status ("idle" = no session document at all) to its
 // accent key + Japanese label for the status pill.
@@ -48,6 +51,24 @@ const INTERRUPTION_REASONS = [
   "chore",
   "other",
 ] as const satisfies readonly InterruptionReason[];
+
+// FR-2.4: each chip pauses the running session and records this reason — the
+// tooltip spells that out since the bare "中断:" prefix alone is ambiguous.
+const REASON_TOOLTIPS = {
+  chore: "家事の割り込みを中断理由として記録",
+  dog: "犬の世話を中断理由として記録",
+  other: "その他の理由を中断理由として記録",
+  work: "仕事の割り込みを中断理由として記録",
+} as const satisfies Record<InterruptionReason, string>;
+
+const TOOLTIP_STYLES = {
+  tooltip: {
+    backgroundColor: "var(--panel2)",
+    border: "1px solid var(--bd2)",
+    color: "var(--tx)",
+    fontSize: "11px",
+  },
+} as const satisfies ComponentProps<typeof Tooltip>["styles"];
 
 export function SessionFastingCard({ sessionFlash }: Record<"sessionFlash", boolean>) {
   return (
@@ -79,13 +100,7 @@ export function SessionFastingCard({ sessionFlash }: Record<"sessionFlash", bool
         </Text>
       </Group>
       <Suspense fallback={<SessionStatusGroupFallback />}>
-        <SessionStatusGroup
-          fastingFlash={false}
-          onCompleteSession={() => {}}
-          onPauseSession={() => {}}
-          onResumeSession={() => {}}
-          onStartSession={() => {}}
-        />
+        <SessionStatusGroup fastingFlash={false} />
       </Suspense>
     </GlowCard>
   );
@@ -115,37 +130,34 @@ function SelfBadgeFallback() {
   );
 }
 
-type SessionStatusGroupProps = {
-  fastingFlash: boolean;
-  onCompleteSession: () => void;
-  onPauseSession: (reason: InterruptionReason) => void;
-  onResumeSession: () => void;
-  onStartSession: () => void;
-};
-
-function SessionStatusGroup({
-  fastingFlash,
-  onCompleteSession,
-  onPauseSession,
-  onResumeSession,
-  onStartSession,
-}: SessionStatusGroupProps) {
+function SessionStatusGroup({ fastingFlash }: Record<"fastingFlash", boolean>) {
   const {
     declarationActualMinutes,
     declarationActualPercent,
     declarations,
     declarationTotalMinutes,
+    onCompleteSession,
+    onPauseSession,
+    onResumeSession,
+    onStartSession,
     session,
     sessionElapsedLabel,
     sessionGoalLabel,
     sessionProgressPercent,
   } = useDashboardStudy();
 
+  const [startModalOpened, { close: closeStartModal, open: openStartModal }] = useDisclosure(false);
+
   const sessionStatus = session === null ? "idle" : session.status;
   const [statusAccent, statusLabel] = SESSION_STATUS_ACCENT[sessionStatus];
 
   return (
     <>
+      <SessionStartModal
+        opened={startModalOpened}
+        onClose={closeStartModal}
+        onStart={onStartSession}
+      />
       <Group align="flex-end" gap={16} wrap="wrap">
         <Stack gap={6}>
           <Group gap={9} align="center">
@@ -194,13 +206,10 @@ function SessionStatusGroup({
 
       <Progress value={sessionProgressPercent} color={ACCENT_VARS.good} size="sm" mt="md" />
 
-      {/* Session controls are disabled in W1 — start/pause/resume/complete mutations
-      land in W2 (docs/plans/2026-07-07-live-board-wiring.md, out of scope here). */}
       <Group wrap="wrap" gap={8} mt="md" align="center">
         {sessionStatus === "active" && (
           <>
             <Button
-              disabled
               variant="filled"
               style={ACCENT_SOLID_STYLE.good}
               size="sm"
@@ -212,25 +221,24 @@ function SessionStatusGroup({
               中断:
             </Text>
             {INTERRUPTION_REASONS.map((reason) => (
-              <UnstyledButton
-                key={reason}
-                type="button"
-                disabled
-                onClick={() => onPauseSession(reason)}
-                className={cn(
-                  ACCENT_CLASSES.amber.border,
-                  "bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-semibold disabled:opacity-40",
-                )}
-              >
-                {REASON_LABELS[reason]}
-              </UnstyledButton>
+              <Tooltip key={reason} label={REASON_TOOLTIPS[reason]} styles={TOOLTIP_STYLES}>
+                <UnstyledButton
+                  type="button"
+                  onClick={() => onPauseSession(reason)}
+                  className={cn(
+                    ACCENT_CLASSES.amber.border,
+                    "bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-semibold disabled:opacity-40",
+                  )}
+                >
+                  {REASON_LABELS[reason]}
+                </UnstyledButton>
+              </Tooltip>
             ))}
           </>
         )}
         {sessionStatus === "paused" && (
           <>
             <Button
-              disabled
               variant="filled"
               style={ACCENT_SOLID_STYLE.good}
               size="sm"
@@ -239,7 +247,6 @@ function SessionStatusGroup({
               再開
             </Button>
             <Button
-              disabled
               variant="outline"
               size="sm"
               className="border-bd-2 text-tx"
@@ -254,11 +261,10 @@ function SessionStatusGroup({
           sessionStatus === "abandoned") && (
           <>
             <Button
-              disabled
               variant="filled"
               style={ACCENT_SOLID_STYLE.good}
               size="sm"
-              onClick={onStartSession}
+              onClick={openStartModal}
             >
               セッション開始
             </Button>

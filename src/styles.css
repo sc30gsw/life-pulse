@@ -79,6 +79,173 @@ body {
     color 0.35s ease;
 }
 
+.lp-dtp-calendar-level,
+.lp-dtp-calendar-control,
+.lp-dtp-weekday,
+.lp-dtp-input,
+.lp-dtp-months-list-control,
+.lp-dtp-time-input,
+.lp-dtp-time-field,
+.lp-dtp-time-fields-group,
+.lp-dtp-time-fields-root,
+.lp-dtp-time-control,
+.lp-dtp-submit,
+.lp-dtp-years-list-control {
+  color: var(--tx);
+}
+
+.lp-dtp-input {
+  background: var(--inset) !important;
+  border-color: var(--bd2) !important;
+  color: var(--tx) !important;
+}
+
+.lp-dtp-input:hover,
+.lp-dtp-input:focus,
+.lp-dtp-input[data-expanded] {
+  background: var(--panel2) !important;
+  border-color: var(--good) !important;
+  color: var(--tx) !important;
+}
+
+.lp-dtp-time-input input,
+.lp-dtp-time-field input,
+.lp-dtp-time-field [role="spinbutton"] {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--bg) !important;
+  caret-color: var(--good) !important;
+}
+
+.lp-dtp-time-input input::selection,
+.lp-dtp-time-field input::selection,
+.lp-dtp-time-field [role="spinbutton"]::selection {
+  color: var(--bg);
+}
+
+.lp-dtp-placeholder,
+.lp-dtp-input::placeholder {
+  color: color-mix(in oklab, var(--tx) 72%, var(--dim)) !important;
+  opacity: 1 !important;
+}
+
+.lp-dtp-time-field[data-empty],
+.lp-dtp-time-field[data-empty="true"],
+.lp-dtp-time-input input::placeholder,
+.lp-dtp-time-field input::placeholder,
+.lp-dtp-time-field [role="spinbutton"]::placeholder {
+  color: color-mix(in oklab, var(--bg) 68%, white) !important;
+  opacity: 1 !important;
+}
+
+.lp-dtp-calendar-control:hover,
+.lp-dtp-calendar-level:hover,
+.lp-dtp-day:hover,
+.lp-dtp-months-list-control:hover,
+.lp-dtp-years-list-control:hover,
+.lp-dtp-submit:hover {
+  background: var(--panel2) !important;
+  color: var(--tx) !important;
+}
+
+.lp-dtp-months-list-control[data-selected],
+.lp-dtp-months-list-control[data-active],
+.lp-dtp-months-list-control[aria-selected="true"],
+.lp-dtp-years-list-control[data-selected],
+.lp-dtp-years-list-control[data-active],
+.lp-dtp-years-list-control[aria-selected="true"] {
+  color: var(--tx) !important;
+  font-weight: 700;
+}
+
+.lp-dtp-months-list-control[data-disabled],
+.lp-dtp-months-list-control:disabled,
+.lp-dtp-years-list-control[data-disabled],
+.lp-dtp-years-list-control:disabled {
+  color: var(--faint) !important;
+  opacity: 1 !important;
+}
+
+.lp-dtp-time-control:hover {
+  color: var(--bg) !important;
+}
+
+.lp-dtp-calendar-level:hover {
+  border-radius: 8px;
+}
+
+.lp-dtp-time-field:hover input,
+.lp-dtp-time-field:hover [role="spinbutton"],
+.lp-dtp-time-input:hover input {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--bg) !important;
+}
+
+.lp-dtp-calendar-control:focus-visible,
+.lp-dtp-day:focus-visible,
+.lp-dtp-months-list-control:focus-visible,
+.lp-dtp-time-control:focus-visible,
+.lp-dtp-submit:focus-visible,
+.lp-dtp-years-list-control:focus-visible,
+.lp-dtp-time-field:focus-within,
+.lp-dtp-time-input:focus-within {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.lp-dtp-time-control[data-selected],
+.lp-dtp-time-control[aria-selected="true"],
+.lp-dtp-time-control[data-active] {
+  color: var(--tx) !important;
+  font-weight: 700;
+}
+
+.lp-dtp-time-control[data-selected]:hover,
+.lp-dtp-time-control[aria-selected="true"]:hover,
+.lp-dtp-time-control[data-active]:hover {
+  color: var(--tx) !important;
+}
+
+.lp-dtp-submit {
+  background: var(--panel2) !important;
+  border-color: var(--bd2) !important;
+  color: var(--good) !important;
+  box-shadow: inset 0 0 0 1px var(--bd2);
+}
+
+.lp-dtp-submit[data-disabled],
+.lp-dtp-submit:disabled {
+  background: var(--panel2) !important;
+  color: var(--dim) !important;
+  opacity: 1 !important;
+}
+
+.lp-dtp-submit:not(:disabled):hover {
+  background: color-mix(in oklab, var(--good) 28%, var(--panel2)) !important;
+  border-color: var(--good) !important;
+  color: var(--tx) !important;
+}
+
+.lp-dtp-submit *,
+.lp-dtp-submit svg {
+  color: currentColor !important;
+  stroke: currentColor !important;
+}
+
+.lp-dtp-submit[data-disabled] *,
+.lp-dtp-submit[data-disabled] svg,
+.lp-dtp-submit:disabled svg {
+  color: var(--dim) !important;
+  stroke: currentColor !important;
+}
+
+.lp-dtp-time-dropdown {
+  background: var(--panel);
+  border-color: var(--bd2);
+  color: var(--tx);
+}
+
 @keyframes lp-pulse {
   0%,
   100% {

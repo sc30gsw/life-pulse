@@ -6,6 +6,7 @@ import { useBoardTheme } from "~/features/dashboard/hooks/use-board-theme";
 
 afterEach(() => {
   delete document.documentElement.dataset.theme;
+  localStorage.clear();
 });
 
 test("starts in dark mode and writes it to the document dataset", () => {

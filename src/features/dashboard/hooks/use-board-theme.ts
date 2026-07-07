@@ -1,9 +1,13 @@
-import { useEffect, useState } from "react";
+import { useLocalStorage } from "@mantine/hooks";
+import { useEffect } from "react";
 
-import type { ThemeMode } from "~/features/dashboard/types/dashboard";
+import type { ThemeMode } from "~/types/dashboard";
 
 export function useBoardTheme() {
-  const [theme, setTheme] = useState<ThemeMode>("dark");
+  const [theme, setTheme] = useLocalStorage<ThemeMode>({
+    defaultValue: "dark",
+    key: "board-theme",
+  });
 
   function onToggleTheme() {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));

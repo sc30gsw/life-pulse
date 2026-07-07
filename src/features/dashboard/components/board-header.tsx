@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import { UserMenu, UserMenuFallback } from "~/features/auth/components/user-menu";
 import { useBoardClock } from "~/features/dashboard/hooks/use-board-clock";
 import { useBoardTheme } from "~/features/dashboard/hooks/use-board-theme";
-import { ACCENT_VARS } from "~/features/dashboard/types/dashboard";
+import { ACCENT_VARS } from "~/types/dashboard";
 
 export function BoardHeader() {
   const { clockDateLabel, clockTime } = useBoardClock();

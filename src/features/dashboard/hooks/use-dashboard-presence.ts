@@ -4,8 +4,8 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { dashboardPresenceQuery } from "~/features/dashboard/api/dashboard-presence-query";
 import { useBoardClock } from "~/features/dashboard/hooks/use-board-clock";
 import { useSetPresence } from "~/features/dashboard/hooks/use-set-presence";
-import { type PresenceState } from "~/features/dashboard/types/dashboard";
 import { formatRelativeTime } from "~/features/dashboard/utils/format";
+import { type PresenceState } from "~/types/dashboard";
 
 export function useDashboardPresence() {
   const { nowMs } = useBoardClock();

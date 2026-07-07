@@ -1,0 +1,30 @@
+import { ConvexError } from "convex/values";
+
+import type { Doc } from "../../_generated/dataModel";
+import type { MutationCtx } from "../../_generated/server";
+import { resolveCurrentSession } from "./resolveCurrentSession";
+
+type PauseArgs = Pick<Doc<"interruptions">, "reason">;
+
+export async function pause(ctx: MutationCtx, user: Doc<"appUsers">, args: PauseArgs) {
+  const session = await resolveCurrentSession(ctx, user._id);
+
+  if (session === null || session.status !== "active") {
+    throw new ConvexError("NO_ACTIVE_SESSION");
+  }
+
+  const now = Date.now();
+  const resumedAt = session.lastResumedAt ?? session.startedAt;
+
+  await ctx.db.patch("studySessions", session._id, {
+    accumulatedMs: session.accumulatedMs + Math.max(0, now - resumedAt),
+    interruptionCount: session.interruptionCount + 1,
+    status: "paused",
+  });
+
+  await ctx.db.insert("interruptions", {
+    pausedAt: now,
+    reason: args.reason,
+    sessionId: session._id,
+  });
+}

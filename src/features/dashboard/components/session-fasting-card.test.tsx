@@ -1,4 +1,5 @@
 // @vitest-environment happy-dom
+import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vite-plus/test";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
@@ -10,6 +11,10 @@ import { renderWithMantine } from "~/test-utils";
 
 const hookState = vi.hoisted(() => ({
   fasting: null as Doc<"fastingWindows"> | null,
+  onCompleteSession: vi.fn(),
+  onPauseSession: vi.fn(),
+  onResumeSession: vi.fn(),
+  onStartSession: vi.fn(),
   session: null as Doc<"studySessions"> | null,
   suspendFasting: false,
   suspendStudy: false,
@@ -38,6 +43,10 @@ vi.mock("~/features/dashboard/hooks/use-dashboard-study", () => ({
       declarationActualPercent: 50,
       declarationTotalMinutes: 60,
       declarations: [],
+      onCompleteSession: hookState.onCompleteSession,
+      onPauseSession: hookState.onPauseSession,
+      onResumeSession: hookState.onResumeSession,
+      onStartSession: hookState.onStartSession,
       session: hookState.session,
       sessionElapsedLabel: "00:42:00",
       sessionGoalLabel: "60分",
@@ -186,4 +195,75 @@ test("renders nested Suspense fallbacks while viewer, study, and fasting reads s
   expect(getByText("YOU")).toBeDefined();
   expect(getByText("勉強中")).toBeDefined();
   expect(getByText("空腹期")).toBeDefined();
+});
+
+test("clicking a pause reason calls onPauseSession with that reason", async () => {
+  hookState.viewerRole = "self";
+  hookState.session = buildSession({ status: "active" });
+  hookState.fasting = null;
+  hookState.suspendFasting = false;
+  hookState.suspendStudy = false;
+  hookState.suspendViewer = false;
+  hookState.onPauseSession.mockClear();
+
+  const user = userEvent.setup();
+  const { getByRole } = renderWithMantine(<SessionFastingCard sessionFlash={false} />);
+
+  await user.click(getByRole("button", { name: "犬" }));
+
+  expect(hookState.onPauseSession).toHaveBeenCalledWith("dog");
+});
+
+test("clicking 完了して記録 calls onCompleteSession for an active session", async () => {
+  hookState.session = buildSession({ status: "active" });
+  hookState.onCompleteSession.mockClear();
+
+  const user = userEvent.setup();
+  const { getByRole } = renderWithMantine(<SessionFastingCard sessionFlash={false} />);
+
+  await user.click(getByRole("button", { name: "完了して記録" }));
+
+  expect(hookState.onCompleteSession).toHaveBeenCalled();
+});
+
+test("resume and complete controls call onResumeSession and onCompleteSession for a paused session", async () => {
+  hookState.session = buildSession({ status: "paused" });
+  hookState.onResumeSession.mockClear();
+  hookState.onCompleteSession.mockClear();
+
+  const user = userEvent.setup();
+  const { getByRole } = renderWithMantine(<SessionFastingCard sessionFlash={false} />);
+
+  await user.click(getByRole("button", { name: "再開" }));
+  expect(hookState.onResumeSession).toHaveBeenCalled();
+
+  await user.click(getByRole("button", { name: "完了" }));
+  expect(hookState.onCompleteSession).toHaveBeenCalled();
+});
+
+test("opens the start modal and submits the default category and planned minutes", async () => {
+  hookState.session = null;
+  hookState.onStartSession.mockClear();
+
+  const user = userEvent.setup();
+  const { getByRole } = renderWithMantine(<SessionFastingCard sessionFlash={false} />);
+
+  await user.click(getByRole("button", { name: "セッション開始" }));
+  await user.click(getByRole("button", { name: "開始する" }));
+
+  expect(hookState.onStartSession).toHaveBeenCalledWith("toeic", 60);
+});
+
+test("submits the category selected in the start modal", async () => {
+  hookState.session = null;
+  hookState.onStartSession.mockClear();
+
+  const user = userEvent.setup();
+  const { getByRole } = renderWithMantine(<SessionFastingCard sessionFlash={false} />);
+
+  await user.click(getByRole("button", { name: "セッション開始" }));
+  await user.click(getByRole("button", { name: "英会話" }));
+  await user.click(getByRole("button", { name: "開始する" }));
+
+  expect(hookState.onStartSession).toHaveBeenCalledWith("eikaiwa", 60);
 });

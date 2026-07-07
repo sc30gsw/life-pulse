@@ -3,7 +3,7 @@ import { Shimmer } from "@shimmer-from-structure/react";
 
 import { GlowCard } from "~/components/glow-card";
 import { useDashboardHealth } from "~/features/dashboard/hooks/use-dashboard-health";
-import { ACCENT_VARS, HEALTH_SOURCE_LABELS } from "~/features/dashboard/types/dashboard";
+import { ACCENT_VARS, HEALTH_SOURCE_LABELS } from "~/types/dashboard";
 
 export function HealthMetricsGrid() {
   const { metrics } = useDashboardHealth();

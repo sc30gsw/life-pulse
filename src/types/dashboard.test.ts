@@ -13,7 +13,7 @@ import {
   PRESENCE_LABELS,
   PRESENCE_SUB_LABELS,
   REASON_LABELS,
-} from "~/features/dashboard/types/dashboard";
+} from "~/types/dashboard";
 
 test("exposes display labels for dashboard domain values", () => {
   expect(CATEGORY_LABELS.toeic).toBe("TOEIC");

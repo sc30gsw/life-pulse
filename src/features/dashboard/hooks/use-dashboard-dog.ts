@@ -6,12 +6,8 @@ import { dashboardDogQuery } from "~/features/dashboard/api/dashboard-dog-query"
 import { useBoardClock } from "~/features/dashboard/hooks/use-board-clock";
 import { useLogDogEvent } from "~/features/dashboard/hooks/use-log-dog-event";
 import { useUndoDogEvent } from "~/features/dashboard/hooks/use-undo-dog-event";
-import {
-  ACCENT_SOLID_STYLE,
-  DOG_EVENT_LABELS,
-  type DogEventKind,
-} from "~/features/dashboard/types/dashboard";
 import { toDogCareItems } from "~/features/dashboard/utils/format";
+import { ACCENT_SOLID_STYLE, DOG_EVENT_LABELS, type DogEventKind } from "~/types/dashboard";
 
 export function useDashboardDog() {
   const { dateJst } = useBoardClock();
