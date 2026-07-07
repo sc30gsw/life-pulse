@@ -69,7 +69,7 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 - [x] FR-3.3 侵食時に当日残り時間帯からリスケ候補提示→選択で新枠生成(元枠リンク保持、suggestRescheduleSlots 純関数)
 - [x] FR-3.4 「宣言 vs 実績」当日サマリがライブボードに表示(FR-1.2 の学習分を解消)
 - [x] FR-3.5 スキーマに `source: "manual" | "suggested"` を保持
-- [x] FR-3.6 未来日の枠宣言(DateTimePicker range、同日+過去日拒否)、予定一覧(今日超〜30日)、planned 枠の編集/物理キャンセル、日本の祝日表示
+- [x] FR-3.6 未来日の枠宣言(開始日時・終了日時の DateTimePicker、同日+過去日拒否)、予定一覧(今日超〜30日)、planned 枠の編集/物理キャンセル、日本の祝日表示(土曜は青、日曜・祝日は赤)
 - [x] FR-2.2 残タスク: 宣言ブロックからのセッション開始導線(`/study` の「この枠で開始」)
 
 ### UI 配線

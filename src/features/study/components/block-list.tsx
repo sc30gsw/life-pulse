@@ -1,7 +1,7 @@
-import { Badge, Box, Button, Group, Stack, Text, UnstyledButton } from "@mantine/core";
+import { Badge, Box, Button, Group, Stack, Text, Tooltip, UnstyledButton } from "@mantine/core";
 import { Shimmer } from "@shimmer-from-structure/react";
 import { cn } from "cnfast";
-import { useState } from "react";
+import { useState, type ComponentProps } from "react";
 import { sortBy } from "remeda";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
@@ -26,6 +26,18 @@ const STATUS_ACCENT = {
 } as const satisfies Record<DeclarationStatus, keyof typeof ACCENT_VARS>;
 
 const EROSION_REASONS = Object.keys(EROSION_REASON_LABELS) as ErosionReason[];
+
+const ERODE_TOOLTIP_LABEL =
+  "予定していた学習枠が仕事・疲労・割り込みで使えなくなったことを記録します";
+
+const TOOLTIP_STYLES = {
+  tooltip: {
+    backgroundColor: "var(--panel2)",
+    border: "1px solid var(--bd2)",
+    color: "var(--tx)",
+    fontSize: "11px",
+  },
+} as const satisfies ComponentProps<typeof Tooltip>["styles"];
 
 export function BlockList() {
   const { blocks, onErode, onReschedule, onStartFromBlock, suggestions } = useStudyBlocks();
@@ -79,17 +91,23 @@ export function BlockList() {
                 >
                   この枠で開始
                 </Button>
-                <Button
-                  className={cn(ACCENT_CLASSES.coral.border, ACCENT_CLASSES.coral.text)}
-                  onClick={() =>
-                    setErodingBlockId((prev) => (prev === block._id ? null : block._id))
-                  }
-                  size="xs"
-                  type="button"
-                  variant="outline"
-                >
-                  侵食
-                </Button>
+                <Tooltip label={ERODE_TOOLTIP_LABEL} styles={TOOLTIP_STYLES}>
+                  <Button
+                    className={cn(
+                      ACCENT_CLASSES.coral.border,
+                      ACCENT_CLASSES.coral.text,
+                      "hover:bg-coral hover:text-bg focus-visible:bg-coral focus-visible:text-bg transition-colors",
+                    )}
+                    onClick={() =>
+                      setErodingBlockId((prev) => (prev === block._id ? null : block._id))
+                    }
+                    size="xs"
+                    type="button"
+                    variant="outline"
+                  >
+                    侵食
+                  </Button>
+                </Tooltip>
                 {erodingBlockId === block._id && (
                   <>
                     <Text c={ACCENT_VARS.faint} size="xs">

@@ -20,9 +20,77 @@ import {
   type SessionCategory,
 } from "~/types/dashboard";
 import { todayJst } from "~/utils/date-jst";
+import { dayjs } from "~/utils/dayjs";
 import { holidayName } from "~/utils/holiday";
 
 const CATEGORY_VALUES = Object.keys(CATEGORY_LABELS) as SessionCategory[];
+const SATURDAY_COLOR = "var(--blue)";
+const DATE_TIME_INPUT_COLOR = "var(--tx)";
+const TIME_INPUT_COLOR = "var(--bg)";
+const DATE_TIME_PLACEHOLDER_COLOR = "color-mix(in oklab, var(--tx) 72%, var(--dim))";
+
+const DATE_TIME_PICKER_CLASS_NAMES = {
+  calendarHeaderControl: "lp-dtp-calendar-control",
+  calendarHeaderLevel: "lp-dtp-calendar-level",
+  day: "lp-dtp-day",
+  input: "lp-dtp-input",
+  monthsListControl: "lp-dtp-months-list-control",
+  placeholder: "lp-dtp-placeholder",
+  submitButton: "lp-dtp-submit",
+  timeInput: "lp-dtp-time-input",
+  weekday: "lp-dtp-weekday",
+  yearsListControl: "lp-dtp-years-list-control",
+} as const satisfies ComponentProps<typeof DateTimePicker>["classNames"];
+
+const DATE_TIME_PICKER_STYLES = {
+  calendarHeaderControl: { color: "var(--tx)" },
+  calendarHeaderLevel: { color: "var(--tx)", fontWeight: 700 },
+  day: { color: "var(--tx)" },
+  input: {
+    backgroundColor: "var(--inset)",
+    borderColor: "var(--bd2)",
+    color: DATE_TIME_INPUT_COLOR,
+  },
+  monthsListControl: { color: "var(--tx)" },
+  placeholder: { color: DATE_TIME_PLACEHOLDER_COLOR },
+  submitButton: { color: "var(--tx)" },
+  timeInput: { color: DATE_TIME_INPUT_COLOR },
+  weekday: { color: "var(--faint)" },
+  yearsListControl: { color: "var(--tx)" },
+} as const satisfies ComponentProps<typeof DateTimePicker>["styles"];
+
+const DATE_TIME_PICKER_POPOVER_PROPS = {
+  styles: {
+    dropdown: {
+      backgroundColor: "var(--panel)",
+      borderColor: "var(--bd2)",
+      color: "var(--tx)",
+    },
+  },
+} as const satisfies ComponentProps<typeof DateTimePicker>["popoverProps"];
+
+const TIME_PICKER_PROPS = {
+  classNames: {
+    control: "lp-dtp-time-control",
+    dropdown: "lp-dtp-time-dropdown",
+    field: "lp-dtp-time-field",
+    fieldsGroup: "lp-dtp-time-fields-group",
+    fieldsRoot: "lp-dtp-time-fields-root",
+  },
+  popoverProps: { withinPortal: false },
+  styles: {
+    control: { color: "var(--tx)" },
+    dropdown: {
+      backgroundColor: "var(--panel)",
+      borderColor: "var(--bd2)",
+      color: "var(--tx)",
+    },
+    field: { color: TIME_INPUT_COLOR },
+    fieldsGroup: { color: TIME_INPUT_COLOR },
+    fieldsRoot: { color: TIME_INPUT_COLOR },
+  },
+  withDropdown: true,
+} as const satisfies ComponentProps<typeof DateTimePicker>["timePickerProps"];
 
 type EditableBlock = Pick<Doc<"studyBlocks">, "_id" | "category" | "dateJst" | "endHm" | "startHm">;
 
@@ -34,10 +102,8 @@ type DeclareBlockFormProps = {
 function initialInput(block?: EditableBlock): DeclareBlockFormInput {
   return {
     category: (block?.category as SessionCategory | undefined) ?? "toeic",
-    range:
-      block === undefined
-        ? [null, null]
-        : [`${block.dateJst} ${block.startHm}:00`, `${block.dateJst} ${block.endHm}:00`],
+    endAt: block === undefined ? null : `${block.dateJst} ${block.endHm}:00`,
+    startAt: block === undefined ? null : `${block.dateJst} ${block.startHm}:00`,
   };
 }
 
@@ -57,6 +123,36 @@ function renderHolidayDay(
       )}
     </Stack>
   );
+}
+
+function getDayStyle(date: string): CSSProperties {
+  const name = holidayName(date);
+  const day = dayjs(date).day();
+
+  if (name !== null || day === 0) {
+    return { color: "var(--coral)" };
+  }
+
+  if (day === 6) {
+    return { color: SATURDAY_COLOR };
+  }
+
+  return { color: "var(--tx)" };
+}
+
+function getDayProps(date: string) {
+  const name = holidayName(date);
+
+  return {
+    style: getDayStyle(date),
+    title: name ?? undefined,
+  };
+}
+
+function getDayAriaLabel(date: string) {
+  const name = holidayName(date);
+
+  return name === null ? date : `${date} ${name}`;
 }
 
 export function DeclareBlockForm({ block, onDone }: DeclareBlockFormProps = {}) {
@@ -144,35 +240,52 @@ export function DeclareBlockForm({ block, onDone }: DeclareBlockFormProps = {}) 
           </Field>
         </Stack>
 
-        <Field of={declareForm} path={["range"]}>
-          {(field) => (
-            <DateTimePicker
-              type="range"
-              allowSingleDateInRange
-              error={field.errors?.[0]}
-              getDayAriaLabel={(date) => {
-                const name = holidayName(date);
-                return name === null ? date : `${date} ${name}`;
-              }}
-              getDayProps={(date) => {
-                const name = holidayName(date);
-                return name === null
-                  ? {}
-                  : {
-                      style: { color: "var(--coral)" } satisfies CSSProperties,
-                      title: name,
-                    };
-              }}
-              label="日時"
-              minDate={todayJst()}
-              onChange={field.onChange}
-              renderDay={renderHolidayDay}
-              value={field.input as [string | null, string | null]}
-              valueFormat="YYYY-MM-DD HH:mm"
-              withSeconds={false}
-            />
-          )}
-        </Field>
+        <Group gap="md" grow>
+          <Field of={declareForm} path={["startAt"]}>
+            {(field) => (
+              <DateTimePicker
+                classNames={DATE_TIME_PICKER_CLASS_NAMES}
+                error={field.errors?.[0]}
+                getDayAriaLabel={getDayAriaLabel}
+                getDayProps={getDayProps}
+                label="開始日時"
+                minDate={todayJst()}
+                onChange={field.onChange}
+                placeholder="開始日時を選択"
+                popoverProps={DATE_TIME_PICKER_POPOVER_PROPS}
+                renderDay={renderHolidayDay}
+                styles={DATE_TIME_PICKER_STYLES}
+                timePickerProps={TIME_PICKER_PROPS}
+                value={field.input}
+                valueFormat="YYYY-MM-DD HH:mm"
+                weekendDays={[0]}
+                withSeconds={false}
+              />
+            )}
+          </Field>
+          <Field of={declareForm} path={["endAt"]}>
+            {(field) => (
+              <DateTimePicker
+                classNames={DATE_TIME_PICKER_CLASS_NAMES}
+                error={field.errors?.[0]}
+                getDayAriaLabel={getDayAriaLabel}
+                getDayProps={getDayProps}
+                label="終了日時"
+                minDate={todayJst()}
+                onChange={field.onChange}
+                placeholder="終了日時を選択"
+                popoverProps={DATE_TIME_PICKER_POPOVER_PROPS}
+                renderDay={renderHolidayDay}
+                styles={DATE_TIME_PICKER_STYLES}
+                timePickerProps={TIME_PICKER_PROPS}
+                value={field.input}
+                valueFormat="YYYY-MM-DD HH:mm"
+                weekendDays={[0]}
+                withSeconds={false}
+              />
+            )}
+          </Field>
+        </Group>
 
         <Button style={ACCENT_SOLID_STYLE.good} type="submit">
           {isEditing ? "予定を更新する" : "枠を宣言する"}

@@ -14,7 +14,9 @@ export const DeclareBlockSchema = v.pipe(
   v.object({
     category: v.picklist(CATEGORY_VALUES),
     endAt: v.nullable(v.pipe(v.string(), v.regex(DATE_TIME_PATTERN, "終了日時を選択してください"))),
-    startAt: v.nullable(v.pipe(v.string(), v.regex(DATE_TIME_PATTERN, "開始日時を選択してください"))),
+    startAt: v.nullable(
+      v.pipe(v.string(), v.regex(DATE_TIME_PATTERN, "開始日時を選択してください")),
+    ),
   }),
   v.forward(
     v.partialCheck(

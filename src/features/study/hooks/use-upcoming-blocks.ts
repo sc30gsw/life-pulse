@@ -39,6 +39,16 @@ export function useUpcomingBlocks() {
           },
         );
       },
+      styles: {
+        body: { color: "var(--tx)" },
+        content: {
+          backgroundColor: "var(--panel)",
+          border: "1px solid var(--bd2)",
+          color: "var(--tx)",
+        },
+        header: { backgroundColor: "var(--panel)", color: "var(--tx)" },
+        title: { color: "var(--tx)", fontWeight: 700 },
+      },
       title: `${block.dateJst} ${block.startHm}〜${block.endHm} の予定枠をキャンセルしますか？`,
     });
   }
