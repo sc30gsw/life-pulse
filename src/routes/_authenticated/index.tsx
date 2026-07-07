@@ -11,6 +11,10 @@ import {
 import { LiveStrip } from "~/features/dashboard/components/live-strip";
 import { PartnerCard, PartnerCardFallback } from "~/features/dashboard/components/partner-card";
 import {
+  SelfStatusCard,
+  SelfStatusCardFallback,
+} from "~/features/dashboard/components/self-status-card";
+import {
   SessionFastingCard,
   SessionFastingCardFallback,
 } from "~/features/dashboard/components/session-fasting-card";
@@ -38,6 +42,9 @@ function Home() {
           </Suspense>
         </section>
         <section className="flex min-w-0 flex-col gap-4 lg:flex-2">
+          <Suspense fallback={<SelfStatusCardFallback />}>
+            <SelfStatusCard />
+          </Suspense>
           <Suspense fallback={<PartnerCardFallback />}>
             <PartnerCard />
           </Suspense>

@@ -14,6 +14,7 @@ export const setStatus = mutation({
   handler: async (ctx, args) => {
     const user = await requireUser(ctx);
     await setStatusService(ctx, user, args);
+
     return null;
   },
 });

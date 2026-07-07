@@ -110,6 +110,13 @@ test("aggregates session, fasting, blocks, dog events, health, and partner prese
       userId: partnerId,
     }),
   );
+  await t.run((ctx) =>
+    ctx.db.insert("presence", {
+      state: "office",
+      updatedAt: Date.now(),
+      userId: selfId,
+    }),
+  );
 
   const result = await asSelf.query(api.queries.dashboard.live.live, { dateJst: DATE_JST });
 
@@ -128,6 +135,9 @@ test("aggregates session, fasting, blocks, dog events, health, and partner prese
 
   expect(result.partnerPresence).not.toBeNull();
   expect(result.partnerPresence?.state).toBe("commuting_home");
+
+  expect(result.selfPresence).not.toBeNull();
+  expect(result.selfPresence?.state).toBe("office");
 });
 
 test("health is null when the only healthMetrics row for the date is demo-sourced", async () => {

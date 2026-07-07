@@ -2,7 +2,7 @@ import { notifications } from "@mantine/notifications";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import type { FunctionArgs } from "convex/server";
 
-import { dashboardPresenceQuery } from "~/features/dashboard/api/dashboard-presence-query";
+import { dashboardSelfPresenceQuery } from "~/features/dashboard/api/dashboard-self-presence-query";
 import { useBoardClock } from "~/features/dashboard/hooks/use-board-clock";
 import { useSetPresence } from "~/features/dashboard/hooks/use-set-presence";
 import { formatRelativeTime } from "~/features/dashboard/utils/format";
@@ -10,9 +10,9 @@ import { type PresenceState } from "~/types/dashboard";
 
 import type { api } from "../../../../convex/_generated/api";
 
-export function useDashboardPresence() {
+export function useDashboardSelfPresence() {
   const { nowMs } = useBoardClock();
-  const partner = useSuspenseQuery(dashboardPresenceQuery()).data;
+  const self = useSuspenseQuery(dashboardSelfPresenceQuery()).data;
   const setPresence = useSetPresence();
 
   function onSetPresence(
@@ -28,7 +28,7 @@ export function useDashboardPresence() {
         onSuccess: () => {
           notifications.show({
             color: "blue",
-            message: `パートナー: ${state}`,
+            message: `本人: ${state}`,
             title: "更新しました",
           });
         },
@@ -38,10 +38,9 @@ export function useDashboardPresence() {
 
   return {
     onSetPresence,
-    partner,
+    self,
     // Flash-on-remote-update (server push detection) is deferred past W1 — see the wiring plan.
-    partnerFlash: false,
-    partnerUpdatedRelativeLabel:
-      partner === null ? "未更新" : formatRelativeTime(partner.updatedAt, nowMs),
+    selfFlash: false,
+    selfUpdatedRelativeLabel: self === null ? "未更新" : formatRelativeTime(self.updatedAt, nowMs),
   } as const;
 }
