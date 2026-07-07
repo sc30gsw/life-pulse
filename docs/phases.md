@@ -113,7 +113,10 @@ plan: 未作成
 
 ### FR-6.3 Garmin 実連携【P1 — 難航時は打ち切り可】
 
-- [ ] FR-6.3 `garmin-connect`(npm)+ "use node" action + cron(JST 6:30)、認証情報は Convex 環境変数のみ(NFR-4)、失敗は syncLogs+「最終同期」表示
+- [ ] FR-6.3 `garmin-connect-sdk@1.0.0-alpha.4`(完全固定、`^` 禁止)+ "use node" action + cron(JST 6:30)、認証情報は Convex 環境変数のみ(NFR-4)、失敗は syncLogs+「最終同期」表示
+  - 前提: `convex.json` で Node 24 を指定(SDK が `engines: >=24`。Convex は Node 20/22/24 対応・既定 20 — 公式 docs 確認済み)
+  - MFA は SDK の `login({email, password, mfaCode})` で対応。トークンは `TokenStorage` 抽象のカスタム実装で環境変数から復元(旧 `GARMIN_OAUTH1_JSON`/`GARMIN_OAUTH2_JSON` 設計は SDK のトークン形式に合わせて再定義)
+  - alpha のため自前の薄いラッパー(`GarminClient` インターフェース)越しに使用。退避先: `@gooin/garmin-connect@1.8.7`(要件 = requirements.md FR-6.3 v1.7 改訂参照)
 
 ### FR-7 相関ビュー【P1】
 
