@@ -28,7 +28,7 @@ const SLIDER_MARKS = [
 
 const SLIDER_STYLES = {
   bar: {
-    background: "linear-gradient(90deg, var(--blue), var(--tx))",
+    backgroundColor: "var(--blue)",
     boxShadow: "0 0 16px var(--glow)",
   },
   mark: {
@@ -45,8 +45,7 @@ const SLIDER_STYLES = {
     boxShadow: "0 0 18px var(--glow)",
   },
   track: {
-    background:
-      "linear-gradient(165deg, var(--blue), color-mix(in srgb, var(--blue) 60%, var(--tx)))",
+    backgroundColor: "var(--blue)",
     border: "1px solid var(--bd)",
     boxShadow: "var(--cardsh)",
   },
