@@ -134,7 +134,7 @@ export function DogCard() {
               {DOG_EVENT_LABELS[item.kind]}
             </Text>
             <Text size="xs" c="dimmed" className="ml-auto">
-              {item.done ? (item.by === "self" ? "本人" : "妻") : "未"}
+              {item.done ? (item.by === "self" ? "本人" : "パートナー") : "未"}
             </Text>
           </UnstyledButton>
         ))}

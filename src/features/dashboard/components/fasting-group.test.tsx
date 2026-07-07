@@ -17,7 +17,7 @@ const hookState = vi.hoisted(() => ({
 vi.mock("~/features/dashboard/hooks/use-dashboard-fasting", () => ({
   useDashboardFasting: () => ({
     fasting: hookState.fasting,
-    fastingElapsedLabel: "6h42m",
+    fastingElapsedLabel: "6:42:00",
     fastingRemainLabel: "9h18m",
     fastingRingPercent: 42,
   }),

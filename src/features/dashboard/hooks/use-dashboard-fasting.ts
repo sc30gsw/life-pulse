@@ -2,7 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { dashboardFastingQuery } from "~/features/dashboard/api/dashboard-fasting-query";
 import { useBoardClock } from "~/features/dashboard/hooks/use-board-clock";
-import { formatMinutesAsHm } from "~/features/dashboard/utils/format";
+import { formatElapsedClock, formatMinutesAsHm } from "~/features/dashboard/utils/format";
 import { deriveFastingElapsedMinutes } from "~/features/fasting/utils/fasting-utils";
 
 const DEFAULT_FASTING_TARGET_MINUTES = 960;
@@ -16,7 +16,7 @@ export function useDashboardFasting() {
 
   return {
     fasting,
-    fastingElapsedLabel: formatMinutesAsHm(fastingElapsedMinutes),
+    fastingElapsedLabel: formatElapsedClock(fastingElapsedMinutes * 60_000),
     fastingRemainLabel: formatMinutesAsHm(
       Math.max(0, fastingTargetMinutes - fastingElapsedMinutes),
     ),

@@ -393,4 +393,4 @@ eroded --decline()--> declined --undoDecline()--> eroded (FR-3.7, 確認ダイ�
 - OD-1 アプリ正式名称(仮: Life Pulse)。
 - OD-2 犬のケア項目の確定リスト(薬の有無・頻度)。
 - OD-3 ~~Clerk か Better Auth か~~ → **解決済み(2026-07-06)**: Convex Auth(Password provider)+オープンサインアップに決定。§7 および `docs/plans/2026-07-06-convex-auth.md` 参照。
-- OD-4 妻用UIの言語・トーン(日本語UI前提で良いか)。
+- OD-4 パートナー用UIの言語・トーン(日本語UI前提で良いか)。

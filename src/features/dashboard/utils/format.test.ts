@@ -140,16 +140,18 @@ test("toDeclarationItems maps blocks through, applying the category cast", () =>
   ]);
 });
 
-test("toDogCareItems returns all five fixed kinds as pending when no events exist", () => {
+test("toDogCareItems returns all seven fixed kinds as pending when no events exist", () => {
   const items = toDogCareItems([]);
 
-  expect(items).toHaveLength(5);
+  expect(items).toHaveLength(7);
   expect(items.map((item) => item.kind)).toEqual([
     "walk_am",
     "meal_am",
+    "meal_noon",
     "meds",
     "walk_pm",
     "meal_pm",
+    "brush_teeth",
   ]);
   expect(items.every((item) => !item.done && item.at === null && item.by === null)).toBe(true);
 });

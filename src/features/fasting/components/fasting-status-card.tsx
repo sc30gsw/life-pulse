@@ -7,6 +7,8 @@ import { Suspense } from "react";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
 import { useViewer } from "~/features/auth/hooks/use-viewer";
+import { useBoardClock } from "~/features/dashboard/hooks/use-board-clock";
+import { formatElapsedClock } from "~/features/dashboard/utils/format";
 import { FastingStartModal } from "~/features/fasting/components/fasting-start-modal";
 import { useEndFasting } from "~/features/fasting/hooks/use-end-fasting";
 import { useFastingWindow } from "~/features/fasting/hooks/use-fasting-window";
@@ -53,6 +55,7 @@ function formatMinutesAsHm(rawMinutes: number) {
 
 export function FastingStatusCard() {
   const { data: fasting } = useFastingWindow();
+  const { nowMs } = useBoardClock();
   const endFasting = useEndFasting();
   const [startModalOpened, { close: closeStartModal, open: openStartModal }] = useDisclosure(false);
 
@@ -61,7 +64,7 @@ export function FastingStatusCard() {
   const currentPhaseIndex = fasting === null ? -1 : PHASE_ORDER.indexOf(fasting.phase);
   const targetMinutes = fasting?.targetMinutes ?? DEFAULT_FASTING_TARGET_MINUTES;
   const elapsedMinutes =
-    fasting === null ? 0 : deriveFastingElapsedMinutes(fasting.startedAt, Date.now());
+    fasting === null ? 0 : deriveFastingElapsedMinutes(fasting.startedAt, nowMs);
   const remainMinutes = Math.max(0, targetMinutes - elapsedMinutes);
   const progressPercent = Math.min(100, Math.round((elapsedMinutes / targetMinutes) * 100));
 
@@ -105,7 +108,7 @@ export function FastingStatusCard() {
               fw={600}
               style={{ fontSize: "clamp(2.5rem,6vw,3.4rem)" }}
             >
-              {formatMinutesAsHm(elapsedMinutes)}
+              {formatElapsedClock(elapsedMinutes * 60_000)}
             </Text>
             <Text c="dimmed" size="xs">
               残り{" "}
@@ -145,7 +148,14 @@ export function FastingStatusCard() {
           lineWidth={2}
         >
           {PHASE_ORDER.map((timelinePhase) => (
-            <Timeline.Item key={timelinePhase} title={FASTING_PHASE_LABELS[timelinePhase]}>
+            <Timeline.Item
+              key={timelinePhase}
+              title={
+                <Text c="var(--tx)" fw={600} size="sm">
+                  {FASTING_PHASE_LABELS[timelinePhase]}
+                </Text>
+              }
+            >
               <Text c="dimmed" size="xs">
                 {FASTING_PHASE_SUB_LABELS[timelinePhase]}
               </Text>
@@ -203,7 +213,7 @@ export function FastingStatusCardFallback() {
               fw={600}
               style={{ fontSize: "clamp(2.5rem,6vw,3.4rem)" }}
             >
-              6h42m
+              6:42:00
             </Text>
             <Text c="dimmed" size="xs">
               残り{" "}
@@ -225,7 +235,14 @@ export function FastingStatusCardFallback() {
 
         <Timeline active={0} bulletSize={22} color={ACCENT_VARS.blue} lineWidth={2}>
           {PHASE_ORDER.map((timelinePhase) => (
-            <Timeline.Item key={timelinePhase} title={FASTING_PHASE_LABELS[timelinePhase]}>
+            <Timeline.Item
+              key={timelinePhase}
+              title={
+                <Text c="var(--tx)" fw={600} size="sm">
+                  {FASTING_PHASE_LABELS[timelinePhase]}
+                </Text>
+              }
+            >
               <Text c="dimmed" size="xs">
                 {FASTING_PHASE_SUB_LABELS[timelinePhase]}
               </Text>

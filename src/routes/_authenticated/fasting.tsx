@@ -4,8 +4,6 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 
 import { GlowCard } from "~/components/glow-card";
-import { fastingCurrentQuery } from "~/features/fasting/api/fasting-current-query";
-import { fastingHistoryQuery } from "~/features/fasting/api/fasting-history-query";
 import {
   FastingHistoryList,
   FastingHistoryListFallback,
@@ -17,11 +15,6 @@ import {
 import { ACCENT_VARS } from "~/types/dashboard";
 
 export const Route = createFileRoute("/_authenticated/fasting")({
-  loader: ({ context: { queryClient } }) =>
-    Promise.all([
-      queryClient.ensureQueryData(fastingCurrentQuery()),
-      queryClient.ensureQueryData(fastingHistoryQuery()),
-    ]),
   component: FastingPage,
 });
 

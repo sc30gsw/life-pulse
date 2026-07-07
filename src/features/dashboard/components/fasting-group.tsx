@@ -156,7 +156,7 @@ export function FastingGroupFallback() {
           label={
             <Stack gap={1} align="center">
               <Text fw={600} size="lg" c={ACCENT_VARS.blue}>
-                06h42m
+                6:42:00
               </Text>
               <Text size="9px" c={ACCENT_VARS.faint}>
                 FAST
@@ -181,7 +181,7 @@ export function FastingGroupFallback() {
             12hで脂肪燃焼帯
           </Text>
           <Text size="xs" c="dimmed">
-            経過 06h42m · 残 09h18m
+            経過 6:42:00 · 残 09h18m
           </Text>
         </Stack>
       </Group>

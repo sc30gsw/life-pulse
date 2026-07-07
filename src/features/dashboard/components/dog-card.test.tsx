@@ -51,7 +51,7 @@ test("renders the dog name, photo avatar, pending count, and actor labels", () =
   expect(getByAltText("ハマロ").getAttribute("src")).toBe("/assets/hamaro.JPEG");
   expect(getByText("未実施 1 件")).toBeDefined();
   expect(getByText("本人")).toBeDefined();
-  expect(getByText("妻")).toBeDefined();
+  expect(getByText("パートナー")).toBeDefined();
 });
 
 test("calls onToggleDogCare with the clicked care item kind", async () => {

@@ -17,6 +17,10 @@ const hookState = vi.hoisted(() => ({
   viewerRole: "self" as "partner" | "self",
 }));
 
+vi.mock("~/features/dashboard/hooks/use-board-clock", () => ({
+  useBoardClock: () => ({ nowMs: 120 * 60_000 }),
+}));
+
 vi.mock("~/features/fasting/hooks/use-fasting-window", () => ({
   useFastingWindow: () => ({ data: hookState.fasting }),
 }));
@@ -57,7 +61,7 @@ test("renders 未開始 and the elapsed/remaining/target labels when there is no
   const { getAllByText, getByText } = renderWithMantine(<FastingStatusCard />);
 
   expect(getByText("未開始")).toBeDefined();
-  expect(getByText("0m")).toBeDefined();
+  expect(getByText("00:00")).toBeDefined();
   // Remaining and target are both the full 16h target when nothing has elapsed yet.
   expect(getAllByText("16h00m").length).toBe(2);
 });

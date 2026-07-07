@@ -2,11 +2,12 @@ import { PresenceCard, PresenceCardFallback } from "~/features/dashboard/compone
 import { useDashboardSelfPresence } from "~/features/dashboard/hooks/use-dashboard-self-presence";
 import { useDashboardViewer } from "~/features/dashboard/hooks/use-dashboard-viewer";
 
-const TITLE = "本人 · 自分";
+const FALLBACK_TITLE = "本人";
 
 export function SelfStatusCard() {
   const { onSetPresence, self, selfFlash, selfUpdatedRelativeLabel } = useDashboardSelfPresence();
   const viewer = useDashboardViewer();
+  const title = viewer.role === "self" ? "本人" : "パートナー";
 
   return (
     <PresenceCard
@@ -14,12 +15,12 @@ export function SelfStatusCard() {
       flash={selfFlash}
       onSetPresence={onSetPresence}
       presence={self}
-      title={TITLE}
+      title={title}
       updatedRelativeLabel={selfUpdatedRelativeLabel}
     />
   );
 }
 
 export function SelfStatusCardFallback() {
-  return <PresenceCardFallback title={TITLE} />;
+  return <PresenceCardFallback title={FALLBACK_TITLE} />;
 }

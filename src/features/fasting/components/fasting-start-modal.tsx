@@ -1,13 +1,15 @@
 import { Field, Form, useForm } from "@formisch/react";
-import { Button, Modal, Stack } from "@mantine/core";
-import { TimePicker } from "@mantine/dates";
+import { Button, Modal, Slider, Stack, Text } from "@mantine/core";
 import type { UseDisclosureReturnValue } from "@mantine/hooks";
 import type { ComponentProps } from "react";
 
 import { useStartFasting } from "~/features/fasting/hooks/use-start-fasting";
 import { StartFastingSchema } from "~/features/fasting/schemas/start-fasting-schema";
-import { hhmmToMinutes, minutesToHhmm } from "~/features/fasting/utils/fasting-utils";
 import { ACCENT_SOLID_STYLE } from "~/types/dashboard";
+
+const DEFAULT_TARGET_MINUTES = 960;
+const MAX_TARGET_MINUTES = 960;
+const MIN_TARGET_MINUTES = 1;
 
 const MODAL_STYLES = {
   body: { color: "var(--tx)" },
@@ -16,11 +18,56 @@ const MODAL_STYLES = {
   title: { color: "var(--tx)", fontWeight: 700 },
 } as const satisfies ComponentProps<typeof Modal>["styles"];
 
+const SLIDER_MARKS = [
+  { value: MIN_TARGET_MINUTES, label: "1m" },
+  { value: 240, label: "4h" },
+  { value: 480, label: "8h" },
+  { value: 720, label: "12h" },
+  { value: MAX_TARGET_MINUTES, label: "16h" },
+] as const satisfies ComponentProps<typeof Slider>["marks"];
+
+const SLIDER_STYLES = {
+  bar: {
+    background: "linear-gradient(90deg, var(--blue), var(--tx))",
+    boxShadow: "0 0 16px var(--glow)",
+  },
+  mark: {
+    backgroundColor: "var(--blue)",
+    borderColor: "var(--bd2)",
+  },
+  markLabel: {
+    color: "var(--dim)",
+    fontSize: 11,
+  },
+  thumb: {
+    backgroundColor: "var(--tx)",
+    borderColor: "color-mix(in srgb, var(--blue) 60%, var(--bd2))",
+    boxShadow: "0 0 18px var(--glow)",
+  },
+  track: {
+    background:
+      "linear-gradient(165deg, var(--blue), color-mix(in srgb, var(--blue) 60%, var(--tx)))",
+    border: "1px solid var(--bd)",
+    boxShadow: "var(--cardsh)",
+  },
+} as const satisfies ComponentProps<typeof Slider>["styles"];
+
 type FastingStartModalProps = {
   onClose: UseDisclosureReturnValue[1]["close"];
   onSuccess?: () => void;
   opened: UseDisclosureReturnValue[0];
 };
+
+function formatTargetMinutes(minutes: number) {
+  if (minutes < 60) {
+    return `${minutes}分`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+  const remainderMinutes = minutes % 60;
+
+  return remainderMinutes === 0 ? `${hours}時間` : `${hours}時間${remainderMinutes}分`;
+}
 
 export function FastingStartModal({ opened, onClose, onSuccess }: FastingStartModalProps) {
   const startFastingForm = useForm({
@@ -49,19 +96,35 @@ export function FastingStartModal({ opened, onClose, onSuccess }: FastingStartMo
         <Stack gap="md">
           <Field of={startFastingForm} path={["targetMinutes"]}>
             {(field) => (
-              <TimePicker
-                {...field.props}
-                description="省略時は16:00(16時間)。デモ用に短い時間も指定可能です。"
-                error={field.errors?.[0]}
-                label="目標時間(時:分・任意)"
-                onBlur={(event) =>
-                  field.props.onBlur(event as unknown as Parameters<typeof field.props.onBlur>[0])
-                }
-                onChange={(value) => field.onChange(hhmmToMinutes(value))}
-                type="duration"
-                value={minutesToHhmm(field.input)}
-                disabled={startFastingForm.isSubmitting}
-              />
+              <Stack gap="xs">
+                <div>
+                  <Text c="var(--tx)" fw={700} size="sm">
+                    目標時間
+                  </Text>
+                  <Text c="var(--dim)" size="xs">
+                    省略時は16時間。デモ用に短い時間も指定可能です。
+                  </Text>
+                </div>
+                <Slider
+                  disabled={startFastingForm.isSubmitting}
+                  label={formatTargetMinutes}
+                  marks={SLIDER_MARKS}
+                  max={MAX_TARGET_MINUTES}
+                  min={MIN_TARGET_MINUTES}
+                  onChange={field.onChange}
+                  step={1}
+                  styles={SLIDER_STYLES}
+                  thumbLabel="目標時間"
+                  thumbValueText={formatTargetMinutes}
+                  value={field.input ?? DEFAULT_TARGET_MINUTES}
+                  className="mt-2 mb-4"
+                />
+                {field.errors?.[0] ? (
+                  <Text c="var(--coral)" size="xs">
+                    {field.errors[0]}
+                  </Text>
+                ) : null}
+              </Stack>
             )}
           </Field>
           <Button

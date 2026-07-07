@@ -1,4 +1,5 @@
 // @vitest-environment happy-dom
+import { fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vite-plus/test";
 
@@ -13,35 +14,38 @@ vi.mock("~/features/fasting/hooks/use-start-fasting", () => ({
   useStartFasting: () => ({ mutate: mutationState.mutate }),
 }));
 
-vi.mock("@mantine/dates", () => ({
-  TimePicker: ({
-    disabled,
-    error,
-    label,
-    onBlur,
-    onChange,
-    value,
-  }: {
-    disabled?: boolean;
-    error?: string;
-    label: string;
-    onBlur?: () => void;
-    onChange: (value: string) => void;
-    value: string;
-  }) => (
-    <div>
-      <label htmlFor="target-duration">{label}</label>
+vi.mock("@mantine/core", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@mantine/core")>();
+
+  return {
+    ...actual,
+    Slider: ({
+      disabled,
+      onChange,
+      thumbLabel,
+      value,
+      max,
+      min,
+    }: {
+      disabled?: boolean;
+      max?: number;
+      min?: number;
+      onChange: (value: number) => void;
+      thumbLabel: string;
+      value: number;
+    }) => (
       <input
+        aria-label={thumbLabel}
         disabled={disabled}
-        id="target-duration"
-        onBlur={onBlur}
-        onChange={(event) => onChange(event.target.value)}
+        max={max}
+        min={min}
+        onChange={(event) => onChange(Number(event.target.value))}
+        type="range"
         value={value}
       />
-      {error ? <span>{error}</span> : null}
-    </div>
-  ),
-}));
+    ),
+  };
+});
 
 test("submits with no targetMinutes argument when the field is left empty", async () => {
   mutationState.mutate.mockClear();
@@ -56,31 +60,26 @@ test("submits with no targetMinutes argument when the field is left empty", asyn
   );
 });
 
-test("submits the entered target duration converted to minutes", async () => {
+test("submits the selected target duration in minutes", async () => {
   mutationState.mutate.mockClear();
   const user = userEvent.setup();
   const { getByLabelText, getByRole } = renderWithMantine(
     <FastingStartModal onClose={vi.fn()} opened />,
   );
 
-  await user.type(getByLabelText(/目標時間/), "01:30");
+  fireEvent.change(getByLabelText("目標時間"), { target: { value: "90" } });
   await user.click(getByRole("button", { name: "開始する" }));
 
   expect(mutationState.mutate).toHaveBeenCalledWith({ targetMinutes: 90 }, expect.any(Object));
 });
 
-test("shows a validation error and does not submit for a zero-minute duration", async () => {
+test("caps the visible target duration at 16 hours", () => {
   mutationState.mutate.mockClear();
-  const user = userEvent.setup();
-  const { getByLabelText, findByText } = renderWithMantine(
-    <FastingStartModal onClose={vi.fn()} opened />,
-  );
+  const { getByLabelText } = renderWithMantine(<FastingStartModal onClose={vi.fn()} opened />);
 
-  await user.type(getByLabelText(/目標時間/), "00:00");
-  await user.tab();
+  const slider = getByLabelText("目標時間");
 
-  expect(await findByText("1分以上で入力してください")).toBeDefined();
-  expect(mutationState.mutate).not.toHaveBeenCalled();
+  expect(slider.getAttribute("max")).toBe("960");
 });
 
 test("closes the modal and calls onSuccess when the mutation succeeds", async () => {

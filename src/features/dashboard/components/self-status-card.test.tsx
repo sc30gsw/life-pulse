@@ -42,8 +42,9 @@ test("shows 未設定 when self presence is null", () => {
 
 test("hides the YOU badge and presence buttons when not the self view", () => {
   hookState.role = "partner";
-  const { queryByRole, queryByText } = renderWithMantine(<SelfStatusCard />);
+  const { getByText, queryByRole, queryByText } = renderWithMantine(<SelfStatusCard />);
 
+  expect(getByText("パートナー")).toBeDefined();
   expect(queryByText("YOU")).toBeNull();
   expect(queryByRole("button")).toBeNull();
 });
@@ -54,6 +55,7 @@ test("shows the YOU badge and calls onSetPresence from presence buttons in the s
   const user = userEvent.setup();
   const { getAllByText, getByRole, getByText } = renderWithMantine(<SelfStatusCard />);
 
+  expect(getByText("本人")).toBeDefined();
   expect(getByText("YOU")).toBeDefined();
   expect(getAllByText("在宅").length).toBeGreaterThan(0);
   expect(getByText("家にいます")).toBeDefined();
@@ -78,7 +80,7 @@ test("shows the ETA input while commuting home and submits the typed value", asy
 test("renders a structure-aware shimmer fallback", () => {
   const { getAllByText, getByText } = renderWithMantine(<SelfStatusCardFallback />);
 
-  expect(getByText("本人 · 自分")).toBeDefined();
+  expect(getByText("本人")).toBeDefined();
   expect(getAllByText("在宅").length).toBeGreaterThan(0);
   expect(getByText("更新 たった今")).toBeDefined();
 });
