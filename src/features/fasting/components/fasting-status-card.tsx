@@ -113,7 +113,7 @@ export function FastingStatusCard() {
             <Text c="dimmed" size="xs">
               残り{" "}
               <Text c="var(--tx)" component="span" size="xs">
-                {formatMinutesAsHm(remainMinutes)}
+                {formatElapsedClock(remainMinutes * 60_000)}
               </Text>{" "}
               · 目標{" "}
               <Text c="var(--tx)" component="span" size="xs">
@@ -218,7 +218,7 @@ export function FastingStatusCardFallback() {
             <Text c="dimmed" size="xs">
               残り{" "}
               <Text c="var(--tx)" component="span" size="xs">
-                9h18m
+                9:18:00
               </Text>{" "}
               · 目標{" "}
               <Text c="var(--tx)" component="span" size="xs">

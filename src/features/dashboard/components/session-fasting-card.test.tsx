@@ -67,7 +67,7 @@ vi.mock("~/features/dashboard/hooks/use-dashboard-fasting", () => ({
     return {
       fasting: hookState.fasting,
       fastingElapsedLabel: "6:42:00",
-      fastingRemainLabel: "9h18m",
+      fastingRemainLabel: "9:18:00",
       fastingRingPercent: 42,
     };
   },

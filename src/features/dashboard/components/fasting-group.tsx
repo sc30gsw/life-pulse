@@ -181,7 +181,7 @@ export function FastingGroupFallback() {
             12hで脂肪燃焼帯
           </Text>
           <Text size="xs" c="dimmed">
-            経過 6:42:00 · 残 09h18m
+            経過 6:42:00 · 残 9:18:00
           </Text>
         </Stack>
       </Group>

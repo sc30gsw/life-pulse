@@ -58,12 +58,12 @@ function buildFasting(overrides: Partial<Doc<"fastingWindows">> = {}): Doc<"fast
 test("renders 未開始 and the elapsed/remaining/target labels when there is no active window", () => {
   hookState.fasting = null;
 
-  const { getAllByText, getByText } = renderWithMantine(<FastingStatusCard />);
+  const { getByText } = renderWithMantine(<FastingStatusCard />);
 
   expect(getByText("未開始")).toBeDefined();
   expect(getByText("00:00")).toBeDefined();
-  // Remaining and target are both the full 16h target when nothing has elapsed yet.
-  expect(getAllByText("16h00m").length).toBe(2);
+  expect(getByText("16:00:00")).toBeDefined();
+  expect(getByText("16h00m")).toBeDefined();
 });
 
 test("renders the phase timeline steps regardless of fasting state", () => {
