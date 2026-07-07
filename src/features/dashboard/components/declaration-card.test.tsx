@@ -37,6 +37,9 @@ test("renders each declaration's time, category label, and status label", () => 
     />,
   );
 
+  expect(getByText("23:30")).toBeDefined();
+  expect(getByText("見送り")).toBeDefined();
+
   expect(getByText("06:00")).toBeDefined();
   expect(getByText("TOEIC")).toBeDefined();
   expect(getByText("予定")).toBeDefined();
