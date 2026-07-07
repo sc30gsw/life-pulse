@@ -1,4 +1,5 @@
-import { Anchor, Group, Stack, Text } from "@mantine/core";
+import { Group, Stack, Text } from "@mantine/core";
+import { IconArrowLeft } from "@tabler/icons-react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 
@@ -54,9 +55,9 @@ function StudyPage() {
             Study Blocks & Sessions
           </Text>
         </Stack>
-        <Anchor component={Link} size="sm" to="/">
-          ← ライブボード
-        </Anchor>
+        <Link to="/" className="flex items-center gap-2 text-sm text-blue-500 hover:brightness-120">
+          <IconArrowLeft size={16} /> ライブボード
+        </Link>
       </Group>
 
       <main className="flex flex-col gap-4 lg:flex-row lg:items-start">

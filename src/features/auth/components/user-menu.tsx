@@ -1,7 +1,7 @@
 import { Avatar, Group, Menu, Text, UnstyledButton } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Shimmer } from "@shimmer-from-structure/react";
-import { IconBook2, IconChevronDown } from "@tabler/icons-react";
+import { IconBook2, IconChevronDown, IconHourglass } from "@tabler/icons-react";
 import { Link } from "@tanstack/react-router";
 import cn from "cnfast";
 
@@ -42,6 +42,9 @@ export function UserMenu() {
       <Menu.Dropdown>
         <Menu.Item component={Link} leftSection={<IconBook2 size={14} />} to="/study">
           学習管理
+        </Menu.Item>
+        <Menu.Item component={Link} leftSection={<IconHourglass size={14} />} to="/fasting">
+          断食
         </Menu.Item>
         <Menu.Divider />
         <LogoutButton />

@@ -10,12 +10,15 @@ import {
 import { renderWithMantine } from "~/test-utils";
 
 const hookState = vi.hoisted(() => ({
+  endMutate: vi.fn(),
   fasting: null as Doc<"fastingWindows"> | null,
   onCompleteSession: vi.fn(),
   onPauseSession: vi.fn(),
   onResumeSession: vi.fn(),
   onStartSession: vi.fn(),
+  openConfirmModal: vi.fn(),
   session: null as Doc<"studySessions"> | null,
+  startMutate: vi.fn(),
   suspendFasting: false,
   suspendStudy: false,
   suspendViewer: false,
@@ -68,6 +71,18 @@ vi.mock("~/features/dashboard/hooks/use-dashboard-fasting", () => ({
       fastingRingPercent: 42,
     };
   },
+}));
+
+vi.mock("~/features/fasting/hooks/use-end-fasting", () => ({
+  useEndFasting: () => ({ mutate: hookState.endMutate }),
+}));
+
+vi.mock("~/features/fasting/hooks/use-start-fasting", () => ({
+  useStartFasting: () => ({ mutate: hookState.startMutate }),
+}));
+
+vi.mock("@mantine/modals", () => ({
+  modals: { openConfirmModal: hookState.openConfirmModal },
 }));
 
 function buildSession(overrides: Partial<Doc<"studySessions">> = {}): Doc<"studySessions"> {
@@ -266,4 +281,57 @@ test("submits the category selected in the start modal", async () => {
   await user.click(getByRole("button", { name: "開始する" }));
 
   expect(hookState.onStartSession).toHaveBeenCalledWith("eikaiwa", 60);
+});
+
+test("shows the 断食開始 button for the self viewer when there is no active fasting window", () => {
+  hookState.viewerRole = "self";
+  hookState.session = null;
+  hookState.fasting = null;
+
+  const { getByRole, queryByRole } = renderWithMantine(<SessionFastingCard sessionFlash={false} />);
+
+  expect(getByRole("button", { name: "断食開始" })).toBeDefined();
+  expect(queryByRole("button", { name: "食事開始(断食終了)" })).toBeNull();
+});
+
+test("shows the 食事開始(断食終了) button for the self viewer with an active window, and confirming it calls the end mutation", async () => {
+  hookState.viewerRole = "self";
+  hookState.session = null;
+  hookState.fasting = buildFasting({ phase: "early" });
+  hookState.openConfirmModal.mockClear();
+  hookState.endMutate.mockClear();
+
+  const user = userEvent.setup();
+  const { getByRole } = renderWithMantine(<SessionFastingCard sessionFlash={false} />);
+
+  await user.click(getByRole("button", { name: "食事開始(断食終了)" }));
+
+  expect(hookState.openConfirmModal).toHaveBeenCalledWith(
+    expect.objectContaining({
+      labels: { cancel: "キャンセル", confirm: "食事開始(断食終了)" },
+      title: "断食を終了しますか?",
+    }),
+  );
+
+  const modal = hookState.openConfirmModal.mock.calls[0]?.[0] as { onConfirm: () => void };
+  modal.onConfirm();
+
+  expect(hookState.endMutate).toHaveBeenCalledWith({});
+});
+
+test("hides both fasting action buttons for the partner viewer", () => {
+  hookState.viewerRole = "partner";
+  hookState.session = null;
+  hookState.fasting = null;
+
+  const noWindow = renderWithMantine(<SessionFastingCard sessionFlash={false} />);
+  expect(noWindow.queryByRole("button", { name: "断食開始" })).toBeNull();
+  expect(noWindow.queryByRole("button", { name: "食事開始(断食終了)" })).toBeNull();
+  noWindow.unmount();
+
+  hookState.fasting = buildFasting({ phase: "early" });
+
+  const active = renderWithMantine(<SessionFastingCard sessionFlash={false} />);
+  expect(active.queryByRole("button", { name: "断食開始" })).toBeNull();
+  expect(active.queryByRole("button", { name: "食事開始(断食終了)" })).toBeNull();
 });

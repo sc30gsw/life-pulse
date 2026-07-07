@@ -2,7 +2,8 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { dashboardFastingQuery } from "~/features/dashboard/api/dashboard-fasting-query";
 import { useBoardClock } from "~/features/dashboard/hooks/use-board-clock";
-import { deriveFastingElapsedMinutes, formatMinutesAsHm } from "~/features/dashboard/utils/format";
+import { formatMinutesAsHm } from "~/features/dashboard/utils/format";
+import { deriveFastingElapsedMinutes } from "~/features/fasting/utils/fasting-utils";
 
 const DEFAULT_FASTING_TARGET_MINUTES = 960;
 

@@ -1,5 +1,6 @@
-import { Badge, Chip, Group, Stack, Text } from "@mantine/core";
+import { Badge, Chip, EmptyState, Group, Stack, Text } from "@mantine/core";
 import { Shimmer } from "@shimmer-from-structure/react";
+import { IconHistory } from "@tabler/icons-react";
 import { cn } from "cnfast";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
@@ -43,9 +44,15 @@ export function SessionHistoryList() {
 
   if (history.days.length === 0) {
     return (
-      <Text c="dimmed" size="sm">
-        履歴なし
-      </Text>
+      <EmptyState
+        icon={<IconHistory size={48} />}
+        title={
+          <Text size="xl" fw={600} c="blue">
+            履歴なし
+          </Text>
+        }
+        description="セッション履歴がありません"
+      />
     );
   }
 

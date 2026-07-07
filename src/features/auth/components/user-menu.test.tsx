@@ -48,6 +48,16 @@ test("offers a /study navigation item in the dropdown", async () => {
   expect(studyItem.getAttribute("href")).toBe("/study");
 });
 
+test("offers a /fasting navigation item in the dropdown", async () => {
+  const user = userEvent.setup();
+  const { getByRole } = renderWithMantine(<UserMenu />);
+
+  await user.click(getByRole("button"));
+
+  const fastingItem = getByRole("menuitem", { hidden: true, name: /断食/ });
+  expect(fastingItem.getAttribute("href")).toBe("/fasting");
+});
+
 test("signs out and navigates to /login when the logout item is clicked", async () => {
   const user = userEvent.setup();
   const { getByRole } = renderWithMantine(<UserMenu />);

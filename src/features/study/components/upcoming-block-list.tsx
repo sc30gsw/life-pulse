@@ -1,5 +1,6 @@
-import { Badge, Box, Button, Chip, Group, Stack, Text } from "@mantine/core";
+import { Badge, Box, Button, Chip, EmptyState, Group, Stack, Text } from "@mantine/core";
 import { Shimmer } from "@shimmer-from-structure/react";
+import { IconCalendar } from "@tabler/icons-react";
 import { cn } from "cnfast";
 import { useState } from "react";
 
@@ -20,9 +21,15 @@ export function UpcomingBlockList() {
 
   if (blocks.length === 0) {
     return (
-      <Text c="dimmed" size="sm">
-        予定枠はまだありません
-      </Text>
+      <EmptyState
+        icon={<IconCalendar size={48} />}
+        title={
+          <Text size="xl" fw={600} c="blue">
+            予定枠はまだありません
+          </Text>
+        }
+        description="予定枠がありません"
+      />
     );
   }
 

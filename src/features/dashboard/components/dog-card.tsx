@@ -3,6 +3,7 @@ import {
   Badge,
   Box,
   Button,
+  EmptyState,
   Group,
   Modal,
   Paper,
@@ -12,6 +13,7 @@ import {
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { Shimmer } from "@shimmer-from-structure/react";
+import { IconDog } from "@tabler/icons-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { cn } from "cnfast";
 import { Suspense, type ComponentProps } from "react";
@@ -155,9 +157,21 @@ function DogHistoryList() {
 
   if (history.days.length === 0) {
     return (
-      <Text c="dimmed" size="sm">
-        履歴なし
-      </Text>
+      <EmptyState
+        icon={<IconDog size={48} />}
+        title={
+          <Text size="xl" fw={600} c="coral">
+            履歴なし
+          </Text>
+        }
+        description="犬のお世話履歴がありません"
+      >
+        <EmptyState.Actions>
+          <Button variant="outline" onClick={() => modals.closeAll()}>
+            閉じる
+          </Button>
+        </EmptyState.Actions>
+      </EmptyState>
     );
   }
 

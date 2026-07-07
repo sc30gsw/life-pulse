@@ -3,7 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vite-plus/test";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
-import { FastingGroup, FastingGroupFallback } from "~/features/dashboard/components/fasting-group";
+import {
+  FastingStatusCard,
+  FastingStatusCardFallback,
+} from "~/features/fasting/components/fasting-status-card";
 import { renderWithMantine } from "~/test-utils";
 
 const hookState = vi.hoisted(() => ({
@@ -14,17 +17,12 @@ const hookState = vi.hoisted(() => ({
   viewerRole: "self" as "partner" | "self",
 }));
 
-vi.mock("~/features/dashboard/hooks/use-dashboard-fasting", () => ({
-  useDashboardFasting: () => ({
-    fasting: hookState.fasting,
-    fastingElapsedLabel: "6h42m",
-    fastingRemainLabel: "9h18m",
-    fastingRingPercent: 42,
-  }),
+vi.mock("~/features/fasting/hooks/use-fasting-window", () => ({
+  useFastingWindow: () => ({ data: hookState.fasting }),
 }));
 
-vi.mock("~/features/dashboard/hooks/use-dashboard-viewer", () => ({
-  useDashboardViewer: () => ({ role: hookState.viewerRole }),
+vi.mock("~/features/auth/hooks/use-viewer", () => ({
+  useViewer: () => ({ data: { role: hookState.viewerRole } }),
 }));
 
 vi.mock("~/features/fasting/hooks/use-end-fasting", () => ({
@@ -45,7 +43,7 @@ function buildFasting(overrides: Partial<Doc<"fastingWindows">> = {}): Doc<"fast
     _id: "fasting_1",
     phase: "early",
     phaseJobIds: [],
-    startedAt: 0,
+    startedAt: Date.now() - 120 * 60_000,
     status: "fasting",
     targetMinutes: 960,
     userId: "user_1",
@@ -53,42 +51,33 @@ function buildFasting(overrides: Partial<Doc<"fastingWindows">> = {}): Doc<"fast
   } as unknown as Doc<"fastingWindows">;
 }
 
-test("renders 未開始 when there is no active fasting window", () => {
+test("renders 未開始 and the elapsed/remaining/target labels when there is no active window", () => {
   hookState.fasting = null;
 
-  const { getByText } = renderWithMantine(<FastingGroup fastingFlash={false} />);
+  const { getAllByText, getByText } = renderWithMantine(<FastingStatusCard />);
 
   expect(getByText("未開始")).toBeDefined();
-  expect(getByText("断食を開始していません")).toBeDefined();
+  expect(getByText("0m")).toBeDefined();
+  // Remaining and target are both the full 16h target when nothing has elapsed yet.
+  expect(getAllByText("16h00m").length).toBe(2);
 });
 
-test("renders fatburn and goal fasting phases", () => {
+test("renders the phase timeline steps regardless of fasting state", () => {
   hookState.fasting = buildFasting({ phase: "fatburn" });
 
-  const fatburn = renderWithMantine(<FastingGroup fastingFlash={false} />);
-  expect(fatburn.getByText("脂肪燃焼帯")).toBeDefined();
-  expect(fatburn.getByText("16hで目標達成")).toBeDefined();
-  fatburn.unmount();
+  const { getAllByText, getByText } = renderWithMantine(<FastingStatusCard />);
 
-  hookState.fasting = buildFasting({ phase: "goal" });
-
-  const goal = renderWithMantine(<FastingGroup fastingFlash={false} />);
-  expect(goal.getByText("目標達成")).toBeDefined();
-  expect(goal.getByText("16時間クリア")).toBeDefined();
-});
-
-test("renders a structure-aware shimmer fallback", () => {
-  const { getByText } = renderWithMantine(<FastingGroupFallback />);
-
-  expect(getByText("断食")).toBeDefined();
   expect(getByText("空腹期")).toBeDefined();
+  // The current-phase badge repeats the phase label already shown as a timeline title.
+  expect(getAllByText("脂肪燃焼帯").length).toBe(2);
+  expect(getByText("目標達成")).toBeDefined();
 });
 
-test("shows a 断食開始 button for the self viewer when there is no active fasting window", () => {
+test("shows a 断食開始 button for the self viewer when there is no active window", () => {
   hookState.viewerRole = "self";
   hookState.fasting = null;
 
-  const { getByRole, queryByRole } = renderWithMantine(<FastingGroup fastingFlash={false} />);
+  const { getByRole, queryByRole } = renderWithMantine(<FastingStatusCard />);
 
   expect(getByRole("button", { name: "断食開始" })).toBeDefined();
   expect(queryByRole("button", { name: "食事開始(断食終了)" })).toBeNull();
@@ -101,7 +90,7 @@ test("shows a 食事開始(断食終了) button for the self viewer with an acti
   hookState.endMutate.mockClear();
 
   const user = userEvent.setup();
-  const { getByRole, queryByRole } = renderWithMantine(<FastingGroup fastingFlash={false} />);
+  const { getByRole, queryByRole } = renderWithMantine(<FastingStatusCard />);
 
   expect(queryByRole("button", { name: "断食開始" })).toBeNull();
 
@@ -124,14 +113,21 @@ test("hides both fasting action buttons for the partner viewer", () => {
   hookState.viewerRole = "partner";
   hookState.fasting = null;
 
-  const noWindow = renderWithMantine(<FastingGroup fastingFlash={false} />);
+  const noWindow = renderWithMantine(<FastingStatusCard />);
   expect(noWindow.queryByRole("button", { name: "断食開始" })).toBeNull();
   expect(noWindow.queryByRole("button", { name: "食事開始(断食終了)" })).toBeNull();
   noWindow.unmount();
 
   hookState.fasting = buildFasting({ phase: "early" });
 
-  const active = renderWithMantine(<FastingGroup fastingFlash={false} />);
+  const active = renderWithMantine(<FastingStatusCard />);
   expect(active.queryByRole("button", { name: "断食開始" })).toBeNull();
   expect(active.queryByRole("button", { name: "食事開始(断食終了)" })).toBeNull();
+});
+
+test("renders a structure-aware shimmer fallback", () => {
+  const { getAllByText } = renderWithMantine(<FastingStatusCardFallback />);
+
+  // The current-phase badge repeats the phase label already shown as a timeline title.
+  expect(getAllByText("空腹期").length).toBe(2);
 });

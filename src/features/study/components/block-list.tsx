@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Chip,
+  EmptyState,
   Grid,
   Group,
   Stack,
@@ -11,6 +12,7 @@ import {
   UnstyledButton,
 } from "@mantine/core";
 import { Shimmer } from "@shimmer-from-structure/react";
+import { IconClock } from "@tabler/icons-react";
 import { cn } from "cnfast";
 import { useState, type ComponentProps } from "react";
 import { sortBy } from "remeda";
@@ -58,9 +60,15 @@ export function BlockList() {
 
   if (blocks.length === 0) {
     return (
-      <Text c="dimmed" size="sm">
-        今日の枠はまだ宣言されていません
-      </Text>
+      <EmptyState
+        icon={<IconClock size={48} />}
+        title={
+          <Text size="xl" fw={600} c="blue">
+            今日の枠はまだ宣言されていません
+          </Text>
+        }
+        description="今日の枠がありません"
+      />
     );
   }
 
