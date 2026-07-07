@@ -1,21 +1,16 @@
-import { ConvexError } from "convex/values";
 import { groupBy, map, sortBy, unique } from "remeda";
 
 import type { Doc, Id } from "../../_generated/dataModel";
 import type { QueryCtx } from "../../_generated/server";
+import { assertHistoryRange } from "../../lib/dateRange";
 
 type HistoryArgs = Record<"fromDateJst" | "toDateJst", Doc<"dogEvents">["dateJst"]>;
 
 type HistoryEvent = Pick<Doc<"dogEvents">, "_id" | "at" | "dateJst" | "kind"> &
   Record<"byDisplayName", Doc<"appUsers">["displayName"]>;
 
-const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-const MAX_RANGE_DAYS = 31;
-
 export async function history(ctx: QueryCtx, args: HistoryArgs) {
-  if (args.fromDateJst > args.toDateJst || rangeDays(args) > MAX_RANGE_DAYS) {
-    throw new ConvexError("RANGE_TOO_WIDE");
-  }
+  assertHistoryRange(args.fromDateJst, args.toDateJst);
 
   const rawEvents = await ctx.db
     .query("dogEvents")
@@ -53,12 +48,6 @@ async function resolveActorsById(ctx: QueryCtx, userIds: Id<"appUsers">[]) {
   return new Map(
     users.filter((user) => user !== null).map((user) => [user._id, user.displayName] as const),
   );
-}
-
-function rangeDays(args: HistoryArgs) {
-  const fromMs = Date.parse(`${args.fromDateJst}T00:00:00Z`);
-  const toMs = Date.parse(`${args.toDateJst}T00:00:00Z`);
-  return Math.round((toMs - fromMs) / ONE_DAY_MS);
 }
 
 function groupByDateDesc(events: HistoryEvent[]) {
