@@ -1,13 +1,15 @@
-import { Badge, Button, EmptyState, Group, Stack, Text } from "@mantine/core";
+import { Button, Chip, EmptyState, Group, Stack, Text } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { Shimmer } from "@shimmer-from-structure/react";
 import { IconBarbell } from "@tabler/icons-react";
+import { cn } from "cnfast";
+import type { ComponentProps } from "react";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
 import type { EditableWorkout } from "~/features/health/components/hiit-log-form";
 import { useDeleteWorkout } from "~/features/health/hooks/use-delete-workout";
 import { useWorkouts } from "~/features/health/hooks/use-workouts";
-import { ACCENT_SOLID_STYLE, WORKOUT_KIND_LABELS } from "~/types/dashboard";
+import { ACCENT_CLASSES, ACCENT_SOLID_STYLE, WORKOUT_KIND_LABELS } from "~/types/dashboard";
 import { dayjs } from "~/utils/dayjs";
 
 const CONFIRM_MODAL_STYLES = {
@@ -15,17 +17,13 @@ const CONFIRM_MODAL_STYLES = {
   content: { backgroundColor: "var(--panel)", border: "1px solid var(--bd2)", color: "var(--tx)" },
   header: { backgroundColor: "var(--panel)", color: "var(--tx)" },
   title: { color: "var(--tx)", fontWeight: 700 },
-} as const;
-
-type WorkoutListProps = {
-  onEdit: (workout: EditableWorkout) => void;
-};
+} as const satisfies ComponentProps<typeof modals.openConfirmModal>["styles"];
 
 function formatAt(at: Doc<"workouts">["at"]) {
   return dayjs(at).tz("Asia/Tokyo").format("M/D HH:mm");
 }
 
-export function WorkoutList({ onEdit }: WorkoutListProps) {
+export function WorkoutList({ onEdit }: Record<"onEdit", (workout: EditableWorkout) => void>) {
   const { data: workouts } = useWorkouts();
   const deleteWorkout = useDeleteWorkout();
 
@@ -67,9 +65,19 @@ export function WorkoutList({ onEdit }: WorkoutListProps) {
           key={workout._id}
           wrap="wrap"
         >
-          <Badge className="border-bd-2 bg-inset text-dim border" size="sm" variant="outline">
+          <Chip
+            classNames={{
+              label: cn(
+                "rounded-lg border px-3 py-1.5 text-xs",
+                ACCENT_CLASSES.good.border,
+                ACCENT_CLASSES.good.bg,
+                ACCENT_CLASSES.good.text,
+                "font-semibold",
+              ),
+            }}
+          >
             {WORKOUT_KIND_LABELS[workout.kind]}
-          </Badge>
+          </Chip>
           <Text className="tabular-nums" fw={600} size="sm">
             {formatAt(workout.at)}
           </Text>
@@ -105,9 +113,19 @@ export function WorkoutListFallback() {
             gap={8}
             key={index}
           >
-            <Badge className="border-bd-2 bg-inset text-dim border" size="sm" variant="outline">
+            <Chip
+              classNames={{
+                label: cn(
+                  "rounded-lg border px-3 py-1.5 text-xs",
+                  ACCENT_CLASSES.good.border,
+                  ACCENT_CLASSES.good.bg,
+                  ACCENT_CLASSES.good.text,
+                  "font-semibold",
+                ),
+              }}
+            >
               HIIT
-            </Badge>
+            </Chip>
             <Text className="tabular-nums" fw={600} size="sm">
               7/{index + 1} 20:00
             </Text>
