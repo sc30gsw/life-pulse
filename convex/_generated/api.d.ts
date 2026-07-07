@@ -95,6 +95,7 @@ import type * as services_health_mergeByDate from "../services/health/mergeByDat
 import type * as services_health_range from "../services/health/range.js";
 import type * as services_health_updateWorkout from "../services/health/updateWorkout.js";
 import type * as services_health_upsertManual from "../services/health/upsertManual.js";
+import type * as services_health_validateWorkoutAt from "../services/health/validateWorkoutAt.js";
 import type * as services_health_workouts from "../services/health/workouts.js";
 import type * as services_partnerStatus_setStatus from "../services/partnerStatus/setStatus.js";
 import type * as services_sessions_autoAbandon from "../services/sessions/autoAbandon.js";
@@ -203,6 +204,7 @@ declare const fullApi: ApiFromModules<{
   "services/health/range": typeof services_health_range;
   "services/health/updateWorkout": typeof services_health_updateWorkout;
   "services/health/upsertManual": typeof services_health_upsertManual;
+  "services/health/validateWorkoutAt": typeof services_health_validateWorkoutAt;
   "services/health/workouts": typeof services_health_workouts;
   "services/partnerStatus/setStatus": typeof services_partnerStatus_setStatus;
   "services/sessions/autoAbandon": typeof services_sessions_autoAbandon;

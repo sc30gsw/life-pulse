@@ -55,6 +55,19 @@ test("rejects a partner (non-self) caller", async () => {
   ).rejects.toThrow();
 });
 
+test("rejects a future workout timestamp", async () => {
+  const t = convexTest(schema, testModules);
+  const asSelf = await seedSelf(t);
+
+  await expect(
+    asSelf.mutation(api.mutations.health.logWorkout.logWorkout, {
+      at: Date.now() + 60_000,
+      durationMinutes: 20,
+      kind: "walk",
+    }),
+  ).rejects.toThrow("INVALID_WORKOUT_AT");
+});
+
 test("rejects an unauthenticated call", async () => {
   const t = convexTest(schema, testModules);
 

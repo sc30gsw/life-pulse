@@ -3,6 +3,7 @@ import { ConvexError } from "convex/values";
 import type { Doc } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
 import { deriveDateJst } from "./deriveDateJst";
+import { assertWorkoutAtIsNotFuture } from "./validateWorkoutAt";
 
 type UpdateWorkoutArgs = Pick<
   Doc<"workouts">,
@@ -16,6 +17,8 @@ export async function updateWorkout(ctx: MutationCtx, args: UpdateWorkoutArgs) {
   if (workout === null) {
     throw new ConvexError("WORKOUT_NOT_FOUND");
   }
+
+  assertWorkoutAtIsNotFuture(args.at);
 
   await ctx.db.patch("workouts", args.workoutId, {
     at: args.at,

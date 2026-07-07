@@ -51,6 +51,7 @@ export function SettingsForm() {
               min={1}
               onChange={(value) => field.onChange(value === "" ? undefined : Number(value))}
               value={field.input}
+              disabled={settingsForm.isSubmitting}
             />
           )}
         </Field>
@@ -62,6 +63,7 @@ export function SettingsForm() {
               error={field.errors?.[0]}
               label="犬の名前"
               value={field.input}
+              disabled={settingsForm.isSubmitting}
             />
           )}
         </Field>

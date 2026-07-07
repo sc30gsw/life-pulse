@@ -1,6 +1,7 @@
 import type { Doc } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
 import { deriveDateJst } from "./deriveDateJst";
+import { assertWorkoutAtIsNotFuture } from "./validateWorkoutAt";
 
 type LogWorkoutArgs = Pick<
   Doc<"workouts">,
@@ -8,6 +9,8 @@ type LogWorkoutArgs = Pick<
 >;
 
 export async function logWorkout(ctx: MutationCtx, args: LogWorkoutArgs) {
+  assertWorkoutAtIsNotFuture(args.at);
+
   return await ctx.db.insert("workouts", {
     at: args.at,
     dateJst: deriveDateJst(args.at),

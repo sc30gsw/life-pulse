@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vite-plus/test";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
-import { WorkoutList } from "~/features/health/components/workout-list";
+import { WorkoutList, WorkoutListFallback } from "~/features/health/components/workout-list";
 import { renderWithMantine } from "~/test-utils";
 
 const hookState = vi.hoisted(() => ({
@@ -77,4 +77,21 @@ test("calls onEdit with the workout when 編集 is clicked", async () => {
   await user.click(getByRole("button", { name: "編集" }));
 
   expect(onEdit).toHaveBeenCalledWith(workout);
+});
+
+test("renders workout details without intensity when it is not set", () => {
+  hookState.workouts = [buildWorkout({ perceivedIntensity: undefined })];
+
+  const { getByText, queryByText } = renderWithMantine(<WorkoutList onEdit={vi.fn()} />);
+
+  expect(getByText("HIIT")).toBeDefined();
+  expect(getByText("30分")).toBeDefined();
+  expect(queryByText(/強度/)).toBeNull();
+});
+
+test("renders fallback skeleton rows", () => {
+  const { getByText } = renderWithMantine(<WorkoutListFallback />);
+
+  expect(getByText("7/1 20:00")).toBeDefined();
+  expect(getByText("7/2 20:00")).toBeDefined();
 });

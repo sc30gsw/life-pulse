@@ -24,7 +24,7 @@ async function seedWorkout(t: ReturnType<typeof convexTest>) {
 test("updates a workout's fields, re-derives dateJst from the new `at`, and clears an omitted perceivedIntensity", async () => {
   const t = convexTest(schema, testModules);
   const { asSelf, workoutId } = await seedWorkout(t);
-  const newAt = Date.parse("2026-07-08T03:00:00.000Z");
+  const newAt = Date.parse("2026-07-07T03:00:00.000Z");
 
   await asSelf.mutation(api.mutations.health.updateWorkout.updateWorkout, {
     at: newAt,
@@ -35,7 +35,7 @@ test("updates a workout's fields, re-derives dateJst from the new `at`, and clea
 
   const workout = await t.run((ctx) => ctx.db.get("workouts", workoutId));
   expect(workout?.at).toBe(newAt);
-  expect(workout?.dateJst).toBe("2026-07-08");
+  expect(workout?.dateJst).toBe("2026-07-07");
   expect(workout?.kind).toBe("walk");
   expect(workout?.durationMinutes).toBe(45);
   expect(workout?.perceivedIntensity).toBeUndefined();
@@ -54,6 +54,20 @@ test("rejects updating a nonexistent workout with WORKOUT_NOT_FOUND", async () =
       workoutId,
     }),
   ).rejects.toThrow();
+});
+
+test("rejects updating a workout to a future timestamp", async () => {
+  const t = convexTest(schema, testModules);
+  const { asSelf, workoutId } = await seedWorkout(t);
+
+  await expect(
+    asSelf.mutation(api.mutations.health.updateWorkout.updateWorkout, {
+      at: Date.now() + 60_000,
+      durationMinutes: 10,
+      kind: "walk",
+      workoutId,
+    }),
+  ).rejects.toThrow("INVALID_WORKOUT_AT");
 });
 
 test("rejects a partner (non-self) caller", async () => {

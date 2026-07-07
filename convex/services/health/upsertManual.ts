@@ -23,7 +23,11 @@ export async function upsertManual(ctx: MutationCtx, args: UpsertManualArgs) {
   const existing = rows.find((row) => row.source !== "demo") ?? null;
 
   if (existing !== null) {
-    await ctx.db.patch("healthMetrics", existing._id, { ...metrics, syncedAt: Date.now() });
+    await ctx.db.patch("healthMetrics", existing._id, {
+      ...metrics,
+      source: "manual",
+      syncedAt: Date.now(),
+    });
 
     return existing._id;
   }

@@ -3,6 +3,14 @@ import { Button, NumberInput, Stack, Text } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import { notifications } from "@mantine/notifications";
 
+import {
+  DATE_TIME_PICKER_CLASS_NAMES,
+  DATE_TIME_PICKER_POPOVER_PROPS,
+  DATE_TIME_PICKER_STYLES,
+  getDayAriaLabel,
+  getDayProps,
+  renderHolidayDay,
+} from "~/components/date-time-picker-style";
 import { useUpsertManual } from "~/features/health/hooks/use-upsert-manual";
 import { UpsertManualSchema } from "~/features/health/schemas/upsert-manual-schema";
 import { ACCENT_SOLID_STYLE } from "~/types/dashboard";
@@ -48,12 +56,21 @@ export function ManualInputForm() {
         <Field of={manualInputForm} path={["dateJst"]}>
           {(field) => (
             <DateInput
+              {...field.props}
+              classNames={DATE_TIME_PICKER_CLASS_NAMES}
               error={field.errors?.[0]}
+              getDayAriaLabel={getDayAriaLabel}
+              getDayProps={getDayProps}
               label="対象日"
               maxDate={todayJst()}
               onChange={(value) => field.onChange(value ?? undefined)}
+              placeholder="YYYY-MM-DD"
+              popoverProps={DATE_TIME_PICKER_POPOVER_PROPS}
+              renderDay={renderHolidayDay}
+              styles={DATE_TIME_PICKER_STYLES}
               value={field.input}
               valueFormat="YYYY-MM-DD"
+              weekendDays={[0]}
             />
           )}
         </Field>
@@ -67,6 +84,7 @@ export function ManualInputForm() {
                 label="睡眠スコア"
                 min={0}
                 onChange={(value) => field.onChange(value === "" ? undefined : Number(value))}
+                placeholder="80"
                 value={field.input ?? ""}
               />
             )}
@@ -79,6 +97,7 @@ export function ManualInputForm() {
                 label="睡眠時間(分)"
                 min={0}
                 onChange={(value) => field.onChange(value === "" ? undefined : Number(value))}
+                placeholder="420"
                 value={field.input ?? ""}
               />
             )}
@@ -91,6 +110,7 @@ export function ManualInputForm() {
                 label="Body Battery"
                 min={0}
                 onChange={(value) => field.onChange(value === "" ? undefined : Number(value))}
+                placeholder="65"
                 value={field.input ?? ""}
               />
             )}
@@ -103,6 +123,7 @@ export function ManualInputForm() {
                 label="HRV(ms)"
                 min={0}
                 onChange={(value) => field.onChange(value === "" ? undefined : Number(value))}
+                placeholder="48"
                 value={field.input ?? ""}
               />
             )}
@@ -115,6 +136,7 @@ export function ManualInputForm() {
                 label="安静時心拍"
                 min={0}
                 onChange={(value) => field.onChange(value === "" ? undefined : Number(value))}
+                placeholder="58"
                 value={field.input ?? ""}
               />
             )}
@@ -127,6 +149,7 @@ export function ManualInputForm() {
                 label="歩数"
                 min={0}
                 onChange={(value) => field.onChange(value === "" ? undefined : Number(value))}
+                placeholder="8500"
                 value={field.input ?? ""}
               />
             )}

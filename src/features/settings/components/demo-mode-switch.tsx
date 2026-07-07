@@ -15,6 +15,7 @@ export function DemoModeSwitch() {
     <Stack gap="xs">
       <Switch
         checked={settings.demoMode}
+        disabled={setDemoMode.isPending}
         label="デモモード"
         onChange={(event) => {
           const enabled = event.currentTarget.checked;
