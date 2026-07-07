@@ -2,11 +2,16 @@ import { ConvexError } from "convex/values";
 
 import type { Doc } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
+import { assertDateJst } from "../../lib/dateRange";
 import { hmToMinutes } from "../../lib/hm";
 
 type DeclareArgs = Pick<Doc<"studyBlocks">, "category" | "dateJst" | "endHm" | "startHm">;
 
 export async function declare(ctx: MutationCtx, user: Doc<"appUsers">, args: DeclareArgs) {
+  // A malformed dateJst would create an orphan block that no dateJst-keyed
+  // query can ever see — reject it at the boundary.
+  assertDateJst(args.dateJst);
+
   const start = hmToMinutes(args.startHm);
   const end = hmToMinutes(args.endHm);
 

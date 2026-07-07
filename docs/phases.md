@@ -29,7 +29,7 @@ plan: [2026-07-07_01-live-board-wiring.md](./plans/2026-07-07_01-live-board-wiri
 ### FR-1 ライブボード【P0】
 
 - [x] FR-1.1 本人/パートナー/犬の 3 カード表示・全カードリアルタイム更新(fixtures → Convex 購読へ実配線済み)
-- [ ] FR-1.2 本人カードの全指標(学習セッション状態・断食状態・Body Battery/睡眠・宣言 vs 実績)⏳ 表示枠は完了。データ流入は FR-2(W2)/ FR-4・FR-6(W3)に依存
+- [ ] FR-1.2 本人カードの全指標(学習セッション状態・断食状態・Body Battery/睡眠・宣言 vs 実績)⏳ 学習セッション・宣言 vs 実績は実データ流入済み。残りは FR-4(断食)・FR-6(健康データ)= W3 に依存
 - [x] FR-1.3 パートナーカード(ステータス+最終更新時刻)
 - [x] FR-1.4 犬カード(当日ケア項目の済・未+実施者・時刻)
 - [x] FR-1.5 self / partner どちらでも同一内容を閲覧可能
@@ -49,30 +49,31 @@ plan: [2026-07-07_01-live-board-wiring.md](./plans/2026-07-07_01-live-board-wiri
 
 ## W2 — 学習セッション + 枠(FR-2 / FR-3)
 
-plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)(セッション操作分は完了。blocks/`/study` は PR2 で継続)
+plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)(PR1: セッション操作+FR-5.4 完了。PR2: FR-3 blocks+`/study`+FR-2.8 も実装完了)
 
 ### FR-2 学習ライブセッション【P0】
 
 - [x] FR-2.1 サーバ側ステートマシン(idle → active ⇄ paused → completed / abandoned)
-- [x] FR-2.2 開始時にカテゴリ+任意目標分数を指定(mutation/service は blockId 紐づけにも対応。**紐づけ UI 導線は W3 の blocks 配線で追加**)
+- [x] FR-2.2 開始時にカテゴリ+任意目標分数を指定、宣言済み枠(FR-3)へ紐づけ可能(`/study` の「この枠で開始」で blockId 連携)
 - [x] FR-2.3 経過時間は `startedAt / accumulatedMs / lastResumedAt` からサーバ値で導出(全デバイス同一値)
 - [x] FR-2.4 ワンタップ中断(理由: 仕事/犬/家事/その他)+どのデバイスからも操作・即時反映
 - [x] FR-2.5 アクティブ同時 1 つ制約(既存アクティブ時の start 拒否/誘導、`SESSION_EXISTS`)
 - [x] FR-2.6 完了時に実績分数・中断回数・中断内訳を確定保存
 - [x] FR-2.7 放置 6h で scheduled function が abandoned に自動遷移(autoAbandon、convex-test で検証済み)
-- [ ] FR-2.8 過去セッション履歴の簡易リスト(P1、v1.3 追加)→ W2 PR2(`/study` ルート)で実装
+- [x] FR-2.8 過去セッション履歴の簡易リスト(P1、v1.3 追加)(sessions.history query + `/study` の履歴セクション、直近 7 日)
 
 ### FR-3 学習枠の宣言と防衛(Lv2)【P0】
 
-- [ ] FR-3.1 日単位で枠(開始・終了時刻、カテゴリ、予定分数)を複数宣言
-- [ ] FR-3.2 planned → done / eroded(理由付き) / rescheduled の遷移
-- [ ] FR-3.3 侵食時に当日残り時間帯からリスケ候補提示→選択で新枠生成(元枠リンク保持、候補算出は純関数)
-- [ ] FR-3.4 「宣言 vs 実績」当日サマリがライブボードに表示(FR-1.2 の一部を解消)
-- [ ] FR-3.5 スキーマに `source: "manual" | "suggested"` を保持
+- [x] FR-3.1 日単位で枠(開始・終了時刻、カテゴリ、予定分数)を複数宣言(blocks.declare、plannedMinutes はサーバ導出)
+- [x] FR-3.2 planned → done / eroded(理由付き) / rescheduled の遷移(done はセッション complete 連動)
+- [x] FR-3.3 侵食時に当日残り時間帯からリスケ候補提示→選択で新枠生成(元枠リンク保持、suggestRescheduleSlots 純関数)
+- [x] FR-3.4 「宣言 vs 実績」当日サマリがライブボードに表示(FR-1.2 の学習分を解消)
+- [x] FR-3.5 スキーマに `source: "manual" | "suggested"` を保持
+- [x] FR-2.2 残タスク: 宣言ブロックからのセッション開始導線(`/study` の「この枠で開始」)
 
 ### UI 配線
 
-- [ ] `/study` ルート(枠宣言 UI・侵食→リスケ)
+- [x] `/study` ルート(枠宣言 UI・侵食→リスケ・セッション履歴。導線は UserMenu の「学習管理」)
 - [x] ライブボードのセッション操作ボタン配線(開始/中断/再開/完了、Mantine modal でカテゴリ+目標分入力)
 
 ## W3 — 断食 + 健康データ + デモモード(FR-4 / FR-6.2 / FR-6.4 / FR-6.5)

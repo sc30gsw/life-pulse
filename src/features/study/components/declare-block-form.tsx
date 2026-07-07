@@ -1,9 +1,11 @@
 import { Field, Form, useForm } from "@formisch/react";
 import { Button, Group, Stack, Text, UnstyledButton } from "@mantine/core";
 import { TimeInput } from "@mantine/dates";
+import { notifications } from "@mantine/notifications";
 import { cn } from "cnfast";
 
-import { useStudyBlocks } from "~/features/study/hooks/use-study-blocks";
+import { useDeclareBlock } from "~/features/study/hooks/use-declare-block";
+import { useStudyClock } from "~/features/study/hooks/use-study-clock";
 import { DeclareBlockSchema } from "~/features/study/schemas/declare-block-schema";
 import {
   ACCENT_CLASSES,
@@ -16,7 +18,10 @@ import {
 const CATEGORY_VALUES = Object.keys(CATEGORY_LABELS) as SessionCategory[];
 
 export function DeclareBlockForm() {
-  const { onDeclare } = useStudyBlocks();
+  // Deliberately does NOT read the blocks query — the form must render
+  // instantly instead of suspending with the list.
+  const { dateJst } = useStudyClock();
+  const declareBlock = useDeclareBlock();
   const declareForm = useForm({
     initialInput: { category: "toeic", endHm: "", startHm: "" },
     schema: DeclareBlockSchema,
@@ -26,7 +31,25 @@ export function DeclareBlockForm() {
     <Form
       of={declareForm}
       onSubmit={(output) => {
-        onDeclare(output);
+        declareBlock.mutate(
+          { ...output, dateJst },
+          {
+            onError: () => {
+              notifications.show({
+                color: "red",
+                message: "枠の宣言に失敗しました",
+                title: "エラー",
+              });
+            },
+            onSuccess: () => {
+              notifications.show({
+                color: "green",
+                message: `${output.startHm}〜${output.endHm} の学習枠を宣言しました`,
+                title: "宣言しました",
+              });
+            },
+          },
+        );
       }}
     >
       <Stack gap="md">

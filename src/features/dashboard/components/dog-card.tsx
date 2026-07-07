@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Badge,
   Box,
   Button,
@@ -18,13 +19,13 @@ import { Suspense, type ComponentProps } from "react";
 import { GlowCard } from "~/components/glow-card";
 import { dogHistoryQuery } from "~/features/dashboard/api/dog-history-query";
 import { useDashboardDog } from "~/features/dashboard/hooks/use-dashboard-dog";
+import { formatClockTime } from "~/features/dashboard/utils/format";
 import {
   ACCENT_CLASSES,
   ACCENT_SOLID_STYLE,
   ACCENT_VARS,
   DOG_EVENT_LABELS,
-} from "~/features/dashboard/types/dashboard";
-import { formatClockTime } from "~/features/dashboard/utils/format";
+} from "~/types/dashboard";
 import { pastDateJstRange, todayJst } from "~/utils/date-jst";
 
 const HISTORY_RANGE_DAYS = 7;
@@ -61,16 +62,14 @@ export function DogCard() {
     >
       <Group justify="space-between" mb="md">
         <Group gap={11}>
-          <Box
-            className={cn(
-              "flex h-8.5 w-8.5 items-center justify-center rounded-lg border font-bold",
-              ACCENT_CLASSES.coral.border,
-              ACCENT_CLASSES.coral.bg,
-              ACCENT_CLASSES.coral.text,
-            )}
-          >
-            {dogName.slice(0, 1)}
-          </Box>
+          <Avatar
+            alt={dogName}
+            className={cn(ACCENT_CLASSES.coral.border, "border")}
+            name={dogName}
+            radius="md"
+            size={34}
+            src="/assets/hamaro.JPEG"
+          />
           <Stack gap={0}>
             <Text size="sm" fw={600}>
               {dogName}
@@ -217,9 +216,14 @@ export function DogCardFallback() {
       >
         <Group justify="space-between" mb="md">
           <Group gap={11}>
-            <Box className="border-coral bg-coral/16 text-coral flex h-8.5 w-8.5 items-center justify-center rounded-lg border font-bold">
-              ハ
-            </Box>
+            <Avatar
+              alt="ハマロ"
+              className="border-coral border"
+              name="ハマロ"
+              radius="xl"
+              size={34}
+              src="/assets/hamaro.JPEG"
+            />
             <Stack gap={0}>
               <Text size="sm" fw={600}>
                 ハマロ

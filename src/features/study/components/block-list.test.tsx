@@ -1,0 +1,93 @@
+// @vitest-environment happy-dom
+import userEvent from "@testing-library/user-event";
+import { expect, test, vi } from "vite-plus/test";
+
+import type { Doc } from "~/../convex/_generated/dataModel";
+import { BlockList, BlockListFallback } from "~/features/study/components/block-list";
+import { renderWithMantine } from "~/test-utils";
+
+const hookState = vi.hoisted(() => ({
+  blocks: [] as Partial<Doc<"studyBlocks">>[],
+  onErode: vi.fn(),
+  onReschedule: vi.fn(),
+  onStartFromBlock: vi.fn(),
+  suggestions: [] as string[],
+}));
+
+vi.mock("~/features/study/hooks/use-study-blocks", () => ({
+  useStudyBlocks: () => hookState,
+}));
+
+function buildBlock(overrides: Partial<Doc<"studyBlocks">>): Partial<Doc<"studyBlocks">> {
+  return {
+    _id: "block_1" as Doc<"studyBlocks">["_id"],
+    category: "toeic",
+    dateJst: "2026-07-07",
+    endHm: "07:00",
+    plannedMinutes: 60,
+    source: "manual",
+    startHm: "06:00",
+    status: "planned",
+    ...overrides,
+  };
+}
+
+test("shows an empty message when no blocks are declared", () => {
+  hookState.blocks = [];
+
+  const { getByText } = renderWithMantine(<BlockList />);
+
+  expect(getByText("今日の枠はまだ宣言されていません")).toBeDefined();
+});
+
+test("renders a planned block with start and erode actions", async () => {
+  hookState.blocks = [buildBlock({})];
+  hookState.onStartFromBlock.mockClear();
+
+  const user = userEvent.setup();
+  const { getByRole, getByText } = renderWithMantine(<BlockList />);
+
+  expect(getByText("06:00〜07:00")).toBeDefined();
+  expect(getByText("TOEIC")).toBeDefined();
+  expect(getByText("予定")).toBeDefined();
+
+  await user.click(getByRole("button", { name: "この枠で開始" }));
+  expect(hookState.onStartFromBlock).toHaveBeenCalled();
+});
+
+test("erode flow reveals reason chips and reports the picked reason", async () => {
+  hookState.blocks = [buildBlock({})];
+  hookState.onErode.mockClear();
+
+  const user = userEvent.setup();
+  const { getByRole } = renderWithMantine(<BlockList />);
+
+  await user.click(getByRole("button", { name: "侵食" }));
+  await user.click(getByRole("button", { name: "疲労" }));
+
+  expect(hookState.onErode).toHaveBeenCalledWith("block_1", "fatigue");
+});
+
+test("an eroded block offers reschedule slot chips", async () => {
+  hookState.blocks = [buildBlock({ erosionReason: "work", status: "eroded" })];
+  hookState.suggestions = ["13:30", "14:00"];
+  hookState.onReschedule.mockClear();
+
+  const user = userEvent.setup();
+  const { getByRole, getByText } = renderWithMantine(<BlockList />);
+
+  expect(getByText(/仕事/)).toBeDefined();
+  expect(getByText(/リスケ候補/)).toBeDefined();
+
+  await user.click(getByRole("button", { name: "13:30〜" }));
+  expect(hookState.onReschedule).toHaveBeenCalledWith(
+    expect.objectContaining({ _id: "block_1" }),
+    "13:30",
+  );
+});
+
+test("renders a structure-aware shimmer fallback", () => {
+  const { getAllByText } = renderWithMantine(<BlockListFallback />);
+
+  expect(getAllByText("06:00〜07:00").length).toBeGreaterThan(0);
+});

@@ -44,11 +44,11 @@ vi.mock("@tanstack/react-query", async (importOriginal) => {
   };
 });
 
-test("renders the dog name, pending count, and actor labels", () => {
-  const { getByText } = renderWithMantine(<DogCard />);
+test("renders the dog name, photo avatar, pending count, and actor labels", () => {
+  const { getByAltText, getByText } = renderWithMantine(<DogCard />);
 
   expect(getByText("ハマロ")).toBeDefined();
-  expect(getByText("ハ")).toBeDefined();
+  expect(getByAltText("ハマロ").getAttribute("src")).toBe("/assets/hamaro.JPEG");
   expect(getByText("未実施 1 件")).toBeDefined();
   expect(getByText("本人")).toBeDefined();
   expect(getByText("妻")).toBeDefined();
