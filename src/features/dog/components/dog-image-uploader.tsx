@@ -5,7 +5,6 @@ import { IconPhotoUp } from "@tabler/icons-react";
 import { useRef, useState } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 
-import { DOG_IMAGE_FALLBACK_SRC } from "~/features/dog/constants/dog-profile";
 import { useDog } from "~/features/dog/hooks/use-dog";
 import { useGenerateDogImageUploadUrl, useSetDogImage } from "~/features/dog/hooks/use-update-dog";
 import { cropImageToAvatarBlob } from "~/features/profile/utils/crop-image";
@@ -63,12 +62,10 @@ export function DogImageUploader() {
     }
   }
 
-  const currentImageUrl = dog.imageUrl;
-
   return (
     <Stack gap="md">
       <Group align="center">
-        <Avatar name={dog.name} radius="md" size={76} src={currentImageUrl} />
+        <Avatar name={dog.name} radius="md" size={76} src={dog.imageUrl} />
         <FileButton accept="image/*" onChange={onFileSelect}>
           {(props) => (
             <Button
@@ -136,7 +133,7 @@ export function DogImageUploaderFallback() {
     <Shimmer loading>
       <Stack gap="md">
         <Group align="center">
-          <Avatar name="ハマロ" radius="md" size={76} src={DOG_IMAGE_FALLBACK_SRC} />
+          <Avatar name="犬" radius="md" size={76} />
           <Button className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100">
             写真を選ぶ
           </Button>

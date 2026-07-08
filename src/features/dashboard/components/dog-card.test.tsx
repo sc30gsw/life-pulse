@@ -147,7 +147,7 @@ test("shows the all-done badge when every care item is done", () => {
 test("renders a structure-aware shimmer fallback", () => {
   const { getByText } = renderWithMantine(<DogCardFallback />);
 
-  expect(getByText("ハマロ")).toBeDefined();
+  expect(getByText("犬")).toBeDefined();
   expect(getByText("未実施 3 件")).toBeDefined();
 });
 

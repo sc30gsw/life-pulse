@@ -72,9 +72,9 @@ export function DogNameFormFallback() {
   return (
     <Shimmer loading>
       <Stack gap="md">
-        <TextInput disabled label="犬の名前" value="ハマロ" />
+        <TextInput disabled label="犬の名前" placeholder="犬の名前" value="" />
         <Button className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100">
-          保存する
+          作成する
         </Button>
       </Stack>
     </Shimmer>

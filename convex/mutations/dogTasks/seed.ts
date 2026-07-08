@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 
-import { Doc } from "../../_generated/dataModel";
+import type { Doc } from "../../_generated/dataModel";
 import { internalMutation } from "../../_generated/server";
 
 const SEED_TASKS = [
@@ -13,23 +13,21 @@ const SEED_TASKS = [
   { name: "歯磨き", sortOrder: 6 },
 ] as const satisfies Pick<Doc<"dogTasks">, "name" | "sortOrder">[];
 
-// One-off FR-10 migration seed: creates the singleton `dogs` document plus
-// the initial `dogTasks` rows mirroring the previous hardcoded
-// DOG_CARE_KINDS board order. Invoked once via the CLI
+// One-off FR-10 migration seed: creates the initial `dogTasks` rows mirroring
+// the previous hardcoded DOG_CARE_KINDS board order. Dog profile data is
+// created from the `/dog` UI, not from seed data. Invoked once via the CLI
 // (`npx convex run mutations/dogTasks/seed:seed`) — never call this from
 // client code or reference it via `api`.
 export const seed = internalMutation({
   args: {},
   returns: v.null(),
   handler: async (ctx) => {
-    const existingDog = await ctx.db.query("dogs").first();
+    const existingTask = await ctx.db.query("dogTasks").first();
 
-    if (existingDog !== null) {
+    if (existingTask !== null) {
       // Idempotency guard: safe to invoke twice.
       return null;
     }
-
-    await ctx.db.insert("dogs", { name: "ハマロ" });
 
     await Promise.all(
       SEED_TASKS.map((task) =>

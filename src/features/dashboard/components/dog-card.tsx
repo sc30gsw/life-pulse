@@ -25,7 +25,6 @@ import { GlowCard } from "~/components/glow-card";
 import { dogHistoryQuery } from "~/features/dashboard/api/dog-history-query";
 import { useDashboardDog } from "~/features/dashboard/hooks/use-dashboard-dog";
 import { formatClockTime } from "~/features/dashboard/utils/format";
-import { DOG_BREED_LABEL, DOG_IMAGE_FALLBACK_SRC } from "~/features/dog/constants/dog-profile";
 import { ACCENT_CLASSES, ACCENT_SOLID_STYLE, ACCENT_VARS } from "~/types/dashboard";
 import { pastDateJstRange, todayJst } from "~/utils/date-jst";
 
@@ -99,7 +98,7 @@ export function DogCard() {
             name={displayDogName}
             radius="md"
             size={34}
-            src={dogImageUrl ?? DOG_IMAGE_FALLBACK_SRC}
+            src={dogImageUrl}
           />
           <Stack gap={0}>
             <Text size="sm" fw={600}>
@@ -112,7 +111,7 @@ export function DogCard() {
               c={ACCENT_VARS.faint}
               style={{ letterSpacing: "0.13em" }}
             >
-              {DOG_BREED_LABEL} · 今日のケア
+              今日のケア
             </Text>
           </Stack>
         </Group>
@@ -335,20 +334,13 @@ export function DogCardFallback() {
       >
         <Group justify="space-between" mb="md">
           <Group gap={11}>
-            <Avatar
-              alt="ハマロ"
-              className="border-coral border"
-              name="ハマロ"
-              radius="xl"
-              size={34}
-              src={DOG_IMAGE_FALLBACK_SRC}
-            />
+            <Avatar alt="犬" className="border-coral border" name="犬" radius="xl" size={34} />
             <Stack gap={0}>
               <Text size="sm" fw={600}>
-                ハマロ
+                犬
               </Text>
               <Text size="10.5px" fw={600} tt="uppercase" c={ACCENT_VARS.faint}>
-                {DOG_BREED_LABEL} · 今日のケア
+                今日のケア
               </Text>
             </Stack>
           </Group>
