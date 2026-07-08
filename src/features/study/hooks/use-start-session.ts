@@ -1,5 +1,4 @@
-import { useConvexMutation } from "@convex-dev/react-query";
-import { useMutation } from "@tanstack/react-query";
+import { useConvexMutation } from "~/lib/use-convex-mutation";
 
 import { api } from "~/../convex/_generated/api";
 
@@ -7,7 +6,5 @@ import { api } from "~/../convex/_generated/api";
 // cross-feature imports are forbidden, and the api reference itself is the
 // single source of truth, so this 5-line duplication cannot drift.
 export function useStartSession() {
-  return useMutation({
-    mutationFn: useConvexMutation(api.mutations.sessions.start.start),
-  });
+  return useConvexMutation(api.mutations.sessions.start.start);
 }

@@ -1,5 +1,4 @@
-import { useConvexMutation } from "@convex-dev/react-query";
-import { useMutation } from "@tanstack/react-query";
+import { useConvexMutation } from "~/lib/use-convex-mutation";
 import { expect, test, vi } from "vite-plus/test";
 
 import { useDeclareBlock } from "~/features/study/hooks/use-declare-block";

@@ -1,27 +1,19 @@
-import { useConvexMutation } from "@convex-dev/react-query";
+import { useConvexMutation } from "~/lib/use-convex-mutation";
 import { useMutation } from "@tanstack/react-query";
 import { useAction } from "convex/react";
 
 import { api } from "~/../convex/_generated/api";
 
 export function useUpdateDisplayName() {
-  return useMutation({
-    mutationFn: useConvexMutation(api.mutations.users.updateDisplayName.updateDisplayName),
-  });
+  return useConvexMutation(api.mutations.users.updateDisplayName.updateDisplayName);
 }
 
 export function useGenerateAvatarUploadUrl() {
-  return useMutation({
-    mutationFn: useConvexMutation(
-      api.mutations.users.generateAvatarUploadUrl.generateAvatarUploadUrl,
-    ),
-  });
+  return useConvexMutation(api.mutations.users.generateAvatarUploadUrl.generateAvatarUploadUrl);
 }
 
 export function useSetAvatar() {
-  return useMutation({
-    mutationFn: useConvexMutation(api.mutations.users.setAvatar.setAvatar),
-  });
+  return useConvexMutation(api.mutations.users.setAvatar.setAvatar);
 }
 
 export function useUpdateEmail() {

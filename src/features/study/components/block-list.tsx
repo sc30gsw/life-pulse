@@ -130,7 +130,7 @@ export function BlockList() {
                     className={cn(
                       ACCENT_CLASSES.coral.border,
                       ACCENT_CLASSES.coral.text,
-                      "transition hover:bg-coral hover:text-bg hover:brightness-110 active:brightness-95 focus-visible:bg-coral focus-visible:text-bg",
+                      "hover:bg-coral hover:text-bg focus-visible:bg-coral focus-visible:text-bg transition hover:brightness-110 active:brightness-95",
                     )}
                     onClick={() =>
                       setErodingBlockId((prev) => (prev === block._id ? null : block._id))
@@ -218,7 +218,7 @@ export function BlockList() {
                     className={cn(
                       ACCENT_CLASSES.faint.border,
                       ACCENT_CLASSES.faint.text,
-                      "w-full transition hover:bg-inset hover:brightness-110 active:brightness-95",
+                      "hover:bg-inset w-full transition hover:brightness-110 active:brightness-95",
                     )}
                     onClick={() => onDecline(block)}
                     size="xs"

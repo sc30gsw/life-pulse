@@ -1,10 +1,7 @@
-import { useConvexMutation } from "@convex-dev/react-query";
-import { useMutation } from "@tanstack/react-query";
+import { useConvexMutation } from "~/lib/use-convex-mutation";
 
 import { api } from "~/../convex/_generated/api";
 
 export function useUpdateWorkout() {
-  return useMutation({
-    mutationFn: useConvexMutation(api.mutations.health.updateWorkout.updateWorkout),
-  });
+  return useConvexMutation(api.mutations.health.updateWorkout.updateWorkout);
 }

@@ -28,7 +28,7 @@ export function UserMenu() {
   const isSelf = viewer.role === "self";
 
   return (
-      <Menu opened={opened} onChange={toggle} position="bottom-end" shadow="md" width={200}>
+    <Menu opened={opened} onChange={toggle} position="bottom-end" shadow="md" width={200}>
       <Menu.Target>
         <UnstyledButton className="transition hover:brightness-110 active:brightness-95">
           <Group gap="xs">

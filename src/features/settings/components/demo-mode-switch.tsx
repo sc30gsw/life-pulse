@@ -48,7 +48,10 @@ export function DemoModeSwitchFallback() {
   return (
     <Shimmer loading>
       <Stack gap="xs">
-        <Switch className="transition hover:brightness-110 active:brightness-95" label="デモモード" />
+        <Switch
+          className="transition hover:brightness-110 active:brightness-95"
+          label="デモモード"
+        />
       </Stack>
     </Shimmer>
   );
