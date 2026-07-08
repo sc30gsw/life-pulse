@@ -17,6 +17,7 @@ import { Route as AuthenticatedStudyRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedFastingRouteImport } from './routes/_authenticated/fasting'
 import { Route as AuthenticatedSelfRouteImport } from './routes/_authenticated/_self'
 import { Route as AuthenticatedSelfSettingsRouteImport } from './routes/_authenticated/_self/settings'
+import { Route as AuthenticatedSelfInsightsRouteImport } from './routes/_authenticated/_self/insights'
 import { Route as AuthenticatedSelfHealthRouteImport } from './routes/_authenticated/_self/health'
 
 const SignupRoute = SignupRouteImport.update({
@@ -58,6 +59,12 @@ const AuthenticatedSelfSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedSelfRoute,
   } as any)
+const AuthenticatedSelfInsightsRoute =
+  AuthenticatedSelfInsightsRouteImport.update({
+    id: '/insights',
+    path: '/insights',
+    getParentRoute: () => AuthenticatedSelfRoute,
+  } as any)
 const AuthenticatedSelfHealthRoute = AuthenticatedSelfHealthRouteImport.update({
   id: '/health',
   path: '/health',
@@ -71,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/fasting': typeof AuthenticatedFastingRoute
   '/study': typeof AuthenticatedStudyRoute
   '/health': typeof AuthenticatedSelfHealthRoute
+  '/insights': typeof AuthenticatedSelfInsightsRoute
   '/settings': typeof AuthenticatedSelfSettingsRoute
 }
 export interface FileRoutesByTo {
@@ -80,6 +88,7 @@ export interface FileRoutesByTo {
   '/fasting': typeof AuthenticatedFastingRoute
   '/study': typeof AuthenticatedStudyRoute
   '/health': typeof AuthenticatedSelfHealthRoute
+  '/insights': typeof AuthenticatedSelfInsightsRoute
   '/settings': typeof AuthenticatedSelfSettingsRoute
 }
 export interface FileRoutesById {
@@ -92,6 +101,7 @@ export interface FileRoutesById {
   '/_authenticated/study': typeof AuthenticatedStudyRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/_self/health': typeof AuthenticatedSelfHealthRoute
+  '/_authenticated/_self/insights': typeof AuthenticatedSelfInsightsRoute
   '/_authenticated/_self/settings': typeof AuthenticatedSelfSettingsRoute
 }
 export interface FileRouteTypes {
@@ -103,6 +113,7 @@ export interface FileRouteTypes {
     | '/fasting'
     | '/study'
     | '/health'
+    | '/insights'
     | '/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -112,6 +123,7 @@ export interface FileRouteTypes {
     | '/fasting'
     | '/study'
     | '/health'
+    | '/insights'
     | '/settings'
   id:
     | '__root__'
@@ -123,6 +135,7 @@ export interface FileRouteTypes {
     | '/_authenticated/study'
     | '/_authenticated/'
     | '/_authenticated/_self/health'
+    | '/_authenticated/_self/insights'
     | '/_authenticated/_self/settings'
   fileRoutesById: FileRoutesById
 }
@@ -190,6 +203,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSelfSettingsRouteImport
       parentRoute: typeof AuthenticatedSelfRoute
     }
+    '/_authenticated/_self/insights': {
+      id: '/_authenticated/_self/insights'
+      path: '/insights'
+      fullPath: '/insights'
+      preLoaderRoute: typeof AuthenticatedSelfInsightsRouteImport
+      parentRoute: typeof AuthenticatedSelfRoute
+    }
     '/_authenticated/_self/health': {
       id: '/_authenticated/_self/health'
       path: '/health'
@@ -202,11 +222,13 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedSelfRouteChildren {
   AuthenticatedSelfHealthRoute: typeof AuthenticatedSelfHealthRoute
+  AuthenticatedSelfInsightsRoute: typeof AuthenticatedSelfInsightsRoute
   AuthenticatedSelfSettingsRoute: typeof AuthenticatedSelfSettingsRoute
 }
 
 const AuthenticatedSelfRouteChildren: AuthenticatedSelfRouteChildren = {
   AuthenticatedSelfHealthRoute: AuthenticatedSelfHealthRoute,
+  AuthenticatedSelfInsightsRoute: AuthenticatedSelfInsightsRoute,
   AuthenticatedSelfSettingsRoute: AuthenticatedSelfSettingsRoute,
 }
 

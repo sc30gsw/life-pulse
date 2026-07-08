@@ -1,4 +1,4 @@
-import { groupBy, map, sortBy, unique } from "remeda";
+import { filter, groupBy, isNonNullish, map, pipe, sortBy, unique } from "remeda";
 
 import type { Doc, Id } from "../../_generated/dataModel";
 import type { QueryCtx } from "../../_generated/server";
@@ -22,8 +22,9 @@ export async function history(ctx: QueryCtx, args: HistoryOptions) {
 
   const actorsById = await resolveActorsById(ctx, unique(rawEvents.map((event) => event.byUserId)));
 
-  const eventsWithActor = rawEvents
-    .map((event): HistoryEvent | null => {
+  const eventsWithActor = pipe(
+    rawEvents,
+    map((event): HistoryEvent | null => {
       const byDisplayName = actorsById.get(event.byUserId);
 
       // A missing appUsers row means the actor was deleted after logging the
@@ -39,8 +40,9 @@ export async function history(ctx: QueryCtx, args: HistoryOptions) {
         dateJst: event.dateJst,
         kind: event.kind,
       };
-    })
-    .filter((event) => event !== null);
+    }),
+    filter(isNonNullish),
+  );
 
   const allDays = groupByDateDesc(eventsWithActor);
   const olderDayCount = Math.max(allDays.length - INITIAL_HISTORY_DAY_COUNT, 0);
@@ -61,7 +63,11 @@ async function resolveActorsById(ctx: QueryCtx, userIds: Id<"appUsers">[]) {
   const users = await Promise.all(userIds.map((userId) => ctx.db.get("appUsers", userId)));
 
   return new Map(
-    users.filter((user) => user !== null).map((user) => [user._id, user.displayName] as const),
+    pipe(
+      users,
+      map((user) => (user === null ? null : ([user._id, user.displayName] as const))),
+      filter(isNonNullish),
+    ),
   );
 }
 

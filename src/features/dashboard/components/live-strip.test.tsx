@@ -34,9 +34,9 @@ test("renders the last-sync fallback while the health query suspends", () => {
   expect(getByText("たった今")).toBeDefined();
 });
 
-test("renders the static Convex live-sync and 2-device labels", () => {
+test("renders the static Convex live-sync and app-scope labels", () => {
   const { getByText } = renderWithMantine(<LiveStrip />);
 
   expect(getByText("Convex ライブ同期")).toBeDefined();
-  expect(getByText("2端末デモ対応 · モバイル/デスクトップ")).toBeDefined();
+  expect(getByText("健康 · 学習 · 断食を一元管理")).toBeDefined();
 });

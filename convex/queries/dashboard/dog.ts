@@ -2,20 +2,24 @@ import { v } from "convex/values";
 
 import { query } from "../../_generated/server";
 import { requireUser } from "../../lib/auth";
-import { dogEventKindValidator, roleValidator } from "../../lib/validators";
+import {
+  appSettingsFieldValidators,
+  appUserFieldValidators,
+  dogEventFieldValidators,
+} from "../../lib/validators";
 import { dog as dogService } from "../../services/dashboard/dog";
 
 export const dog = query({
-  args: { dateJst: v.string() },
+  args: { dateJst: dogEventFieldValidators.dateJst },
   returns: v.object({
-    dogName: v.string(),
+    dogName: appSettingsFieldValidators.dogName,
     events: v.array(
       v.object({
-        at: v.number(),
-        byDisplayName: v.string(),
-        byRole: roleValidator,
+        at: dogEventFieldValidators.at,
+        byDisplayName: appUserFieldValidators.displayName,
+        byRole: appUserFieldValidators.role,
         id: v.id("dogEvents"),
-        kind: dogEventKindValidator,
+        kind: dogEventFieldValidators.kind,
       }),
     ),
   }),

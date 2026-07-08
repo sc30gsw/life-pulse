@@ -19,6 +19,7 @@
 // failed sync never crashes or blocks tomorrow's cron run (CVX-17: every
 // scheduler / runMutation call below is awaited).
 import { v } from "convex/values";
+import { filter, isNonNullish, map, pipe } from "remeda";
 
 import { internal } from "../../_generated/api";
 import { type ActionCtx, internalAction } from "../../_generated/server";
@@ -39,9 +40,13 @@ async function syncRange(ctx: ActionCtx, fromJst: string, toJst: string) {
     // One request returns a per-day entry for the whole range (patched
     // endpoint, client.ts NOTE) — keyed by calendarDate for the loop below.
     const stepsByDate = new Map(
-      (await client.fetchDailySteps(fromJst, toJst))
-        .filter((entry) => typeof entry.calendarDate === "string")
-        .map((entry) => [entry.calendarDate as string, entry]),
+      pipe(
+        await client.fetchDailySteps(fromJst, toJst),
+        map((entry) =>
+          typeof entry.calendarDate === "string" ? ([entry.calendarDate, entry] as const) : null,
+        ),
+        filter(isNonNullish),
+      ),
     );
 
     const days = [];

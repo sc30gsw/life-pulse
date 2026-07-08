@@ -61,6 +61,7 @@ import type * as queries_fasting_history from "../queries/fasting/history.js";
 import type * as queries_health_lastSync from "../queries/health/lastSync.js";
 import type * as queries_health_range from "../queries/health/range.js";
 import type * as queries_health_workouts from "../queries/health/workouts.js";
+import type * as queries_insights_correlations from "../queries/insights/correlations.js";
 import type * as queries_sessions_history from "../queries/sessions/history.js";
 import type * as queries_settings_get from "../queries/settings/get.js";
 import type * as queries_users_viewer from "../queries/users/viewer.js";
@@ -109,6 +110,8 @@ import type * as services_health_upsertFromSync from "../services/health/upsertF
 import type * as services_health_upsertManual from "../services/health/upsertManual.js";
 import type * as services_health_validateWorkoutAt from "../services/health/validateWorkoutAt.js";
 import type * as services_health_workouts from "../services/health/workouts.js";
+import type * as services_insights_correlations from "../services/insights/correlations.js";
+import type * as services_insights_pearson from "../services/insights/pearson.js";
 import type * as services_partnerStatus_setStatus from "../services/partnerStatus/setStatus.js";
 import type * as services_sessions_autoAbandon from "../services/sessions/autoAbandon.js";
 import type * as services_sessions_complete from "../services/sessions/complete.js";
@@ -182,6 +185,7 @@ declare const fullApi: ApiFromModules<{
   "queries/health/lastSync": typeof queries_health_lastSync;
   "queries/health/range": typeof queries_health_range;
   "queries/health/workouts": typeof queries_health_workouts;
+  "queries/insights/correlations": typeof queries_insights_correlations;
   "queries/sessions/history": typeof queries_sessions_history;
   "queries/settings/get": typeof queries_settings_get;
   "queries/users/viewer": typeof queries_users_viewer;
@@ -230,6 +234,8 @@ declare const fullApi: ApiFromModules<{
   "services/health/upsertManual": typeof services_health_upsertManual;
   "services/health/validateWorkoutAt": typeof services_health_validateWorkoutAt;
   "services/health/workouts": typeof services_health_workouts;
+  "services/insights/correlations": typeof services_insights_correlations;
+  "services/insights/pearson": typeof services_insights_pearson;
   "services/partnerStatus/setStatus": typeof services_partnerStatus_setStatus;
   "services/sessions/autoAbandon": typeof services_sessions_autoAbandon;
   "services/sessions/complete": typeof services_sessions_complete;

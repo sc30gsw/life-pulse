@@ -111,7 +111,7 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 ## W4 — 外部連携 + 相関 + 磨き込み(FR-6.3 / FR-7)
 
 - PR1: Garmin 実連携(FR-6.3)— plan: [2026-07-08_05-garmin-sync.md](./plans/2026-07-08_05-garmin-sync.md)
-- PR2: 相関ビュー(FR-7)— plan: 未作成
+- PR2: 相関ビュー(FR-7)+ グローバルヘッダー — plan: [2026-07-08_06-insights.md](./plans/2026-07-08_06-insights.md)
 
 ### FR-6.3 Garmin 実連携【P1 — 難航時は打ち切り可】
 
