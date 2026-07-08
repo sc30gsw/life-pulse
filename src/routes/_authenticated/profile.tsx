@@ -3,13 +3,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 
 import { GlowCard } from "~/components/glow-card";
-import {
-  AvatarUploader,
-  DisplayNameForm,
-  EmailChangeForm,
-  PasswordChangeForm,
-  ProfileFormFallback,
-} from "~/features/profile/components/profile-forms";
+import { AvatarUploader } from "~/features/profile/components/avatar-uploader";
+import { DisplayNameForm } from "~/features/profile/components/display-name-form";
+import { EmailChangeForm } from "~/features/profile/components/email-change-form";
+import { PasswordChangeForm } from "~/features/profile/components/password-change-form";
+import { ProfileFormFallback } from "~/features/profile/components/profile-states";
 import { ACCENT_VARS } from "~/types/dashboard";
 
 export const Route = createFileRoute("/_authenticated/profile")({

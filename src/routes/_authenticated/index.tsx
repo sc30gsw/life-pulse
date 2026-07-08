@@ -33,7 +33,7 @@ function Home() {
       <main className="flex flex-col gap-4 lg:flex-row lg:items-stretch">
         <section className="flex min-w-0 flex-col gap-4 lg:flex-3">
           <Suspense fallback={<SessionFastingCardFallback />}>
-            <SessionFastingCard sessionFlash={false} />
+            <SessionFastingCard />
           </Suspense>
           <Suspense fallback={<HealthMetricsGridFallback />}>
             <HealthMetricsGrid />
