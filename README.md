@@ -28,6 +28,13 @@ vp dev
 
 Open the URL printed in the terminal (Vite’s default is usually `http://localhost:5173`).
 
+## Garmin Login
+
+```bash
+uv run scripts/garmin-login-garth.py 2> /dev/null > /tmp/garmin-tokens.json
+npx convex env set GARMIN_TOKENS_JSON '<output json>'
+```
+
 ## Everyday commands
 
 | Command      | Purpose                                                          |
