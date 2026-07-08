@@ -6,10 +6,7 @@ import { Doc } from "../../_generated/dataModel";
 import type { ActionCtx } from "../../_generated/server";
 import { validatePasswordRequirements } from "../../lib/passwordRequirements";
 
-type UpdatePasswordArgs = {
-  currentPassword: NonNullable<Doc<"authAccounts">["secret"]>;
-  newPassword: NonNullable<Doc<"authAccounts">["secret"]>;
-};
+type UpdatePasswordArgs = Record<"currentPassword" | "newPassword", NonNullable<Doc<"authAccounts">["secret"]>>;
 
 // See convex/actions/users/updatePassword.ts for why this is an action, not
 // a mutation (retrieveAccount / modifyAccountCredentials require a

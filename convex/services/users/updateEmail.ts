@@ -3,8 +3,9 @@ import { ConvexError } from "convex/values";
 
 import { internal } from "../../_generated/api";
 import type { ActionCtx } from "../../_generated/server";
+import { Doc } from "../../_generated/dataModel";
 
-type UpdateEmailArgs = { currentPassword: string; newEmail: string };
+type UpdateEmailArgs = { currentPassword: NonNullable<Doc<"authAccounts">["secret"]>; newEmail: NonNullable<Doc<"users">["email"]> };
 
 // NOTE on placement (see convex/actions/users/updateEmail.ts for the full
 // rationale): retrieveAccount below requires a GenericActionCtx — it is not

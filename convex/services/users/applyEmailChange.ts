@@ -1,9 +1,9 @@
 import { ConvexError } from "convex/values";
 
-import type { Id } from "../../_generated/dataModel";
+import type { Doc, Id } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
 
-type ApplyEmailChangeArgs = { authUserId: Id<"users">; newEmail: string };
+type ApplyEmailChangeArgs = { authUserId: Id<"users">; newEmail: Doc<"users">["email"] };
 
 // Updates the two places email lives — the framework `users.email` field
 // (display/lookup, per convex/auth.ts's SSoT comment) AND the Password

@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 
 import { internalMutation } from "../../_generated/server";
+import { Doc } from "../../_generated/dataModel";
 
 const SEED_TASKS = [
   { name: "朝散歩", sortOrder: 0 },
@@ -10,7 +11,7 @@ const SEED_TASKS = [
   { name: "夕散歩", sortOrder: 4 },
   { name: "夜ごはん", sortOrder: 5 },
   { name: "歯磨き", sortOrder: 6 },
-] as const;
+] as const satisfies Pick<Doc<"dogTasks">, "name" | "sortOrder">[];
 
 // One-off FR-10 migration seed: creates the singleton `dogs` document plus
 // the initial `dogTasks` rows mirroring the previous hardcoded
