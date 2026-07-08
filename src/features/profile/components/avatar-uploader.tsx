@@ -49,7 +49,9 @@ export function AvatarUploader() {
       ])
         .then(([uploadUrl, blob]) => uploadBlobToConvexStorage(uploadUrl, blob, "image/jpeg"))
         .then((storageId) => setAvatar.mutateAsync({ storageId }));
+
       setImageSrc(null);
+
       notifications.show({
         color: "green",
         message: "アバターを保存しました",

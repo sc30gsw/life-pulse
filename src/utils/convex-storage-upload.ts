@@ -15,7 +15,7 @@ export async function uploadBlobToConvexStorage(
     throw new Error("CONVEX_STORAGE_UPLOAD_FAILED");
   }
 
-  const { storageId } = (await response.json()) as { storageId: Id<"_storage"> };
+  const { storageId } = (await response.json()) as Record<"storageId", Id<"_storage">>;
 
   return storageId;
 }
