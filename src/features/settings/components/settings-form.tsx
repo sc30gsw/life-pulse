@@ -1,8 +1,17 @@
 import { Field, Form, useForm } from "@formisch/react";
-import { Button, NumberInput, Stack, TextInput } from "@mantine/core";
+import { Button, Slider, Stack, Text, TextInput } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { Shimmer } from "@shimmer-from-structure/react";
 
+import {
+  FASTING_TARGET_SLIDER_MARKS,
+  FASTING_TARGET_SLIDER_STYLES,
+} from "~/features/fasting/components/fasting-start-modal";
+import {
+  formatFastingTargetMinutes,
+  MAX_FASTING_TARGET_MINUTES,
+  MIN_FASTING_TARGET_MINUTES,
+} from "~/features/fasting/constants/fasting-target";
 import { useSettings } from "~/features/settings/api/settings-query";
 import { useUpdateSettings } from "~/features/settings/api/update-settings-mutation";
 import { UpdateSettingsSchema } from "~/features/settings/schemas/update-settings-schema";
@@ -44,15 +53,35 @@ export function SettingsForm() {
       <Stack gap="md">
         <Field of={settingsForm} path={["fastingDefaultMinutes"]}>
           {(field) => (
-            <NumberInput
-              {...field.props}
-              error={field.errors?.[0]}
-              label="断食目標時間(分)"
-              min={1}
-              onChange={(value) => field.onChange(value === "" ? undefined : Number(value))}
-              value={field.input}
-              disabled={settingsForm.isSubmitting}
-            />
+            <Stack gap="xs">
+              <div>
+                <Text c="var(--tx)" fw={700} size="sm">
+                  断食目標時間
+                </Text>
+                <Text c="var(--dim)" size="xs">
+                  断食開始時の初期値として使われます。
+                </Text>
+              </div>
+              <Slider
+                disabled={settingsForm.isSubmitting}
+                label={formatFastingTargetMinutes}
+                marks={FASTING_TARGET_SLIDER_MARKS}
+                max={MAX_FASTING_TARGET_MINUTES}
+                min={MIN_FASTING_TARGET_MINUTES}
+                onChange={field.onChange}
+                step={1}
+                styles={FASTING_TARGET_SLIDER_STYLES}
+                thumbLabel="断食目標時間"
+                thumbValueText={formatFastingTargetMinutes}
+                value={field.input}
+                className="mt-2 mb-4"
+              />
+              {field.errors?.[0] ? (
+                <Text c="var(--coral)" size="xs">
+                  {field.errors[0]}
+                </Text>
+              ) : null}
+            </Stack>
           )}
         </Field>
 
@@ -86,7 +115,22 @@ export function SettingsFormFallback() {
   return (
     <Shimmer loading>
       <Stack gap="md">
-        <NumberInput label="断食目標時間(分)" />
+        <Stack gap="xs">
+          <Text fw={700} size="sm">
+            断食目標時間
+          </Text>
+          <Slider
+            disabled
+            label={formatFastingTargetMinutes}
+            marks={FASTING_TARGET_SLIDER_MARKS}
+            max={MAX_FASTING_TARGET_MINUTES}
+            min={MIN_FASTING_TARGET_MINUTES}
+            step={1}
+            styles={FASTING_TARGET_SLIDER_STYLES}
+            value={MAX_FASTING_TARGET_MINUTES}
+            className="mt-2 mb-4"
+          />
+        </Stack>
         <TextInput label="犬の名前" />
         <Button className="hover:brightness-120">保存する</Button>
       </Stack>

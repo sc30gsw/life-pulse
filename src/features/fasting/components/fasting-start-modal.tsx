@@ -3,13 +3,15 @@ import { Button, Modal, Slider, Stack, Text } from "@mantine/core";
 import type { UseDisclosureReturnValue } from "@mantine/hooks";
 import type { ComponentProps } from "react";
 
+import {
+  DEFAULT_FASTING_TARGET_MINUTES,
+  formatFastingTargetMinutes,
+  MAX_FASTING_TARGET_MINUTES,
+  MIN_FASTING_TARGET_MINUTES,
+} from "~/features/fasting/constants/fasting-target";
 import { useStartFasting } from "~/features/fasting/hooks/use-start-fasting";
 import { StartFastingSchema } from "~/features/fasting/schemas/start-fasting-schema";
 import { ACCENT_SOLID_STYLE } from "~/types/dashboard";
-
-const DEFAULT_TARGET_MINUTES = 960;
-const MAX_TARGET_MINUTES = 960;
-const MIN_TARGET_MINUTES = 1;
 
 const MODAL_STYLES = {
   body: { color: "var(--tx)" },
@@ -18,15 +20,15 @@ const MODAL_STYLES = {
   title: { color: "var(--tx)", fontWeight: 700 },
 } as const satisfies ComponentProps<typeof Modal>["styles"];
 
-const SLIDER_MARKS = [
-  { value: MIN_TARGET_MINUTES, label: "1m" },
+export const FASTING_TARGET_SLIDER_MARKS = [
+  { value: MIN_FASTING_TARGET_MINUTES, label: "1m" },
   { value: 240, label: "4h" },
   { value: 480, label: "8h" },
   { value: 720, label: "12h" },
-  { value: MAX_TARGET_MINUTES, label: "16h" },
+  { value: MAX_FASTING_TARGET_MINUTES, label: "16h" },
 ] as const satisfies ComponentProps<typeof Slider>["marks"];
 
-const SLIDER_STYLES = {
+export const FASTING_TARGET_SLIDER_STYLES = {
   bar: {
     backgroundColor: "var(--blue)",
     boxShadow: "0 0 16px var(--glow)",
@@ -56,17 +58,6 @@ type FastingStartModalProps = {
   onSuccess?: () => void;
   opened: UseDisclosureReturnValue[0];
 };
-
-function formatTargetMinutes(minutes: number) {
-  if (minutes < 60) {
-    return `${minutes}分`;
-  }
-
-  const hours = Math.floor(minutes / 60);
-  const remainderMinutes = minutes % 60;
-
-  return remainderMinutes === 0 ? `${hours}時間` : `${hours}時間${remainderMinutes}分`;
-}
 
 export function FastingStartModal({ opened, onClose, onSuccess }: FastingStartModalProps) {
   const startFastingForm = useForm({
@@ -106,16 +97,16 @@ export function FastingStartModal({ opened, onClose, onSuccess }: FastingStartMo
                 </div>
                 <Slider
                   disabled={startFastingForm.isSubmitting}
-                  label={formatTargetMinutes}
-                  marks={SLIDER_MARKS}
-                  max={MAX_TARGET_MINUTES}
-                  min={MIN_TARGET_MINUTES}
+                  label={formatFastingTargetMinutes}
+                  marks={FASTING_TARGET_SLIDER_MARKS}
+                  max={MAX_FASTING_TARGET_MINUTES}
+                  min={MIN_FASTING_TARGET_MINUTES}
                   onChange={field.onChange}
                   step={1}
-                  styles={SLIDER_STYLES}
+                  styles={FASTING_TARGET_SLIDER_STYLES}
                   thumbLabel="目標時間"
-                  thumbValueText={formatTargetMinutes}
-                  value={field.input ?? DEFAULT_TARGET_MINUTES}
+                  thumbValueText={formatFastingTargetMinutes}
+                  value={field.input ?? DEFAULT_FASTING_TARGET_MINUTES}
                   className="mt-2 mb-4"
                 />
                 {field.errors?.[0] ? (
