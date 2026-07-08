@@ -14,9 +14,30 @@ type HistoryQueryResult = FunctionReturnType<typeof api.queries.dog.history.hist
 const onToggleDogCare = vi.fn();
 const hookState = vi.hoisted(() => ({
   dogCare: [
-    { at: null, by: null, done: false, kind: "walk_am" },
-    { at: 1000, by: "self", done: true, kind: "meal_am" },
-    { at: 2000, by: "partner", done: true, kind: "meds" },
+    {
+      at: null,
+      by: null,
+      done: false,
+      eventId: null,
+      name: "朝散歩",
+      taskId: "task_walk_am",
+    },
+    {
+      at: 1000,
+      by: "self",
+      done: true,
+      eventId: "event_1",
+      name: "朝ごはん",
+      taskId: "task_meal_am",
+    },
+    {
+      at: 2000,
+      by: "partner",
+      done: true,
+      eventId: "event_2",
+      name: "薬",
+      taskId: "task_meds",
+    },
   ],
   historyDays: [] as HistoryQueryResult["days"],
   openModal: vi.fn(),
@@ -27,11 +48,20 @@ vi.mock("~/features/dashboard/hooks/use-dashboard-dog", () => ({
     dogCare: hookState.dogCare,
     dogFlash: false,
     dogName: "ハマロ",
+    hasDog: true,
     onToggleDogCare,
   }),
 }));
 
 vi.mock("@mantine/modals", () => ({ modals: { open: hookState.openModal } }));
+
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({ children, to, ...props }: { children: React.ReactNode; to: string }) => (
+    <a href={to} {...props}>
+      {children}
+    </a>
+  ),
+}));
 
 vi.mock("~/features/dashboard/api/dog-history-query", () => ({
   dogHistoryQuery: (
@@ -79,19 +109,33 @@ test("renders the dog name, photo avatar, pending count, and actor labels", () =
   expect(getByText("パートナー")).toBeDefined();
 });
 
-test("calls onToggleDogCare with the clicked care item kind", async () => {
+test("calls onToggleDogCare with the clicked care item task id", async () => {
   const user = userEvent.setup();
   const { getByRole } = renderWithMantine(<DogCard />);
 
   await user.click(getByRole("button", { name: /朝散歩/ }));
 
-  expect(onToggleDogCare).toHaveBeenCalledWith("walk_am");
+  expect(onToggleDogCare).toHaveBeenCalledWith("task_walk_am");
 });
 
 test("shows the all-done badge when every care item is done", () => {
   hookState.dogCare = [
-    { at: 1000, by: "self", done: true, kind: "meal_am" },
-    { at: 2000, by: "partner", done: true, kind: "meds" },
+    {
+      at: 1000,
+      by: "self",
+      done: true,
+      eventId: "event_1",
+      name: "朝ごはん",
+      taskId: "task_meal_am",
+    },
+    {
+      at: 2000,
+      by: "partner",
+      done: true,
+      eventId: "event_2",
+      name: "薬",
+      taskId: "task_meds",
+    },
   ];
 
   const { getByText } = renderWithMantine(<DogCard />);
@@ -124,7 +168,7 @@ test("history modal content shows events grouped by date", async () => {
     {
       dateJst: "2026-07-05",
       events: [
-        { at: 1000, byDisplayName: "本人", id: "event_1" as Id<"dogEvents">, kind: "walk_am" },
+        { at: 1000, byDisplayName: "本人", id: "event_1" as Id<"dogEvents">, taskName: "朝散歩" },
       ],
     },
   ];
@@ -146,19 +190,19 @@ test("history modal initially limits older days and can expand them", async () =
     {
       dateJst: "2026-07-07",
       events: [
-        { at: 1000, byDisplayName: "本人", id: "event_1" as Id<"dogEvents">, kind: "walk_am" },
+        { at: 1000, byDisplayName: "本人", id: "event_1" as Id<"dogEvents">, taskName: "朝散歩" },
       ],
     },
     {
       dateJst: "2026-07-06",
       events: [
-        { at: 2000, byDisplayName: "本人", id: "event_2" as Id<"dogEvents">, kind: "meal_am" },
+        { at: 2000, byDisplayName: "本人", id: "event_2" as Id<"dogEvents">, taskName: "朝ごはん" },
       ],
     },
     {
       dateJst: "2026-07-05",
       events: [
-        { at: 3000, byDisplayName: "本人", id: "event_3" as Id<"dogEvents">, kind: "meal_pm" },
+        { at: 3000, byDisplayName: "本人", id: "event_3" as Id<"dogEvents">, taskName: "夜ごはん" },
       ],
     },
   ];

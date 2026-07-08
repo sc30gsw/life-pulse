@@ -15,6 +15,10 @@ export async function dog(ctx: QueryCtx, args: DogArgs) {
       .collect(),
   ]);
 
+  if (dogDoc === null) {
+    return null;
+  }
+
   const eventByTaskId = new Map(rawEvents.map((event) => [event.taskId, event]));
 
   const tasks = await Promise.all(
@@ -22,7 +26,14 @@ export async function dog(ctx: QueryCtx, args: DogArgs) {
       const event = eventByTaskId.get(task._id);
 
       if (event === undefined) {
-        return { at: undefined, byRole: undefined, done: false, name: task.name, taskId: task._id };
+        return {
+          at: undefined,
+          byRole: undefined,
+          done: false,
+          eventId: undefined,
+          name: task.name,
+          taskId: task._id,
+        };
       }
 
       const byUser = await ctx.db.get("appUsers", event.byUserId);
@@ -33,6 +44,7 @@ export async function dog(ctx: QueryCtx, args: DogArgs) {
         // the event; drop byRole rather than surfacing a broken reference.
         byRole: byUser?.role,
         done: true,
+        eventId: event._id,
         name: task.name,
         taskId: task._id,
       };

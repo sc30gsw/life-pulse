@@ -22,7 +22,7 @@ test("self can get the singleton dog profile", async () => {
   await t.run((ctx) => ctx.db.insert("dogs", { name: "ハマロ" }));
 
   const dog = await asSelf.query(api.queries.dogs.get.get, {});
-  expect(dog.name).toBe("ハマロ");
+  expect(dog?.name).toBe("ハマロ");
 });
 
 test("partner can get the singleton dog profile", async () => {
@@ -39,10 +39,10 @@ test("partner can get the singleton dog profile", async () => {
   await t.run((ctx) => ctx.db.insert("dogs", { name: "ハマロ" }));
 
   const dog = await asPartner.query(api.queries.dogs.get.get, {});
-  expect(dog.name).toBe("ハマロ");
+  expect(dog?.name).toBe("ハマロ");
 });
 
-test("throws if the singleton dog document is somehow missing", async () => {
+test("returns null if the singleton dog document is missing", async () => {
   const t = convexTest(schema, testModules);
   const asSelf = t.withIdentity({ subject: "self_1" });
 
@@ -50,5 +50,5 @@ test("throws if the singleton dog document is somehow missing", async () => {
     ctx.db.insert("appUsers", { authSubject: "self_1", displayName: "本人", role: "self" }),
   );
 
-  await expect(asSelf.query(api.queries.dogs.get.get, {})).rejects.toThrow();
+  await expect(asSelf.query(api.queries.dogs.get.get, {})).resolves.toBeNull();
 });

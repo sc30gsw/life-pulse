@@ -14,6 +14,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedStudyRouteImport } from './routes/_authenticated/study'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedFastingRouteImport } from './routes/_authenticated/fasting'
 import { Route as AuthenticatedDogRouteImport } from './routes/_authenticated/dog'
 import { Route as AuthenticatedSelfRouteImport } from './routes/_authenticated/_self'
@@ -43,6 +44,11 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
 const AuthenticatedStudyRoute = AuthenticatedStudyRouteImport.update({
   id: '/study',
   path: '/study',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedFastingRoute = AuthenticatedFastingRouteImport.update({
@@ -83,6 +89,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/dog': typeof AuthenticatedDogRoute
   '/fasting': typeof AuthenticatedFastingRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/study': typeof AuthenticatedStudyRoute
   '/health': typeof AuthenticatedSelfHealthRoute
   '/insights': typeof AuthenticatedSelfInsightsRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/dog': typeof AuthenticatedDogRoute
   '/fasting': typeof AuthenticatedFastingRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/study': typeof AuthenticatedStudyRoute
   '/health': typeof AuthenticatedSelfHealthRoute
   '/insights': typeof AuthenticatedSelfInsightsRoute
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   '/_authenticated/_self': typeof AuthenticatedSelfRouteWithChildren
   '/_authenticated/dog': typeof AuthenticatedDogRoute
   '/_authenticated/fasting': typeof AuthenticatedFastingRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/study': typeof AuthenticatedStudyRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/_self/health': typeof AuthenticatedSelfHealthRoute
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/dog'
     | '/fasting'
+    | '/profile'
     | '/study'
     | '/health'
     | '/insights'
@@ -132,6 +142,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dog'
     | '/fasting'
+    | '/profile'
     | '/study'
     | '/health'
     | '/insights'
@@ -144,6 +155,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_self'
     | '/_authenticated/dog'
     | '/_authenticated/fasting'
+    | '/_authenticated/profile'
     | '/_authenticated/study'
     | '/_authenticated/'
     | '/_authenticated/_self/health'
@@ -192,6 +204,13 @@ declare module '@tanstack/react-router' {
       path: '/study'
       fullPath: '/study'
       preLoaderRoute: typeof AuthenticatedStudyRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/fasting': {
@@ -258,6 +277,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSelfRoute: typeof AuthenticatedSelfRouteWithChildren
   AuthenticatedDogRoute: typeof AuthenticatedDogRoute
   AuthenticatedFastingRoute: typeof AuthenticatedFastingRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedStudyRoute: typeof AuthenticatedStudyRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
@@ -266,6 +286,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSelfRoute: AuthenticatedSelfRouteWithChildren,
   AuthenticatedDogRoute: AuthenticatedDogRoute,
   AuthenticatedFastingRoute: AuthenticatedFastingRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedStudyRoute: AuthenticatedStudyRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }

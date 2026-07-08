@@ -24,7 +24,7 @@ test("self can update the dog's name", async () => {
   await asSelf.mutation(api.mutations.dogs.update.update, { name: "ポチ" });
 
   const dog = await asSelf.query(api.queries.dogs.get.get, {});
-  expect(dog.name).toBe("ポチ");
+  expect(dog?.name).toBe("ポチ");
 });
 
 test("partner can update the dog's name", async () => {

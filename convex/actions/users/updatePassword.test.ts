@@ -1,11 +1,10 @@
 import { createAccount, retrieveAccount } from "@convex-dev/auth/server";
-import type { WithoutSystemFields } from "convex/server";
 import { convexTest } from "convex-test";
+import type { WithoutSystemFields } from "convex/server";
 import { expect, test } from "vite-plus/test";
 
 import { api } from "../../_generated/api";
 import type { Doc } from "../../_generated/dataModel";
-import type { ActionCtx } from "../../_generated/server";
 import schema from "../../schema";
 import { testModules } from "../../test.setup";
 
@@ -28,7 +27,7 @@ const PARTNER_PASSWORD = "PartnerPassw0rd1";
 // for running arbitrary code with a real ActionCtx, not a registered Convex
 // function.
 async function createPasswordAccount(
-  ctx: ActionCtx,
+  ctx: Parameters<typeof createAccount>[0],
   email: string,
   password: string,
   displayName: string,
@@ -46,7 +45,11 @@ async function createPasswordAccount(
   });
 }
 
-async function retrieveByEmail(ctx: ActionCtx, email: string, password: string) {
+async function retrieveByEmail(
+  ctx: Parameters<typeof retrieveAccount>[0],
+  email: string,
+  password: string,
+) {
   return retrieveAccount(ctx, {
     provider: "password",
     account: { id: email, secret: password },
@@ -66,8 +69,14 @@ async function seedAccount(
   displayName: string,
   role: "self" | "partner",
 ) {
-  const { user } = await t.action((ctx: ActionCtx) =>
-    createPasswordAccount(ctx, email, password, displayName, role),
+  const { user } = await t.action((ctx) =>
+    createPasswordAccount(
+      ctx as unknown as Parameters<typeof createPasswordAccount>[0],
+      email,
+      password,
+      displayName,
+      role,
+    ),
   );
   return user._id;
 }
@@ -84,12 +93,24 @@ test("updatePassword rotates the caller's own credential", async () => {
 
   // Sign-in with the NEW password now succeeds...
   await expect(
-    t.action((ctx: ActionCtx) => retrieveByEmail(ctx, SELF_EMAIL, SELF_NEW_PASSWORD)),
+    t.action((ctx) =>
+      retrieveByEmail(
+        ctx as unknown as Parameters<typeof retrieveByEmail>[0],
+        SELF_EMAIL,
+        SELF_NEW_PASSWORD,
+      ),
+    ),
   ).resolves.toBeDefined();
 
   // ...and sign-in with the OLD password fails afterward.
   await expect(
-    t.action((ctx: ActionCtx) => retrieveByEmail(ctx, SELF_EMAIL, SELF_OLD_PASSWORD)),
+    t.action((ctx) =>
+      retrieveByEmail(
+        ctx as unknown as Parameters<typeof retrieveByEmail>[0],
+        SELF_EMAIL,
+        SELF_OLD_PASSWORD,
+      ),
+    ),
   ).rejects.toThrow();
 });
 
@@ -106,7 +127,13 @@ test("rejects an incorrect currentPassword and leaves the credential untouched",
   ).rejects.toThrow();
 
   await expect(
-    t.action((ctx: ActionCtx) => retrieveByEmail(ctx, SELF_EMAIL, SELF_OLD_PASSWORD)),
+    t.action((ctx) =>
+      retrieveByEmail(
+        ctx as unknown as Parameters<typeof retrieveByEmail>[0],
+        SELF_EMAIL,
+        SELF_OLD_PASSWORD,
+      ),
+    ),
   ).resolves.toBeDefined();
 });
 
@@ -123,7 +150,13 @@ test("rejects a newPassword that fails the shared password requirements", async 
   ).rejects.toThrow();
 
   await expect(
-    t.action((ctx: ActionCtx) => retrieveByEmail(ctx, SELF_EMAIL, SELF_OLD_PASSWORD)),
+    t.action((ctx) =>
+      retrieveByEmail(
+        ctx as unknown as Parameters<typeof retrieveByEmail>[0],
+        SELF_EMAIL,
+        SELF_OLD_PASSWORD,
+      ),
+    ),
   ).resolves.toBeDefined();
 });
 
@@ -141,6 +174,12 @@ test("acting as the partner never changes another user's password", async () => 
   // The self user's original password still works — untouched by the
   // partner's own password change.
   await expect(
-    t.action((ctx: ActionCtx) => retrieveByEmail(ctx, SELF_EMAIL, SELF_OLD_PASSWORD)),
+    t.action((ctx) =>
+      retrieveByEmail(
+        ctx as unknown as Parameters<typeof retrieveByEmail>[0],
+        SELF_EMAIL,
+        SELF_OLD_PASSWORD,
+      ),
+    ),
   ).resolves.toBeDefined();
 });

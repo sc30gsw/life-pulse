@@ -1,5 +1,5 @@
 import { Field, Form, useForm } from "@formisch/react";
-import { Button, Stack, TextInput } from "@mantine/core";
+import { Button, EmptyState, Stack, Text, TextInput } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { Shimmer } from "@shimmer-from-structure/react";
 
@@ -12,9 +12,22 @@ export function DogNameForm() {
   const { data: dog } = useDog();
   const updateDog = useUpdateDog();
   const dogNameForm = useForm({
-    initialInput: { name: dog.name },
+    initialInput: { name: dog?.name ?? "" },
     schema: DogNameSchema,
   });
+
+  if (dog === null) {
+    return (
+      <EmptyState
+        title={
+          <Text size="xl" fw={600} c="coral">
+            犬プロフィール未作成
+          </Text>
+        }
+        description="初期データの seed がまだ実行されていません。dogTasks seed mutation で dogs を作成してください。"
+      />
+    );
+  }
 
   return (
     <Form

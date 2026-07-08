@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 
-import { internalMutation } from "../../_generated/server";
 import { Doc } from "../../_generated/dataModel";
+import { internalMutation } from "../../_generated/server";
 
 const SEED_TASKS = [
   { name: "朝散歩", sortOrder: 0 },
@@ -31,13 +31,15 @@ export const seed = internalMutation({
 
     await ctx.db.insert("dogs", { name: "ハマロ" });
 
-    for (const task of SEED_TASKS) {
-      await ctx.db.insert("dogTasks", {
-        archivedAt: undefined,
-        name: task.name,
-        sortOrder: task.sortOrder,
-      });
-    }
+    await Promise.all(
+      SEED_TASKS.map((task) =>
+        ctx.db.insert("dogTasks", {
+          archivedAt: undefined,
+          name: task.name,
+          sortOrder: task.sortOrder,
+        }),
+      ),
+    );
 
     return null;
   },

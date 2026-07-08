@@ -5,7 +5,10 @@ import { internal } from "../../_generated/api";
 import type { Doc } from "../../_generated/dataModel";
 import type { ActionCtx } from "../../_generated/server";
 
-type UpdateEmailArgs = { currentPassword: NonNullable<Doc<"authAccounts">["secret"]>; newEmail: NonNullable<Doc<"users">["email"]> };
+type UpdateEmailArgs = {
+  currentPassword: NonNullable<Doc<"authAccounts">["secret"]>;
+  newEmail: NonNullable<Doc<"users">["email"]>;
+};
 
 // NOTE on placement (see convex/actions/users/updateEmail.ts for the full
 // rationale): retrieveAccount below requires a GenericActionCtx — it is not
@@ -21,9 +24,12 @@ export async function updateEmail(ctx: ActionCtx, args: UpdateEmailArgs) {
   // requireUser-equivalent (CVX-04) + resolve the caller's OWN current email
   // — never trust an email/userId argument from the client (there is none
   // here; identity is derived from ctx.auth only).
-  const currentEmail = await ctx.runQuery(internal.queries.users.getEmailForCaller.getEmailForCaller, {
-    authUserId,
-  });
+  const currentEmail = await ctx.runQuery(
+    internal.queries.users.getEmailForCaller.getEmailForCaller,
+    {
+      authUserId,
+    },
+  );
 
   try {
     await retrieveAccount(ctx, {

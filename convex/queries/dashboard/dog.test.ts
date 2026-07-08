@@ -58,6 +58,9 @@ test("dog returns dog name and merged per-task status for date events", async ()
   );
 
   const dog = await asSelf.query(api.queries.dashboard.dog.dog, { dateJst: DATE_JST });
+  if (dog === null) {
+    throw new Error("expected dog");
+  }
 
   expect(dog.dogName).toBe("ポチ");
   expect(dog.tasks).toHaveLength(2);
@@ -81,9 +84,25 @@ test("dog marks a task without a matching event as not done", async () => {
   );
 
   const dog = await asSelf.query(api.queries.dashboard.dog.dog, { dateJst: DATE_JST });
+  if (dog === null) {
+    throw new Error("expected dog");
+  }
 
   expect(dog.tasks).toHaveLength(1);
   expect(dog.tasks[0]?.done).toBe(false);
   expect(dog.tasks[0]?.at).toBeUndefined();
   expect(dog.tasks[0]?.byRole).toBeUndefined();
+});
+
+test("dog returns null when the singleton dog profile is missing", async () => {
+  const t = convexTest(schema, testModules);
+  const asSelf = t.withIdentity({ subject: "self_1" });
+
+  await t.run((ctx) =>
+    ctx.db.insert("appUsers", { authSubject: "self_1", displayName: "本人", role: "self" }),
+  );
+
+  await expect(
+    asSelf.query(api.queries.dashboard.dog.dog, { dateJst: DATE_JST }),
+  ).resolves.toBeNull();
 });

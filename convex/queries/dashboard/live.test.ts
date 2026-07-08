@@ -133,6 +133,9 @@ test("aggregates session, fasting, blocks, dog events, health, and partner prese
   expect(result.fasting).not.toBeNull();
   expect(result.blocks).toHaveLength(2);
 
+  if (result.dog === null) {
+    throw new Error("expected dog");
+  }
   expect(result.dog.tasks).toHaveLength(2);
   const tasksByName = Object.fromEntries(result.dog.tasks.map((task) => [task.name, task]));
   expect(tasksByName["朝散歩"]?.done).toBe(true);
@@ -198,6 +201,9 @@ test("dog.dogName reflects the dogs singleton", async () => {
   await t.run((ctx) => ctx.db.insert("dogs", { name: "ハマロ" }));
 
   const result = await asSelf.query(api.queries.dashboard.live.live, { dateJst: DATE_JST });
+  if (result.dog === null) {
+    throw new Error("expected dog");
+  }
 
   expect(result.dog.dogName).toBe("ハマロ");
 });

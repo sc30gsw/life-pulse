@@ -6,7 +6,6 @@ import {
   ACCENT_VARS,
   CATEGORY_LABELS,
   DECLARATION_STATUS_LABELS,
-  DOG_EVENT_LABELS,
   FASTING_PHASE_LABELS,
   FASTING_PHASE_SUB_LABELS,
   HEALTH_SOURCE_LABELS,
@@ -24,10 +23,6 @@ test("exposes display labels for dashboard domain values", () => {
   expect(DECLARATION_STATUS_LABELS.rescheduled).toBe("リスケ済");
   expect(PRESENCE_LABELS.commuting_home).toBe("帰宅中");
   expect(PRESENCE_SUB_LABELS.sleeping).toBe("おやすみ");
-  expect(DOG_EVENT_LABELS.walk_am).toBe("朝散歩");
-  expect(DOG_EVENT_LABELS.walk_pm).toBe("夕散歩");
-  expect(DOG_EVENT_LABELS.meal_noon).toBe("昼ごはん");
-  expect(DOG_EVENT_LABELS.brush_teeth).toBe("歯磨き");
 });
 
 test("keeps accent maps aligned across class, css-var, and solid style tokens", () => {

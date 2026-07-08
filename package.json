@@ -41,6 +41,7 @@
     "garmin-connect-sdk": "1.0.0-alpha.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "react-easy-crop": "^6.2.0",
     "recharts": "^3.9.2",
     "remeda": "^2.39.0",
     "valibot": "^1.4.2"

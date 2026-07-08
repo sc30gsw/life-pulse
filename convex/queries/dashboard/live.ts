@@ -20,18 +20,22 @@ export const live = query({
   args: { dateJst: studyBlockFieldValidators.dateJst },
   returns: v.object({
     blocks: v.array(studyBlockDocumentValidator),
-    dog: v.object({
-      dogName: dogFieldValidators.name,
-      tasks: v.array(
-        v.object({
-          at: v.optional(dogEventFieldValidators.at),
-          byRole: v.optional(appUserFieldValidators.role),
-          done: v.boolean(),
-          name: dogTaskFieldValidators.name,
-          taskId: v.id("dogTasks"),
-        }),
-      ),
-    }),
+    dog: v.union(
+      v.null(),
+      v.object({
+        dogName: dogFieldValidators.name,
+        tasks: v.array(
+          v.object({
+            at: v.optional(dogEventFieldValidators.at),
+            byRole: v.optional(appUserFieldValidators.role),
+            done: v.boolean(),
+            eventId: v.optional(v.id("dogEvents")),
+            name: dogTaskFieldValidators.name,
+            taskId: v.id("dogTasks"),
+          }),
+        ),
+      }),
+    ),
     fasting: v.union(v.null(), fastingWindowDocumentValidator),
     health: v.union(v.null(), healthMetricDocumentValidator),
     partnerPresence: v.union(

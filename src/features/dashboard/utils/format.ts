@@ -2,20 +2,7 @@ import type { FunctionReturnType } from "convex/server";
 
 import type { api } from "~/../convex/_generated/api";
 import type { Doc } from "~/../convex/_generated/dataModel";
-import type { DogEventKind } from "~/types/dashboard";
 import { dayjs } from "~/utils/dayjs";
-
-// Fixed daily checklist (FR-1.4 / design) — deliberately excludes "toilet" and "other",
-// which are logged but not part of the at-a-glance done/pending board.
-const DOG_CARE_KINDS = [
-  "walk_am",
-  "meal_am",
-  "meal_noon",
-  "meds",
-  "walk_pm",
-  "meal_pm",
-  "brush_teeth",
-] as const satisfies DogEventKind[];
 
 const TIME_CONSTANTS = {
   SECOND_MS: 1000,
@@ -123,13 +110,14 @@ export function toDeclarationItems(blocks: Doc<"studyBlocks">[]) {
 }
 
 export function toDogCareItems(
-  events: FunctionReturnType<typeof api.queries.dashboard.dog.dog>["events"],
+  tasks: NonNullable<FunctionReturnType<typeof api.queries.dashboard.dog.dog>>["tasks"],
 ) {
-  return DOG_CARE_KINDS.map((kind) => {
-    const event = events.find((candidate) => candidate.kind === kind);
-
-    return event === undefined
-      ? { at: null, by: null, done: false, kind }
-      : { at: event.at, by: event.byRole, done: true, kind };
-  });
+  return tasks.map((task) => ({
+    at: task.at ?? null,
+    by: task.byRole ?? null,
+    done: task.done,
+    eventId: task.eventId ?? null,
+    name: task.name,
+    taskId: task.taskId,
+  }));
 }

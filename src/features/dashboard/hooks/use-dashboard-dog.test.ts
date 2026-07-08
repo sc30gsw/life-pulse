@@ -21,7 +21,24 @@ vi.mock("@tanstack/react-query", () => ({
   useSuspenseQuery: () => ({
     data: {
       dogName: "ハマロ",
-      events: [{ at: 1000, by: "self", id: "event_1", kind: "meal_am" }],
+      tasks: [
+        {
+          at: undefined,
+          byRole: undefined,
+          done: false,
+          eventId: undefined,
+          name: "朝散歩",
+          taskId: "task_walk_am",
+        },
+        {
+          at: 1000,
+          byRole: "self",
+          done: true,
+          eventId: "event_1",
+          name: "朝ごはん",
+          taskId: "task_meal_am",
+        },
+      ],
     },
   }),
 }));
@@ -45,10 +62,10 @@ test("logs a pending dog event and wires success/error notifications", () => {
   testState.show.mockClear();
   const { result } = renderHook(() => useDashboardDog());
 
-  result.current.onToggleDogCare("walk_am");
+  result.current.onToggleDogCare("task_walk_am" as never);
 
   expect(testState.logMutate).toHaveBeenCalledWith(
-    { dateJst: "2026-07-07", kind: "walk_am" },
+    { dateJst: "2026-07-07", taskId: "task_walk_am" },
     expect.objectContaining({
       onError: expect.any(Function),
       onSuccess: expect.any(Function),
@@ -91,7 +108,7 @@ test("opens the undo confirmation for a completed dog event", () => {
   testState.show.mockClear();
   const { result } = renderHook(() => useDashboardDog());
 
-  result.current.onToggleDogCare("meal_am");
+  result.current.onToggleDogCare("task_meal_am" as never);
 
   expect(testState.openConfirmModal).toHaveBeenCalledWith(
     expect.objectContaining({

@@ -13,8 +13,9 @@ import {
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { Shimmer } from "@shimmer-from-structure/react";
-import { IconDog } from "@tabler/icons-react";
+import { IconDog, IconSettings } from "@tabler/icons-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { cn } from "cnfast";
 import type { FunctionReturnType } from "convex/server";
 import { Suspense, useState, type ComponentProps } from "react";
@@ -24,12 +25,7 @@ import { GlowCard } from "~/components/glow-card";
 import { dogHistoryQuery } from "~/features/dashboard/api/dog-history-query";
 import { useDashboardDog } from "~/features/dashboard/hooks/use-dashboard-dog";
 import { formatClockTime } from "~/features/dashboard/utils/format";
-import {
-  ACCENT_CLASSES,
-  ACCENT_SOLID_STYLE,
-  ACCENT_VARS,
-  DOG_EVENT_LABELS,
-} from "~/types/dashboard";
+import { ACCENT_CLASSES, ACCENT_SOLID_STYLE, ACCENT_VARS } from "~/types/dashboard";
 import { pastDateJstRange, todayJst } from "~/utils/date-jst";
 
 const HISTORY_RANGE_DAYS = 7;
@@ -51,9 +47,36 @@ function openHistoryModal() {
 }
 
 export function DogCard() {
-  const { dogCare, dogFlash, dogName, onToggleDogCare } = useDashboardDog();
+  const { dogCare, dogFlash, dogName, hasDog, onToggleDogCare } = useDashboardDog();
   const pendingCount = dogCare.filter((item) => !item.done).length;
   const pendingAccent = pendingCount > 0 ? ACCENT_CLASSES.coral : ACCENT_CLASSES.good;
+
+  if (!hasDog) {
+    return (
+      <GlowCard
+        className="bg-panel border-bd shadow-card relative flex flex-1 flex-col overflow-hidden border"
+        p="lg"
+        radius={18}
+      >
+        <EmptyState
+          icon={<IconDog size={48} />}
+          title={
+            <Text size="xl" fw={600} c="coral">
+              犬プロフィール未作成
+            </Text>
+          }
+          description="犬の管理画面でプロフィールを作成してください。"
+        >
+          <EmptyState.Actions>
+            <Button component={Link} to="/dog" style={ACCENT_SOLID_STYLE.coral}>
+              犬の管理へ
+            </Button>
+          </EmptyState.Actions>
+        </EmptyState>
+      </GlowCard>
+    );
+  }
+  const displayDogName = dogName ?? "";
 
   return (
     <GlowCard
@@ -67,16 +90,16 @@ export function DogCard() {
       <Group justify="space-between" mb="md">
         <Group gap={11}>
           <Avatar
-            alt={dogName}
+            alt={displayDogName}
             className={cn(ACCENT_CLASSES.coral.border, "border")}
-            name={dogName}
+            name={displayDogName}
             radius="md"
             size={34}
             src="/assets/hamaro.JPEG"
           />
           <Stack gap={0}>
             <Text size="sm" fw={600}>
-              {dogName}
+              {displayDogName}
             </Text>
             <Text
               size="10.5px"
@@ -105,16 +128,28 @@ export function DogCard() {
           >
             履歴
           </Button>
+          <Button
+            aria-label="犬の管理"
+            className="border-bd-2 text-tx"
+            component={Link}
+            leftSection={<IconSettings size={14} />}
+            size="xs"
+            to="/dog"
+            type="button"
+            variant="outline"
+          >
+            管理
+          </Button>
         </Group>
       </Group>
 
       <Stack gap={8}>
         {dogCare.map((item) => (
           <UnstyledButton
-            key={item.kind}
+            key={item.taskId}
             type="button"
             aria-pressed={item.done}
-            onClick={() => onToggleDogCare(item.kind)}
+            onClick={() => onToggleDogCare(item.taskId)}
             className={cn(
               "flex w-full items-center gap-3 rounded-xl border px-3.5 py-2.5 text-left",
               item.done
@@ -133,7 +168,7 @@ export function DogCard() {
               <Box className={cn(ACCENT_CLASSES.coral.border, "h-5 w-5 rounded-full border-2")} />
             )}
             <Text size="sm" fw={500} className="text-tx">
-              {DOG_EVENT_LABELS[item.kind]}
+              {item.name}
             </Text>
             <Text size="xs" c="dimmed" className="ml-auto">
               {item.done ? (item.by === "self" ? "本人" : "パートナー") : "未"}
@@ -244,7 +279,7 @@ function DogHistoryDayCard({ day }: Record<"day", DogHistoryDay>) {
               wrap="nowrap"
             >
               <Text size="sm" fw={600} className="text-tx">
-                {DOG_EVENT_LABELS[event.kind]}
+                {event.taskName}
               </Text>
               <Text c="dimmed" size="xs" className="shrink-0">
                 {event.byDisplayName} · {formatClockTime(event.at)}

@@ -8,7 +8,9 @@ import { testModules } from "../../test.setup";
 test("rejects an unauthenticated call", async () => {
   const t = convexTest(schema, testModules);
 
-  await expect(t.mutation(api.mutations.dogTasks.create.create, { name: "散歩" })).rejects.toThrow();
+  await expect(
+    t.mutation(api.mutations.dogTasks.create.create, { name: "散歩" }),
+  ).rejects.toThrow();
 });
 
 test("self can create a task", async () => {

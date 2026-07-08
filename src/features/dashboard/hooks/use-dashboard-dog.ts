@@ -7,17 +7,17 @@ import { useBoardClock } from "~/features/dashboard/hooks/use-board-clock";
 import { useLogDogEvent } from "~/features/dashboard/hooks/use-log-dog-event";
 import { useUndoDogEvent } from "~/features/dashboard/hooks/use-undo-dog-event";
 import { toDogCareItems } from "~/features/dashboard/utils/format";
-import { ACCENT_SOLID_STYLE, DOG_EVENT_LABELS, type DogEventKind } from "~/types/dashboard";
+import { ACCENT_SOLID_STYLE } from "~/types/dashboard";
 
 export function useDashboardDog() {
   const { dateJst } = useBoardClock();
   const dog = useSuspenseQuery(dashboardDogQuery(dateJst)).data;
   const logDogEvent = useLogDogEvent();
   const undoDogEvent = useUndoDogEvent();
-  const dogCare = toDogCareItems(dog.events);
+  const dogCare = dog === null ? [] : toDogCareItems(dog.tasks);
 
-  function onToggleDogCare(kind: DogEventKind) {
-    const current = dogCare.find((item) => item.kind === kind);
+  function onToggleDogCare(taskId: (typeof dogCare)[number]["taskId"]) {
+    const current = dogCare.find((item) => item.taskId === taskId);
 
     if (current === undefined) {
       return;
@@ -25,7 +25,7 @@ export function useDashboardDog() {
 
     if (!current.done) {
       logDogEvent.mutate(
-        { dateJst, kind },
+        { dateJst, taskId },
         {
           onError: () => {
             notifications.show({ color: "red", message: "記録に失敗しました", title: "エラー" });
@@ -33,7 +33,7 @@ export function useDashboardDog() {
           onSuccess: () => {
             notifications.show({
               color: "green",
-              message: `${dog.dogName}の${DOG_EVENT_LABELS[kind]}を記録しました`,
+              message: `${dog?.dogName ?? "犬"}の${current.name}を記録しました`,
               title: "記録しました",
             });
           },
@@ -43,8 +43,9 @@ export function useDashboardDog() {
       return;
     }
 
-    const loggedEvent = dog.events.find((event) => event.kind === kind);
-    if (loggedEvent === undefined) {
+    const eventId = current.eventId;
+
+    if (eventId === null) {
       return;
     }
 
@@ -55,7 +56,7 @@ export function useDashboardDog() {
       labels: { cancel: "キャンセル", confirm: "取り消す" },
       onConfirm: () => {
         undoDogEvent.mutate(
-          { dateJst, eventId: loggedEvent.id },
+          { dateJst, eventId },
           {
             onError: () => {
               notifications.show({ color: "red", message: "取消に失敗しました", title: "エラー" });
@@ -63,7 +64,7 @@ export function useDashboardDog() {
             onSuccess: () => {
               notifications.show({
                 color: "red",
-                message: `${dog.dogName}の${DOG_EVENT_LABELS[kind]}を取り消しました`,
+                message: `${dog?.dogName ?? "犬"}の${current.name}を取り消しました`,
                 title: "取り消しました",
               });
             },
@@ -85,5 +86,11 @@ export function useDashboardDog() {
   }
 
   // Flash-on-remote-update (server push detection) is deferred past W1 — see the wiring plan.
-  return { dogCare, dogFlash: false, dogName: dog.dogName, onToggleDogCare } as const;
+  return {
+    dogCare,
+    dogFlash: false,
+    dogName: dog?.dogName ?? null,
+    hasDog: dog !== null,
+    onToggleDogCare,
+  } as const;
 }

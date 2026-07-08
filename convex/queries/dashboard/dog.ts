@@ -12,18 +12,22 @@ import { dog as dogService } from "../../services/dashboard/dog";
 
 export const dog = query({
   args: { dateJst: dogEventFieldValidators.dateJst },
-  returns: v.object({
-    dogName: dogFieldValidators.name,
-    tasks: v.array(
-      v.object({
-        at: v.optional(dogEventFieldValidators.at),
-        byRole: v.optional(appUserFieldValidators.role),
-        done: v.boolean(),
-        name: dogTaskFieldValidators.name,
-        taskId: v.id("dogTasks"),
-      }),
-    ),
-  }),
+  returns: v.union(
+    v.null(),
+    v.object({
+      dogName: dogFieldValidators.name,
+      tasks: v.array(
+        v.object({
+          at: v.optional(dogEventFieldValidators.at),
+          byRole: v.optional(appUserFieldValidators.role),
+          done: v.boolean(),
+          eventId: v.optional(v.id("dogEvents")),
+          name: dogTaskFieldValidators.name,
+          taskId: v.id("dogTasks"),
+        }),
+      ),
+    }),
+  ),
   handler: async (ctx, args) => {
     await requireUser(ctx);
 

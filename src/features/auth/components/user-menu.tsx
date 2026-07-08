@@ -5,9 +5,11 @@ import {
   IconBook2,
   IconChartScatter,
   IconChevronDown,
+  IconDog,
   IconHeartbeat,
   IconHourglass,
   IconSettings,
+  IconUser,
 } from "@tabler/icons-react";
 import { Link } from "@tanstack/react-router";
 import cn from "cnfast";
@@ -49,6 +51,12 @@ export function UserMenu() {
         </UnstyledButton>
       </Menu.Target>
       <Menu.Dropdown>
+        <Menu.Item component={Link} leftSection={<IconUser size={14} />} to="/profile">
+          プロフィール
+        </Menu.Item>
+        <Menu.Item component={Link} leftSection={<IconDog size={14} />} to="/dog">
+          犬の管理
+        </Menu.Item>
         <Menu.Item component={Link} leftSection={<IconBook2 size={14} />} to="/study">
           学習管理
         </Menu.Item>

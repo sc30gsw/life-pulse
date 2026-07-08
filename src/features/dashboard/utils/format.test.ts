@@ -151,47 +151,50 @@ test("toDeclarationItems maps blocks through, applying the category cast", () =>
   ]);
 });
 
-test("toDogCareItems returns all seven fixed kinds as pending when no events exist", () => {
-  const items = toDogCareItems([]);
-
-  expect(items).toHaveLength(7);
-  expect(items.map((item) => item.kind)).toEqual([
-    "walk_am",
-    "meal_am",
-    "meal_noon",
-    "meds",
-    "walk_pm",
-    "meal_pm",
-    "brush_teeth",
+test("toDogCareItems maps dynamic dog tasks as pending when no event is attached", () => {
+  const items = toDogCareItems([
+    {
+      at: undefined,
+      byRole: undefined,
+      done: false,
+      eventId: undefined,
+      name: "朝散歩",
+      taskId: "task_1" as Id<"dogTasks">,
+    },
+    {
+      at: undefined,
+      byRole: undefined,
+      done: false,
+      eventId: undefined,
+      name: "朝ごはん",
+      taskId: "task_2" as Id<"dogTasks">,
+    },
   ]);
+
+  expect(items).toHaveLength(2);
+  expect(items.map((item) => item.name)).toEqual(["朝散歩", "朝ごはん"]);
   expect(items.every((item) => !item.done && item.at === null && item.by === null)).toBe(true);
 });
 
-test("toDogCareItems marks a logged kind as done with its actor and time", () => {
+test("toDogCareItems marks a logged task as done with its actor and time", () => {
   const items = toDogCareItems([
     {
       at: 1000,
-      byDisplayName: "パートナー",
       byRole: "partner",
-      id: "event_1" as Id<"dogEvents">,
-      kind: "meal_am",
+      done: true,
+      eventId: "event_1" as Id<"dogEvents">,
+      name: "朝ごはん",
+      taskId: "task_1" as Id<"dogTasks">,
     },
   ]);
-  const mealAm = items.find((item) => item.kind === "meal_am");
+  const mealAm = items.find((item) => item.taskId === ("task_1" as Id<"dogTasks">));
 
-  expect(mealAm).toEqual({ at: 1000, by: "partner", done: true, kind: "meal_am" });
-});
-
-test("toDogCareItems ignores logged kinds outside the fixed checklist", () => {
-  const items = toDogCareItems([
-    {
-      at: 1000,
-      byDisplayName: "本人",
-      byRole: "self",
-      id: "event_2" as Id<"dogEvents">,
-      kind: "toilet",
-    },
-  ]);
-
-  expect(items.every((item) => !item.done)).toBe(true);
+  expect(mealAm).toEqual({
+    at: 1000,
+    by: "partner",
+    done: true,
+    eventId: "event_1",
+    name: "朝ごはん",
+    taskId: "task_1",
+  });
 });

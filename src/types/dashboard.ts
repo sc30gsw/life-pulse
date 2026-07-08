@@ -8,7 +8,6 @@ import type { Infer } from "convex/values";
 import type {
   blockStatusValidator,
   categoryValidator,
-  dogEventKindValidator,
   erosionReasonValidator,
   fastingPhaseValidator,
   healthSourceValidator,
@@ -111,20 +110,6 @@ export const PRESENCE_SUB_LABELS = {
   out: "外にいます",
   sleeping: "おやすみ",
 } as const satisfies Record<PresenceState, string>;
-
-export type DogEventKind = Infer<typeof dogEventKindValidator>;
-
-export const DOG_EVENT_LABELS = {
-  brush_teeth: "歯磨き",
-  meal_am: "朝ごはん",
-  meal_noon: "昼ごはん",
-  meal_pm: "夜ごはん",
-  meds: "薬",
-  other: "その他",
-  toilet: "トイレ",
-  walk_am: "朝散歩",
-  walk_pm: "夕散歩",
-} as const satisfies Record<DogEventKind, string>;
 
 export type AccentName = "good" | "amber" | "blue" | "coral" | "violet" | "faint";
 

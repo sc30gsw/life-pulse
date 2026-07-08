@@ -21,11 +21,10 @@ export async function history(ctx: QueryCtx, args: HistoryOptions) {
     .withIndex("by_date", (q) => q.gte("dateJst", args.fromDateJst).lte("dateJst", args.toDateJst))
     .collect();
 
-  const actorsById = await resolveActorsById(ctx, unique(rawEvents.map((event) => event.byUserId)));
-  const taskNamesById = await resolveTaskNamesById(
-    ctx,
-    unique(rawEvents.map((event) => event.taskId)),
-  );
+  const [actorsById, taskNamesById] = await Promise.all([
+    resolveActorsById(ctx, unique(rawEvents.map((event) => event.byUserId))),
+    resolveTaskNamesById(ctx, unique(rawEvents.map((event) => event.taskId))),
+  ]);
 
   const eventsWithActor = pipe(
     rawEvents,
