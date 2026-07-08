@@ -141,6 +141,16 @@
 - [x] FR-9.3 サインアップ(`/signup`)を開放する。email+パスワード(12文字以上・英大小・数字、確認入力あり)+表示名+ロール(self/partner の自己選択)で登録し、即時有効。パスワードリセット・メール検証はスコープ外。
 - [x] FR-9.4 認可: self専用ページ(`/health` `/insights` `/settings`)へ partner ロールがアクセスした場合は `/` へリダイレクトし通知を表示する。対応するサーバ関数も role を検証する(requireSelf)。
 
+### FR-10 プロフィール & 犬管理ページ【P1】
+
+- [] FR-10.1 `/profile`(本人のみ編集): 表示名、アバター画像(Convex File Storage / `avatarStorageId`)、メールアドレス変更、パスワード変更。
+- [] FR-10.2 `/dog`(self/partner **両ロール編集可**): 犬情報(`dogs.name`)+ 犬タスク管理。設定ページから移設。
+- [] FR-10.3 犬タスク動的化: `dogTasks`(`name` / `sortOrder` / `archivedAt`)。`DOG_CARE_KINDS` / `DOG_EVENT_LABELS` のハードコード全廃、`dogTasks` を順序・ラベルの SSoT にする。絵文字フィールドは持たない(name のみ)。
+- [] FR-10.4 並び替えは上下移動ボタン(dnd 依存追加なし)。削除は `archivedAt` ソフトデリート(過去の完了履歴・連続記録の参照切れを防ぐ)。一覧クエリは `archivedAt === undefined` フィルタ。
+- [] FR-10.5 `dogEvents.kind` 廃止 → `taskId: v.id("dogTasks")`(required)。既存 dogEvents は demo データのため wipe し、段階デプロイなしの一発デプロイ。
+- [] FR-10.6 導線: ユーザーメニューに「プロフィール」「犬の管理」の両リンク + 犬カードヘッダーに歯車アイコン → `/dog`。
+- [] FR-10.7 `/settings` に残すのは `demoMode` + `fastingDefaultMinutes` のみ。
+
 ## 5. 非機能要件
 
 - NFR-1 リアルタイム性: 同一ネットワーク下の2クライアント間伝播は体感1秒以内(Convex標準性能で満たされる想定。独自最適化は不要)。
