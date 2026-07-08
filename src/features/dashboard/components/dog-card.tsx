@@ -1,14 +1,4 @@
-import {
-  Avatar,
-  Badge,
-  Box,
-  Button,
-  EmptyState,
-  Group,
-  Paper,
-  Stack,
-  Text,
-} from "@mantine/core";
+import { Avatar, Badge, Box, Button, EmptyState, Group, Paper, Stack, Text } from "@mantine/core";
 import { Shimmer } from "@shimmer-from-structure/react";
 import { IconDog, IconSettings } from "@tabler/icons-react";
 import { Link } from "@tanstack/react-router";

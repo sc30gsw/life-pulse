@@ -1,4 +1,15 @@
-import { Badge, Box, Button, Divider, Group, Progress, Stack, Text, Tooltip, UnstyledButton } from "@mantine/core";
+import {
+  Badge,
+  Box,
+  Button,
+  Divider,
+  Group,
+  Progress,
+  Stack,
+  Text,
+  Tooltip,
+  UnstyledButton,
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Shimmer } from "@shimmer-from-structure/react";
 import { cn } from "cnfast";
@@ -52,7 +63,9 @@ const TOOLTIP_STYLES = {
   },
 } as const satisfies ComponentProps<typeof Tooltip>["styles"];
 
-export function SessionStatusGroup({ fastingFlash }: Partial<Record<"fastingFlash", boolean>> = {}) {
+export function SessionStatusGroup({
+  fastingFlash,
+}: Partial<Record<"fastingFlash", boolean>> = {}) {
   const {
     declarationActualMinutes,
     declarationActualPercent,

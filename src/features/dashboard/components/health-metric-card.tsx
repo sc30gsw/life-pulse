@@ -61,7 +61,12 @@ export function TextMetricCard({ label, subLabel, value }: TextMetricCardProps) 
 
 function MetricPaper({ children }: Record<"children", ReactNode>) {
   return (
-    <Paper radius="md" p="sm" className="bg-panel-2 border-bd flex-1 border" style={{ minWidth: 110 }}>
+    <Paper
+      radius="md"
+      p="sm"
+      className="bg-panel-2 border-bd flex-1 border"
+      style={{ minWidth: 110 }}
+    >
       {children}
     </Paper>
   );

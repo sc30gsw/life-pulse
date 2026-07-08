@@ -5,10 +5,7 @@ import { IconRefresh, IconStethoscope } from "@tabler/icons-react";
 import { Link } from "@tanstack/react-router";
 
 import { GlowCard } from "~/components/glow-card";
-import {
-  RingMetricCard,
-  TextMetricCard,
-} from "~/features/dashboard/components/health-metric-card";
+import { RingMetricCard, TextMetricCard } from "~/features/dashboard/components/health-metric-card";
 import { useDashboardHealth } from "~/features/dashboard/hooks/use-dashboard-health";
 import { useRequestGarminSync } from "~/features/health/hooks/use-request-garmin-sync";
 import { ACCENT_SOLID_STYLE, ACCENT_VARS, HEALTH_SOURCE_LABELS } from "~/types/dashboard";

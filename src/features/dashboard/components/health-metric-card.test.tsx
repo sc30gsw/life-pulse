@@ -2,10 +2,7 @@
 import { Text } from "@mantine/core";
 import { expect, test } from "vite-plus/test";
 
-import {
-  RingMetricCard,
-  TextMetricCard,
-} from "~/features/dashboard/components/health-metric-card";
+import { RingMetricCard, TextMetricCard } from "~/features/dashboard/components/health-metric-card";
 import { renderWithMantine } from "~/test-utils";
 
 test("RingMetricCard renders a labeled ring value", () => {

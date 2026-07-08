@@ -1,4 +1,14 @@
-import { Badge, Box, Button, Chip, Grid, Group, Text, Tooltip, UnstyledButton } from "@mantine/core";
+import {
+  Badge,
+  Box,
+  Button,
+  Chip,
+  Grid,
+  Group,
+  Text,
+  Tooltip,
+  UnstyledButton,
+} from "@mantine/core";
 import { cn } from "cnfast";
 import type { ComponentProps } from "react";
 
@@ -213,7 +223,9 @@ function ErodedBlockActions({
           }}
         >
           侵食
-          {block.erosionReason !== undefined ? `(${EROSION_REASON_LABELS[block.erosionReason]})` : ""}{" "}
+          {block.erosionReason !== undefined
+            ? `(${EROSION_REASON_LABELS[block.erosionReason]})`
+            : ""}{" "}
           · リスケ候補:
         </Chip>
       </Grid.Col>
