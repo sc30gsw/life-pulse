@@ -3,6 +3,10 @@ import { renderHook } from "@testing-library/react";
 import { ConvexError } from "convex/values";
 import { expect, test, vi } from "vite-plus/test";
 
+import type { Id } from "~/../convex/_generated/dataModel";
+
+const categoryId = "category_toeic" as Id<"studyCategories">;
+
 const testState = vi.hoisted(() => ({
   completeMutate: vi.fn(),
   dateJst: "2026-07-07",
@@ -11,9 +15,14 @@ const testState = vi.hoisted(() => ({
   show: vi.fn(),
   startMutate: vi.fn(),
   study: {
-    blocks: [] as { category: string; plannedMinutes: number; startHm: string; status: string }[],
+    blocks: [] as {
+      categoryId: Id<"studyCategories">;
+      plannedMinutes: number;
+      startHm: string;
+      status: string;
+    }[],
     session: null as null | {
-      category: string;
+      categoryId: Id<"studyCategories">;
       interruptionCount: number;
       lastResumedAt?: number;
       plannedMinutes?: number;
@@ -63,10 +72,10 @@ test("starts a session with the given category, dateJst, and planned minutes", (
   testState.show.mockClear();
   const { result } = renderHook(() => useDashboardStudy());
 
-  result.current.onStartSession("toeic", 60);
+  result.current.onStartSession(categoryId, 60);
 
   expect(testState.startMutate).toHaveBeenCalledWith(
-    { category: "toeic", dateJst: "2026-07-07", plannedMinutes: 60 },
+    { categoryId, dateJst: "2026-07-07", plannedMinutes: 60 },
     expect.objectContaining({ onError: expect.any(Function), onSuccess: expect.any(Function) }),
   );
 
@@ -83,7 +92,7 @@ test("shows a tailored message when starting fails with SESSION_EXISTS", () => {
   testState.show.mockClear();
   const { result } = renderHook(() => useDashboardStudy());
 
-  result.current.onStartSession("toeic");
+  result.current.onStartSession(categoryId);
   callbacksFromCall(testState.startMutate).onError(new ConvexError("SESSION_EXISTS"));
 
   expect(testState.show).toHaveBeenCalledWith({
@@ -98,7 +107,7 @@ test("shows a generic message for other start errors", () => {
   testState.show.mockClear();
   const { result } = renderHook(() => useDashboardStudy());
 
-  result.current.onStartSession("toeic");
+  result.current.onStartSession(categoryId);
   callbacksFromCall(testState.startMutate).onError(new Error("boom"));
 
   expect(testState.show).toHaveBeenCalledWith({

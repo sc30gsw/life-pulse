@@ -23,7 +23,7 @@ export const history = query({
         sessions: v.array(
           v.object({
             actualMinutes: actualMinutesValidator,
-            category: studySessionFieldValidators.category,
+            categoryId: studySessionFieldValidators.categoryId,
             id: v.id("studySessions"),
             interruptionCount: studySessionFieldValidators.interruptionCount,
             reasons: v.array(interruptionReasonValidator),

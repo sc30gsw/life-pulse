@@ -53,7 +53,7 @@ function groupByDateDesc(sessions: SessionWithReasons[]) {
       sortBy(daySessions, (session) => session.startedAt),
       (session) => ({
         actualMinutes: Math.round(session.accumulatedMs / MINUTE_MS),
-        category: session.category,
+        categoryId: session.categoryId,
         id: session._id,
         interruptionCount: session.interruptionCount,
         reasons: session.reasons,

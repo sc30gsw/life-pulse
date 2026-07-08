@@ -2,7 +2,6 @@ import { v } from "convex/values";
 
 import {
   BLOCK_STATUS_VALUES,
-  CATEGORY_VALUES,
   DOG_TASK_MOVE_DIRECTION_VALUES,
   EROSION_REASON_VALUES,
   FASTING_PHASE_VALUES,
@@ -24,8 +23,6 @@ function literalUnion<T extends string>(values: readonly T[]) {
 export const creationTimeValidator = v.number();
 
 export const roleValidator = literalUnion(ROLE_VALUES);
-
-export const categoryValidator = literalUnion(CATEGORY_VALUES);
 
 export const sessionStatusValidator = literalUnion(SESSION_STATUS_VALUES);
 
@@ -68,7 +65,10 @@ export const studySessionFieldValidators = {
   abandonJobId: v.optional(v.id("_scheduled_functions")),
   accumulatedMs: v.number(),
   blockId: v.optional(v.id("studyBlocks")),
-  category: categoryValidator,
+  // Deprecated migration-only field. Category display/order now belongs to
+  // studyCategories and new writes must use categoryId.
+  category: v.optional(v.string()),
+  categoryId: v.optional(v.id("studyCategories")),
   dateJst: v.string(),
   endedAt: v.optional(v.number()),
   interruptionCount: v.number(),
@@ -93,7 +93,10 @@ export const interruptionFieldValidators = {
 };
 
 export const studyBlockFieldValidators = {
-  category: categoryValidator,
+  // Deprecated migration-only field. Category display/order now belongs to
+  // studyCategories and new writes must use categoryId.
+  category: v.optional(v.string()),
+  categoryId: v.optional(v.id("studyCategories")),
   dateJst: v.string(),
   endHm: v.string(),
   erosionReason: v.optional(erosionReasonValidator),
@@ -109,6 +112,19 @@ export const studyBlockDocumentValidator = v.object({
   _creationTime: creationTimeValidator,
   _id: v.id("studyBlocks"),
   ...studyBlockFieldValidators,
+});
+
+export const studyCategoryFieldValidators = {
+  archivedAt: v.optional(v.number()),
+  name: v.string(),
+  sortOrder: v.number(),
+  userId: v.id("appUsers"),
+};
+
+export const studyCategoryDocumentValidator = v.object({
+  _creationTime: creationTimeValidator,
+  _id: v.id("studyCategories"),
+  ...studyCategoryFieldValidators,
 });
 
 export const fastingWindowFieldValidators = {

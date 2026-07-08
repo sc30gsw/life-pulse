@@ -3,10 +3,8 @@ import { notifications } from "@mantine/notifications";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { ConvexError } from "convex/values";
-import * as v from "valibot";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
-import { CATEGORY_VALUES } from "~/../convex/lib/domain";
 import { hmToMinutes, minutesToHm } from "~/../convex/lib/hm";
 import { studyBlocksQuery } from "~/features/study/api/study-blocks-query";
 import { useDeclineBlock } from "~/features/study/hooks/use-decline-block";
@@ -15,12 +13,6 @@ import { useRescheduleBlock } from "~/features/study/hooks/use-reschedule-block"
 import { useStartSession } from "~/features/study/hooks/use-start-session";
 import { useStudyClock } from "~/features/study/hooks/use-study-clock";
 import { useUndoDeclineBlock } from "~/features/study/hooks/use-undo-decline-block";
-import type { SessionCategory } from "~/types/dashboard";
-
-const CategoryFallbackSchema = v.fallback(
-  v.picklist([...CATEGORY_VALUES] satisfies SessionCategory[]),
-  "other",
-);
 
 function showError(message: string) {
   notifications.show({ color: "red", message, title: "エラー" });
@@ -129,10 +121,15 @@ export function useStudyBlocks() {
   }
 
   function onStartFromBlock(block: Doc<"studyBlocks">) {
+    if (block.categoryId === undefined) {
+      showError("カテゴリ移行が未完了の枠です");
+      return;
+    }
+
     startSession.mutate(
       {
         blockId: block._id,
-        category: v.parse(CategoryFallbackSchema, block.category),
+        categoryId: block.categoryId,
         dateJst,
         plannedMinutes: block.plannedMinutes,
       },

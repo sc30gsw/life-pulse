@@ -1,6 +1,5 @@
 import type {
   BLOCK_STATUS_VALUES,
-  CATEGORY_VALUES,
   EROSION_REASON_VALUES,
   INTERRUPTION_REASON_VALUES,
   PRESENCE_STATE_VALUES,
@@ -12,8 +11,6 @@ import type {
 // Data-shape types are NOT duplicated here — components import `Doc`/`FunctionReturnType`
 // from Convex's generated types directly, so convex/schema.ts stays the single source of
 // truth. Domain value types derive from convex/lib/domain.ts value tuples, per CVX-16.
-
-export type SessionCategory = (typeof CATEGORY_VALUES)[number];
 
 export type InterruptionReason = (typeof INTERRUPTION_REASON_VALUES)[number];
 

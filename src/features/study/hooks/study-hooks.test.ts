@@ -67,7 +67,7 @@ function buildBlock(overrides: Partial<Doc<"studyBlocks">> = {}): Doc<"studyBloc
   return {
     _creationTime: 1,
     _id: "block_1" as Doc<"studyBlocks">["_id"],
-    category: "toeic",
+    categoryId: "category_toeic" as Doc<"studyBlocks">["categoryId"],
     dateJst: "2099-01-01",
     endHm: "07:00",
     plannedMinutes: 60,
@@ -116,13 +116,18 @@ test("study block actions call mutations and surface outcomes", () => {
   result.onReschedule(buildBlock(), "bad");
   expect(hookState.rescheduleMutate).toHaveBeenCalledTimes(1);
 
-  result.onStartFromBlock(buildBlock({ category: "unknown" as Doc<"studyBlocks">["category"] }));
+  result.onStartFromBlock(buildBlock());
   const startOptions = hookState.startMutate.mock.calls[0]?.[1] as {
     onError: (error: unknown) => void;
   };
   startOptions.onError(new ConvexError("SESSION_EXISTS"));
   expect(hookState.startMutate).toHaveBeenCalledWith(
-    { blockId: "block_1", category: "other", dateJst: "2099-01-01", plannedMinutes: 60 },
+    {
+      blockId: "block_1",
+      categoryId: "category_toeic",
+      dateJst: "2099-01-01",
+      plannedMinutes: 60,
+    },
     expect.any(Object),
   );
   expect(notifications.show).toHaveBeenCalledWith(

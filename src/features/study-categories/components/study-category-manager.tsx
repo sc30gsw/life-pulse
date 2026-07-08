@@ -164,7 +164,10 @@ function StudyCategoryRow({ activeIndex, activeLength, category, onMove }: Study
               if (result === "deleted") {
                 showSuccess("削除しました", `「${category.name}」を削除しました`);
               } else {
-                showSuccess("非表示にしました", `使用済みのため「${category.name}」を非表示にしました`);
+                showSuccess(
+                  "非表示にしました",
+                  `使用済みのため「${category.name}」を非表示にしました`,
+                );
               }
             },
           },
@@ -217,7 +220,12 @@ function StudyCategoryRow({ activeIndex, activeLength, category, onMove }: Study
               />
             )}
           </Field>
-          <ActionIcon aria-label="保存" className="border-bd bg-inset" type="submit" variant="default">
+          <ActionIcon
+            aria-label="保存"
+            className="border-bd bg-inset"
+            type="submit"
+            variant="default"
+          >
             <IconCheck size={16} />
           </ActionIcon>
           <ActionIcon
@@ -295,7 +303,11 @@ function StudyCategoryRow({ activeIndex, activeLength, category, onMove }: Study
         )}
         <ActionIcon
           aria-label="削除"
-          className={cn(ACCENT_CLASSES.coral.border, ACCENT_CLASSES.coral.bg, ACCENT_CLASSES.coral.text)}
+          className={cn(
+            ACCENT_CLASSES.coral.border,
+            ACCENT_CLASSES.coral.bg,
+            ACCENT_CLASSES.coral.text,
+          )}
           onClick={onRemove}
           variant="default"
         >

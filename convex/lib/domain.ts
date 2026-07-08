@@ -1,12 +1,5 @@
 export const ROLE_VALUES = ["self", "partner"] as const satisfies readonly string[];
 
-export const CATEGORY_VALUES = [
-  "eikaiwa",
-  "toeic",
-  "reading",
-  "other",
-] as const satisfies readonly string[];
-
 export const SESSION_STATUS_VALUES = [
   "active",
   "paused",

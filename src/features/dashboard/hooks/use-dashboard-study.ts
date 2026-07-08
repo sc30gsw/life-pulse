@@ -2,8 +2,8 @@ import { notifications } from "@mantine/notifications";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ConvexError } from "convex/values";
 
-import { dashboardStudyQuery } from "~/features/dashboard/api/dashboard-study-query";
 import type { Id } from "~/../convex/_generated/dataModel";
+import { dashboardStudyQuery } from "~/features/dashboard/api/dashboard-study-query";
 import { useBoardClock } from "~/features/dashboard/hooks/use-board-clock";
 import { useCompleteSession } from "~/features/dashboard/hooks/use-complete-session";
 import { usePauseSession } from "~/features/dashboard/hooks/use-pause-session";

@@ -12,6 +12,7 @@ import {
   interruptionFieldValidators,
   presenceFieldValidators,
   studyBlockFieldValidators,
+  studyCategoryFieldValidators,
   studySessionFieldValidators,
   syncLogFieldValidators,
   workoutFieldValidators,
@@ -27,13 +28,19 @@ export default defineSchema({
   // FR-2 学習セッション(ライブ状態そのもの)
   studySessions: defineTable(studySessionFieldValidators)
     .index("by_user_status", ["userId", "status"])
-    .index("by_user_date", ["userId", "dateJst"]),
+    .index("by_user_date", ["userId", "dateJst"])
+    .index("by_categoryId", ["categoryId"]),
 
   // FR-2.4 中断ログ
   interruptions: defineTable(interruptionFieldValidators).index("by_session", ["sessionId"]),
 
   // FR-3 学習枠
-  studyBlocks: defineTable(studyBlockFieldValidators).index("by_user_date", ["userId", "dateJst"]),
+  studyBlocks: defineTable(studyBlockFieldValidators)
+    .index("by_user_date", ["userId", "dateJst"])
+    .index("by_categoryId", ["categoryId"]),
+
+  // 学習カテゴリ定義(ユーザーごとの表示名・並び順・状態の SSoT)
+  studyCategories: defineTable(studyCategoryFieldValidators).index("by_user", ["userId"]),
 
   // FR-4 断食ウィンドウ(ステートマシン)
   fastingWindows: defineTable(fastingWindowFieldValidators).index("by_user_status", [

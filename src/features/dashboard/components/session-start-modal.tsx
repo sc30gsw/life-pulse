@@ -4,6 +4,7 @@ import type { UseDisclosureReturnValue } from "@mantine/hooks";
 import { cn } from "cnfast";
 import type { ComponentProps } from "react";
 
+import type { Id } from "~/../convex/_generated/dataModel";
 import type { useDashboardStudy } from "~/features/dashboard/hooks/use-dashboard-study";
 import { StartSessionSchema } from "~/features/dashboard/schemas/start-session-schema";
 import { CategoryRequiredPrompt } from "~/features/study-categories/components/category-required-prompt";
@@ -35,80 +36,80 @@ export function SessionStartModal({ opened, onClose, onStart }: SessionStartModa
       {activeCategories.length === 0 ? (
         <CategoryRequiredPrompt />
       ) : (
-      <Form
-        of={startSessionForm}
-        onSubmit={(output) => {
-          onStart(output.categoryId, output.plannedMinutes);
-          onClose();
-        }}
-      >
-        <Stack gap="md">
-          <Stack gap={6}>
-            <Text
-              component="span"
-              size="10.5px"
-              fw={600}
-              tt="uppercase"
-              c={ACCENT_VARS.faint}
-              style={{ letterSpacing: "0.13em" }}
-            >
-              カテゴリ
-            </Text>
-            <Field of={startSessionForm} path={["categoryId"]}>
-              {(field) => (
-                <Group component="fieldset" gap={8} m={0} p={0} style={{ border: 0 }} wrap="wrap">
-                  <legend className="sr-only">カテゴリ</legend>
-                  {activeCategories.map((category) => {
-                    const isActive = field.input === category._id;
+        <Form
+          of={startSessionForm}
+          onSubmit={(output) => {
+            onStart(output.categoryId as Id<"studyCategories">, output.plannedMinutes);
+            onClose();
+          }}
+        >
+          <Stack gap="md">
+            <Stack gap={6}>
+              <Text
+                component="span"
+                size="10.5px"
+                fw={600}
+                tt="uppercase"
+                c={ACCENT_VARS.faint}
+                style={{ letterSpacing: "0.13em" }}
+              >
+                カテゴリ
+              </Text>
+              <Field of={startSessionForm} path={["categoryId"]}>
+                {(field) => (
+                  <Group component="fieldset" gap={8} m={0} p={0} style={{ border: 0 }} wrap="wrap">
+                    <legend className="sr-only">カテゴリ</legend>
+                    {activeCategories.map((category) => {
+                      const isActive = field.input === category._id;
 
-                    return (
-                      <UnstyledButton
-                        key={category._id}
-                        type="button"
-                        aria-pressed={isActive}
-                        onClick={() => field.onChange(category._id)}
-                        className={cn(
-                          "rounded-lg border px-3 py-1.5 text-xs",
-                          "transition hover:brightness-110 active:brightness-95",
-                          isActive
-                            ? cn(
-                                ACCENT_CLASSES.good.border,
-                                ACCENT_CLASSES.good.bg,
-                                ACCENT_CLASSES.good.text,
-                                "font-semibold",
-                              )
-                            : "border-bd-2 bg-inset text-dim font-medium",
-                        )}
-                      >
-                        {category.name}
-                      </UnstyledButton>
-                    );
-                  })}
-                </Group>
+                      return (
+                        <UnstyledButton
+                          key={category._id}
+                          type="button"
+                          aria-pressed={isActive}
+                          onClick={() => field.onChange(category._id)}
+                          className={cn(
+                            "rounded-lg border px-3 py-1.5 text-xs",
+                            "transition hover:brightness-110 active:brightness-95",
+                            isActive
+                              ? cn(
+                                  ACCENT_CLASSES.good.border,
+                                  ACCENT_CLASSES.good.bg,
+                                  ACCENT_CLASSES.good.text,
+                                  "font-semibold",
+                                )
+                              : "border-bd-2 bg-inset text-dim font-medium",
+                          )}
+                        >
+                          {category.name}
+                        </UnstyledButton>
+                      );
+                    })}
+                  </Group>
+                )}
+              </Field>
+            </Stack>
+            <Field of={startSessionForm} path={["plannedMinutes"]}>
+              {(field) => (
+                <NumberInput
+                  {...field.props}
+                  error={field.errors?.[0]}
+                  label="目標分数(任意)"
+                  min={1}
+                  onChange={(value) => field.onChange(value === "" ? undefined : Number(value))}
+                  value={field.input ?? ""}
+                />
               )}
             </Field>
+            <Button
+              className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+              style={ACCENT_SOLID_STYLE.good}
+              type="submit"
+            >
+              開始する
+            </Button>
           </Stack>
-          <Field of={startSessionForm} path={["plannedMinutes"]}>
-            {(field) => (
-              <NumberInput
-                {...field.props}
-                error={field.errors?.[0]}
-                label="目標分数(任意)"
-                min={1}
-                onChange={(value) => field.onChange(value === "" ? undefined : Number(value))}
-                value={field.input ?? ""}
-              />
-            )}
-          </Field>
-          <Button
-            className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
-            style={ACCENT_SOLID_STYLE.good}
-            type="submit"
-          >
-            開始する
-          </Button>
-        </Stack>
-      </Form>
+        </Form>
       )}
     </Modal>
   );

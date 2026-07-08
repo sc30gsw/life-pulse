@@ -4,7 +4,7 @@ import { DateTimePicker } from "@mantine/dates";
 import { notifications } from "@mantine/notifications";
 import { cn } from "cnfast";
 
-import type { Doc } from "~/../convex/_generated/dataModel";
+import type { Doc, Id } from "~/../convex/_generated/dataModel";
 import {
   DATE_TIME_PICKER_CLASS_NAMES,
   DATE_TIME_PICKER_POPOVER_PROPS,
@@ -22,11 +22,7 @@ import {
   type DeclareBlockFormInput,
   DeclareBlockSchema,
 } from "~/features/study/schemas/declare-block-schema";
-import {
-  ACCENT_CLASSES,
-  ACCENT_SOLID_STYLE,
-  ACCENT_VARS,
-} from "~/types/dashboard";
+import { ACCENT_CLASSES, ACCENT_SOLID_STYLE, ACCENT_VARS } from "~/types/dashboard";
 import { todayJst } from "~/utils/date-jst";
 
 type EditableBlock = Pick<
@@ -88,11 +84,15 @@ export function DeclareBlockForm({ block, onDone }: DeclareBlockFormProps = {}) 
             onDone?.();
           },
         };
+        const args = {
+          ...output,
+          categoryId: output.categoryId as Id<"studyCategories">,
+        };
 
         if (isEditing) {
-          updateBlock.mutate({ ...output, blockId: block._id }, options);
+          updateBlock.mutate({ ...args, blockId: block._id }, options);
         } else {
-          declareBlock.mutate(output, options);
+          declareBlock.mutate(args, options);
         }
       }}
     >

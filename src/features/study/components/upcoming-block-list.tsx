@@ -5,29 +5,15 @@ import { cn } from "cnfast";
 import { useState } from "react";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
+import { useStudyCategoriesQuery } from "~/features/study-categories/hooks/use-study-categories-query";
 import { EditBlockModal } from "~/features/study/components/edit-block-modal";
 import { useUpcomingBlocks } from "~/features/study/hooks/use-upcoming-blocks";
-import { ACCENT_CLASSES, ACCENT_VARS, type SessionCategory } from "~/types/dashboard";
+import { ACCENT_CLASSES, ACCENT_VARS } from "~/types/dashboard";
 import { holidayName } from "~/utils/holiday";
-
-function categoryLabel(category: SessionCategory) {
-  switch (category) {
-    case "eikaiwa":
-      return "英会話";
-
-    case "other":
-      return "その他";
-
-    case "reading":
-      return "読書";
-
-    case "toeic":
-      return "TOEIC";
-  }
-}
 
 export function UpcomingBlockList() {
   const { blocks, onCancel } = useUpcomingBlocks();
+  const { categoryName } = useStudyCategoriesQuery();
   const [editingBlock, setEditingBlock] = useState<Doc<"studyBlocks"> | null>(null);
 
   if (blocks.length === 0) {
@@ -81,7 +67,7 @@ export function UpcomingBlockList() {
                     ),
                   }}
                 >
-                  {categoryLabel(block.category as SessionCategory)}
+                  {categoryName(block.categoryId)}
                 </Chip>
                 <Text c="dimmed" size="xs">
                   {block.plannedMinutes}分

@@ -14,6 +14,7 @@ import type { ComponentProps } from "react";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
 import { EROSION_REASON_VALUES } from "~/../convex/lib/domain";
+import { useStudyCategoriesQuery } from "~/features/study-categories/hooks/use-study-categories-query";
 import { DECLARATION_STATUS_ACCENT } from "~/features/study/constants/declaration-status-accent";
 import {
   ACCENT_CLASSES,
@@ -21,7 +22,6 @@ import {
   ACCENT_VARS,
   type DeclarationStatus,
   type ErosionReason,
-  type SessionCategory,
 } from "~/types/dashboard";
 
 const EROSION_REASONS = EROSION_REASON_VALUES;
@@ -34,22 +34,6 @@ const TOOLTIP_STYLES = {
     fontSize: "11px",
   },
 } as const satisfies ComponentProps<typeof Tooltip>["styles"];
-
-function categoryLabel(category: SessionCategory) {
-  switch (category) {
-    case "eikaiwa":
-      return "英会話";
-
-    case "other":
-      return "その他";
-
-    case "reading":
-      return "読書";
-
-    case "toeic":
-      return "TOEIC";
-  }
-}
 
 function declarationStatusLabel(status: DeclarationStatus) {
   switch (status) {
@@ -110,6 +94,7 @@ export function BlockListItem({
   suggestions,
 }: BlockListItemProps) {
   const accent = DECLARATION_STATUS_ACCENT[block.status];
+  const { categoryName } = useStudyCategoriesQuery();
 
   return (
     <Box className="border-bd bg-panel-2 rounded-xl border px-3.5 py-2.5">
@@ -128,7 +113,7 @@ export function BlockListItem({
             ),
           }}
         >
-          {categoryLabel(block.category as SessionCategory)}
+          {categoryName(block.categoryId)}
         </Chip>
         <Text c="dimmed" size="xs">
           {block.plannedMinutes}分

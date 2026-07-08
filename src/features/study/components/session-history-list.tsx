@@ -4,12 +4,12 @@ import { IconHistory } from "@tabler/icons-react";
 import { cn } from "cnfast";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
+import { useStudyCategoriesQuery } from "~/features/study-categories/hooks/use-study-categories-query";
 import { useSessionHistory } from "~/features/study/hooks/use-session-history";
 import {
   ACCENT_CLASSES,
   ACCENT_VARS,
   type InterruptionReason,
-  type SessionCategory,
   type SessionStatus,
 } from "~/types/dashboard";
 import { dayjs } from "~/utils/dayjs";
@@ -23,22 +23,6 @@ const STATUS_ACCENT = {
 
 function formatStartTime(startedAt: Doc<"studySessions">["startedAt"]) {
   return dayjs(startedAt).tz("Asia/Tokyo").format("HH:mm");
-}
-
-function categoryLabel(category: SessionCategory) {
-  switch (category) {
-    case "eikaiwa":
-      return "英会話";
-
-    case "other":
-      return "その他";
-
-    case "reading":
-      return "読書";
-
-    case "toeic":
-      return "TOEIC";
-  }
 }
 
 function reasonLabel(reason: InterruptionReason) {
@@ -87,6 +71,7 @@ function formatReasonBreakdown(reasons: InterruptionReason[]) {
 
 export function SessionHistoryList() {
   const history = useSessionHistory();
+  const { categoryName } = useStudyCategoriesQuery();
 
   if (history.days.length === 0) {
     return (
@@ -128,7 +113,7 @@ export function SessionHistoryList() {
                     ),
                   }}
                 >
-                  {categoryLabel(session.category as SessionCategory)}
+                  {categoryName(session.categoryId)}
                 </Chip>
                 <Text className="tabular-nums" size="xs">
                   {session.actualMinutes}分

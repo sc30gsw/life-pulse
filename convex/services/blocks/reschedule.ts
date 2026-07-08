@@ -27,8 +27,12 @@ export async function reschedule(ctx: MutationCtx, user: Doc<"appUsers">, args: 
 
   // spec §4.3: the replacement is a fresh planned block (source stays "manual");
   // the original keeps the erosion record and points at its successor.
+  if (block.categoryId === undefined) {
+    throw new ConvexError("CATEGORY_NOT_FOUND");
+  }
+
   const newBlockId = await ctx.db.insert("studyBlocks", {
-    category: block.category,
+    categoryId: block.categoryId,
     dateJst: block.dateJst,
     endHm: args.endHm,
     plannedMinutes: end - start,

@@ -1,11 +1,13 @@
 import { ConvexError } from "convex/values";
 
-import type { Doc } from "../../_generated/dataModel";
+import type { Doc, Id } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
 import { assertDateJst, todayJst } from "../../lib/dateRange";
 import { hmToMinutes } from "../../lib/hm";
+import { assertCategoryIsActive } from "../studyCategories/validate";
 
-type DeclareArgs = Pick<Doc<"studyBlocks">, "category" | "dateJst" | "endHm" | "startHm">;
+type DeclareArgs = Pick<Doc<"studyBlocks">, "dateJst" | "endHm" | "startHm"> &
+  Record<"categoryId", Id<"studyCategories">>;
 
 export async function declare(ctx: MutationCtx, user: Doc<"appUsers">, args: DeclareArgs) {
   // A malformed dateJst would create an orphan block that no dateJst-keyed
@@ -22,11 +24,13 @@ export async function declare(ctx: MutationCtx, user: Doc<"appUsers">, args: Dec
     throw new ConvexError("INVALID_RANGE");
   }
 
+  await assertCategoryIsActive(ctx, user, args.categoryId);
+
   // plannedMinutes is derived server-side from the time range so the two can
   // never drift (decided in the W2 planning interview: the form only inputs
-  // startHm / endHm / category).
+  // startHm / endHm / categoryId).
   return await ctx.db.insert("studyBlocks", {
-    category: args.category,
+    categoryId: args.categoryId,
     dateJst: args.dateJst,
     endHm: args.endHm,
     plannedMinutes: end - start,

@@ -1,12 +1,14 @@
 import { ConvexError } from "convex/values";
 
-import type { Doc } from "../../_generated/dataModel";
+import type { Doc, Id } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
 import { assertDateJst, todayJst } from "../../lib/dateRange";
 import { hmToMinutes } from "../../lib/hm";
+import { assertCategoryIsActive } from "../studyCategories/validate";
 
-type UpdateArgs = Pick<Doc<"studyBlocks">, "category" | "dateJst" | "endHm" | "startHm"> &
-  Record<"blockId", Doc<"studyBlocks">["_id"]>;
+type UpdateArgs = Pick<Doc<"studyBlocks">, "dateJst" | "endHm" | "startHm"> &
+  Record<"blockId", Doc<"studyBlocks">["_id"]> &
+  Record<"categoryId", Id<"studyCategories">>;
 
 export async function update(ctx: MutationCtx, user: Doc<"appUsers">, args: UpdateArgs) {
   const block = await ctx.db.get("studyBlocks", args.blockId);
@@ -31,8 +33,10 @@ export async function update(ctx: MutationCtx, user: Doc<"appUsers">, args: Upda
     throw new ConvexError("INVALID_RANGE");
   }
 
+  await assertCategoryIsActive(ctx, user, args.categoryId);
+
   await ctx.db.patch("studyBlocks", block._id, {
-    category: args.category,
+    categoryId: args.categoryId,
     dateJst: args.dateJst,
     endHm: args.endHm,
     plannedMinutes: end - start,
