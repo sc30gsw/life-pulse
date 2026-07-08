@@ -2,7 +2,7 @@ import { getAuthUserId, modifyAccountCredentials, retrieveAccount } from "@conve
 import { ConvexError } from "convex/values";
 
 import { internal } from "../../_generated/api";
-import { Doc } from "../../_generated/dataModel";
+import type { Doc } from "../../_generated/dataModel";
 import type { ActionCtx } from "../../_generated/server";
 import { validatePasswordRequirements } from "../../lib/passwordRequirements";
 

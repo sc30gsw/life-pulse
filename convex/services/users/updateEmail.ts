@@ -2,8 +2,8 @@ import { getAuthUserId, retrieveAccount } from "@convex-dev/auth/server";
 import { ConvexError } from "convex/values";
 
 import { internal } from "../../_generated/api";
+import type { Doc } from "../../_generated/dataModel";
 import type { ActionCtx } from "../../_generated/server";
-import { Doc } from "../../_generated/dataModel";
 
 type UpdateEmailArgs = { currentPassword: NonNullable<Doc<"authAccounts">["secret"]>; newEmail: NonNullable<Doc<"users">["email"]> };
 

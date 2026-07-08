@@ -16,11 +16,21 @@ const PARTNER_PASSWORD = "PartnerPassw0rd1";
 // lint heuristic — this is convex-test's `t.action(handler)` escape hatch
 // for running arbitrary code with a real ActionCtx, not a registered Convex
 // function.
-async function createPasswordAccount(ctx: ActionCtx, email: string, password: string) {
+async function createPasswordAccount(
+  ctx: ActionCtx,
+  email: string,
+  password: string,
+  displayName: string,
+  role: "self" | "partner",
+) {
   return createAccount(ctx, {
     provider: "password",
     account: { id: email, secret: password },
-    profile: { email },
+    // profile flows straight into convex/auth.ts's createOrUpdateUser
+    // callback (same as a real Password sign-up), which is what actually
+    // creates the matching appUsers row via ensureUser — no separate insert
+    // needed here.
+    profile: { email, displayName, role },
   });
 }
 
@@ -32,10 +42,11 @@ async function retrieveByEmail(ctx: ActionCtx, email: string, password: string) 
 }
 
 // Seeds a real @convex-dev/auth `users` + `authAccounts` row (via
-// createAccount, the same primitive the Password provider itself uses) AND
-// the matching appUsers row, so updateEmail's getEmailForCaller/
-// applyEmailChange round-trip against real auth tables, not fake identity
-// strings.
+// createAccount, the same primitive the Password provider itself uses),
+// which in turn creates the matching appUsers row through the same
+// createOrUpdateUser callback a real sign-up goes through — so updateEmail's
+// getEmailForCaller/applyEmailChange round-trip against real auth tables,
+// not fake identity strings.
 async function seedAccount(
   t: ReturnType<typeof convexTest>,
   email: string,
@@ -43,8 +54,9 @@ async function seedAccount(
   displayName: string,
   role: "self" | "partner",
 ) {
-  const { user } = await t.action((ctx) => createPasswordAccount(ctx, email, password));
-  await t.run((ctx) => ctx.db.insert("appUsers", { authSubject: user._id, displayName, role }));
+  const { user } = await t.action((ctx) =>
+    createPasswordAccount(ctx, email, password, displayName, role),
+  );
   return user._id;
 }
 
