@@ -8,7 +8,10 @@ import type { Doc } from "../../_generated/dataModel";
 // mode turns off), then "garmin" is preferred over "manual".
 // Pure function (CVX-09) — reused by queries/health/range.ts (many dates) and
 // services/dashboard/health.ts (single date, via mergeByDate(rows, demoMode)[0] ?? null).
-export function mergeByDate(rows: Doc<"healthMetrics">[], demoMode: Doc<"appSettings">["demoMode"]) {
+export function mergeByDate(
+  rows: Doc<"healthMetrics">[],
+  demoMode: Doc<"appSettings">["demoMode"],
+) {
   const candidates = demoMode ? rows : rows.filter((row) => row.source !== "demo");
   const grouped = groupBy(candidates, (row) => row.dateJst);
   const merged = Object.values(grouped).map((dateRows) => pickBySourcePriority(dateRows, demoMode));

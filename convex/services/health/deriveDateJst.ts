@@ -10,8 +10,6 @@ dayjsBase.extend(utc);
 // dayjs().utcOffset(9) technique convex/lib/dateRange.ts's todayJst() uses
 // internally (NFR-3: no new date logic, same pattern applied to an arbitrary
 // instant instead of "now").
-export function deriveDateJst(
-  at: Doc<"workouts">["at"],
-): Doc<"workouts">["dateJst"] {
+export function deriveDateJst(at: Doc<"workouts">["at"]): Doc<"workouts">["dateJst"] {
   return dayjsBase(at).utcOffset(9).format("YYYY-MM-DD");
 }

@@ -62,7 +62,9 @@ export function mapDailyMetrics(
   };
 }
 
-function secondsToMinutes(seconds: number | null | undefined): Doc<"healthMetrics">["sleepMinutes"] {
+function secondsToMinutes(
+  seconds: number | null | undefined,
+): Doc<"healthMetrics">["sleepMinutes"] {
   return seconds == null ? undefined : Math.round(seconds / 60);
 }
 
