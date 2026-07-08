@@ -6,15 +6,18 @@ import schema from "../../schema";
 import { ensureUser } from "../../services/users/ensureUser";
 import { testModules } from "../../test.setup";
 
-test("removes the event and allows the same kind to be logged again", async () => {
+test("removes the event and allows the same task to be logged again", async () => {
   const t = convexTest(schema, testModules);
   const asSelf = t.withIdentity({ subject: "user_1" });
 
   await asSelf.run((ctx) => ensureUser(ctx, "user_1", { displayName: "本人", role: "self" }));
+  const taskId = await t.run((ctx) =>
+    ctx.db.insert("dogTasks", { archivedAt: undefined, name: "朝散歩", sortOrder: 0 }),
+  );
 
   const eventId = await asSelf.mutation(api.mutations.dog.logEvent.logEvent, {
     dateJst: "2026-07-06",
-    kind: "walk_am",
+    taskId,
   });
 
   await asSelf.mutation(api.mutations.dog.undoEvent.undoEvent, {
@@ -33,7 +36,7 @@ test("removes the event and allows the same kind to be logged again", async () =
   await expect(
     asSelf.mutation(api.mutations.dog.logEvent.logEvent, {
       dateJst: "2026-07-06",
-      kind: "walk_am",
+      taskId,
     }),
   ).resolves.toBeDefined();
 });
@@ -43,10 +46,13 @@ test("rejects undo when dateJst does not match the event's actual date", async (
   const asSelf = t.withIdentity({ subject: "user_1" });
 
   await asSelf.run((ctx) => ensureUser(ctx, "user_1", { displayName: "本人", role: "self" }));
+  const taskId = await t.run((ctx) =>
+    ctx.db.insert("dogTasks", { archivedAt: undefined, name: "朝散歩", sortOrder: 0 }),
+  );
 
   const eventId = await asSelf.mutation(api.mutations.dog.logEvent.logEvent, {
     dateJst: "2026-07-06",
-    kind: "walk_am",
+    taskId,
   });
 
   await expect(
@@ -66,10 +72,13 @@ test("a different authenticated user can undo an event logged by the caller (no 
   await asPartner.run((ctx) =>
     ensureUser(ctx, "partner_1", { displayName: "パートナー", role: "partner" }),
   );
+  const taskId = await t.run((ctx) =>
+    ctx.db.insert("dogTasks", { archivedAt: undefined, name: "朝散歩", sortOrder: 0 }),
+  );
 
   const eventId = await asSelf.mutation(api.mutations.dog.logEvent.logEvent, {
     dateJst: "2026-07-06",
-    kind: "walk_am",
+    taskId,
   });
 
   await asPartner.mutation(api.mutations.dog.undoEvent.undoEvent, {
@@ -91,10 +100,13 @@ test("rejects an unauthenticated call", async () => {
   const asSelf = t.withIdentity({ subject: "user_1" });
 
   await asSelf.run((ctx) => ensureUser(ctx, "user_1", { displayName: "本人", role: "self" }));
+  const taskId = await t.run((ctx) =>
+    ctx.db.insert("dogTasks", { archivedAt: undefined, name: "朝散歩", sortOrder: 0 }),
+  );
 
   const eventId = await asSelf.mutation(api.mutations.dog.logEvent.logEvent, {
     dateJst: "2026-07-06",
-    kind: "walk_am",
+    taskId,
   });
 
   await expect(

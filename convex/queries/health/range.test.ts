@@ -56,7 +56,7 @@ test("prefers the demo row for a date when demoMode is on", async () => {
   const t = convexTest(schema, testModules);
   const asSelf = await seedSelf(t);
   await t.run((ctx) =>
-    ctx.db.insert("appSettings", { demoMode: true, dogName: "ポチ", fastingDefaultMinutes: 960 }),
+    ctx.db.insert("appSettings", { demoMode: true, fastingDefaultMinutes: 960 }),
   );
   await t.run((ctx) =>
     ctx.db.insert("healthMetrics", {
@@ -89,7 +89,7 @@ test("excludes the demo row for a date when demoMode is off, preferring the manu
   const t = convexTest(schema, testModules);
   const asSelf = await seedSelf(t);
   await t.run((ctx) =>
-    ctx.db.insert("appSettings", { demoMode: false, dogName: "ポチ", fastingDefaultMinutes: 960 }),
+    ctx.db.insert("appSettings", { demoMode: false, fastingDefaultMinutes: 960 }),
   );
   await t.run((ctx) =>
     ctx.db.insert("healthMetrics", {

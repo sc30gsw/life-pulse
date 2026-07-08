@@ -7,8 +7,9 @@ import { assertHistoryRange } from "../../lib/dateRange";
 type HistoryArgs = Record<"fromDateJst" | "toDateJst", Doc<"dogEvents">["dateJst"]>;
 type HistoryOptions = HistoryArgs & Partial<Record<"includeOlderDays", boolean>>;
 
-type HistoryEvent = Pick<Doc<"dogEvents">, "_id" | "at" | "dateJst" | "kind"> &
-  Record<"byDisplayName", Doc<"appUsers">["displayName"]>;
+type HistoryEvent = Pick<Doc<"dogEvents">, "_id" | "at" | "dateJst"> &
+  Record<"byDisplayName", Doc<"appUsers">["displayName"]> &
+  Record<"taskName", Doc<"dogTasks">["name"]>;
 
 const INITIAL_HISTORY_DAY_COUNT = 2;
 
@@ -21,15 +22,22 @@ export async function history(ctx: QueryCtx, args: HistoryOptions) {
     .collect();
 
   const actorsById = await resolveActorsById(ctx, unique(rawEvents.map((event) => event.byUserId)));
+  const taskNamesById = await resolveTaskNamesById(
+    ctx,
+    unique(rawEvents.map((event) => event.taskId)),
+  );
 
   const eventsWithActor = pipe(
     rawEvents,
     map((event): HistoryEvent | null => {
       const byDisplayName = actorsById.get(event.byUserId);
+      const taskName = taskNamesById.get(event.taskId);
 
       // A missing appUsers row means the actor was deleted after logging the
-      // event; drop it rather than surfacing a broken reference in the history.
-      if (byDisplayName === undefined) {
+      // event; a missing dogTasks row should never happen since tasks are
+      // only soft-deleted. Either way, drop it rather than surfacing a
+      // broken reference in the history.
+      if (byDisplayName === undefined || taskName === undefined) {
         return null;
       }
 
@@ -38,7 +46,7 @@ export async function history(ctx: QueryCtx, args: HistoryOptions) {
         at: event.at,
         byDisplayName,
         dateJst: event.dateJst,
-        kind: event.kind,
+        taskName,
       };
     }),
     filter(isNonNullish),
@@ -71,6 +79,18 @@ async function resolveActorsById(ctx: QueryCtx, userIds: Id<"appUsers">[]) {
   );
 }
 
+async function resolveTaskNamesById(ctx: QueryCtx, taskIds: Id<"dogTasks">[]) {
+  const tasks = await Promise.all(taskIds.map((taskId) => ctx.db.get("dogTasks", taskId)));
+
+  return new Map(
+    pipe(
+      tasks,
+      map((task) => (task === null ? null : ([task._id, task.name] as const))),
+      filter(isNonNullish),
+    ),
+  );
+}
+
 function groupByDateDesc(events: HistoryEvent[]) {
   const grouped = groupBy(events, (event) => event.dateJst);
   const sortedDays = sortBy(Object.entries(grouped), [([dateJst]) => dateJst, "desc"]);
@@ -79,7 +99,7 @@ function groupByDateDesc(events: HistoryEvent[]) {
     dateJst,
     events: map(
       sortBy(dayEvents, (event) => event.at),
-      ({ _id, at, byDisplayName, kind }) => ({ at, byDisplayName, id: _id, kind }),
+      ({ _id, at, byDisplayName, taskName }) => ({ at, byDisplayName, id: _id, taskName }),
     ),
   }));
 }

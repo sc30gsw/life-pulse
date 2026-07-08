@@ -1,38 +1,43 @@
 import type { Doc } from "../../_generated/dataModel";
 import type { QueryCtx } from "../../_generated/server";
+import { get as getDog } from "../dogs/get";
+import { listActiveDogTasks } from "../dogTasks/list";
 
 type DogArgs = Pick<Doc<"dogEvents">, "dateJst">;
 
 export async function dog(ctx: QueryCtx, args: DogArgs) {
-  const settings = await ctx.db.query("appSettings").first();
-  const dogName = settings?.dogName ?? "ハマロ";
+  const [dogDoc, activeTasks, rawEvents] = await Promise.all([
+    getDog(ctx),
+    listActiveDogTasks(ctx),
+    ctx.db
+      .query("dogEvents")
+      .withIndex("by_date", (q) => q.eq("dateJst", args.dateJst))
+      .collect(),
+  ]);
 
-  const rawEvents = await ctx.db
-    .query("dogEvents")
-    .withIndex("by_date", (q) => q.eq("dateJst", args.dateJst))
-    .collect();
+  const eventByTaskId = new Map(rawEvents.map((event) => [event.taskId, event]));
 
-  const eventsWithActor = await Promise.all(
-    rawEvents.map(async (event) => {
-      const byUser = await ctx.db.get("appUsers", event.byUserId);
+  const tasks = await Promise.all(
+    activeTasks.map(async (task) => {
+      const event = eventByTaskId.get(task._id);
 
-      // A missing appUsers row means the actor was deleted after logging the
-      // event; drop it rather than surfacing a broken reference on the board.
-      if (byUser === null) {
-        return null;
+      if (event === undefined) {
+        return { at: undefined, byRole: undefined, done: false, name: task.name, taskId: task._id };
       }
+
+      const byUser = await ctx.db.get("appUsers", event.byUserId);
 
       return {
         at: event.at,
-        byDisplayName: byUser.displayName,
-        byRole: byUser.role,
-        id: event._id,
-        kind: event.kind,
+        // A missing appUsers row means the actor was deleted after logging
+        // the event; drop byRole rather than surfacing a broken reference.
+        byRole: byUser?.role,
+        done: true,
+        name: task.name,
+        taskId: task._id,
       };
     }),
   );
 
-  const events = eventsWithActor.filter((event) => event !== null);
-
-  return { dogName, events };
+  return { dogName: dogDoc.name, tasks };
 }

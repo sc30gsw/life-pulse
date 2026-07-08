@@ -1,0 +1,50 @@
+import { getAuthUserId, modifyAccountCredentials, retrieveAccount } from "@convex-dev/auth/server";
+import { ConvexError } from "convex/values";
+
+import { internal } from "../../_generated/api";
+import { Doc } from "../../_generated/dataModel";
+import type { ActionCtx } from "../../_generated/server";
+import { validatePasswordRequirements } from "../../lib/passwordRequirements";
+
+type UpdatePasswordArgs = {
+  currentPassword: NonNullable<Doc<"authAccounts">["secret"]>;
+  newPassword: NonNullable<Doc<"authAccounts">["secret"]>;
+};
+
+// See convex/actions/users/updatePassword.ts for why this is an action, not
+// a mutation (retrieveAccount / modifyAccountCredentials require a
+// GenericActionCtx).
+export async function updatePassword(ctx: ActionCtx, args: UpdatePasswordArgs) {
+  const authUserId = await getAuthUserId(ctx);
+
+  if (authUserId === null) {
+    throw new ConvexError("UNAUTHENTICATED");
+  }
+
+  const currentEmail = await ctx.runQuery(
+    internal.queries.users.getEmailForCaller.getEmailForCaller,
+    {
+      authUserId,
+    },
+  );
+
+  try {
+    await retrieveAccount(ctx, {
+      provider: "password",
+      account: { id: currentEmail, secret: args.currentPassword },
+    });
+  } catch {
+    throw new ConvexError("INVALID_PASSWORD");
+  }
+
+  // Same requirement as sign-up (convex/auth.ts) — reuse the one shared
+  // validator so the two paths can never drift apart.
+  validatePasswordRequirements(args.newPassword);
+
+  // modifyAccountCredentials safely rehashes and stores the new secret using
+  // the library's own crypto config — never reimplemented here.
+  await modifyAccountCredentials(ctx, {
+    provider: "password",
+    account: { id: currentEmail, secret: args.newPassword },
+  });
+}

@@ -1,9 +1,9 @@
 import { Password } from "@convex-dev/auth/providers/Password";
 import { convexAuth } from "@convex-dev/auth/server";
 import type { WithoutSystemFields } from "convex/server";
-import { ConvexError } from "convex/values";
 
 import type { Doc } from "./_generated/dataModel";
+import { validatePasswordRequirements } from "./lib/passwordRequirements";
 import { ensureUser } from "./services/users/ensureUser";
 
 // Sign-up profile: `email` lives on the auth `users` table, while
@@ -32,16 +32,7 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
           role: params.role as SignUpProfile["role"],
         };
       },
-      validatePasswordRequirements: (password: string) => {
-        if (
-          password.length < 12 ||
-          !/[a-z]/.test(password) ||
-          !/[A-Z]/.test(password) ||
-          !/\d/.test(password)
-        ) {
-          throw new ConvexError("パスワードは12文字以上、英大文字・小文字・数字を含めてください");
-        }
-      },
+      validatePasswordRequirements,
     }),
   ],
 });

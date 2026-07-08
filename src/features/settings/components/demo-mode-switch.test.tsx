@@ -12,7 +12,7 @@ const hookState = vi.hoisted(() => ({
 
 vi.mock("~/features/settings/api/settings-query", () => ({
   useSettings: () => ({
-    data: { demoMode: hookState.demoMode, dogName: "ハマロ", fastingDefaultMinutes: 960 },
+    data: { demoMode: hookState.demoMode, fastingDefaultMinutes: 960 },
   }),
 }));
 

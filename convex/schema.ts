@@ -5,6 +5,8 @@ import {
   appSettingsFieldValidators,
   appUserFieldValidators,
   dogEventFieldValidators,
+  dogFieldValidators,
+  dogTaskFieldValidators,
   fastingWindowFieldValidators,
   healthMetricFieldValidators,
   interruptionFieldValidators,
@@ -38,6 +40,12 @@ export default defineSchema({
     "userId",
     "status",
   ]),
+
+  // FR-10 犬プロフィール(1件運用)
+  dogs: defineTable(dogFieldValidators),
+
+  // FR-10 犬タスク定義(名称・並び順の SSoT)
+  dogTasks: defineTable(dogTaskFieldValidators),
 
   // FR-5 犬ケアイベント(当日の済/未は当日イベント有無から導出)
   dogEvents: defineTable(dogEventFieldValidators).index("by_date", ["dateJst"]),

@@ -22,7 +22,6 @@ test("returns defaults when no appSettings row exists", async () => {
 
   expect(settings).toEqual({
     demoMode: false,
-    dogName: "ハマロ",
     fastingDefaultMinutes: 960,
   });
 });
@@ -31,14 +30,13 @@ test("returns the actual row when one exists", async () => {
   const t = convexTest(schema, testModules);
   const asSelf = await seedSelf(t);
   await t.run((ctx) =>
-    ctx.db.insert("appSettings", { demoMode: true, dogName: "ポチ", fastingDefaultMinutes: 600 }),
+    ctx.db.insert("appSettings", { demoMode: true, fastingDefaultMinutes: 600 }),
   );
 
   const settings = await asSelf.query(api.queries.settings.get.get, {});
 
   expect(settings).toEqual({
     demoMode: true,
-    dogName: "ポチ",
     fastingDefaultMinutes: 600,
   });
 });

@@ -7,7 +7,10 @@ import { viewer as viewerService } from "../../services/users/viewer";
 
 export const viewer = query({
   args: {},
-  returns: v.union(v.null(), appUserDocumentValidator),
+  returns: v.union(
+    v.null(),
+    v.object({ ...appUserDocumentValidator.fields, avatarUrl: v.union(v.null(), v.string()) }),
+  ),
   handler: async (ctx) => {
     const authSubject = await getAuthUserId(ctx);
 

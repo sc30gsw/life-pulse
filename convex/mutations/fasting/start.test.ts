@@ -29,7 +29,6 @@ test("uses appSettings.fastingDefaultMinutes when a row exists", async () => {
   await t.run((ctx) =>
     ctx.db.insert("appSettings", {
       demoMode: false,
-      dogName: "ポチ",
       fastingDefaultMinutes: 600,
     }),
   );
@@ -49,7 +48,6 @@ test("an explicit targetMinutes argument overrides both defaults", async () => {
   await t.run((ctx) =>
     ctx.db.insert("appSettings", {
       demoMode: false,
-      dogName: "ポチ",
       fastingDefaultMinutes: 600,
     }),
   );

@@ -7,7 +7,6 @@ import { update as updateSettings } from "../../services/settings/update";
 
 export const update = mutation({
   args: {
-    dogName: v.optional(appSettingsFieldValidators.dogName),
     fastingDefaultMinutes: v.optional(appSettingsFieldValidators.fastingDefaultMinutes),
   },
   returns: v.null(),

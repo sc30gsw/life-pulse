@@ -18,12 +18,11 @@ test("lazy-creates the appSettings row on first call with partial input", async 
   const t = convexTest(schema, testModules);
   const asSelf = await seedSelf(t);
 
-  await asSelf.mutation(api.mutations.settings.update.update, { dogName: "ポチ" });
+  await asSelf.mutation(api.mutations.settings.update.update, { fastingDefaultMinutes: 600 });
 
   const settings = await t.run((ctx) => ctx.db.query("appSettings").first());
-  expect(settings?.dogName).toBe("ポチ");
   expect(settings?.demoMode).toBe(false);
-  expect(settings?.fastingDefaultMinutes).toBe(960);
+  expect(settings?.fastingDefaultMinutes).toBe(600);
 });
 
 test("patches an existing row without touching demoMode or demoJobId", async () => {
@@ -33,17 +32,15 @@ test("patches an existing row without touching demoMode or demoJobId", async () 
     ctx.db.insert("appSettings", {
       demoJobId: undefined,
       demoMode: true,
-      dogName: "ハマロ",
       fastingDefaultMinutes: 960,
     }),
   );
 
-  await asSelf.mutation(api.mutations.settings.update.update, { dogName: "ポチ" });
+  await asSelf.mutation(api.mutations.settings.update.update, { fastingDefaultMinutes: 600 });
 
   const settings = await t.run((ctx) => ctx.db.query("appSettings").first());
-  expect(settings?.dogName).toBe("ポチ");
   expect(settings?.demoMode).toBe(true);
-  expect(settings?.fastingDefaultMinutes).toBe(960);
+  expect(settings?.fastingDefaultMinutes).toBe(600);
 });
 
 test("rejects a non-positive fastingDefaultMinutes", async () => {
@@ -76,7 +73,7 @@ test("rejects a non-self identity", async () => {
   );
 
   await expect(
-    asPartner.mutation(api.mutations.settings.update.update, { dogName: "ポチ" }),
+    asPartner.mutation(api.mutations.settings.update.update, { fastingDefaultMinutes: 600 }),
   ).rejects.toThrow();
 });
 
@@ -84,6 +81,6 @@ test("rejects an unauthenticated call", async () => {
   const t = convexTest(schema, testModules);
 
   await expect(
-    t.mutation(api.mutations.settings.update.update, { dogName: "ポチ" }),
+    t.mutation(api.mutations.settings.update.update, { fastingDefaultMinutes: 600 }),
   ).rejects.toThrow();
 });

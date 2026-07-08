@@ -5,10 +5,6 @@ import { DEMO_SEED_DAYS } from "../../lib/demoConstants";
 import { DEFAULT_FASTING_MINUTES } from "../appSettings/getFastingDefaultMinutes";
 import { seedMetrics } from "./seedMetrics";
 
-// Matches services/dashboard/dog.ts's no-appSettings-row fallback, reused
-// here since enabling demo mode may need to lazy-create the singleton row.
-const DEFAULT_DOG_NAME = "ハマロ";
-
 type SetDemoModeArgs = Record<"enabled", Doc<"appSettings">["demoMode"]> &
   Record<"todayJst", Doc<"healthMetrics">["dateJst"]>;
 
@@ -43,7 +39,6 @@ async function enableDemoMode(
     await ctx.db.insert("appSettings", {
       demoJobId: jobId,
       demoMode: true,
-      dogName: DEFAULT_DOG_NAME,
       fastingDefaultMinutes: DEFAULT_FASTING_MINUTES,
     });
     return;

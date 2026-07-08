@@ -51,18 +51,6 @@ export const fastingPhaseValidator = v.union(
 export const fastingStatusValidator = v.union(v.literal("fasting"), v.literal("ended"));
 export const endedFastingStatusValidator = v.literal("ended");
 
-export const dogEventKindValidator = v.union(
-  v.literal("walk_am"),
-  v.literal("walk_pm"),
-  v.literal("meal_am"),
-  v.literal("meal_noon"),
-  v.literal("meal_pm"),
-  v.literal("meds"),
-  v.literal("toilet"),
-  v.literal("brush_teeth"),
-  v.literal("other"),
-);
-
 export const healthSourceValidator = v.union(
   v.literal("garmin"),
   v.literal("manual"),
@@ -84,6 +72,7 @@ export const presenceStateValidator = v.union(
 );
 
 export const appUserFieldValidators = {
+  avatarStorageId: v.optional(v.id("_storage")),
   authSubject: v.string(),
   displayName: v.string(),
   role: roleValidator,
@@ -159,12 +148,32 @@ export const fastingWindowDocumentValidator = v.object({
   ...fastingWindowFieldValidators,
 });
 
+export const dogFieldValidators = { name: v.string() };
+
+export const dogDocumentValidator = v.object({
+  _creationTime: creationTimeValidator,
+  _id: v.id("dogs"),
+  ...dogFieldValidators,
+});
+
+export const dogTaskFieldValidators = {
+  archivedAt: v.optional(v.number()),
+  name: v.string(),
+  sortOrder: v.number(),
+};
+
+export const dogTaskDocumentValidator = v.object({
+  _creationTime: creationTimeValidator,
+  _id: v.id("dogTasks"),
+  ...dogTaskFieldValidators,
+});
+
 export const dogEventFieldValidators = {
   at: v.number(),
   byUserId: v.id("appUsers"),
   dateJst: v.string(),
-  kind: dogEventKindValidator,
   note: v.optional(v.string()),
+  taskId: v.id("dogTasks"),
 };
 
 export const dogEventDocumentValidator = v.object({
@@ -234,6 +243,5 @@ export const syncLogDocumentValidator = v.object({
 export const appSettingsFieldValidators = {
   demoJobId: v.optional(v.id("_scheduled_functions")),
   demoMode: v.boolean(),
-  dogName: v.string(),
   fastingDefaultMinutes: v.number(),
 };

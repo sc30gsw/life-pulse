@@ -2,7 +2,11 @@ import { v } from "convex/values";
 
 import { query } from "../../_generated/server";
 import { requireUser } from "../../lib/auth";
-import { appUserFieldValidators, dogEventFieldValidators } from "../../lib/validators";
+import {
+  appUserFieldValidators,
+  dogEventFieldValidators,
+  dogTaskFieldValidators,
+} from "../../lib/validators";
 import { history as historyService } from "../../services/dog/history";
 
 const dayCountValidator = v.number();
@@ -23,7 +27,7 @@ export const history = query({
             at: dogEventFieldValidators.at,
             byDisplayName: appUserFieldValidators.displayName,
             id: v.id("dogEvents"),
-            kind: dogEventFieldValidators.kind,
+            taskName: dogTaskFieldValidators.name,
           }),
         ),
       }),

@@ -143,7 +143,7 @@
 
 ### FR-10 プロフィール & 犬管理ページ【P1】
 
-- [] FR-10.1 `/profile`(本人のみ編集): 表示名、アバター画像(Convex File Storage / `avatarStorageId`)、メールアドレス変更、パスワード変更。
+- [] FR-10.1 `/profile`(各ユーザーが自分自身の情報のみ編集。self/partner 両ロール共通、ロールによるアクセス制限なし): 表示名、アバター画像(Convex File Storage / `avatarStorageId`)、メールアドレス変更、パスワード変更。
 - [] FR-10.2 `/dog`(self/partner **両ロール編集可**): 犬情報(`dogs.name`)+ 犬タスク管理。設定ページから移設。
 - [] FR-10.3 犬タスク動的化: `dogTasks`(`name` / `sortOrder` / `archivedAt`)。`DOG_CARE_KINDS` / `DOG_EVENT_LABELS` のハードコード全廃、`dogTasks` を順序・ラベルの SSoT にする。絵文字フィールドは持たない(name のみ)。
 - [] FR-10.4 並び替えは上下移動ボタン(dnd 依存追加なし)。削除は `archivedAt` ソフトデリート(過去の完了履歴・連続記録の参照切れを防ぐ)。一覧クエリは `archivedAt === undefined` フィルタ。

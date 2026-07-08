@@ -16,7 +16,7 @@ test("rejects an unauthenticated call", async () => {
   ).rejects.toThrow();
 });
 
-test("groups events by date, newest first, with resolved actor names", async () => {
+test("groups events by date, newest first, with resolved actor names and task names", async () => {
   const t = convexTest(schema, testModules);
   const asSelf = t.withIdentity({ subject: "self_1" });
   const selfId = await t.run((ctx) =>
@@ -29,13 +29,22 @@ test("groups events by date, newest first, with resolved actor names", async () 
       role: "partner",
     }),
   );
+  const walkTaskId = await t.run((ctx) =>
+    ctx.db.insert("dogTasks", { archivedAt: undefined, name: "朝散歩", sortOrder: 0 }),
+  );
+  const mealTaskId = await t.run((ctx) =>
+    ctx.db.insert("dogTasks", { archivedAt: undefined, name: "夜ごはん", sortOrder: 1 }),
+  );
+  const medsTaskId = await t.run((ctx) =>
+    ctx.db.insert("dogTasks", { archivedAt: undefined, name: "薬", sortOrder: 2 }),
+  );
 
   await t.run((ctx) =>
     ctx.db.insert("dogEvents", {
       at: 2000,
       byUserId: partnerId,
       dateJst: "2026-07-05",
-      kind: "meal_pm",
+      taskId: mealTaskId,
     }),
   );
   await t.run((ctx) =>
@@ -43,11 +52,16 @@ test("groups events by date, newest first, with resolved actor names", async () 
       at: 1000,
       byUserId: selfId,
       dateJst: "2026-07-05",
-      kind: "walk_am",
+      taskId: walkTaskId,
     }),
   );
   await t.run((ctx) =>
-    ctx.db.insert("dogEvents", { at: 500, byUserId: selfId, dateJst: "2026-07-03", kind: "meds" }),
+    ctx.db.insert("dogEvents", {
+      at: 500,
+      byUserId: selfId,
+      dateJst: "2026-07-03",
+      taskId: medsTaskId,
+    }),
   );
   // Outside the requested range — must not appear in the result.
   await t.run((ctx) =>
@@ -55,7 +69,7 @@ test("groups events by date, newest first, with resolved actor names", async () 
       at: 100,
       byUserId: selfId,
       dateJst: "2026-06-01",
-      kind: "toilet",
+      taskId: walkTaskId,
     }),
   );
 
@@ -68,7 +82,7 @@ test("groups events by date, newest first, with resolved actor names", async () 
   expect(result.days[0]?.dateJst).toBe("2026-07-05");
   expect(result.days[1]?.dateJst).toBe("2026-07-03");
   // Within-day events are ordered ascending by `at`.
-  expect(result.days[0]?.events.map((event) => event.kind)).toEqual(["walk_am", "meal_pm"]);
+  expect(result.days[0]?.events.map((event) => event.taskName)).toEqual(["朝散歩", "夜ごはん"]);
   expect(result.days[0]?.events[0]?.byDisplayName).toBe("本人");
   expect(result.days[0]?.events[1]?.byDisplayName).toBe("パートナー");
   expect(result.summary).toEqual({
@@ -79,11 +93,37 @@ test("groups events by date, newest first, with resolved actor names", async () 
   });
 });
 
+test("resolves the task name for an event whose task was later archived (soft-delete round-trip)", async () => {
+  const t = convexTest(schema, testModules);
+  const asSelf = t.withIdentity({ subject: "self_1" });
+  const selfId = await t.run((ctx) =>
+    ctx.db.insert("appUsers", { authSubject: "self_1", displayName: "本人", role: "self" }),
+  );
+  const taskId = await t.run((ctx) =>
+    ctx.db.insert("dogTasks", { archivedAt: undefined, name: "朝散歩", sortOrder: 0 }),
+  );
+
+  await t.run((ctx) =>
+    ctx.db.insert("dogEvents", { at: 1000, byUserId: selfId, dateJst: "2026-07-05", taskId }),
+  );
+  await t.run((ctx) => ctx.db.patch("dogTasks", taskId, { archivedAt: Date.now() }));
+
+  const result = await asSelf.query(api.queries.dog.history.history, {
+    fromDateJst: "2026-07-01",
+    toDateJst: "2026-07-07",
+  });
+
+  expect(result.days[0]?.events[0]?.taskName).toBe("朝散歩");
+});
+
 test("limits history to recent days by default and includes older days on request", async () => {
   const t = convexTest(schema, testModules);
   const asSelf = t.withIdentity({ subject: "self_1" });
   const selfId = await t.run((ctx) =>
     ctx.db.insert("appUsers", { authSubject: "self_1", displayName: "本人", role: "self" }),
+  );
+  const taskId = await t.run((ctx) =>
+    ctx.db.insert("dogTasks", { archivedAt: undefined, name: "朝散歩", sortOrder: 0 }),
   );
 
   for (const [index, dateJst] of ["2026-07-07", "2026-07-06", "2026-07-05"].entries()) {
@@ -92,7 +132,7 @@ test("limits history to recent days by default and includes older days on reques
         at: index + 1,
         byUserId: selfId,
         dateJst,
-        kind: "walk_am",
+        taskId,
       }),
     );
   }

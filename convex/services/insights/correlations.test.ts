@@ -150,7 +150,7 @@ test("demoMode on prefers the demo health row for a date", async () => {
   const { asSelf } = await seedSelf(t);
 
   await t.run((ctx) =>
-    ctx.db.insert("appSettings", { demoMode: true, dogName: "ポチ", fastingDefaultMinutes: 960 }),
+    ctx.db.insert("appSettings", { demoMode: true, fastingDefaultMinutes: 960 }),
   );
   await t.run((ctx) =>
     ctx.db.insert("healthMetrics", {
@@ -182,7 +182,7 @@ test("demoMode off excludes the demo health row for a date", async () => {
   const { asSelf } = await seedSelf(t);
 
   await t.run((ctx) =>
-    ctx.db.insert("appSettings", { demoMode: false, dogName: "ポチ", fastingDefaultMinutes: 960 }),
+    ctx.db.insert("appSettings", { demoMode: false, fastingDefaultMinutes: 960 }),
   );
   await t.run((ctx) =>
     ctx.db.insert("healthMetrics", {

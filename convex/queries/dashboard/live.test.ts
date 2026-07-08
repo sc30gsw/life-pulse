@@ -77,12 +77,20 @@ test("aggregates session, fasting, blocks, dog events, health, and partner prese
     }),
   );
 
+  await t.run((ctx) => ctx.db.insert("dogs", { name: "ハマロ" }));
+  const walkTaskId = await t.run((ctx) =>
+    ctx.db.insert("dogTasks", { archivedAt: undefined, name: "朝散歩", sortOrder: 0 }),
+  );
+  const mealTaskId = await t.run((ctx) =>
+    ctx.db.insert("dogTasks", { archivedAt: undefined, name: "朝ごはん", sortOrder: 1 }),
+  );
+
   await t.run((ctx) =>
     ctx.db.insert("dogEvents", {
       at: Date.now(),
       byUserId: selfId,
       dateJst: DATE_JST,
-      kind: "walk_am",
+      taskId: walkTaskId,
     }),
   );
   await t.run((ctx) =>
@@ -90,7 +98,7 @@ test("aggregates session, fasting, blocks, dog events, health, and partner prese
       at: Date.now(),
       byUserId: partnerId,
       dateJst: DATE_JST,
-      kind: "meal_am",
+      taskId: mealTaskId,
     }),
   );
 
@@ -125,10 +133,12 @@ test("aggregates session, fasting, blocks, dog events, health, and partner prese
   expect(result.fasting).not.toBeNull();
   expect(result.blocks).toHaveLength(2);
 
-  expect(result.dog.events).toHaveLength(2);
-  const eventsByKind = Object.fromEntries(result.dog.events.map((event) => [event.kind, event]));
-  expect(eventsByKind.walk_am?.byDisplayName).toBe("本人");
-  expect(eventsByKind.meal_am?.byDisplayName).toBe("パートナー");
+  expect(result.dog.tasks).toHaveLength(2);
+  const tasksByName = Object.fromEntries(result.dog.tasks.map((task) => [task.name, task]));
+  expect(tasksByName["朝散歩"]?.done).toBe(true);
+  expect(tasksByName["朝散歩"]?.byRole).toBe("self");
+  expect(tasksByName["朝ごはん"]?.done).toBe(true);
+  expect(tasksByName["朝ごはん"]?.byRole).toBe("partner");
 
   expect(result.health).not.toBeNull();
   expect(result.health?.source).toBe("manual");
@@ -147,6 +157,7 @@ test("health is null when the only healthMetrics row for the date is demo-source
   await t.run((ctx) =>
     ctx.db.insert("appUsers", { authSubject: "self_1", displayName: "本人", role: "self" }),
   );
+  await t.run((ctx) => ctx.db.insert("dogs", { name: "ハマロ" }));
   await t.run((ctx) =>
     ctx.db.insert("healthMetrics", { dateJst: DATE_JST, source: "demo", syncedAt: Date.now() }),
   );
@@ -167,6 +178,7 @@ test("degrades to empty/null self-scoped fields without throwing when no self ap
       role: "partner",
     }),
   );
+  await t.run((ctx) => ctx.db.insert("dogs", { name: "ハマロ" }));
 
   const result = await asPartner.query(api.queries.dashboard.live.live, { dateJst: DATE_JST });
 
@@ -176,13 +188,14 @@ test("degrades to empty/null self-scoped fields without throwing when no self ap
   expect(result.todayActualMinutes).toBe(0);
 });
 
-test("dog.dogName falls back to the default when no appSettings row exists", async () => {
+test("dog.dogName reflects the dogs singleton", async () => {
   const t = convexTest(schema, testModules);
   const asSelf = t.withIdentity({ subject: "self_1" });
 
   await t.run((ctx) =>
     ctx.db.insert("appUsers", { authSubject: "self_1", displayName: "本人", role: "self" }),
   );
+  await t.run((ctx) => ctx.db.insert("dogs", { name: "ハマロ" }));
 
   const result = await asSelf.query(api.queries.dashboard.live.live, { dateJst: DATE_JST });
 

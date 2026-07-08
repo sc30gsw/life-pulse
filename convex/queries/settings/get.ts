@@ -9,7 +9,6 @@ export const get = query({
   args: {},
   returns: v.object({
     demoMode: appSettingsFieldValidators.demoMode,
-    dogName: appSettingsFieldValidators.dogName,
     fastingDefaultMinutes: appSettingsFieldValidators.fastingDefaultMinutes,
   }),
   handler: async (ctx) => {
