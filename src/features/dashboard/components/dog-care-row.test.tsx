@@ -2,6 +2,7 @@
 import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vite-plus/test";
 
+import type { Id } from "~/../convex/_generated/dataModel";
 import { DogCareRow } from "~/features/dashboard/components/dog-care-row";
 import { renderWithMantine } from "~/test-utils";
 
@@ -16,7 +17,7 @@ test("renders an undone dog care item and toggles it by task id", async () => {
         done: false,
         eventId: null,
         name: "朝散歩",
-        taskId: "task_walk_am",
+        taskId: "task_walk_am" as Id<"dogTasks">,
       }}
       onToggle={onToggle}
     />,
@@ -37,9 +38,9 @@ test("renders who completed a done dog care item", () => {
         at: 1000,
         by: "partner",
         done: true,
-        eventId: "event_1",
+        eventId: "event_1" as Id<"dogEvents">,
         name: "朝ごはん",
-        taskId: "task_meal_am",
+        taskId: "task_meal_am" as Id<"dogTasks">,
       }}
       onToggle={vi.fn()}
     />,

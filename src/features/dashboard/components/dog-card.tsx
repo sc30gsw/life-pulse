@@ -8,6 +8,7 @@ import { GlowCard } from "~/components/glow-card";
 import { DogCareRow } from "~/features/dashboard/components/dog-care-row";
 import { DogHistoryButton } from "~/features/dashboard/components/dog-history-modal";
 import { useDashboardDog } from "~/features/dashboard/hooks/use-dashboard-dog";
+import { DOG_PROFILE_COPY } from "~/features/dog/constants/dog-profile";
 import { ACCENT_CLASSES, ACCENT_SOLID_STYLE, ACCENT_VARS } from "~/types/dashboard";
 
 export function DogCard() {
@@ -26,10 +27,10 @@ export function DogCard() {
           icon={<IconDog size={48} />}
           title={
             <Text size="xl" fw={600} c="coral">
-              犬プロフィール未作成
+              {DOG_PROFILE_COPY.missing.title}
             </Text>
           }
-          description="犬の管理画面でプロフィールを作成してください。"
+          description={DOG_PROFILE_COPY.missing.dashboardDescription}
         >
           <EmptyState.Actions>
             <Button
@@ -38,7 +39,7 @@ export function DogCard() {
               to="/dog"
               style={ACCENT_SOLID_STYLE.coral}
             >
-              犬の管理へ
+              {DOG_PROFILE_COPY.navigation.manage}
             </Button>
           </EmptyState.Actions>
         </EmptyState>
@@ -75,7 +76,7 @@ export function DogCard() {
               c={ACCENT_VARS.faint}
               style={{ letterSpacing: "0.13em" }}
             >
-              今日のケア
+              {DOG_PROFILE_COPY.todayCare}
             </Text>
           </Stack>
         </Group>
@@ -121,13 +122,19 @@ export function DogCardFallback() {
       >
         <Group justify="space-between" mb="md">
           <Group gap={11}>
-            <Avatar alt="犬" className="border-coral border" name="犬" radius="xl" size={34} />
+            <Avatar
+              alt={DOG_PROFILE_COPY.fallbackName}
+              className="border-coral border"
+              name={DOG_PROFILE_COPY.fallbackName}
+              radius="xl"
+              size={34}
+            />
             <Stack gap={0}>
               <Text size="sm" fw={600}>
-                犬
+                {DOG_PROFILE_COPY.fallbackName}
               </Text>
               <Text size="10.5px" fw={600} tt="uppercase" c={ACCENT_VARS.faint}>
-                今日のケア
+                {DOG_PROFILE_COPY.todayCare}
               </Text>
             </Stack>
           </Group>

@@ -8,6 +8,7 @@ import { Suspense, useState, type ComponentProps } from "react";
 import { GlowCard } from "~/components/glow-card";
 import { dogHistoryQuery } from "~/features/dashboard/api/dog-history-query";
 import { DogHistoryDayCard } from "~/features/dashboard/components/dog-history-day-card";
+import { DOG_PROFILE_COPY } from "~/features/dog/constants/dog-profile";
 import { ACCENT_VARS } from "~/types/dashboard";
 import { pastDateJstRange, todayJst } from "~/utils/date-jst";
 
@@ -25,7 +26,7 @@ function openDogHistoryModal() {
     centered: true,
     children: <DogHistoryModalContent />,
     styles: HISTORY_MODAL_STYLES,
-    title: "犬のお世話履歴",
+    title: DOG_PROFILE_COPY.history.modalTitle,
   });
 }
 
@@ -65,7 +66,7 @@ function DogHistoryList() {
             履歴なし
           </Text>
         }
-        description="犬のお世話履歴がありません"
+        description={DOG_PROFILE_COPY.history.emptyDescription}
       >
         <EmptyState.Actions>
           <Button

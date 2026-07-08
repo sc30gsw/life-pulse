@@ -13,6 +13,7 @@ import { cn } from "cnfast";
 import type { ComponentProps } from "react";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
+import { STUDY_BLOCK_LIST_COPY } from "~/features/study/constants/block-list";
 import {
   ACCENT_CLASSES,
   ACCENT_SOLID_STYLE,
@@ -34,9 +35,6 @@ const STATUS_ACCENT = {
 } as const satisfies Record<DeclarationStatus, keyof typeof ACCENT_VARS>;
 
 const EROSION_REASONS = Object.keys(EROSION_REASON_LABELS) as ErosionReason[];
-
-const ERODE_TOOLTIP_LABEL =
-  "予定していた学習枠が仕事・疲労・割り込みで使えなくなったことを記録します";
 
 const TOOLTIP_STYLES = {
   tooltip: {
@@ -158,7 +156,7 @@ function PlannedBlockActions({
       >
         この枠で開始
       </Button>
-      <Tooltip label={ERODE_TOOLTIP_LABEL} styles={TOOLTIP_STYLES}>
+      <Tooltip label={STUDY_BLOCK_LIST_COPY.erodeTooltip} styles={TOOLTIP_STYLES}>
         <Button
           className={cn(
             ACCENT_CLASSES.coral.border,

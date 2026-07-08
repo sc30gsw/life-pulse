@@ -1,8 +1,8 @@
 // @vitest-environment happy-dom
 import userEvent from "@testing-library/user-event";
-import type { Doc } from "~/../convex/_generated/dataModel";
 import { expect, test, vi } from "vite-plus/test";
 
+import type { Doc } from "~/../convex/_generated/dataModel";
 import {
   SessionStatusGroup,
   SessionStatusGroupFallback,
@@ -128,5 +128,5 @@ test("SessionStatusGroupFallback renders the loading session summary", () => {
 
   expect(getByText("勉強中")).toBeDefined();
   expect(getByText("TOEIC")).toBeDefined();
-  expect(getByText("目標")).toBeDefined();
+  expect(getByText("目標 60分")).toBeDefined();
 });

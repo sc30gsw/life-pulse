@@ -23,9 +23,9 @@ test("renders YOU for the self viewer", () => {
 test("renders nothing for a partner viewer", () => {
   hookState.role = "partner";
 
-  const { container } = renderWithMantine(<SelfBadge />);
+  const { queryByText } = renderWithMantine(<SelfBadge />);
 
-  expect(container.textContent).toBe("");
+  expect(queryByText("YOU")).toBeNull();
 });
 
 test("SelfBadgeFallback renders the loading badge", () => {

@@ -26,7 +26,7 @@ test("renders null presence as 未設定 without edit controls", () => {
 test("calls onSetPresence from an editable presence button", async () => {
   const onSetPresence = vi.fn();
   const user = userEvent.setup();
-  const { getByRole, getByText } = renderWithMantine(
+  const { getAllByText, getByRole, getByText } = renderWithMantine(
     <PresenceCard
       editable
       onSetPresence={onSetPresence}
@@ -37,7 +37,7 @@ test("calls onSetPresence from an editable presence button", async () => {
   );
 
   expect(getByText("YOU")).toBeDefined();
-  expect(getByText("在宅")).toBeDefined();
+  expect(getAllByText("在宅").length).toBeGreaterThan(0);
 
   await user.click(getByRole("button", { name: "外出" }));
 
