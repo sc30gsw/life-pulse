@@ -20,6 +20,7 @@ export function useBoardClock() {
     () => {
       const tickNow = Date.now();
       setNowMs(tickNow);
+
       const tickDateJst = toDateJst(tickNow);
       setDateJst((prev) => (prev === tickDateJst ? prev : tickDateJst));
     },
