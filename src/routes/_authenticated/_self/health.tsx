@@ -15,11 +15,6 @@ import { ACCENT_VARS } from "~/types/dashboard";
 
 export const Route = createFileRoute("/_authenticated/_self/health")({
   component: HealthPage,
-  loader: () => {
-    return {
-      now: Date.now(),
-    };
-  },
 });
 
 function SectionLabel({ label }: Record<"label", string>) {

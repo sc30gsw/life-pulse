@@ -1,7 +1,6 @@
 import { Badge, Button, Group, Stack, Text } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { Shimmer } from "@shimmer-from-structure/react";
-import { getRouteApi } from "@tanstack/react-router";
 import { cn } from "cnfast";
 
 import { useLastSync } from "~/features/health/hooks/use-last-sync";
@@ -16,7 +15,7 @@ const TIME_MS = {
 
 function formatRelativeTime(
   pastMs: NonNullable<ReturnType<typeof useLastSync>["data"]>["at"],
-  nowMs: ReturnType<typeof routeApi.useLoaderData>["now"],
+  nowMs: number,
 ) {
   const deltaMs = Math.max(0, nowMs - pastMs);
 
@@ -35,12 +34,9 @@ function formatRelativeTime(
   return `${Math.floor(deltaMs / TIME_MS.DAY)}日前`;
 }
 
-const routeApi = getRouteApi("/_authenticated/_self/health");
-
 export function GarminSyncCard() {
   const { data: lastSync } = useLastSync();
   const requestGarminSync = useRequestGarminSync();
-  const { now } = routeApi.useLoaderData();
 
   const statusAccent = lastSync === null ? "faint" : lastSync.ok ? "good" : "coral";
   const statusLabel = lastSync === null ? "未同期" : lastSync.ok ? "成功" : "失敗";
@@ -82,12 +78,17 @@ export function GarminSyncCard() {
         >
           {statusLabel}
         </Badge>
-        <Text c="dimmed" size="xs">
+        {/* Relative time is derived from Date.now() at render time, so it is
+            expected to differ between the server-rendered markup and the
+            client's first paint (and again on every subsequent render as
+            time passes) — that's the point of "5分前"-style text, not a bug.
+            suppressHydrationWarning silences the mismatch warning for this
+            node only, per design-live-board.md's real-Convex-subscription
+            model (no client is meant to match the server here). */}
+        <Text c="dimmed" size="xs" suppressHydrationWarning>
           {lastSync === null
             ? "まだ同期していません"
-            : now === null
-              ? null
-              : `最終同期 ${formatRelativeTime(lastSync.at, now)}`}
+            : `最終同期 ${formatRelativeTime(lastSync.at, Date.now())}`}
         </Text>
         {lastSync !== null && !lastSync.ok && lastSync.message !== undefined && (
           <Text c={ACCENT_VARS.coral} size="xs">
