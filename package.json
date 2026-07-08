@@ -38,6 +38,7 @@
     "cnfast": "^0.0.6",
     "convex": "^1.42.1",
     "dayjs": "^1.11.21",
+    "garmin-connect-sdk": "1.0.0-alpha.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "recharts": "^3.9.2",

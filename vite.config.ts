@@ -40,7 +40,13 @@ export default defineConfig({
     },
     overrides: [
       {
-        files: ["src/router.tsx", "*.config.ts", "convex/schema.ts", "convex/http.ts"],
+        files: [
+          "src/router.tsx",
+          "*.config.ts",
+          "convex/schema.ts",
+          "convex/http.ts",
+          "convex/crons.ts",
+        ],
         rules: {
           "no-default-export": "off",
         },

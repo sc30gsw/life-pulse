@@ -110,15 +110,16 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 
 ## W4 — 外部連携 + 相関 + 磨き込み(FR-6.3 / FR-7)
 
-- PR1: Garmin 実連携(FR-6.3)— plan: [2026-07-07_05-garmin-sync.md](./plans/2026-07-07_05-garmin-sync.md)
+- PR1: Garmin 実連携(FR-6.3)— plan: [2026-07-08_05-garmin-sync.md](./plans/2026-07-08_05-garmin-sync.md)
 - PR2: 相関ビュー(FR-7)— plan: 未作成
 
 ### FR-6.3 Garmin 実連携【P1 — 難航時は打ち切り可】
 
-- [ ] FR-6.3 `garmin-connect-sdk@1.0.0-alpha.4`(完全固定、`^` 禁止)+ "use node" action + cron(JST 6:30)、認証情報は Convex 環境変数のみ(NFR-4)、失敗は syncLogs+「最終同期」表示
+- [ ] FR-6.3 `garmin-connect-sdk@1.0.0-alpha.4`(完全固定、`^` 禁止)+ "use node" action + cron(JST 6:30)、認証情報は Convex 環境変数のみ(NFR-4)、失敗は syncLogs+「最終同期」表示 ⏳ 実装完了(plan [2026-07-08_05-garmin-sync.md](./plans/2026-07-08_05-garmin-sync.md) Step 1〜9 分すべて main にマージ済み: `convex/actions/garmin/`, `convex/services/garmin/`, `convex/mutations/health/{upsertFromSync,recordSyncFailure,requestGarminSync}.ts`, `convex/queries/health/lastSync.ts`, `convex/crons.ts`, `convex.json`, `scripts/garmin-login.ts`, `/health` の `GarminSyncCard`)。**実 Garmin アカウントでの手動 E2E(トークン生成 → 同期 → UI 反映、plan §3 検証ゲート 3〜5)は未検証** — 実アカウント認証情報を要するため自動化エージェントでは実施不可。次回人間レビュー時に実施すること
   - 前提: `convex.json` で Node 24 を指定(SDK が `engines: >=24`。Convex は Node 20/22/24 対応・既定 20 — 公式 docs 確認済み)
-  - MFA は SDK の `login({email, password, mfaCode})` で対応。トークンは `TokenStorage` 抽象のカスタム実装で環境変数から復元(旧 `GARMIN_OAUTH1_JSON`/`GARMIN_OAUTH2_JSON` 設計は SDK のトークン形式に合わせて再定義)
+  - MFA は `scripts/garmin-login.ts`(対話ログイン→トークンJSONをstdout出力、ファイルには書かない)で事前生成し `npx convex env set GARMIN_TOKENS_JSON '<出力>'` で設定。ランタイムは `TokenStorage` 抽象のカスタム実装(`convex/actions/garmin/client.ts` の `createEnvTokenStorage`)で `GARMIN_TOKENS_JSON` から復元する(旧 `GARMIN_OAUTH1_JSON`/`GARMIN_OAUTH2_JSON` 設計は SDK のトークン形式に合わせて再定義)
   - alpha のため自前の薄いラッパー(`GarminClient` インターフェース)越しに使用。退避先: `@gooin/garmin-connect@1.8.7`(要件 = requirements.md FR-6.3 v1.7 改訂参照)
+  - UI: `/health` に「Garmin 同期」カード(`GarminSyncCard`)を追加。最終同期の相対時刻+成否バッジ(`health.lastSync` query)+「今すぐ同期」ボタン(`health.requestGarminSync` mutation、self 専用、押下で `syncDaily` を即時予約)
 
 ### FR-7 相関ビュー【P1】
 

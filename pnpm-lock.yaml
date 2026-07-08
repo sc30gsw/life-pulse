@@ -77,6 +77,9 @@ importers:
       dayjs:
         specifier: ^1.11.21
         version: 1.11.21
+      garmin-connect-sdk:
+        specifier: 1.0.0-alpha.4
+        version: 1.0.0-alpha.4
       react:
         specifier: ^19.2.7
         version: 19.2.7
@@ -2979,6 +2982,11 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
+  garmin-connect-sdk@1.0.0-alpha.4:
+    resolution: {integrity: sha512-gruPC1aB9FIs2R3EgZFnvD6vBylIZ/AfDOjefA8t02Txxco0XeEIDTFSUMaxTGywyEieRQjgMh98mwBI7rCKPA==}
+    engines: {node: '>=24'}
+    hasBin: true
+
   gensync@1.0.0-beta.2:
     resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
     engines: {node: '>=6.9.0'}
@@ -3960,6 +3968,9 @@ packages:
     engines: {node: '>=18.0.0'}
     peerDependencies:
       zod: ^3.25.0 || ^4.0.0
+
+  zod@3.25.76:
+    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
@@ -6252,6 +6263,10 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
+  garmin-connect-sdk@1.0.0-alpha.4:
+    dependencies:
+      zod: 3.25.76
+
   gensync@1.0.0-beta.2: {}
 
   get-nonce@1.0.1: {}
@@ -7249,5 +7264,7 @@ snapshots:
   zod-validation-error@4.0.2(zod@4.4.3):
     dependencies:
       zod: 4.4.3
+
+  zod@3.25.76: {}
 
   zod@4.4.3: {}

@@ -4,6 +4,10 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 
 import { GlowCard } from "~/components/glow-card";
+import {
+  GarminSyncCard,
+  GarminSyncCardFallback,
+} from "~/features/health/components/garmin-sync-card";
 import { HiitSection } from "~/features/health/components/hiit-section";
 import { ManualInputForm } from "~/features/health/components/manual-input-form";
 import { MetricsTrend, MetricsTrendFallback } from "~/features/health/components/metrics-trend";
@@ -11,6 +15,11 @@ import { ACCENT_VARS } from "~/types/dashboard";
 
 export const Route = createFileRoute("/_authenticated/_self/health")({
   component: HealthPage,
+  loader: () => {
+    return {
+      now: Date.now(),
+    };
+  },
 });
 
 function SectionLabel({ label }: Record<"label", string>) {
@@ -62,6 +71,17 @@ function HealthPage() {
           <SectionLabel label="メトリクス推移(直近28日)" />
           <Suspense fallback={<MetricsTrendFallback />}>
             <MetricsTrend />
+          </Suspense>
+        </GlowCard>
+
+        <GlowCard
+          className="bg-panel border-bd shadow-card relative overflow-hidden border"
+          p="lg"
+          radius={18}
+        >
+          <SectionLabel label="Garmin同期" />
+          <Suspense fallback={<GarminSyncCardFallback />}>
+            <GarminSyncCard />
           </Suspense>
         </GlowCard>
 

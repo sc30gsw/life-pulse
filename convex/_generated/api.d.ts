@@ -8,7 +8,10 @@
  * @module
  */
 
+import type * as actions_garmin_client from "../actions/garmin/client.js";
+import type * as actions_garmin_syncDaily from "../actions/garmin/syncDaily.js";
 import type * as auth from "../auth.js";
+import type * as crons from "../crons.js";
 import type * as http from "../http.js";
 import type * as lib_auth from "../lib/auth.js";
 import type * as lib_dateRange from "../lib/dateRange.js";
@@ -31,7 +34,10 @@ import type * as mutations_fasting_end from "../mutations/fasting/end.js";
 import type * as mutations_fasting_start from "../mutations/fasting/start.js";
 import type * as mutations_health_deleteWorkout from "../mutations/health/deleteWorkout.js";
 import type * as mutations_health_logWorkout from "../mutations/health/logWorkout.js";
+import type * as mutations_health_recordSyncFailure from "../mutations/health/recordSyncFailure.js";
+import type * as mutations_health_requestGarminSync from "../mutations/health/requestGarminSync.js";
 import type * as mutations_health_updateWorkout from "../mutations/health/updateWorkout.js";
+import type * as mutations_health_upsertFromSync from "../mutations/health/upsertFromSync.js";
 import type * as mutations_health_upsertManual from "../mutations/health/upsertManual.js";
 import type * as mutations_partnerStatus_setStatus from "../mutations/partnerStatus/setStatus.js";
 import type * as mutations_sessions_autoAbandon from "../mutations/sessions/autoAbandon.js";
@@ -52,6 +58,7 @@ import type * as queries_dashboard_study from "../queries/dashboard/study.js";
 import type * as queries_dashboard_viewer from "../queries/dashboard/viewer.js";
 import type * as queries_dog_history from "../queries/dog/history.js";
 import type * as queries_fasting_history from "../queries/fasting/history.js";
+import type * as queries_health_lastSync from "../queries/health/lastSync.js";
 import type * as queries_health_range from "../queries/health/range.js";
 import type * as queries_health_workouts from "../queries/health/workouts.js";
 import type * as queries_sessions_history from "../queries/sessions/history.js";
@@ -88,12 +95,17 @@ import type * as services_fasting_end from "../services/fasting/end.js";
 import type * as services_fasting_history from "../services/fasting/history.js";
 import type * as services_fasting_phaseSchedule from "../services/fasting/phaseSchedule.js";
 import type * as services_fasting_start from "../services/fasting/start.js";
+import type * as services_garmin_mapDailyMetrics from "../services/garmin/mapDailyMetrics.js";
 import type * as services_health_deleteWorkout from "../services/health/deleteWorkout.js";
 import type * as services_health_deriveDateJst from "../services/health/deriveDateJst.js";
+import type * as services_health_lastSync from "../services/health/lastSync.js";
 import type * as services_health_logWorkout from "../services/health/logWorkout.js";
 import type * as services_health_mergeByDate from "../services/health/mergeByDate.js";
 import type * as services_health_range from "../services/health/range.js";
+import type * as services_health_recordSyncFailure from "../services/health/recordSyncFailure.js";
+import type * as services_health_requestGarminSync from "../services/health/requestGarminSync.js";
 import type * as services_health_updateWorkout from "../services/health/updateWorkout.js";
+import type * as services_health_upsertFromSync from "../services/health/upsertFromSync.js";
 import type * as services_health_upsertManual from "../services/health/upsertManual.js";
 import type * as services_health_validateWorkoutAt from "../services/health/validateWorkoutAt.js";
 import type * as services_health_workouts from "../services/health/workouts.js";
@@ -117,7 +129,10 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  "actions/garmin/client": typeof actions_garmin_client;
+  "actions/garmin/syncDaily": typeof actions_garmin_syncDaily;
   auth: typeof auth;
+  crons: typeof crons;
   http: typeof http;
   "lib/auth": typeof lib_auth;
   "lib/dateRange": typeof lib_dateRange;
@@ -140,7 +155,10 @@ declare const fullApi: ApiFromModules<{
   "mutations/fasting/start": typeof mutations_fasting_start;
   "mutations/health/deleteWorkout": typeof mutations_health_deleteWorkout;
   "mutations/health/logWorkout": typeof mutations_health_logWorkout;
+  "mutations/health/recordSyncFailure": typeof mutations_health_recordSyncFailure;
+  "mutations/health/requestGarminSync": typeof mutations_health_requestGarminSync;
   "mutations/health/updateWorkout": typeof mutations_health_updateWorkout;
+  "mutations/health/upsertFromSync": typeof mutations_health_upsertFromSync;
   "mutations/health/upsertManual": typeof mutations_health_upsertManual;
   "mutations/partnerStatus/setStatus": typeof mutations_partnerStatus_setStatus;
   "mutations/sessions/autoAbandon": typeof mutations_sessions_autoAbandon;
@@ -161,6 +179,7 @@ declare const fullApi: ApiFromModules<{
   "queries/dashboard/viewer": typeof queries_dashboard_viewer;
   "queries/dog/history": typeof queries_dog_history;
   "queries/fasting/history": typeof queries_fasting_history;
+  "queries/health/lastSync": typeof queries_health_lastSync;
   "queries/health/range": typeof queries_health_range;
   "queries/health/workouts": typeof queries_health_workouts;
   "queries/sessions/history": typeof queries_sessions_history;
@@ -197,12 +216,17 @@ declare const fullApi: ApiFromModules<{
   "services/fasting/history": typeof services_fasting_history;
   "services/fasting/phaseSchedule": typeof services_fasting_phaseSchedule;
   "services/fasting/start": typeof services_fasting_start;
+  "services/garmin/mapDailyMetrics": typeof services_garmin_mapDailyMetrics;
   "services/health/deleteWorkout": typeof services_health_deleteWorkout;
   "services/health/deriveDateJst": typeof services_health_deriveDateJst;
+  "services/health/lastSync": typeof services_health_lastSync;
   "services/health/logWorkout": typeof services_health_logWorkout;
   "services/health/mergeByDate": typeof services_health_mergeByDate;
   "services/health/range": typeof services_health_range;
+  "services/health/recordSyncFailure": typeof services_health_recordSyncFailure;
+  "services/health/requestGarminSync": typeof services_health_requestGarminSync;
   "services/health/updateWorkout": typeof services_health_updateWorkout;
+  "services/health/upsertFromSync": typeof services_health_upsertFromSync;
   "services/health/upsertManual": typeof services_health_upsertManual;
   "services/health/validateWorkoutAt": typeof services_health_validateWorkoutAt;
   "services/health/workouts": typeof services_health_workouts;

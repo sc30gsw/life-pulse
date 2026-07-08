@@ -27,7 +27,7 @@ case "$f" in
 esac
 
 case "$f" in
-  */src/routes/* | *.config.ts | */src/router.tsx | */convex/schema.ts | */convex/auth.config.ts | */convex/http.ts) ;;
+  */src/routes/* | *.config.ts | */src/router.tsx | */convex/schema.ts | */convex/auth.config.ts | */convex/http.ts | */convex/crons.ts) ;;
   *)
     grep -qnE '^[[:space:]]*export[[:space:]]+default' "$f" &&
       errs="${errs}- export default is forbidden — use named exports (typescript/react-conventions.md)\n"
