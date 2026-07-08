@@ -5,36 +5,19 @@ import { Shimmer } from "@shimmer-from-structure/react";
 import { cn } from "cnfast";
 import { Suspense } from "react";
 
-import type { Doc } from "~/../convex/_generated/dataModel";
 import { useViewer } from "~/features/auth/hooks/use-viewer";
 import { useBoardClock } from "~/features/dashboard/hooks/use-board-clock";
 import { formatElapsedClock } from "~/features/dashboard/utils/format";
 import { FastingStartModal } from "~/features/fasting/components/fasting-start-modal";
+import {
+  FASTING_PHASE_ACCENT,
+  FASTING_PHASE_ORDER,
+} from "~/features/fasting/constants/fasting-phase-accent";
 import { DEFAULT_FASTING_TARGET_MINUTES } from "~/features/fasting/constants/fasting-target";
 import { useEndFasting } from "~/features/fasting/hooks/use-end-fasting";
 import { useFastingWindow } from "~/features/fasting/hooks/use-fasting-window";
 import { deriveFastingElapsedMinutes } from "~/features/fasting/utils/fasting-utils";
-import {
-  ACCENT_CLASSES,
-  ACCENT_SOLID_STYLE,
-  ACCENT_VARS,
-  FASTING_PHASE_LABELS,
-  FASTING_PHASE_SUB_LABELS,
-} from "~/types/dashboard";
-
-const PHASE_ORDER = [
-  "early",
-  "fatburn",
-  "goal",
-] as const satisfies readonly Doc<"fastingWindows">["phase"][];
-
-// Single consumer: maps fasting phase to its accent key for the timeline/progress bar,
-// matching the assignment used on the live board (dashboard/components/fasting-group.tsx).
-const FASTING_PHASE_ACCENT = {
-  early: "blue",
-  fatburn: "amber",
-  goal: "good",
-} as const satisfies Record<Doc<"fastingWindows">["phase"], keyof typeof ACCENT_VARS>;
+import { ACCENT_CLASSES, ACCENT_SOLID_STYLE, ACCENT_VARS } from "~/types/dashboard";
 
 const CONFIRM_MODAL_STYLES = {
   body: { color: "var(--tx)" },
@@ -50,6 +33,32 @@ function formatMinutesAsHm(rawMinutes: number) {
   return hours > 0 ? `${hours}h${String(remainder).padStart(2, "0")}m` : `${remainder}m`;
 }
 
+function phaseLabel(phase: (typeof FASTING_PHASE_ORDER)[number]) {
+  switch (phase) {
+    case "early":
+      return "空腹期";
+
+    case "fatburn":
+      return "脂肪燃焼帯";
+
+    case "goal":
+      return "目標達成";
+  }
+}
+
+function phaseSubLabel(phase: (typeof FASTING_PHASE_ORDER)[number]) {
+  switch (phase) {
+    case "early":
+      return "12hで脂肪燃焼帯";
+
+    case "fatburn":
+      return "16hで目標達成";
+
+    case "goal":
+      return "16時間クリア";
+  }
+}
+
 export function FastingStatusCard() {
   const { data: fasting } = useFastingWindow();
   const { nowMs } = useBoardClock();
@@ -58,7 +67,7 @@ export function FastingStatusCard() {
 
   const phase = fasting?.phase ?? "early";
   const phaseAccent = FASTING_PHASE_ACCENT[phase];
-  const currentPhaseIndex = fasting === null ? -1 : PHASE_ORDER.indexOf(fasting.phase);
+  const currentPhaseIndex = fasting === null ? -1 : FASTING_PHASE_ORDER.indexOf(fasting.phase);
   const targetMinutes = fasting?.targetMinutes ?? DEFAULT_FASTING_TARGET_MINUTES;
   const elapsedMinutes =
     fasting === null ? 0 : deriveFastingElapsedMinutes(fasting.startedAt, nowMs);
@@ -101,7 +110,7 @@ export function FastingStatusCard() {
               size="sm"
               variant="outline"
             >
-              {fasting === null ? "未開始" : FASTING_PHASE_LABELS[phase]}
+              {fasting === null ? "未開始" : phaseLabel(phase)}
             </Badge>
             <Text
               className="lp-brandtext leading-none tabular-nums"
@@ -147,17 +156,17 @@ export function FastingStatusCard() {
           color={ACCENT_VARS[phaseAccent]}
           lineWidth={2}
         >
-          {PHASE_ORDER.map((timelinePhase) => (
+          {FASTING_PHASE_ORDER.map((timelinePhase) => (
             <Timeline.Item
               key={timelinePhase}
               title={
                 <Text c="var(--tx)" fw={600} size="sm">
-                  {FASTING_PHASE_LABELS[timelinePhase]}
+                  {phaseLabel(timelinePhase)}
                 </Text>
               }
             >
               <Text c="dimmed" size="xs">
-                {FASTING_PHASE_SUB_LABELS[timelinePhase]}
+                {phaseSubLabel(timelinePhase)}
               </Text>
             </Timeline.Item>
           ))}
@@ -243,17 +252,17 @@ export function FastingStatusCardFallback() {
         <Progress color={ACCENT_VARS.blue} size="sm" value={42} />
 
         <Timeline active={0} bulletSize={22} color={ACCENT_VARS.blue} lineWidth={2}>
-          {PHASE_ORDER.map((timelinePhase) => (
+          {FASTING_PHASE_ORDER.map((timelinePhase) => (
             <Timeline.Item
               key={timelinePhase}
               title={
                 <Text c="var(--tx)" fw={600} size="sm">
-                  {FASTING_PHASE_LABELS[timelinePhase]}
+                  {phaseLabel(timelinePhase)}
                 </Text>
               }
             >
               <Text c="dimmed" size="xs">
-                {FASTING_PHASE_SUB_LABELS[timelinePhase]}
+                {phaseSubLabel(timelinePhase)}
               </Text>
             </Timeline.Item>
           ))}

@@ -6,33 +6,7 @@ import { cn } from "cnfast";
 import { useLastSync } from "~/features/health/hooks/use-last-sync";
 import { useRequestGarminSync } from "~/features/health/hooks/use-request-garmin-sync";
 import { ACCENT_CLASSES, ACCENT_SOLID_STYLE, ACCENT_VARS } from "~/types/dashboard";
-
-const TIME_MS = {
-  MINUTE: 60_000,
-  HOUR: 3_600_000,
-  DAY: 86_400_000,
-} as const satisfies Record<string, number>;
-
-function formatRelativeTime(
-  pastMs: NonNullable<ReturnType<typeof useLastSync>["data"]>["at"],
-  nowMs: number,
-) {
-  const deltaMs = Math.max(0, nowMs - pastMs);
-
-  if (deltaMs < TIME_MS.MINUTE) {
-    return "たった今";
-  }
-
-  if (deltaMs < TIME_MS.HOUR) {
-    return `${Math.floor(deltaMs / TIME_MS.MINUTE)}分前`;
-  }
-
-  if (deltaMs < TIME_MS.DAY) {
-    return `${Math.floor(deltaMs / TIME_MS.HOUR)}時間前`;
-  }
-
-  return `${Math.floor(deltaMs / TIME_MS.DAY)}日前`;
-}
+import { formatRelativeTime } from "~/utils/relative-time";
 
 export function GarminSyncCard() {
   const { data: lastSync } = useLastSync();

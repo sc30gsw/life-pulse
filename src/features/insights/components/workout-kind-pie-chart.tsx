@@ -5,7 +5,7 @@ import { IconChartPie } from "@tabler/icons-react";
 
 import { CHART_LEGEND_CLASS_NAMES } from "~/components/chart-legend-style";
 import { useInsightsCorrelations } from "~/features/insights/hooks/use-insights-correlations";
-import { ACCENT_VARS, type WorkoutKind, WORKOUT_KIND_LABELS } from "~/types/dashboard";
+import { ACCENT_VARS, type WorkoutKind } from "~/types/dashboard";
 
 const CHART_SIZE = 140;
 
@@ -14,6 +14,17 @@ const WORKOUT_KIND_COLORS = {
   other: ACCENT_VARS.faint,
   walk: ACCENT_VARS.blue,
 } as const satisfies Record<WorkoutKind, string>;
+
+function workoutKindLabel(kind: WorkoutKind) {
+  switch (kind) {
+    case "hiit":
+      return "HIIT";
+    case "other":
+      return "その他";
+    case "walk":
+      return "ウォーキング";
+  }
+}
 
 export function WorkoutKindPieChart() {
   const { data } = useInsightsCorrelations();
@@ -35,7 +46,7 @@ export function WorkoutKindPieChart() {
   const chartData = data.workoutKindBreakdown.map((row) => ({
     color: WORKOUT_KIND_COLORS[row.kind],
     key: row.kind,
-    name: WORKOUT_KIND_LABELS[row.kind],
+    name: workoutKindLabel(row.kind),
     value: row.count,
   }));
 

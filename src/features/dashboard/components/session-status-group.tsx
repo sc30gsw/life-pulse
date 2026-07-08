@@ -16,6 +16,7 @@ import { cn } from "cnfast";
 import { Suspense, type ComponentProps } from "react";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
+import { INTERRUPTION_REASON_VALUES } from "~/../convex/lib/domain";
 import { DeclarationCard } from "~/features/dashboard/components/declaration-card";
 import { FastingGroup, FastingGroupFallback } from "~/features/dashboard/components/fasting-group";
 import { SessionStartModal } from "~/features/dashboard/components/session-start-modal";
@@ -24,36 +25,19 @@ import {
   ACCENT_CLASSES,
   ACCENT_SOLID_STYLE,
   ACCENT_VARS,
-  CATEGORY_LABELS,
-  REASON_LABELS,
   type InterruptionReason,
   type SessionCategory,
 } from "~/types/dashboard";
 
 const SESSION_STATUS_ACCENT = {
-  abandoned: ["faint", "放置終了"],
-  active: ["good", "勉強中"],
-  completed: ["faint", "完了"],
-  idle: ["faint", "待機"],
-  paused: ["amber", "中断中"],
-} as const satisfies Record<
-  "idle" | Doc<"studySessions">["status"],
-  readonly [keyof typeof ACCENT_VARS, string]
->;
+  abandoned: "faint",
+  active: "good",
+  completed: "faint",
+  idle: "faint",
+  paused: "amber",
+} as const satisfies Record<"idle" | Doc<"studySessions">["status"], keyof typeof ACCENT_VARS>;
 
-const INTERRUPTION_REASONS = [
-  "work",
-  "dog",
-  "chore",
-  "other",
-] as const satisfies readonly InterruptionReason[];
-
-const REASON_TOOLTIPS = {
-  chore: "家事の割り込みを中断理由として記録",
-  dog: "犬の世話を中断理由として記録",
-  other: "その他の理由を中断理由として記録",
-  work: "仕事の割り込みを中断理由として記録",
-} as const satisfies Record<InterruptionReason, string>;
+const INTERRUPTION_REASONS = INTERRUPTION_REASON_VALUES;
 
 const TOOLTIP_STYLES = {
   tooltip: {
@@ -63,6 +47,63 @@ const TOOLTIP_STYLES = {
     fontSize: "11px",
   },
 } as const satisfies ComponentProps<typeof Tooltip>["styles"];
+
+function categoryLabel(category: SessionCategory) {
+  switch (category) {
+    case "eikaiwa":
+      return "英会話";
+
+    case "other":
+      return "その他";
+
+    case "reading":
+      return "読書";
+
+    case "toeic":
+      return "TOEIC";
+  }
+}
+
+function reasonLabel(reason: InterruptionReason) {
+  switch (reason) {
+    case "chore":
+      return "家事";
+    case "dog":
+      return "犬";
+    case "other":
+      return "その他";
+    case "work":
+      return "仕事";
+  }
+}
+
+function reasonTooltip(reason: InterruptionReason) {
+  switch (reason) {
+    case "chore":
+      return "家事の割り込みを中断理由として記録";
+    case "dog":
+      return "犬の世話を中断理由として記録";
+    case "other":
+      return "その他の理由を中断理由として記録";
+    case "work":
+      return "仕事の割り込みを中断理由として記録";
+  }
+}
+
+function sessionStatusLabel(status: "idle" | Doc<"studySessions">["status"]) {
+  switch (status) {
+    case "abandoned":
+      return "放置終了";
+    case "active":
+      return "勉強中";
+    case "completed":
+      return "完了";
+    case "idle":
+      return "待機";
+    case "paused":
+      return "中断中";
+  }
+}
 
 export function SessionStatusGroup({
   fastingFlash,
@@ -86,7 +127,7 @@ export function SessionStatusGroup({
   const [startModalOpened, { close: closeStartModal, open: openStartModal }] = useDisclosure(false);
 
   const sessionStatus = session === null ? "idle" : session.status;
-  const [statusAccent, statusLabel] = SESSION_STATUS_ACCENT[sessionStatus];
+  const statusAccent = SESSION_STATUS_ACCENT[sessionStatus];
 
   return (
     <Box ref={sessionFlashRef} className="relative">
@@ -108,11 +149,11 @@ export function SessionStatusGroup({
                 "border",
               )}
             >
-              {statusLabel}
+              {sessionStatusLabel(sessionStatus)}
             </Badge>
             {session !== null && (
               <Text size="sm" c="dimmed">
-                {CATEGORY_LABELS[session.category as SessionCategory]}
+                {categoryLabel(session.category as SessionCategory)}
               </Text>
             )}
           </Group>
@@ -159,7 +200,7 @@ export function SessionStatusGroup({
               中断:
             </Text>
             {INTERRUPTION_REASONS.map((reason) => (
-              <Tooltip key={reason} label={REASON_TOOLTIPS[reason]} styles={TOOLTIP_STYLES}>
+              <Tooltip key={reason} label={reasonTooltip(reason)} styles={TOOLTIP_STYLES}>
                 <UnstyledButton
                   type="button"
                   onClick={() => onPauseSession(reason)}
@@ -168,7 +209,7 @@ export function SessionStatusGroup({
                     "bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-semibold transition hover:brightness-110 active:brightness-95 disabled:opacity-40",
                   )}
                 >
-                  {REASON_LABELS[reason]}
+                  {reasonLabel(reason)}
                 </UnstyledButton>
               </Tooltip>
             ))}
@@ -290,7 +331,7 @@ export function SessionStatusGroupFallback() {
               "bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-semibold",
             )}
           >
-            {REASON_LABELS[reason]}
+            {reasonLabel(reason)}
           </Box>
         ))}
       </Group>

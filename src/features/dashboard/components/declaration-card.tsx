@@ -1,21 +1,8 @@
 import { Box, Group, Progress, Stack, Text } from "@mantine/core";
 
 import type { useDashboardStudy } from "~/features/dashboard/hooks/use-dashboard-study";
-import {
-  ACCENT_VARS,
-  CATEGORY_LABELS,
-  DECLARATION_STATUS_LABELS,
-  type DeclarationStatus,
-  type SessionCategory,
-} from "~/types/dashboard";
-
-const STATUS_ACCENT = {
-  declined: "blue",
-  done: "good",
-  eroded: "coral",
-  planned: "faint",
-  rescheduled: "violet",
-} as const satisfies Record<DeclarationStatus, keyof typeof ACCENT_VARS>;
+import { DECLARATION_STATUS_ACCENT } from "~/features/study/constants/declaration-status-accent";
+import { ACCENT_VARS, type DeclarationStatus, type SessionCategory } from "~/types/dashboard";
 
 type DeclarationCardProps = {
   actualMinutes: ReturnType<typeof useDashboardStudy>["declarationActualMinutes"];
@@ -23,6 +10,41 @@ type DeclarationCardProps = {
   declarations: ReturnType<typeof useDashboardStudy>["declarations"];
   totalMinutes: ReturnType<typeof useDashboardStudy>["declarationTotalMinutes"];
 };
+
+function categoryLabel(category: SessionCategory) {
+  switch (category) {
+    case "eikaiwa":
+      return "英会話";
+
+    case "other":
+      return "その他";
+
+    case "reading":
+      return "読書";
+
+    case "toeic":
+      return "TOEIC";
+  }
+}
+
+function declarationStatusLabel(status: DeclarationStatus) {
+  switch (status) {
+    case "declined":
+      return "見送り";
+
+    case "done":
+      return "済";
+
+    case "eroded":
+      return "侵食";
+
+    case "planned":
+      return "予定";
+
+    case "rescheduled":
+      return "リスケ済";
+  }
+}
 
 export function DeclarationCard({
   actualMinutes,
@@ -66,7 +88,7 @@ export function DeclarationCard({
 
       <Stack gap={5} mt={2}>
         {declarations.map((item) => {
-          const accent = STATUS_ACCENT[item.status];
+          const accent = DECLARATION_STATUS_ACCENT[item.status];
 
           return (
             <Group key={`${item.startHm}-${item.category}`} gap={8}>
@@ -77,9 +99,9 @@ export function DeclarationCard({
               <Text size="xs" c="dimmed">
                 {item.startHm}
               </Text>
-              <Text size="xs">{CATEGORY_LABELS[item.category as SessionCategory]}</Text>
+              <Text size="xs">{categoryLabel(item.category as SessionCategory)}</Text>
               <Text size="11px" c={ACCENT_VARS[accent]} className="ml-auto">
-                {DECLARATION_STATUS_LABELS[item.status]}
+                {declarationStatusLabel(item.status)}
               </Text>
             </Group>
           );

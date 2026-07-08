@@ -4,20 +4,24 @@ import { IconHourglass } from "@tabler/icons-react";
 import { cn } from "cnfast";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
+import { FASTING_PHASE_ACCENT } from "~/features/fasting/constants/fasting-phase-accent";
 import { useFastingHistory } from "~/features/fasting/hooks/use-fasting-history";
-import { ACCENT_CLASSES, ACCENT_VARS, FASTING_PHASE_LABELS } from "~/types/dashboard";
+import { ACCENT_CLASSES } from "~/types/dashboard";
 import { dayjs } from "~/utils/dayjs";
-
-// Single consumer: maps fasting phase to its accent key for the reached-phase chip,
-// matching the assignment used on the live board (dashboard/components/fasting-group.tsx).
-const FASTING_PHASE_ACCENT = {
-  early: "blue",
-  fatburn: "amber",
-  goal: "good",
-} as const satisfies Record<Doc<"fastingWindows">["phase"], keyof typeof ACCENT_VARS>;
 
 function formatStartedAt(startedAt: Doc<"fastingWindows">["startedAt"]) {
   return dayjs(startedAt).tz("Asia/Tokyo").format("YYYY/M/D HH:mm");
+}
+
+function phaseLabel(phase: Doc<"fastingWindows">["phase"]) {
+  switch (phase) {
+    case "early":
+      return "空腹期";
+    case "fatburn":
+      return "脂肪燃焼帯";
+    case "goal":
+      return "目標達成";
+  }
 }
 
 export function FastingHistoryList() {
@@ -68,7 +72,7 @@ export function FastingHistoryList() {
               size="sm"
               variant="outline"
             >
-              {FASTING_PHASE_LABELS[window.phase]}
+              {phaseLabel(window.phase)}
             </Badge>
           </Group>
         );

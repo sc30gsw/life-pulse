@@ -3,15 +3,10 @@ import type { FunctionReturnType } from "convex/server";
 import type { api } from "~/../convex/_generated/api";
 import type { Doc } from "~/../convex/_generated/dataModel";
 import { dayjs } from "~/utils/dayjs";
+import { formatRelativeTime } from "~/utils/relative-time";
+import { TIME_CONSTANTS } from "~/utils/time-constants";
 
-const TIME_CONSTANTS = {
-  SECOND_MS: 1000,
-  MINUTE_SECONDS: 60,
-  HOUR_SECONDS: 3600,
-  DAY_SECONDS: 86_400,
-  MINUTE_MS: 60_000,
-  JUST_NOW_THRESHOLD_SECONDS: 8,
-} as const satisfies Record<string, number>;
+export { formatRelativeTime };
 
 function pad(value: number) {
   return String(value).padStart(2, "0");
@@ -33,34 +28,6 @@ export function formatMinutesAsHm(rawMinutes: number) {
   const hours = Math.floor(minutes / TIME_CONSTANTS.MINUTE_SECONDS);
   const remainder = minutes % TIME_CONSTANTS.MINUTE_SECONDS;
   return hours > 0 ? `${hours}h${pad(remainder)}m` : `${remainder}m`;
-}
-
-export function formatRelativeTime(
-  pastMs:
-    | NonNullable<FunctionReturnType<typeof api.queries.dashboard.health.health>>["syncedAt"]
-    | NonNullable<FunctionReturnType<typeof api.queries.dashboard.presence.presence>>["updatedAt"],
-  nowMs: number,
-) {
-  // Server timestamps can sit slightly ahead of the client clock — clamp so skew
-  // never produces a negative delta.
-  const deltaSeconds = Math.max(0, Math.floor((nowMs - pastMs) / TIME_CONSTANTS.SECOND_MS));
-  if (deltaSeconds < TIME_CONSTANTS.JUST_NOW_THRESHOLD_SECONDS) {
-    return "たった今";
-  }
-
-  if (deltaSeconds < TIME_CONSTANTS.MINUTE_SECONDS) {
-    return `${deltaSeconds}秒前`;
-  }
-
-  if (deltaSeconds < TIME_CONSTANTS.HOUR_SECONDS) {
-    return `${Math.floor(deltaSeconds / TIME_CONSTANTS.MINUTE_SECONDS)}分前`;
-  }
-
-  if (deltaSeconds < TIME_CONSTANTS.DAY_SECONDS) {
-    return `${Math.floor(deltaSeconds / TIME_CONSTANTS.HOUR_SECONDS)}時間前`;
-  }
-
-  return `${Math.floor(deltaSeconds / TIME_CONSTANTS.DAY_SECONDS)}日前`;
 }
 
 export function formatClockTime(nowMs: number) {

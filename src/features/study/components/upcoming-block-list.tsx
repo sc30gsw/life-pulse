@@ -7,13 +7,21 @@ import { useState } from "react";
 import type { Doc } from "~/../convex/_generated/dataModel";
 import { EditBlockModal } from "~/features/study/components/edit-block-modal";
 import { useUpcomingBlocks } from "~/features/study/hooks/use-upcoming-blocks";
-import {
-  ACCENT_CLASSES,
-  ACCENT_VARS,
-  CATEGORY_LABELS,
-  type SessionCategory,
-} from "~/types/dashboard";
+import { ACCENT_CLASSES, ACCENT_VARS, type SessionCategory } from "~/types/dashboard";
 import { holidayName } from "~/utils/holiday";
+
+function categoryLabel(category: SessionCategory) {
+  switch (category) {
+    case "eikaiwa":
+      return "英会話";
+    case "other":
+      return "その他";
+    case "reading":
+      return "読書";
+    case "toeic":
+      return "TOEIC";
+  }
+}
 
 export function UpcomingBlockList() {
   const { blocks, onCancel } = useUpcomingBlocks();
@@ -70,7 +78,7 @@ export function UpcomingBlockList() {
                     ),
                   }}
                 >
-                  {CATEGORY_LABELS[block.category as SessionCategory]}
+                  {categoryLabel(block.category as SessionCategory)}
                 </Chip>
                 <Text c="dimmed" size="xs">
                   {block.plannedMinutes}分

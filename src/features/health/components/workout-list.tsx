@@ -9,7 +9,7 @@ import type { Doc } from "~/../convex/_generated/dataModel";
 import type { EditableWorkout } from "~/features/health/components/hiit-log-form";
 import { useDeleteWorkout } from "~/features/health/hooks/use-delete-workout";
 import { useWorkouts } from "~/features/health/hooks/use-workouts";
-import { ACCENT_CLASSES, ACCENT_SOLID_STYLE, WORKOUT_KIND_LABELS } from "~/types/dashboard";
+import { ACCENT_CLASSES, ACCENT_SOLID_STYLE, type WorkoutKind } from "~/types/dashboard";
 import { dayjs } from "~/utils/dayjs";
 
 const CONFIRM_MODAL_STYLES = {
@@ -21,6 +21,17 @@ const CONFIRM_MODAL_STYLES = {
 
 function formatAt(at: Doc<"workouts">["at"]) {
   return dayjs(at).tz("Asia/Tokyo").format("M/D HH:mm");
+}
+
+function workoutKindLabel(kind: WorkoutKind) {
+  switch (kind) {
+    case "hiit":
+      return "HIIT";
+    case "other":
+      return "その他";
+    case "walk":
+      return "ウォーキング";
+  }
 }
 
 export function WorkoutList({ onEdit }: Record<"onEdit", (workout: EditableWorkout) => void>) {
@@ -79,7 +90,7 @@ export function WorkoutList({ onEdit }: Record<"onEdit", (workout: EditableWorko
               ),
             }}
           >
-            {WORKOUT_KIND_LABELS[workout.kind]}
+            {workoutKindLabel(workout.kind)}
           </Chip>
           <Text className="tabular-nums" fw={600} size="sm">
             {formatAt(workout.at)}

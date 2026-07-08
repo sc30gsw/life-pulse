@@ -9,7 +9,22 @@ import { RingMetricCard, TextMetricCard } from "~/features/dashboard/components/
 import { DASHBOARD_HEALTH_METRICS } from "~/features/dashboard/constants/health-metrics";
 import { useDashboardHealth } from "~/features/dashboard/hooks/use-dashboard-health";
 import { useRequestGarminSync } from "~/features/health/hooks/use-request-garmin-sync";
-import { ACCENT_SOLID_STYLE, ACCENT_VARS, HEALTH_SOURCE_LABELS } from "~/types/dashboard";
+import { ACCENT_SOLID_STYLE, ACCENT_VARS } from "~/types/dashboard";
+
+function healthSourceLabel(
+  source: NonNullable<ReturnType<typeof useDashboardHealth>["metrics"]>["source"],
+) {
+  switch (source) {
+    case "demo":
+      return "source: demo";
+
+    case "garmin":
+      return "source: garmin";
+
+    case "manual":
+      return "source: manual";
+  }
+}
 
 export function HealthMetricsGrid() {
   const { dateJst, metrics } = useDashboardHealth();
@@ -121,19 +136,19 @@ export function HealthMetricsGrid() {
           健康メトリクス · Garmin
         </Text>
         <Text size="xs" c="dimmed">
-          {HEALTH_SOURCE_LABELS[metrics.source]} · {dateLabel}
+          {healthSourceLabel(metrics.source)} · {dateLabel}
         </Text>
       </Group>
       <Group wrap="wrap" gap="md">
         <RingMetricCard
-          accentColor={ACCENT_VARS[DASHBOARD_HEALTH_METRICS[0].accent]}
+          accentColor={ACCENT_VARS[DASHBOARD_HEALTH_METRICS.bodyBattery.accent]}
           label="Body Battery"
           subLabel="起床時"
           value={bodyBattery}
         />
 
         <RingMetricCard
-          accentColor={ACCENT_VARS[DASHBOARD_HEALTH_METRICS[1].accent]}
+          accentColor={ACCENT_VARS[DASHBOARD_HEALTH_METRICS.sleepScore.accent]}
           label="睡眠スコア"
           subLabel={sleepHoursLabel}
           value={sleepScore}

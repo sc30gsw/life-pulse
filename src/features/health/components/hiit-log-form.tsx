@@ -25,7 +25,6 @@ import {
   ACCENT_CLASSES,
   ACCENT_SOLID_STYLE,
   ACCENT_VARS,
-  WORKOUT_KIND_LABELS,
   type WorkoutKind,
 } from "~/types/dashboard";
 import { todayJst } from "~/utils/date-jst";
@@ -50,6 +49,17 @@ function initialInput(workout?: EditableWorkout): LogWorkoutFormInput {
     kind: (workout?.kind as WorkoutKind | undefined) ?? "hiit",
     perceivedIntensity: workout?.perceivedIntensity,
   };
+}
+
+function workoutKindLabel(kind: WorkoutKind) {
+  switch (kind) {
+    case "hiit":
+      return "HIIT";
+    case "other":
+      return "その他";
+    case "walk":
+      return "ウォーキング";
+  }
 }
 
 export function HiitLogForm({ workout, onDone }: HiitLogFormProps) {
@@ -124,7 +134,7 @@ export function HiitLogForm({ workout, onDone }: HiitLogFormProps) {
                       )}
                       disabled={logForm.isSubmitting}
                     >
-                      {WORKOUT_KIND_LABELS[kind]}
+                      {workoutKindLabel(kind)}
                     </UnstyledButton>
                   );
                 })}

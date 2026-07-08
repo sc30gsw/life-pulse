@@ -14,13 +14,12 @@ import { Shimmer } from "@shimmer-from-structure/react";
 import { cn } from "cnfast";
 import type { FunctionArgs, FunctionReturnType } from "convex/server";
 
+import { PRESENCE_STATE_VALUES } from "~/../convex/lib/domain";
 import { GlowCard } from "~/components/glow-card";
 import {
   ACCENT_CLASSES,
   ACCENT_SOLID_STYLE,
   ACCENT_VARS,
-  PRESENCE_LABELS,
-  PRESENCE_SUB_LABELS,
   type PresenceState,
 } from "~/types/dashboard";
 
@@ -34,7 +33,45 @@ const PRESENCE_ACCENTS = {
   sleeping: "faint",
 } as const satisfies Record<PresenceState, keyof typeof ACCENT_VARS>;
 
-const PRESENCE_STATES = Object.keys(PRESENCE_LABELS) as PresenceState[];
+const PRESENCE_STATES = PRESENCE_STATE_VALUES;
+
+function presenceLabel(state: PresenceState) {
+  switch (state) {
+    case "commuting_home":
+      return "帰宅中";
+
+    case "home":
+      return "在宅";
+
+    case "office":
+      return "出社中";
+
+    case "out":
+      return "外出";
+
+    case "sleeping":
+      return "就寝";
+  }
+}
+
+function presenceSubLabel(state: PresenceState) {
+  switch (state) {
+    case "commuting_home":
+      return "ETA 20:30";
+
+    case "home":
+      return "家にいます";
+
+    case "office":
+      return "オフィス勤務";
+
+    case "out":
+      return "外にいます";
+
+    case "sleeping":
+      return "おやすみ";
+  }
+}
 
 type PresenceCardProps = {
   editable: boolean;
@@ -100,14 +137,14 @@ export function PresenceCard({
         </Box>
         <Stack gap={3}>
           <Text fw={600} size="22px" c={ACCENT_VARS[accent]}>
-            {presence === null ? "未設定" : PRESENCE_LABELS[presence.state]}
+            {presence === null ? "未設定" : presenceLabel(presence.state)}
           </Text>
           <Text size="sm" c="dimmed">
             {presence === null
               ? "まだステータスが更新されていません"
               : presence.etaHm
                 ? `ETA ${presence.etaHm}`
-                : PRESENCE_SUB_LABELS[presence.state]}
+                : presenceSubLabel(presence.state)}
           </Text>
           <Text size="xs" c={ACCENT_VARS.faint}>
             更新 {updatedRelativeLabel}
@@ -162,7 +199,7 @@ export function PresenceCard({
                 )}
                 onClick={() => onSetPresence(state)}
               >
-                {PRESENCE_LABELS[state]}
+                {presenceLabel(state)}
               </UnstyledButton>
             );
           })}
@@ -224,7 +261,7 @@ export function PresenceCardFallback({ title }: Record<"title", string>) {
               key={state}
               className="border-bd-2 bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-medium"
             >
-              {PRESENCE_LABELS[state]}
+              {presenceLabel(state)}
             </Box>
           ))}
         </Group>

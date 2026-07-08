@@ -25,7 +25,6 @@ import {
   ACCENT_CLASSES,
   ACCENT_SOLID_STYLE,
   ACCENT_VARS,
-  CATEGORY_LABELS,
   type SessionCategory,
 } from "~/types/dashboard";
 import { todayJst } from "~/utils/date-jst";
@@ -43,6 +42,19 @@ function initialInput(block?: EditableBlock): DeclareBlockFormInput {
     endAt: block === undefined ? null : `${block.dateJst} ${block.endHm}:00`,
     startAt: block === undefined ? null : `${block.dateJst} ${block.startHm}:00`,
   };
+}
+
+function categoryLabel(category: SessionCategory) {
+  switch (category) {
+    case "eikaiwa":
+      return "英会話";
+    case "other":
+      return "その他";
+    case "reading":
+      return "読書";
+    case "toeic":
+      return "TOEIC";
+  }
 }
 
 export function DeclareBlockForm({ block, onDone }: DeclareBlockFormProps = {}) {
@@ -122,7 +134,7 @@ export function DeclareBlockForm({ block, onDone }: DeclareBlockFormProps = {}) 
                       )}
                       disabled={declareForm.isSubmitting}
                     >
-                      {CATEGORY_LABELS[category]}
+                      {categoryLabel(category)}
                     </UnstyledButton>
                   );
                 })}

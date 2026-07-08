@@ -9,13 +9,9 @@ import type { Doc } from "~/../convex/_generated/dataModel";
 import { useDashboardFasting } from "~/features/dashboard/hooks/use-dashboard-fasting";
 import { useDashboardViewer } from "~/features/dashboard/hooks/use-dashboard-viewer";
 import { FastingStartModal } from "~/features/fasting/components/fasting-start-modal";
+import { FASTING_PHASE_ACCENT } from "~/features/fasting/constants/fasting-phase-accent";
 import { useEndFasting } from "~/features/fasting/hooks/use-end-fasting";
-import {
-  ACCENT_SOLID_STYLE,
-  ACCENT_VARS,
-  FASTING_PHASE_LABELS,
-  FASTING_PHASE_SUB_LABELS,
-} from "~/types/dashboard";
+import { ACCENT_SOLID_STYLE, ACCENT_VARS } from "~/types/dashboard";
 
 const CONFIRM_MODAL_STYLES = {
   body: { color: "var(--tx)" },
@@ -24,12 +20,31 @@ const CONFIRM_MODAL_STYLES = {
   title: { color: "var(--tx)", fontWeight: 700 },
 } as const satisfies ComponentProps<typeof Modal>["styles"];
 
-// Single consumer: maps fasting phase to its accent key for the ring/labels.
-const FASTING_PHASE_ACCENT = {
-  early: "blue",
-  fatburn: "amber",
-  goal: "good",
-} as const satisfies Record<Doc<"fastingWindows">["phase"], keyof typeof ACCENT_VARS>;
+function phaseLabel(phase: Doc<"fastingWindows">["phase"]) {
+  switch (phase) {
+    case "early":
+      return "空腹期";
+
+    case "fatburn":
+      return "脂肪燃焼帯";
+
+    case "goal":
+      return "目標達成";
+  }
+}
+
+function phaseSubLabel(phase: Doc<"fastingWindows">["phase"]) {
+  switch (phase) {
+    case "early":
+      return "12hで脂肪燃焼帯";
+
+    case "fatburn":
+      return "16hで目標達成";
+
+    case "goal":
+      return "16時間クリア";
+  }
+}
 
 export function FastingGroup({
   fastingFlash: fastingFlashOverride,
@@ -115,10 +130,10 @@ export function FastingGroup({
             断食
           </Text>
           <Text fw={600} size="lg" c={ACCENT_VARS[phaseAccent]}>
-            {fasting === null ? "未開始" : FASTING_PHASE_LABELS[fastingPhase]}
+            {fasting === null ? "未開始" : phaseLabel(fastingPhase)}
           </Text>
           <Text size="sm" c="dimmed">
-            {fasting === null ? "断食を開始していません" : FASTING_PHASE_SUB_LABELS[fastingPhase]}
+            {fasting === null ? "断食を開始していません" : phaseSubLabel(fastingPhase)}
           </Text>
           <Text size="xs" c="dimmed">
             経過{" "}

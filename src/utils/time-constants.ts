@@ -1,0 +1,10 @@
+export const TIME_CONSTANTS = {
+  DAY_MS: 86_400_000,
+  DAY_SECONDS: 86_400,
+  HOUR_MS: 3_600_000,
+  HOUR_SECONDS: 3600,
+  JUST_NOW_THRESHOLD_SECONDS: 8,
+  MINUTE_MS: 60_000,
+  MINUTE_SECONDS: 60,
+  SECOND_MS: 1000,
+} as const satisfies Record<string, number>;

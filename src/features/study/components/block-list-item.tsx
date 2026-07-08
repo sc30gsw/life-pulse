@@ -13,27 +13,18 @@ import { cn } from "cnfast";
 import type { ComponentProps } from "react";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
+import { EROSION_REASON_VALUES } from "~/../convex/lib/domain";
+import { DECLARATION_STATUS_ACCENT } from "~/features/study/constants/declaration-status-accent";
 import {
   ACCENT_CLASSES,
   ACCENT_SOLID_STYLE,
   ACCENT_VARS,
-  CATEGORY_LABELS,
-  DECLARATION_STATUS_LABELS,
-  EROSION_REASON_LABELS,
   type DeclarationStatus,
   type ErosionReason,
   type SessionCategory,
 } from "~/types/dashboard";
 
-const STATUS_ACCENT = {
-  declined: "blue",
-  done: "good",
-  eroded: "coral",
-  planned: "faint",
-  rescheduled: "violet",
-} as const satisfies Record<DeclarationStatus, keyof typeof ACCENT_VARS>;
-
-const EROSION_REASONS = Object.keys(EROSION_REASON_LABELS) as ErosionReason[];
+const EROSION_REASONS = EROSION_REASON_VALUES;
 
 const TOOLTIP_STYLES = {
   tooltip: {
@@ -43,6 +34,47 @@ const TOOLTIP_STYLES = {
     fontSize: "11px",
   },
 } as const satisfies ComponentProps<typeof Tooltip>["styles"];
+
+function categoryLabel(category: SessionCategory) {
+  switch (category) {
+    case "eikaiwa":
+      return "英会話";
+    case "other":
+      return "その他";
+    case "reading":
+      return "読書";
+    case "toeic":
+      return "TOEIC";
+  }
+}
+
+function declarationStatusLabel(status: DeclarationStatus) {
+  switch (status) {
+    case "declined":
+      return "見送り";
+    case "done":
+      return "済";
+    case "eroded":
+      return "侵食";
+    case "planned":
+      return "予定";
+    case "rescheduled":
+      return "リスケ済";
+  }
+}
+
+function erosionReasonLabel(reason: ErosionReason) {
+  switch (reason) {
+    case "fatigue":
+      return "疲労";
+    case "interruption":
+      return "割り込み";
+    case "other":
+      return "その他";
+    case "work":
+      return "仕事";
+  }
+}
 
 type BlockListItemProps = {
   block: Doc<"studyBlocks">;
@@ -67,7 +99,7 @@ export function BlockListItem({
   onUndoDecline,
   suggestions,
 }: BlockListItemProps) {
-  const accent = STATUS_ACCENT[block.status];
+  const accent = DECLARATION_STATUS_ACCENT[block.status];
 
   return (
     <Box className="border-bd bg-panel-2 rounded-xl border px-3.5 py-2.5">
@@ -86,7 +118,7 @@ export function BlockListItem({
             ),
           }}
         >
-          {CATEGORY_LABELS[block.category as SessionCategory]}
+          {categoryLabel(block.category as SessionCategory)}
         </Chip>
         <Text c="dimmed" size="xs">
           {block.plannedMinutes}分
@@ -101,7 +133,7 @@ export function BlockListItem({
           size="sm"
           variant="outline"
         >
-          {DECLARATION_STATUS_LABELS[block.status]}
+          {declarationStatusLabel(block.status)}
         </Badge>
       </Group>
 
@@ -188,7 +220,7 @@ function PlannedBlockActions({
               onClick={() => onErode(block._id, reason)}
               type="button"
             >
-              {EROSION_REASON_LABELS[reason]}
+              {erosionReasonLabel(reason)}
             </UnstyledButton>
           ))}
         </>
@@ -224,7 +256,7 @@ function ErodedBlockActions({
         >
           侵食
           {block.erosionReason !== undefined
-            ? `(${EROSION_REASON_LABELS[block.erosionReason]})`
+            ? `(${erosionReasonLabel(block.erosionReason)})`
             : ""}{" "}
           · リスケ候補:
         </Chip>

@@ -11,7 +11,7 @@ import {
   ACCENT_CLASSES,
   ACCENT_SOLID_STYLE,
   ACCENT_VARS,
-  CATEGORY_LABELS,
+  type SessionCategory,
 } from "~/types/dashboard";
 
 const MODAL_STYLES = {
@@ -20,6 +20,19 @@ const MODAL_STYLES = {
   header: { backgroundColor: "var(--panel)", color: "var(--tx)" },
   title: { color: "var(--tx)", fontWeight: 700 },
 } as const satisfies ComponentProps<typeof Modal>["styles"];
+
+function categoryLabel(category: SessionCategory) {
+  switch (category) {
+    case "eikaiwa":
+      return "英会話";
+    case "other":
+      return "その他";
+    case "reading":
+      return "読書";
+    case "toeic":
+      return "TOEIC";
+  }
+}
 
 type SessionStartModalProps = {
   onStart: ReturnType<typeof useDashboardStudy>["onStartSession"];
@@ -80,7 +93,7 @@ export function SessionStartModal({ opened, onClose, onStart }: SessionStartModa
                             : "border-bd-2 bg-inset text-dim font-medium",
                         )}
                       >
-                        {CATEGORY_LABELS[category]}
+                        {categoryLabel(category)}
                       </UnstyledButton>
                     );
                   })}
