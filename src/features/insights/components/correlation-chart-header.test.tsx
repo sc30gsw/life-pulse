@@ -5,9 +5,7 @@ import { CorrelationChartHeader } from "~/features/insights/components/correlati
 import type { InsightsCorrelation } from "~/features/insights/types/insights";
 import { renderWithMantine } from "~/test-utils";
 
-function buildCorrelation(
-  correlation: Pick<InsightsCorrelation, "n" | "r">,
-): InsightsCorrelation {
+function buildCorrelation(correlation: Pick<InsightsCorrelation, "n" | "r">): InsightsCorrelation {
   return correlation as InsightsCorrelation;
 }
 

@@ -2,10 +2,7 @@
 import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vite-plus/test";
 
-import {
-  SettingsForm,
-  SettingsFormFallback,
-} from "~/features/settings/components/settings-form";
+import { SettingsForm, SettingsFormFallback } from "~/features/settings/components/settings-form";
 import { renderWithMantine } from "~/test-utils";
 
 const hookState = vi.hoisted(() => ({
@@ -78,5 +75,6 @@ test("SettingsFormFallback renders the disabled loading controls", () => {
   const { getByRole, getByText } = renderWithMantine(<SettingsFormFallback />);
 
   expect(getByText("断食目標時間")).toBeDefined();
-  expect(getByRole("button", { name: "保存する" })).toBeDefined();
+  expect(getByText("保存する")).toBeDefined();
+  expect(getByRole("slider", { hidden: true })).toHaveAttribute("aria-disabled", "true");
 });

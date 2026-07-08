@@ -12,6 +12,7 @@ import {
   REASON_LABELS,
   SESSION_STATUS_LABELS,
   type InterruptionReason,
+  type SessionCategory,
   type SessionStatus,
 } from "~/types/dashboard";
 import { dayjs } from "~/utils/dayjs";
@@ -82,7 +83,7 @@ export function SessionHistoryList() {
                     ),
                   }}
                 >
-                  {CATEGORY_LABELS[session.category]}
+                  {CATEGORY_LABELS[session.category as SessionCategory]}
                 </Chip>
                 <Text className="tabular-nums" size="xs">
                   {session.actualMinutes}分

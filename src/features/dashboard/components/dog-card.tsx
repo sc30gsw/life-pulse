@@ -6,7 +6,7 @@ import { cn } from "cnfast";
 
 import { GlowCard } from "~/components/glow-card";
 import { DogCareRow } from "~/features/dashboard/components/dog-care-row";
-import { openDogHistoryModal } from "~/features/dashboard/components/dog-history-modal";
+import { DogHistoryButton } from "~/features/dashboard/components/dog-history-modal";
 import { useDashboardDog } from "~/features/dashboard/hooks/use-dashboard-dog";
 import { ACCENT_CLASSES, ACCENT_SOLID_STYLE, ACCENT_VARS } from "~/types/dashboard";
 
@@ -86,15 +86,7 @@ export function DogCard() {
           >
             {pendingCount > 0 ? `未実施 ${pendingCount} 件` : "すべて完了"}
           </Badge>
-          <Button
-            className="border-bd-2 text-tx transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
-            onClick={openDogHistoryModal}
-            size="xs"
-            type="button"
-            variant="outline"
-          >
-            履歴
-          </Button>
+          <DogHistoryButton />
           <Button
             aria-label="犬の管理"
             className="border-bd-2 text-tx transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"

@@ -27,6 +27,7 @@ import {
   CATEGORY_LABELS,
   REASON_LABELS,
   type InterruptionReason,
+  type SessionCategory,
 } from "~/types/dashboard";
 
 const SESSION_STATUS_ACCENT = {
@@ -111,7 +112,7 @@ export function SessionStatusGroup({
             </Badge>
             {session !== null && (
               <Text size="sm" c="dimmed">
-                {CATEGORY_LABELS[session.category]}
+                {CATEGORY_LABELS[session.category as SessionCategory]}
               </Text>
             )}
           </Group>
