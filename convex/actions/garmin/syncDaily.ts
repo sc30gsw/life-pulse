@@ -23,7 +23,7 @@ import { filter, isNonNullish, map, pipe } from "remeda";
 
 import { internal } from "../../_generated/api";
 import { type ActionCtx, internalAction } from "../../_generated/server";
-import { addDaysJst, MAX_HISTORY_RANGE_DAYS, todayJst } from "../../lib/dateRange";
+import { addDaysJst, type DateJst, MAX_HISTORY_RANGE_DAYS, todayJst } from "../../lib/dateRange";
 import { mapDailyMetrics, type RawGarminDailyMetrics } from "../../services/garmin/mapDailyMetrics";
 import { createGarminClient } from "./client";
 
@@ -33,7 +33,7 @@ import { createGarminClient } from "./client";
 // time budget, and irrelevant for the 2-day cron path.
 const PER_DAY_DELAY_MS = 500;
 
-async function syncRange(ctx: ActionCtx, fromJst: string, toJst: string) {
+async function syncRange(ctx: ActionCtx, fromJst: DateJst, toJst: DateJst) {
   try {
     const client = createGarminClient();
 
@@ -50,7 +50,7 @@ async function syncRange(ctx: ActionCtx, fromJst: string, toJst: string) {
     );
 
     const days = [];
-    const failedDates: string[] = [];
+    const failedDates: DateJst[] = [];
     let firstDayError: unknown;
     let first = true;
 

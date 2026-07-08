@@ -1,6 +1,5 @@
 import { Group, Stack, Text } from "@mantine/core";
-import { IconArrowLeft } from "@tabler/icons-react";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 
 import { GlowCard } from "~/components/glow-card";
@@ -39,7 +38,7 @@ function SectionLabel({ label }: Record<"label", string>) {
 
 function StudyPage() {
   return (
-    <div className="min-h-dvh px-4 py-5 pb-16 sm:px-8 sm:py-6">
+    <>
       <Group component="header" wrap="wrap" gap="md" align="center" mb="lg">
         <Stack gap={0} mr="auto">
           <Text className="lp-brandtext" component="h1" fw={700} size="lg" m={0}>
@@ -55,9 +54,6 @@ function StudyPage() {
             Study Blocks & Sessions
           </Text>
         </Stack>
-        <Link to="/" className="flex items-center gap-2 text-sm text-blue-500 hover:brightness-120">
-          <IconArrowLeft size={16} /> ライブボード
-        </Link>
       </Group>
 
       <main className="flex flex-col gap-4 lg:flex-row lg:items-start">
@@ -107,6 +103,6 @@ function StudyPage() {
           </GlowCard>
         </section>
       </main>
-    </div>
+    </>
   );
 }

@@ -48,7 +48,7 @@ function SectionLabel({ label }: Record<"label", string>) {
 
 function InsightsPage() {
   return (
-    <div className="min-h-dvh px-4 py-5 pb-16 sm:px-8 sm:py-6">
+    <>
       <Group component="header" wrap="wrap" gap="md" align="center" mb="lg">
         <Stack gap={0} mr="auto">
           <Text className="lp-brandtext" component="h1" fw={700} size="lg" m={0}>
@@ -124,6 +124,6 @@ function InsightsPage() {
           </Suspense>
         </GlowCard>
       </main>
-    </div>
+    </>
   );
 }

@@ -8,7 +8,7 @@ const DATE_JST_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 export const MAX_HISTORY_RANGE_DAYS = 31;
 
-type DateJst = Doc<"dogEvents">["dateJst"];
+export type DateJst = Doc<"healthMetrics">["dateJst"];
 
 dayjsBase.extend(utc);
 
@@ -21,11 +21,11 @@ export function assertDateJst(dateJst: DateJst) {
   }
 }
 
-export function todayJst() {
+export function todayJst(): DateJst {
   return dayjsBase().utcOffset(9).format("YYYY-MM-DD");
 }
 
-export function addDaysJst(dateJst: DateJst, days: number) {
+export function addDaysJst(dateJst: DateJst, days: number): DateJst {
   assertDateJst(dateJst);
 
   return dayjsBase.utc(dateJst, "YYYY-MM-DD", true).add(days, "day").format("YYYY-MM-DD");
