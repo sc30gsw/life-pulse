@@ -51,13 +51,13 @@ export function DogImageUploader() {
       setImageSrc(null);
       notifications.show({
         color: "green",
-        message: "犬の写真を保存しました",
-        title: "保存しました",
+        message: DOG_PROFILE_COPY.notification.imageSaveSuccessMessage,
+        title: DOG_PROFILE_COPY.notification.savedTitle,
       });
     } catch {
       notifications.show({
         color: "red",
-        message: "犬の写真の保存に失敗しました",
+        message: DOG_PROFILE_COPY.notification.imageSaveErrorMessage,
         title: "エラー",
       });
     }
@@ -75,7 +75,7 @@ export function DogImageUploader() {
               leftSection={<IconPhotoUp size={16} />}
               variant="outline"
             >
-              写真を選ぶ
+              {DOG_PROFILE_COPY.actions.choosePhoto}
             </Button>
           )}
         </FileButton>
@@ -112,7 +112,7 @@ export function DogImageUploader() {
               onClick={() => setImageSrc(null)}
               variant="outline"
             >
-              キャンセル
+              {DOG_PROFILE_COPY.actions.cancel}
             </Button>
             <Button
               className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
@@ -120,7 +120,7 @@ export function DogImageUploader() {
               onClick={onSave}
               style={ACCENT_SOLID_STYLE.good}
             >
-              写真を保存
+              {DOG_PROFILE_COPY.actions.savePhoto}
             </Button>
           </Group>
         </Stack>
@@ -136,7 +136,7 @@ export function DogImageUploaderFallback() {
         <Group align="center">
           <Avatar name={DOG_PROFILE_COPY.fallbackName} radius="md" size={76} />
           <Button className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100">
-            写真を選ぶ
+            {DOG_PROFILE_COPY.actions.choosePhoto}
           </Button>
         </Group>
       </Stack>

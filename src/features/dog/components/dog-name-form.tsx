@@ -3,6 +3,7 @@ import { Button, Stack, TextInput } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { Shimmer } from "@shimmer-from-structure/react";
 
+import { DOG_PAGE_COPY, DOG_PROFILE_COPY } from "~/features/dog/constants/dog-profile";
 import { useDog } from "~/features/dog/hooks/use-dog";
 import { useUpdateDog } from "~/features/dog/hooks/use-update-dog";
 import { DogNameSchema } from "~/features/dog/schemas/dog-name-schema";
@@ -25,7 +26,7 @@ export function DogNameForm() {
           onError: () => {
             notifications.show({
               color: "red",
-              message: "犬プロフィールの保存に失敗しました",
+              message: DOG_PROFILE_COPY.notification.profileSaveErrorMessage,
               title: "エラー",
             });
           },
@@ -48,7 +49,7 @@ export function DogNameForm() {
               {...field.props}
               disabled={dogNameForm.isSubmitting}
               error={field.errors?.[0]}
-              label="犬の名前"
+              label={DOG_PAGE_COPY.sections.name}
               value={field.input}
             />
           )}
@@ -61,7 +62,7 @@ export function DogNameForm() {
           style={ACCENT_SOLID_STYLE.good}
           type="submit"
         >
-          {isCreating ? "作成する" : "保存する"}
+          {isCreating ? DOG_PROFILE_COPY.actions.create : DOG_PROFILE_COPY.actions.save}
         </Button>
       </Stack>
     </Form>
@@ -72,9 +73,14 @@ export function DogNameFormFallback() {
   return (
     <Shimmer loading>
       <Stack gap="md">
-        <TextInput disabled label="犬の名前" placeholder="犬の名前" value="" />
+        <TextInput
+          disabled
+          label={DOG_PAGE_COPY.sections.name}
+          placeholder={DOG_PAGE_COPY.sections.name}
+          value=""
+        />
         <Button className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100">
-          作成する
+          {DOG_PROFILE_COPY.actions.create}
         </Button>
       </Stack>
     </Shimmer>

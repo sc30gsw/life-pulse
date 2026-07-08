@@ -130,14 +130,14 @@ export function HealthMetricsGrid() {
       </Group>
       <Group wrap="wrap" gap="md">
         <RingMetricCard
-          accentColor={ACCENT_VARS.good}
+          accentColor={ACCENT_VARS[DASHBOARD_HEALTH_METRICS[0].accent]}
           label={DASHBOARD_HEALTH_METRICS[0].label}
           subLabel={DASHBOARD_HEALTH_METRICS[0].subLabel}
           value={bodyBattery}
         />
 
         <RingMetricCard
-          accentColor={ACCENT_VARS.violet}
+          accentColor={ACCENT_VARS[DASHBOARD_HEALTH_METRICS[1].accent]}
           label={DASHBOARD_HEALTH_METRICS[1].label}
           subLabel={sleepHoursLabel}
           value={sleepScore}
@@ -201,25 +201,14 @@ export function HealthMetricsGridFallback() {
         </Group>
         <Group wrap="wrap" gap="md">
           {DASHBOARD_HEALTH_METRICS.map((metric) => (
-            <Paper
+            <TextMetricCard
               key={metric.id}
-              radius="md"
-              p="sm"
-              className="bg-panel-2 border-bd flex-1 border"
-              style={{ minWidth: 110 }}
-            >
-              <Stack gap={2} justify="center">
-                <Text size="xs" c="dimmed">
-                  {metric.label}
-                </Text>
-                <Text size="xl" fw={600}>
-                  {DASHBOARD_HEALTH_FALLBACK_VALUE}
-                </Text>
-                <Text size="xs" c="dimmed">
-                  {"subLabel" in metric ? metric.subLabel : DASHBOARD_HEALTH_METRICS[0].subLabel}
-                </Text>
-              </Stack>
-            </Paper>
+              label={metric.label}
+              subLabel={
+                "subLabel" in metric ? metric.subLabel : DASHBOARD_HEALTH_METRICS[0].subLabel
+              }
+              value={DASHBOARD_HEALTH_FALLBACK_VALUE}
+            />
           ))}
         </Group>
       </Paper>

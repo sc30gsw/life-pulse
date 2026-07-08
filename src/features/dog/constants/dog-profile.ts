@@ -9,6 +9,13 @@ export const DOG_PAGE_COPY = {
 } as const;
 
 export const DOG_PROFILE_COPY = {
+  actions: {
+    cancel: "キャンセル",
+    choosePhoto: "写真を選ぶ",
+    create: "作成する",
+    save: "保存する",
+    savePhoto: "写真を保存",
+  },
   fallbackName: "犬",
   history: {
     emptyDescription: "犬のお世話履歴がありません",
@@ -21,6 +28,12 @@ export const DOG_PROFILE_COPY = {
   },
   navigation: {
     manage: "犬の管理へ",
+  },
+  notification: {
+    imageSaveErrorMessage: "犬の写真の保存に失敗しました",
+    imageSaveSuccessMessage: "犬の写真を保存しました",
+    profileSaveErrorMessage: "犬プロフィールの保存に失敗しました",
+    savedTitle: "保存しました",
   },
   todayCare: "今日のケア",
 } as const;
