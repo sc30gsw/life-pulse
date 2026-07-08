@@ -1,8 +1,8 @@
-import { useConvexMutation } from "~/lib/use-convex-mutation";
 import { useMutation } from "@tanstack/react-query";
 import { useAction } from "convex/react";
 
 import { api } from "~/../convex/_generated/api";
+import { useConvexMutation } from "~/lib/use-convex-mutation";
 
 export function useUpdateDisplayName() {
   return useConvexMutation(api.mutations.users.updateDisplayName.updateDisplayName);
