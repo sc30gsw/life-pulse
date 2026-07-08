@@ -76,5 +76,5 @@ test("SettingsFormFallback renders the disabled loading controls", () => {
 
   expect(getByText("断食目標時間")).toBeDefined();
   expect(getByText("保存する")).toBeDefined();
-  expect(getByRole("slider", { hidden: true })).toHaveAttribute("aria-disabled", "true");
+  expect(getByRole("slider", { hidden: true }).getAttribute("aria-disabled")).toBe("true");
 });
