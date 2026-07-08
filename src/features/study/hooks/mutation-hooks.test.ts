@@ -1,4 +1,5 @@
-import { useConvexMutation } from "~/lib/use-convex-mutation";
+import { useConvexMutation } from "@convex-dev/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { expect, test, vi } from "vite-plus/test";
 
 import { useDeclareBlock } from "~/features/study/hooks/use-declare-block";
@@ -34,7 +35,7 @@ test("wraps study mutations with TanStack mutation objects", () => {
   expect(useMutation).toHaveBeenCalledTimes(6);
   for (const hook of hooks) {
     expect(hook).toEqual({
-      options: { mutationFn: expect.objectContaining({ convexFn: expect.anything() }) },
+      options: { mutationFn: expect.any(Function) },
     });
   }
 });

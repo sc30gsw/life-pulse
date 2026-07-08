@@ -3,7 +3,7 @@ import { renderHook } from "@testing-library/react";
 import { expect, test, vi } from "vite-plus/test";
 
 const { useConvexMutationMock, useMutationMock } = vi.hoisted(() => ({
-  useConvexMutationMock: vi.fn(() => "mutationFn-sentinel"),
+  useConvexMutationMock: vi.fn(() => vi.fn()),
   useMutationMock: vi.fn((opts: unknown) => opts),
 }));
 
@@ -28,5 +28,5 @@ test("wires useConvexMutation(api.mutations.partnerStatus.setStatus.setStatus) i
   expect(useConvexMutationMock).toHaveBeenCalledWith(
     api.mutations.partnerStatus.setStatus.setStatus,
   );
-  expect(useMutationMock).toHaveBeenCalledWith({ mutationFn: "mutationFn-sentinel" });
+  expect(useMutationMock).toHaveBeenCalledWith({ mutationFn: expect.any(Function) });
 });

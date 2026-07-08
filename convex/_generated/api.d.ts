@@ -154,6 +154,7 @@ import type * as services_users_updateDisplayName from "../services/users/update
 import type * as services_users_updateEmail from "../services/users/updateEmail.js";
 import type * as services_users_updatePassword from "../services/users/updatePassword.js";
 import type * as services_users_viewer from "../services/users/viewer.js";
+import type * as test_fixtures from "../test/fixtures.js";
 
 import type {
   ApiFromModules,
@@ -308,6 +309,7 @@ declare const fullApi: ApiFromModules<{
   "services/users/updateEmail": typeof services_users_updateEmail;
   "services/users/updatePassword": typeof services_users_updatePassword;
   "services/users/viewer": typeof services_users_viewer;
+  "test/fixtures": typeof test_fixtures;
 }>;
 
 /**

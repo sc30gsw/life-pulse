@@ -143,29 +143,29 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 
 ### Phase 0 — スキーマ & マイグレーション
 
-- [ ] `dogs` テーブル追加(`name`)。`appSettings.dogName` から1件コピー → 旧フィールド削除
-- [ ] `dogTasks` テーブル追加(`name` / `sortOrder` / `archivedAt?`)
-- [ ] `dogEvents` wipe(demo データのため損失なし)→ `kind` 廃止、`taskId: v.id("dogTasks")` required で一発デプロイ
-- [ ] `dogTasks` シード: 現 `DOG_CARE_KINDS` 相当を時系列順 `sortOrder` で投入
+- [x] `dogs` テーブル追加(`name`)。`appSettings.dogName` から1件コピー → 旧フィールド削除
+- [x] `dogTasks` テーブル追加(`name` / `sortOrder` / `archivedAt?`)
+- [x] `dogEvents` wipe(demo データのため損失なし)→ `kind` 廃止、`taskId: v.id("dogTasks")` required で一発デプロイ
+- [x] `dogTasks` シード: 現 `DOG_CARE_KINDS` 相当を時系列順 `sortOrder` で投入
 
 ### Phase 1 — /dog ページ
 
-- [ ] 犬情報編集(`dogs.name`)— self/partner 両ロール
-- [ ] 犬タスク CRUD + 上下移動ボタン(`sortOrder` 隣接 swap、dnd 依存なし)
-- [ ] 削除 = `archivedAt` ソフトデリート。一覧は `archivedAt === undefined` フィルタ
+- [x] 犬情報編集(`dogs.name`)— self/partner 両ロール
+- [x] 犬タスク CRUD + 上下移動ボタン(`sortOrder` 隣接 swap、dnd 依存なし)
+- [x] 削除 = `archivedAt` ソフトデリート。一覧は `archivedAt === undefined` フィルタ
 
 ### Phase 2 — /profile ページ(本人のみ)
 
-- [ ] 表示名編集
-- [ ] アバター画像アップロード(Convex File Storage / `avatarStorageId`)
-- [ ] メールアドレス変更 / パスワード変更
+- [x] 表示名編集
+- [x] アバター画像アップロード(Convex File Storage / `avatarStorageId`)
+- [x] メールアドレス変更 / パスワード変更
 
 ### Phase 3 — 動的化・導線・整理
 
-- [ ] `DOG_CARE_KINDS` / `DOG_EVENT_LABELS` 全廃 → 犬カード・履歴モーダルを `dogTasks` 駆動に
-- [ ] ユーザーメニューに「プロフィール」「犬の管理」リンク、犬カードヘッダーに歯車 → `/dog`
-- [ ] `/settings` を `demoMode` + `fastingDefaultMinutes` のみに縮小
-- [ ] テスト: dogTasks CRUD 権限(両ロール)、ソフトデリート後の履歴参照、sortOrder swap
+- [x] `DOG_CARE_KINDS` / `DOG_EVENT_LABELS` 全廃 → 犬カード・履歴モーダルを `dogTasks` 駆動に
+- [x] ユーザーメニューに「プロフィール」「犬の管理」リンク、犬カードヘッダーに歯車 → `/dog`
+- [x] `/settings` を `demoMode` + `fastingDefaultMinutes` のみに縮小
+- [x] テスト: dogTasks CRUD 権限(両ロール)、ソフトデリート後の履歴参照、sortOrder swap
 
 ## 受け入れ基準ゲート(requirements.md §8 — 発表可能の定義)
 

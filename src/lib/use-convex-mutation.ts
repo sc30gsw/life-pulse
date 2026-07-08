@@ -1,9 +1,13 @@
 import { useConvexMutation as useConvexMutationFn } from "@convex-dev/react-query";
 import { useMutation } from "@tanstack/react-query";
-import type { FunctionReference } from "convex/server";
+import type { FunctionArgs, FunctionReference, FunctionReturnType } from "convex/server";
 
 export function useConvexMutation<Mutation extends FunctionReference<"mutation">>(
   mutation: Mutation,
 ) {
-  return useMutation({ mutationFn: useConvexMutationFn(mutation) });
+  const mutationFn = useConvexMutationFn(mutation);
+
+  return useMutation<FunctionReturnType<Mutation>, Error, FunctionArgs<Mutation>>({
+    mutationFn: (args) => mutationFn(args),
+  });
 }
