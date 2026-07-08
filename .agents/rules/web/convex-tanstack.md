@@ -81,34 +81,33 @@ import { useQuery } from "convex/react";
 const sessions = useQuery(api.sessions.listForDate, { dateJst });
 ```
 
-## Route loaders: `queryClient.ensureQueryData(convexQuery(...))`
+## Route loaders: do not prefetch Convex queries with `ensureQueryData`
 
-Preload data in route loaders the same way the project already preloads TanStack Query data — via `ensureQueryData`, not a separate fetch mechanism.
+Do not call `queryClient.ensureQueryData(convexQuery(...))` or `queryClient.ensureQueryData(featureQueryFactory(...))` from TanStack Start route loaders. In this project that pattern can fail at runtime because authenticated Convex reads depend on the client-side `ConvexAuthProvider` token state. Keep Convex reads at component/hook level with `useSuspenseQuery(...)`.
+
+Feature-local query option factories (for example `dashboardLiveQuery(dateJst)`) remain the SSoT for component-level reads and tests. Use them from hooks/components, not route loaders.
 
 ```typescript
-// CORRECT: src/routes/dashboard.tsx
+// WRONG: do not do this in TanStack Start route loaders
 export const Route = createFileRoute("/dashboard")({
   loader: ({ context: { queryClient } }) =>
-    queryClient.ensureQueryData(convexQuery(api.dashboard.live, { dateJst: todayJst() })),
+    queryClient.ensureQueryData(dashboardLiveQuery(todayJst())),
   component: DashboardPage,
 });
 ```
 
-## Mutations: `useConvexMutation`
+## Mutations: project `useConvexMutation` helper
 
-Pair `useConvexMutation` (a thin wrapper around the Convex React mutation hook) with TanStack Query's `useMutation` as the `mutationFn`.
+Use the project helper from `~/lib/use-convex-mutation`. It is the single source of truth for pairing the Convex React mutation hook with TanStack Query's `useMutation`. Feature hooks should only pass the generated Convex function reference.
 
 ```typescript
 // CORRECT
-import { useConvexMutation } from "@convex-dev/react-query";
-import { useMutation } from "@tanstack/react-query";
+import { useConvexMutation } from "~/lib/use-convex-mutation";
 
 import { api } from "~/../convex/_generated/api";
 
 export function useStartSession() {
-  return useMutation({
-    mutationFn: useConvexMutation(api.sessions.start),
-  });
+  return useConvexMutation(api.sessions.start);
 }
 ```
 

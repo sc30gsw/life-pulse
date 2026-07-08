@@ -118,10 +118,10 @@ Applies to this project: session complete (updating sessions + finalizing interr
 
 ## C. Types & Schema
 
-### CVX-16: Make schema.ts the Single Source of Truth 〔Zenn / Official TS Guide〕
+### CVX-16: Make schema.ts and `convex/lib/domain.ts` the Data Contract SSoT 〔Zenn / Official TS Guide〕
 
-Use `Doc<"table">` / `Id<"table">` from `_generated/dataModel` for types, and do not create manually duplicated type definitions. If a manual type conversion (`as`) becomes necessary, question the design. To avoid maintaining validators and types separately, export shared enum-like values as `v.union(v.literal(...))` and derive the type with `Infer<typeof xxx>`. Use `WithoutSystemFields<Doc<"...">>` for insertion types. Derive client-side types with `FunctionReturnType<typeof api.x.y>`.
-Applies to this project: define and export `categoryValidator`, `dogEventKindValidator`, `presenceStateValidator`, etc. near the schema, and generate the frontend's selection UI from those `Infer` types as well.
+Use `Doc<"table">` / `Id<"table">` from `_generated/dataModel` for table-shaped types, and do not create manually duplicated type definitions. Enum-like domain values and shared primitive constraints live in `convex/lib/domain.ts` as `as const satisfies readonly ...[]` tuples or named constants. Convex validators in `convex/lib/validators.ts`, Valibot form schemas, UI option lists, and tests must import those values instead of redefining string unions, regexes, or magic numbers. If a manual type conversion (`as`) becomes necessary, question the design. Use `WithoutSystemFields<Doc<"...">>` for insertion types. Derive client-side API shapes with `FunctionReturnType<typeof api.x.y>`.
+Applies to this project: `ROLE_VALUES`, `CATEGORY_VALUES`, `WORKOUT_KIND_VALUES`, fasting target minute constants, and date regexes are domain contract SSoT in `convex/lib/domain.ts`; display labels and color tokens remain UI-owned in `src/types/dashboard.ts` but must be typed against the domain value tuples.
 
 ### CVX-17: Await Every Promise 〔Official〕
 
