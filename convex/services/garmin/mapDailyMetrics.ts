@@ -22,12 +22,18 @@ type RawDailySleep = Partial<
 type RawBodyBatteryPoint = Partial<Record<"bodyBatteryValuesArray", [number, number | null][]>>;
 type RawHrvStatus = Partial<Record<"hrvSummary", unknown>>;
 type RawHeartRate = Partial<Record<"restingHeartRate", number | undefined>>;
+// One day's entry from the patched range endpoint
+// `/usersummary-service/stats/steps/daily/{start}/{end}` (see client.ts's
+// NOTE): the calling action picks THIS day's entry out of the range response
+// before mapping, so a day Garmin returned nothing for stays `undefined`.
+type RawDailySteps = Partial<Record<"totalSteps", number | null>>;
 
 export type RawGarminDailyMetrics = {
   dailySleep: RawDailySleep;
   bodyBattery: RawBodyBatteryPoint | RawBodyBatteryPoint[];
   hrvStatus: RawHrvStatus;
   heartRate: RawHeartRate;
+  dailySteps?: RawDailySteps;
 };
 
 export type MappedHealthMetrics = Pick<
@@ -39,8 +45,8 @@ export type MappedHealthMetrics = Pick<
 // day. A field Garmin didn't return maps to `undefined` (never null/0), so
 // the merge-patch in mutations/health/upsertFromSync.ts (plan Step 5) leaves
 // an existing manual value alone for anything Garmin stayed silent on.
-// `steps` always maps to undefined: this SDK version exposes no daily
-// step-count endpoint (see client.ts's NOTE on available endpoint classes).
+// `steps` comes from the patched range endpoint's per-day entry (`dailySteps`,
+// optional — see client.ts's NOTE); `null`/missing maps to `undefined`.
 export function mapDailyMetrics(raw: RawGarminDailyMetrics, dateJst: string): MappedHealthMetrics {
   return {
     dateJst,
@@ -49,7 +55,7 @@ export function mapDailyMetrics(raw: RawGarminDailyMetrics, dateJst: string): Ma
     bodyBattery: maxBodyBattery(raw.bodyBattery),
     hrv: readLastNightAvgHrv(raw.hrvStatus.hrvSummary),
     restingHr: readNumber(raw.heartRate.restingHeartRate),
-    steps: undefined,
+    steps: readNumber(raw.dailySteps?.totalSteps),
   };
 }
 

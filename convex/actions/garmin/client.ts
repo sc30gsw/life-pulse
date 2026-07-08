@@ -27,13 +27,12 @@ import {
 // (e.g. sleep score, resting HR) that exist in Garmin's real payloads but aren't part
 // of this alpha SDK's typed schema.
 //
-// NOTE: there is no `steps` field here. This SDK version exposes exactly seven
-// endpoint classes (ActivitiesEndpoint, CalendarEndpoint, DevicesEndpoint,
-// HealthEndpoint, SleepEndpoint, UserEndpoint, WorkoutsEndpoint — see
-// node_modules/garmin-connect-sdk/dist/index.d.ts:334,2421,2480,2568,2835,2560,2848)
-// and none of them expose a daily step-count reading. `healthMetrics.steps` cannot be
-// populated from Garmin sync until the SDK adds one; manual entry remains the only
-// source for it (consistent with the "defined fields only" merge in plan §0-2).
+// NOTE: `steps` is NOT part of this per-day shape. The upstream SDK exposes no
+// step-count endpoint, so our pnpm patch (patches/garmin-connect-sdk.patch) adds
+// `HealthEndpoint.getDailySteps(start, end)` backed by Garmin's range endpoint
+// `/usersummary-service/stats/steps/daily/{start}/{end}` — one request returns
+// every day in the range, so steps are fetched once per sync via
+// `fetchDailySteps` below rather than per-day here.
 export type GarminRawDailyMetrics = {
   dailySleep: DailySleep;
   bodyBattery: BodyBattery;
@@ -41,9 +40,15 @@ export type GarminRawDailyMetrics = {
   heartRate: HeartRate;
 };
 
+// One entry per day from the patched `getDailySteps` range endpoint.
+export type GarminRawDailyStepsEntry = Awaited<
+  ReturnType<GarminConnectSDK["health"]["getDailySteps"]>
+>[number];
+
 // Thin abstraction the rest of convex/ codes against instead of the SDK directly.
 export type GarminClient = {
   fetchDailyMetrics(dateJst: string): Promise<GarminRawDailyMetrics>;
+  fetchDailySteps(startJst: string, endJst: string): Promise<GarminRawDailyStepsEntry[]>;
 };
 
 // Restores a session from a token JSON the user produced once via
@@ -116,16 +121,21 @@ function parseGarminTokensEnv(): GarminTokens {
 export function createGarminClient(): GarminClient {
   const sdk = new GarminConnectSDK({ storage: createEnvTokenStorage() });
 
+  // `restoreSession` resumes the token stored above; it self-refreshes via
+  // the SDK's AuthService when the access token is near expiry (see
+  // node_modules/garmin-connect-sdk/dist/index.js:220-226, 300-312) and
+  // throws GarminSessionExpiredError if the refresh token itself is dead.
+  // Cheap when the token is still valid, so calling it per fetch is fine.
+  const restoreSession = async () => {
+    const restored = await sdk.restoreSession();
+    if (!restored) {
+      throw new Error("Garmin session could not be restored from GARMIN_TOKENS_JSON.");
+    }
+  };
+
   return {
     async fetchDailyMetrics(dateJst) {
-      // `restoreSession` resumes the token stored above; it self-refreshes via
-      // the SDK's AuthService when the access token is near expiry (see
-      // node_modules/garmin-connect-sdk/dist/index.js:220-226, 300-312) and
-      // throws GarminSessionExpiredError if the refresh token itself is dead.
-      const restored = await sdk.restoreSession();
-      if (!restored) {
-        throw new Error("Garmin session could not be restored from GARMIN_TOKENS_JSON.");
-      }
+      await restoreSession();
 
       const [dailySleep, bodyBattery, hrvStatus, heartRate] = await Promise.all([
         // SleepEndpoint.getDailySleep — dist/index.d.ts:2838
@@ -140,6 +150,14 @@ export function createGarminClient(): GarminClient {
       ]);
 
       return { dailySleep, bodyBattery, hrvStatus, heartRate };
+    },
+
+    async fetchDailySteps(startJst, endJst) {
+      await restoreSession();
+
+      // Patched HealthEndpoint.getDailySteps (patches/garmin-connect-sdk.patch):
+      // one request covers the whole [startJst, endJst] range, one entry per day.
+      return sdk.health.getDailySteps(startJst, endJst);
     },
   };
 }

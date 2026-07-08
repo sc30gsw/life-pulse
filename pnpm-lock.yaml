@@ -7,6 +7,9 @@ settings:
 overrides:
   vite: npm:@voidzero-dev/vite-plus-core@0.2.1
 
+patchedDependencies:
+  garmin-connect-sdk: 751e843e584dc294d0292def623e52b78cfc304af8072046ede43c4547b42dc5
+
 importers:
 
   .:
@@ -79,7 +82,7 @@ importers:
         version: 1.11.21
       garmin-connect-sdk:
         specifier: 1.0.0-alpha.4
-        version: 1.0.0-alpha.4
+        version: 1.0.0-alpha.4(patch_hash=751e843e584dc294d0292def623e52b78cfc304af8072046ede43c4547b42dc5)
       react:
         specifier: ^19.2.7
         version: 19.2.7
@@ -6263,7 +6266,7 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
-  garmin-connect-sdk@1.0.0-alpha.4:
+  garmin-connect-sdk@1.0.0-alpha.4(patch_hash=751e843e584dc294d0292def623e52b78cfc304af8072046ede43c4547b42dc5):
     dependencies:
       zod: 3.25.76
 

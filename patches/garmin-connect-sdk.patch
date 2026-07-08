@@ -1,0 +1,65 @@
+diff --git a/dist/index.d.ts b/dist/index.d.ts
+index c9c4e2f89d2f308b2b42ea6742380e5609fb02aa..d1011e1fcd5f6414dc056d0f2b5e5ef9d8a30c0d 100644
+--- a/dist/index.d.ts
++++ b/dist/index.d.ts
+@@ -2565,6 +2565,11 @@ declare class UserEndpoint {
+     setCachedProfile(profile: SocialProfile): void;
+ }
+ 
++type DailyStepsEntry = {
++    calendarDate?: string;
++    totalSteps?: number | null;
++    stepGoal?: number | null;
++} & Record<string, unknown>;
+ declare class HealthEndpoint {
+     #private;
+     constructor(http: HttpClient, user: UserEndpoint);
+@@ -2572,6 +2577,7 @@ declare class HealthEndpoint {
+     getStress(date: Date | string): Promise<Stress>;
+     getBodyBattery(dateOrRange: Date | string | DateRange): Promise<BodyBattery>;
+     getHrvStatus(date: Date | string): Promise<HrvStatus>;
++    getDailySteps(start: Date | string, end: Date | string): Promise<DailyStepsEntry[]>;
+ }
+ 
+ declare const dailySleepSchema: z.ZodObject<{
+diff --git a/dist/index.js b/dist/index.js
+index e58b6d91d2b252f580e331d2e6cd139f653365b2..6aea1c293081d18bc28a8bf9bacb1ce4f8530233 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -980,6 +980,12 @@ var hrvStatusSchema = z4.object({
+   hrvSummary: z4.record(z4.unknown()).optional()
+ }).passthrough();
+ 
++var dailyStepsSchema = z4.array(z4.object({
++  calendarDate: z4.string().optional(),
++  totalSteps: z4.number().nullable().optional(),
++  stepGoal: z4.number().nullable().optional()
++}).passthrough());
++
+ // src/endpoints/HealthEndpoint.ts
+ var HealthEndpoint = class {
+   #http;
+@@ -1014,6 +1020,12 @@ var HealthEndpoint = class {
+       schema: hrvStatusSchema
+     });
+   }
++  getDailySteps(start, end) {
++    return this.#http.request(
++      `/usersummary-service/stats/steps/daily/${formatDate(start)}/${formatDate(end)}`,
++      { schema: dailyStepsSchema }
++    );
++  }
+ };
+ 
+ // src/schemas/sleep.schema.ts
+@@ -1026,8 +1038,8 @@ var sleepLevelSchema = z5.object({
+ var dailySleepSchema = z5.object({
+   dailySleepDTO: z5.object({
+     calendarDate: z5.string().optional(),
+-    sleepStartTimestampLocal: z5.string().nullable().optional(),
+-    sleepEndTimestampLocal: z5.string().nullable().optional(),
++    sleepStartTimestampLocal: z5.union([z5.string(), z5.number()]).nullable().optional(),
++    sleepEndTimestampLocal: z5.union([z5.string(), z5.number()]).nullable().optional(),
+     sleepTimeSeconds: z5.number().nullable().optional(),
+     deepSleepSeconds: z5.number().nullable().optional(),
+     lightSleepSeconds: z5.number().nullable().optional(),

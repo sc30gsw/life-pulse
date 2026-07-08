@@ -36,6 +36,7 @@ test("all fields present: maps every field, taking the day's max Body Battery ac
     ],
     hrvStatus: { hrvSummary: { lastNightAvg: 62, weeklyAvg: 58 } },
     heartRate: { restingHeartRate: 54 },
+    dailySteps: { totalSteps: 12_345 },
   });
 
   expect(mapDailyMetrics(raw, "2026-07-08")).toEqual({
@@ -45,8 +46,14 @@ test("all fields present: maps every field, taking the day's max Body Battery ac
     bodyBattery: 95,
     hrv: 62,
     restingHr: 54,
-    steps: undefined,
+    steps: 12_345,
   });
+});
+
+test("dailySteps entry with null totalSteps maps steps to undefined, never null", () => {
+  const raw = buildRaw({ dailySteps: { totalSteps: null } });
+
+  expect(mapDailyMetrics(raw, "2026-07-08").steps).toBeUndefined();
 });
 
 test("partial data: missing sleepScores/hrv/restingHr map to undefined; single (non-array) Body Battery point still yields its max, ignoring null readings", () => {
