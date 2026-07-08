@@ -1,5 +1,5 @@
 import { Field, Form, useForm } from "@formisch/react";
-import { Button, Slider, Stack, Text, TextInput } from "@mantine/core";
+import { Button, Slider, Stack, Text } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { Shimmer } from "@shimmer-from-structure/react";
 
@@ -22,7 +22,6 @@ export function SettingsForm() {
   const updateSettings = useUpdateSettings();
   const settingsForm = useForm({
     initialInput: {
-      dogName: settings.dogName,
       fastingDefaultMinutes: settings.fastingDefaultMinutes,
     },
     schema: UpdateSettingsSchema,
@@ -85,18 +84,6 @@ export function SettingsForm() {
           )}
         </Field>
 
-        <Field of={settingsForm} path={["dogName"]}>
-          {(field) => (
-            <TextInput
-              {...field.props}
-              error={field.errors?.[0]}
-              label="犬の名前"
-              value={field.input}
-              disabled={settingsForm.isSubmitting}
-            />
-          )}
-        </Field>
-
         <Button
           className="hover:brightness-120"
           disabled={settingsForm.isSubmitting}
@@ -131,7 +118,6 @@ export function SettingsFormFallback() {
             className="mt-2 mb-4"
           />
         </Stack>
-        <TextInput label="犬の名前" />
         <Button className="hover:brightness-120">保存する</Button>
       </Stack>
     </Shimmer>
