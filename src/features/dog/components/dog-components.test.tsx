@@ -110,6 +110,16 @@ test("DogTaskList renders an empty message and fallback rows", () => {
   expect(fallback.getByText("朝ごはん")).toBeDefined();
 });
 
+test("DogTaskList renders task rows with boundary move buttons", () => {
+  state.dogTasks = [buildTask("朝散歩", "task_1", 0), buildTask("夜ごはん", "task_2", 1)];
+  const { getAllByLabelText, getByText } = renderWithMantine(<DogTaskList />);
+
+  expect(getByText("朝散歩")).toBeDefined();
+  expect(getByText("夜ごはん")).toBeDefined();
+  expect((getAllByLabelText("上へ移動")[0] as HTMLButtonElement).disabled).toBe(true);
+  expect((getAllByLabelText("下へ移動")[1] as HTMLButtonElement).disabled).toBe(true);
+});
+
 test("DogTaskRow moves, archives, and renames a task", async () => {
   const onArchive = vi.fn();
   const onMove = vi.fn();
