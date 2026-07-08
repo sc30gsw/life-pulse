@@ -30,7 +30,7 @@ export function suggestRescheduleSlots(
   });
 
   const firstCandidate = Math.ceil(now / SLOT_STEP_MINUTES) * SLOT_STEP_MINUTES;
-  const suggestions: string[] = [];
+  const suggestions: Doc<"studyBlocks">["startHm"][] = [];
 
   for (
     let candidate = firstCandidate;

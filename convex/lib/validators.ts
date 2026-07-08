@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 
-const creationTimeValidator = v.number();
+export const creationTimeValidator = v.number();
 
 export const roleValidator = v.union(v.literal("self"), v.literal("partner"));
 
@@ -49,6 +49,7 @@ export const fastingPhaseValidator = v.union(
 );
 
 export const fastingStatusValidator = v.union(v.literal("fasting"), v.literal("ended"));
+export const endedFastingStatusValidator = v.literal("ended");
 
 export const dogEventKindValidator = v.union(
   v.literal("walk_am"),

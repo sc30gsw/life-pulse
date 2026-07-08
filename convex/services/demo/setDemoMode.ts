@@ -9,7 +9,7 @@ import { seedMetrics } from "./seedMetrics";
 // here since enabling demo mode may need to lazy-create the singleton row.
 const DEFAULT_DOG_NAME = "ハマロ";
 
-type SetDemoModeArgs = Record<"enabled", boolean> &
+type SetDemoModeArgs = Record<"enabled", Doc<"appSettings">["demoMode"]> &
   Record<"todayJst", Doc<"healthMetrics">["dateJst"]>;
 
 export async function setDemoMode(ctx: MutationCtx, args: SetDemoModeArgs) {

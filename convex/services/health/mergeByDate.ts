@@ -8,7 +8,7 @@ import type { Doc } from "../../_generated/dataModel";
 // mode turns off), then "garmin" is preferred over "manual".
 // Pure function (CVX-09) — reused by queries/health/range.ts (many dates) and
 // services/dashboard/health.ts (single date, via mergeByDate(rows, demoMode)[0] ?? null).
-export function mergeByDate(rows: Doc<"healthMetrics">[], demoMode: boolean) {
+export function mergeByDate(rows: Doc<"healthMetrics">[], demoMode: Doc<"appSettings">["demoMode"]) {
   const candidates = demoMode ? rows : rows.filter((row) => row.source !== "demo");
   const grouped = groupBy(candidates, (row) => row.dateJst);
   const merged = Object.values(grouped).map((dateRows) => pickBySourcePriority(dateRows, demoMode));
@@ -16,13 +16,19 @@ export function mergeByDate(rows: Doc<"healthMetrics">[], demoMode: boolean) {
   return sortBy(merged, (row) => row.dateJst);
 }
 
-function pickBySourcePriority(dateRows: Doc<"healthMetrics">[], demoMode: boolean) {
+function pickBySourcePriority(
+  dateRows: Doc<"healthMetrics">[],
+  demoMode: Doc<"appSettings">["demoMode"],
+) {
   return dateRows.reduce((best, row) =>
     sourcePriority(row.source, demoMode) < sourcePriority(best.source, demoMode) ? row : best,
   );
 }
 
-function sourcePriority(source: Doc<"healthMetrics">["source"], demoMode: boolean) {
+function sourcePriority(
+  source: Doc<"healthMetrics">["source"],
+  demoMode: Doc<"appSettings">["demoMode"],
+) {
   if (source === "demo") {
     return demoMode ? 0 : 2;
   }

@@ -20,6 +20,8 @@ import {
   type TokenStorage,
 } from "garmin-connect-sdk";
 
+import type { DateJst } from "../../lib/dateRange";
+
 // Raw per-day responses from the four Garmin Connect read endpoints this app needs.
 // Deliberately untransformed — convex/services/garmin/mapDailyMetrics.ts (plan Step 4)
 // owns turning this into { dateJst, sleepScore?, sleepMinutes?, bodyBattery?, hrv?,
@@ -47,8 +49,8 @@ export type GarminRawDailyStepsEntry = Awaited<
 
 // Thin abstraction the rest of convex/ codes against instead of the SDK directly.
 export type GarminClient = {
-  fetchDailyMetrics(dateJst: string): Promise<GarminRawDailyMetrics>;
-  fetchDailySteps(startJst: string, endJst: string): Promise<GarminRawDailyStepsEntry[]>;
+  fetchDailyMetrics(dateJst: DateJst): Promise<GarminRawDailyMetrics>;
+  fetchDailySteps(startJst: DateJst, endJst: DateJst): Promise<GarminRawDailyStepsEntry[]>;
 };
 
 // Restores a session from a token JSON the user produced once via
