@@ -6,7 +6,7 @@ import { Shimmer } from "@shimmer-from-structure/react";
 import {
   FASTING_TARGET_SLIDER_MARKS,
   FASTING_TARGET_SLIDER_STYLES,
-} from "~/features/fasting/components/fasting-start-modal";
+} from "~/features/fasting/constants/fasting-target-slider";
 import {
   formatFastingTargetMinutes,
   MAX_FASTING_TARGET_MINUTES,

@@ -6,7 +6,8 @@ import { useDashboardHealth } from "~/features/dashboard/hooks/use-dashboard-hea
 import { ACCENT_VARS, HEALTH_SOURCE_LABELS } from "~/types/dashboard";
 
 export function HealthMetricsGrid() {
-  const { metrics } = useDashboardHealth();
+  const { dateJst, metrics } = useDashboardHealth();
+  const dateLabel = (metrics?.dateJst ?? dateJst).replaceAll("-", "/");
 
   if (metrics === null) {
     return (
@@ -28,6 +29,9 @@ export function HealthMetricsGrid() {
         </Group>
         <Text size="sm" c="dimmed">
           未計測
+        </Text>
+        <Text size="xs" c="dimmed" mt="xs">
+          {dateLabel}
         </Text>
       </GlowCard>
     );
@@ -58,7 +62,7 @@ export function HealthMetricsGrid() {
           健康メトリクス · Garmin
         </Text>
         <Text size="xs" c="dimmed">
-          {HEALTH_SOURCE_LABELS[metrics.source]}
+          {HEALTH_SOURCE_LABELS[metrics.source]} · {dateLabel}
         </Text>
       </Group>
       <Group wrap="wrap" gap="md">

@@ -11,7 +11,7 @@ import { renderWithMantine } from "~/test-utils";
 let metrics: Doc<"healthMetrics"> | null = null;
 
 vi.mock("~/features/dashboard/hooks/use-dashboard-health", () => ({
-  useDashboardHealth: () => ({ lastSyncRelativeLabel: "5分前", metrics }),
+  useDashboardHealth: () => ({ dateJst: "2026-07-08", lastSyncRelativeLabel: "5分前", metrics }),
 }));
 
 function buildMetrics(overrides: Partial<Doc<"healthMetrics">> = {}): Doc<"healthMetrics"> {
@@ -31,6 +31,7 @@ test("renders 未計測 when metrics is null", () => {
   const { getByText } = renderWithMantine(<HealthMetricsGrid />);
 
   expect(getByText("未計測")).toBeDefined();
+  expect(getByText("2026/07/08")).toBeDefined();
 });
 
 test("renders the source label and full metric values", () => {
@@ -46,7 +47,7 @@ test("renders the source label and full metric values", () => {
 
   const { getByText } = renderWithMantine(<HealthMetricsGrid />);
 
-  expect(getByText("source: garmin")).toBeDefined();
+  expect(getByText("source: garmin · 2026/07/07")).toBeDefined();
   expect(getByText("72")).toBeDefined();
   expect(getByText("88")).toBeDefined();
   expect(getByText("7.0h")).toBeDefined();
@@ -59,7 +60,7 @@ test("falls back to defaults and dashes when optional metrics are missing", () =
 
   const { getAllByText, getByText } = renderWithMantine(<HealthMetricsGrid />);
 
-  expect(getByText("source: manual")).toBeDefined();
+  expect(getByText("source: manual · 2026/07/07")).toBeDefined();
   expect(getAllByText("—")).toHaveLength(3);
   expect(getAllByText("0")).toHaveLength(3);
 });

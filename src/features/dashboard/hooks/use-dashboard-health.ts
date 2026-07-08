@@ -9,6 +9,7 @@ export function useDashboardHealth() {
   const metrics = useSuspenseQuery(dashboardHealthQuery(dateJst)).data;
 
   return {
+    dateJst,
     lastSyncRelativeLabel:
       metrics === null ? "未同期" : formatRelativeTime(metrics.syncedAt, nowMs),
     metrics,
