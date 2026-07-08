@@ -6,7 +6,7 @@ import type { MutationCtx } from "../../_generated/server";
 import { getFastingDefaultMinutes } from "../appSettings/getFastingDefaultMinutes";
 import { phaseSchedule } from "./phaseSchedule";
 
-type StartArgs = { targetMinutes?: number };
+type StartArgs = Partial<Pick<Doc<"fastingWindows">, "targetMinutes">>;
 
 export async function start(ctx: MutationCtx, user: Doc<"appUsers">, args: StartArgs) {
   const existing = await ctx.db

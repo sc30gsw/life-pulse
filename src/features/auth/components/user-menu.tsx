@@ -3,6 +3,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { Shimmer } from "@shimmer-from-structure/react";
 import {
   IconBook2,
+  IconChartScatter,
   IconChevronDown,
   IconHeartbeat,
   IconHourglass,
@@ -57,6 +58,11 @@ export function UserMenu() {
         {isSelf && (
           <Menu.Item component={Link} leftSection={<IconHeartbeat size={14} />} to="/health">
             健康
+          </Menu.Item>
+        )}
+        {isSelf && (
+          <Menu.Item component={Link} leftSection={<IconChartScatter size={14} />} to="/insights">
+            インサイト
           </Menu.Item>
         )}
         {isSelf && (

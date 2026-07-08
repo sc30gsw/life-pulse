@@ -5,7 +5,9 @@ import {
   deriveFastingElapsedMinutes,
   deriveSessionElapsedMs,
   formatClockDate,
+  formatClockDateCompact,
   formatClockTime,
+  formatClockTimeMinutes,
   formatElapsedClock,
   formatMinutesAsHm,
   formatRelativeTime,
@@ -88,6 +90,16 @@ test("formatClockTime and formatClockDate format against Asia/Tokyo", () => {
   const nowMs = Date.UTC(2026, 6, 7, 3, 15, 0);
   expect(formatClockTime(nowMs)).toBe("12:15:00");
   expect(formatClockDate(nowMs)).toBe("2026/7/7(火)");
+});
+
+test("formatClockTimeMinutes drops seconds for the once-a-minute board clock", () => {
+  const nowMs = Date.UTC(2026, 6, 7, 3, 15, 47);
+  expect(formatClockTimeMinutes(nowMs)).toBe("12:15");
+});
+
+test("formatClockDateCompact drops the year for narrow viewports", () => {
+  const nowMs = Date.UTC(2026, 6, 7, 3, 15, 0);
+  expect(formatClockDateCompact(nowMs)).toBe("7/7(火)");
 });
 
 test("deriveSessionElapsedMs returns 0 when there is no session", () => {

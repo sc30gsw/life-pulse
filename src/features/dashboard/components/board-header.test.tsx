@@ -11,6 +11,17 @@ const hookState = vi.hoisted(() => ({
   theme: "dark" as "dark" | "light",
 }));
 
+vi.mock("@tanstack/react-router", async (importOriginal) => ({
+  ...(await importOriginal()),
+  // The brand Stack renders a router Link, which needs a RouterProvider in the
+  // real app — stub it with a plain anchor for standalone rendering.
+  Link: ({ children, to, ...rest }: Record<string, unknown> & Record<"to", string>) => (
+    <a href={to} {...rest}>
+      {children as never}
+    </a>
+  ),
+}));
+
 vi.mock("~/features/auth/components/user-menu", () => ({
   UserMenu: () => {
     if (hookState.suspendUserMenu) {
@@ -25,6 +36,7 @@ vi.mock("~/features/auth/components/user-menu", () => ({
 vi.mock("~/features/dashboard/hooks/use-board-clock", () => ({
   useBoardClock: () => ({
     clockDateLabel: "7月7日(火)",
+    clockDateLabelCompact: "7/7(火)",
     clockTime: "12:15",
     dateJst: "2026-07-07",
     nowMs: 0,
@@ -49,6 +61,14 @@ test("renders the clock time and date", () => {
 
   expect(getByText("12:15")).toBeDefined();
   expect(getByText("7月7日(火) · JST")).toBeDefined();
+  expect(getByText("7/7(火) · JST")).toBeDefined();
+});
+
+test("wraps the brand in a link back to the live board", () => {
+  const { getByRole } = renderWithMantine(<BoardHeader />);
+
+  const brandLink = getByRole("link", { name: /Life Pulse/ });
+  expect(brandLink.getAttribute("href")).toBe("/");
 });
 
 test("renders the user menu", () => {

@@ -14,7 +14,7 @@ export const study = query({
   returns: v.object({
     blocks: v.array(studyBlockDocumentValidator),
     session: v.union(v.null(), studySessionDocumentValidator),
-    todayActualMinutes: v.number(),
+    todayActualMinutes: studyBlockFieldValidators.plannedMinutes,
   }),
   handler: async (ctx, args) => {
     await requireUser(ctx);

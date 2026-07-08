@@ -50,7 +50,7 @@ export const live = query({
       }),
     ),
     session: v.union(v.null(), studySessionDocumentValidator),
-    todayActualMinutes: v.number(),
+    todayActualMinutes: studyBlockFieldValidators.plannedMinutes,
     viewer: v.object({
       displayName: appUserFieldValidators.displayName,
       role: appUserFieldValidators.role,

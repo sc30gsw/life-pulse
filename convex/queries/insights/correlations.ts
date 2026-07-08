@@ -2,7 +2,11 @@ import { v } from "convex/values";
 
 import { query } from "../../_generated/server";
 import { requireSelf } from "../../lib/auth";
-import { healthMetricFieldValidators, workoutFieldValidators } from "../../lib/validators";
+import {
+  healthMetricFieldValidators,
+  studyBlockFieldValidators,
+  workoutFieldValidators,
+} from "../../lib/validators";
 import { correlations as correlationsService } from "../../services/insights/correlations";
 
 const sampleCountValidator = v.number();
@@ -29,7 +33,7 @@ export const correlations = query({
         dateJst: healthMetricFieldValidators.dateJst,
         hiitPrevDay: v.boolean(),
         sleepScore: healthMetricFieldValidators.sleepScore,
-        studyMinutes: v.number(),
+        studyMinutes: studyBlockFieldValidators.plannedMinutes,
       }),
     ),
     hiitNextDayBb: v.object({

@@ -4,11 +4,12 @@ import { query } from "../../_generated/server";
 import { requireUser } from "../../lib/auth";
 import {
   interruptionReasonValidator,
+  studyBlockFieldValidators,
   studySessionFieldValidators,
 } from "../../lib/validators";
 import { history as historyService } from "../../services/sessions/history";
 
-const actualMinutesValidator = v.number();
+const actualMinutesValidator = studyBlockFieldValidators.plannedMinutes;
 
 export const history = query({
   args: {
