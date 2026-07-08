@@ -116,7 +116,7 @@
 
 - [x] FR-6.1 日次メトリクス: 睡眠スコア、睡眠時間、Body Battery(起床時値または最大値)、HRV、安静時心拍、歩数。対象は本人のみ。
 - [x] FR-6.2 手動入力UI(フォールバック): 朝にGarminアプリの値を転記できる。source="manual"。**補足(v1.2)**: 同日の再入力は新規行を増やさず upsert(上書き)する(`healthMetrics.by_date` を patch)。全項目(睡眠スコア・睡眠時間・Body Battery・HRV・安静時心拍・歩数)は任意入力で、分かる値だけ埋めれば良い。
-- [ ] FR-6.3 実連携: 非公式 `garmin-connect-sdk`(npm、`1.0.0-alpha.4` に完全固定)を用い、Convexの "use node" action + cron(毎朝、JST 6:30目安)で自動取得。source="garmin"。認証情報/トークンはConvex環境変数に保存。取得失敗はsyncLogsに記録し、UIに「最終同期」表示。**改訂(v1.7)**: 選定理由 = 依存が zod のみ(サプライチェーン最小)・MFA 正式対応(`login({email, password, mfaCode})`)・Body Battery/HRV/睡眠の型付きメソッドあり。制約 = Node `>=24` 要件のため `convex.json` で Node 24 を指定する(Convex は 20/22/24 対応・既定 20)。alpha のため自前の薄いラッパー越しに使い、退避先は `@gooin/garmin-connect@1.8.7`。トークンは SDK の `TokenStorage` 抽象に合わせたカスタム実装で環境変数から復元する。
+- [x] FR-6.3 実連携: 非公式 `garmin-connect-sdk`(npm、`1.0.0-alpha.4` に完全固定)を用い、Convexの "use node" action + cron(毎朝、JST 6:30目安)で自動取得。source="garmin"。認証情報/トークンはConvex環境変数に保存。取得失敗はsyncLogsに記録し、UIに「最終同期」表示。**改訂(v1.7)**: 選定理由 = 依存が zod のみ(サプライチェーン最小)・MFA 正式対応(`login({email, password, mfaCode})`)・Body Battery/HRV/睡眠の型付きメソッドあり。制約 = Node `>=24` 要件のため `convex.json` で Node 24 を指定する(Convex は 20/22/24 対応・既定 20)。alpha のため自前の薄いラッパー越しに使い、退避先は `@gooin/garmin-connect@1.8.7`。トークンは SDK の `TokenStorage` 抽象に合わせたカスタム実装で環境変数から復元する。
 - [x] FR-6.4 **デモモード**: 設定でONにすると、cron/インターバルジョブが数十秒間隔で疑似メトリクス(source="demo")を流し込み、誰も操作していないのにダッシュボードのグラフが動く様子を見せられる。デモデータは実データと分離され、一括削除できる。**補足(v1.2)**: 間隔は既定20秒(NFR-5 の ≥15秒を満たす)。「一括削除」は専用ボタンを設けず、デモモードを OFF にした時点でジョブのキャンセルと `source="demo"` 行の削除を自動で行う。
 - [x] FR-6.5 HIIT記録: 種別(HIIT等)・実施時刻・時間・主観強度をワンタップ〜数タップで記録(Garmin activityの自動取込はP2)。
 
