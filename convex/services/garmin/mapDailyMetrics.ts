@@ -47,7 +47,10 @@ export type MappedHealthMetrics = Pick<
 // an existing manual value alone for anything Garmin stayed silent on.
 // `steps` comes from the patched range endpoint's per-day entry (`dailySteps`,
 // optional — see client.ts's NOTE); `null`/missing maps to `undefined`.
-export function mapDailyMetrics(raw: RawGarminDailyMetrics, dateJst: string): MappedHealthMetrics {
+export function mapDailyMetrics(
+  raw: RawGarminDailyMetrics,
+  dateJst: Doc<"healthMetrics">["dateJst"],
+): MappedHealthMetrics {
   return {
     dateJst,
     sleepScore: readSleepScore(raw.dailySleep.dailySleepDTO?.sleepScores),
@@ -59,7 +62,7 @@ export function mapDailyMetrics(raw: RawGarminDailyMetrics, dateJst: string): Ma
   };
 }
 
-function secondsToMinutes(seconds: number | null | undefined) {
+function secondsToMinutes(seconds: number | null | undefined): Doc<"healthMetrics">["sleepMinutes"] {
   return seconds == null ? undefined : Math.round(seconds / 60);
 }
 
@@ -72,10 +75,12 @@ function secondsToMinutes(seconds: number | null | undefined) {
 // point's `bodyBatteryValuesArray` is a list of `[timestampMs, value | null]`
 // tuples, so every point is flattened and nulls are dropped before taking the
 // max.
-function maxBodyBattery(bodyBattery: RawBodyBatteryPoint | RawBodyBatteryPoint[]) {
+function maxBodyBattery(
+  bodyBattery: RawBodyBatteryPoint | RawBodyBatteryPoint[],
+): Doc<"healthMetrics">["bodyBattery"] {
   const points = Array.isArray(bodyBattery) ? bodyBattery : [bodyBattery];
 
-  let max: number | undefined;
+  let max: Doc<"healthMetrics">["bodyBattery"];
   for (const point of points) {
     for (const [, value] of point.bodyBatteryValuesArray ?? []) {
       if (value !== null && (max === undefined || value > max)) {
