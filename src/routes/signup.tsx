@@ -38,7 +38,10 @@ function SignupPage() {
             <SignupForm />
             <Text c="dimmed" size="sm" ta="center">
               アカウントをお持ちの方は{" "}
-              <Link className="text-blue inline-flex items-center gap-1" to="/login">
+              <Link
+                className="text-blue inline-flex items-center gap-1 transition hover:brightness-110 active:brightness-95"
+                to="/login"
+              >
                 <IconLogin2 aria-hidden size={14} />
                 ログイン
               </Link>

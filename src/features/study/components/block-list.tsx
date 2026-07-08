@@ -121,7 +121,7 @@ export function BlockList() {
                   style={ACCENT_SOLID_STYLE.good}
                   type="button"
                   variant="filled"
-                  className="hover:brightness-110"
+                  className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
                 >
                   この枠で開始
                 </Button>
@@ -130,7 +130,7 @@ export function BlockList() {
                     className={cn(
                       ACCENT_CLASSES.coral.border,
                       ACCENT_CLASSES.coral.text,
-                      "hover:bg-coral hover:text-bg focus-visible:bg-coral focus-visible:text-bg transition-colors",
+                      "transition hover:bg-coral hover:text-bg hover:brightness-110 active:brightness-95 focus-visible:bg-coral focus-visible:text-bg",
                     )}
                     onClick={() =>
                       setErodingBlockId((prev) => (prev === block._id ? null : block._id))
@@ -151,7 +151,7 @@ export function BlockList() {
                       <UnstyledButton
                         className={cn(
                           ACCENT_CLASSES.coral.border,
-                          "bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-semibold hover:brightness-120",
+                          "bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-semibold transition hover:brightness-110 active:brightness-95",
                         )}
                         key={reason}
                         onClick={() => {
@@ -203,7 +203,7 @@ export function BlockList() {
                           ACCENT_CLASSES.violet.border,
                           ACCENT_CLASSES.violet.bg,
                           ACCENT_CLASSES.violet.text,
-                          "rounded-lg border px-3 py-1.5 text-xs font-semibold tabular-nums hover:brightness-110",
+                          "rounded-lg border px-3 py-1.5 text-xs font-semibold tabular-nums transition hover:brightness-110 active:brightness-95",
                         )}
                         onClick={() => onReschedule(block, slot)}
                         type="button"
@@ -218,7 +218,7 @@ export function BlockList() {
                     className={cn(
                       ACCENT_CLASSES.faint.border,
                       ACCENT_CLASSES.faint.text,
-                      "hover:bg-inset w-full transition-colors hover:brightness-120",
+                      "w-full transition hover:bg-inset hover:brightness-110 active:brightness-95",
                     )}
                     onClick={() => onDecline(block)}
                     size="xs"
@@ -239,7 +239,7 @@ export function BlockList() {
                 <UnstyledButton
                   className={cn(
                     ACCENT_CLASSES.blue.border,
-                    "bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-semibold",
+                    "bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-semibold transition hover:brightness-110 active:brightness-95",
                   )}
                   onClick={() => onUndoDecline(block._id)}
                   type="button"

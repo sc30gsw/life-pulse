@@ -4,6 +4,7 @@ import type { UseDisclosureReturnValue } from "@mantine/hooks";
 import { cn } from "cnfast";
 import type { ComponentProps } from "react";
 
+import { CATEGORY_VALUES } from "~/../convex/lib/domain";
 import type { useDashboardStudy } from "~/features/dashboard/hooks/use-dashboard-study";
 import { StartSessionSchema } from "~/features/dashboard/schemas/start-session-schema";
 import {
@@ -11,10 +12,7 @@ import {
   ACCENT_SOLID_STYLE,
   ACCENT_VARS,
   CATEGORY_LABELS,
-  type SessionCategory,
 } from "~/types/dashboard";
-
-const CATEGORY_VALUES = Object.keys(CATEGORY_LABELS) as SessionCategory[];
 
 const MODAL_STYLES = {
   body: { color: "var(--tx)" },
@@ -71,6 +69,7 @@ export function SessionStartModal({ opened, onClose, onStart }: SessionStartModa
                         onClick={() => field.onChange(category)}
                         className={cn(
                           "rounded-lg border px-3 py-1.5 text-xs",
+                          "transition hover:brightness-110 active:brightness-95",
                           isActive
                             ? cn(
                                 ACCENT_CLASSES.good.border,
@@ -101,7 +100,11 @@ export function SessionStartModal({ opened, onClose, onStart }: SessionStartModa
               />
             )}
           </Field>
-          <Button style={ACCENT_SOLID_STYLE.good} type="submit">
+          <Button
+            className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+            style={ACCENT_SOLID_STYLE.good}
+            type="submit"
+          >
             開始する
           </Button>
         </Stack>

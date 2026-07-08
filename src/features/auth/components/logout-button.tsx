@@ -11,6 +11,7 @@ export function LogoutButton() {
 
   return (
     <Menu.Item
+      className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
       color="red"
       disabled={isPending}
       leftSection={<IconLogout size={16} />}

@@ -126,7 +126,7 @@ export function PresenceCard({
             value={etaInput}
           />
           <Button
-            className="border-bd-2 text-tx"
+            className="border-bd-2 text-tx transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
             onClick={() => onSetPresence("commuting_home", etaInput === "" ? undefined : etaInput)}
             size="xs"
             type="button"
@@ -150,6 +150,7 @@ export function PresenceCard({
                 aria-pressed={isActive}
                 className={cn(
                   "rounded-lg px-3 py-1.5 text-xs",
+                  "transition hover:brightness-110 active:brightness-95",
                   isActive
                     ? cn(
                         stateAccent.border,

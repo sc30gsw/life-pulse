@@ -79,7 +79,11 @@ export function UpcomingBlockList() {
 
               <Group gap={8} mt={10} wrap="wrap">
                 <Button
-                  className={cn(ACCENT_CLASSES.good.border, ACCENT_CLASSES.good.text)}
+                  className={cn(
+                    ACCENT_CLASSES.good.border,
+                    ACCENT_CLASSES.good.text,
+                    "transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100",
+                  )}
                   onClick={() => setEditingBlock(block)}
                   size="xs"
                   type="button"
@@ -88,7 +92,11 @@ export function UpcomingBlockList() {
                   編集
                 </Button>
                 <Button
-                  className={cn(ACCENT_CLASSES.coral.border, ACCENT_CLASSES.coral.text)}
+                  className={cn(
+                    ACCENT_CLASSES.coral.border,
+                    ACCENT_CLASSES.coral.text,
+                    "transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100",
+                  )}
                   onClick={() => onCancel(block)}
                   size="xs"
                   type="button"

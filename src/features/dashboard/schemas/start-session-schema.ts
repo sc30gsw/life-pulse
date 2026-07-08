@@ -1,8 +1,6 @@
 import * as v from "valibot";
 
-import { CATEGORY_LABELS, type SessionCategory } from "~/types/dashboard";
-
-const CATEGORY_VALUES = Object.keys(CATEGORY_LABELS) as SessionCategory[];
+import { CATEGORY_VALUES } from "~/../convex/lib/domain";
 
 export const StartSessionSchema = v.object({
   category: v.picklist(CATEGORY_VALUES),

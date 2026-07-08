@@ -53,7 +53,12 @@ export function DisplayNameForm() {
             />
           )}
         </Field>
-        <Button type="submit" style={ACCENT_SOLID_STYLE.good} loading={form.isSubmitting}>
+        <Button
+          className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+          type="submit"
+          style={ACCENT_SOLID_STYLE.good}
+          loading={form.isSubmitting}
+        >
           保存する
         </Button>
       </Stack>

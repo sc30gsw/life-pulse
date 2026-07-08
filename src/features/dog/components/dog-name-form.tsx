@@ -65,7 +65,7 @@ export function DogNameForm() {
         </Field>
 
         <Button
-          className="hover:brightness-120"
+          className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
           disabled={dogNameForm.isSubmitting}
           loading={dogNameForm.isSubmitting}
           style={ACCENT_SOLID_STYLE.good}
@@ -83,7 +83,9 @@ export function DogNameFormFallback() {
     <Shimmer loading>
       <Stack gap="md">
         <TextInput disabled label="犬の名前" value="ハマロ" />
-        <Button className="hover:brightness-120">保存する</Button>
+        <Button className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100">
+          保存する
+        </Button>
       </Stack>
     </Shimmer>
   );

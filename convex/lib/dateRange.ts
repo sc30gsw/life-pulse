@@ -3,8 +3,7 @@ import dayjsBase from "dayjs";
 import utc from "dayjs/plugin/utc";
 
 import type { Doc } from "../_generated/dataModel";
-
-const DATE_JST_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+import { DATE_JST_PATTERN } from "./domain";
 
 export const MAX_HISTORY_RANGE_DAYS = 31;
 

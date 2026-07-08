@@ -74,7 +74,7 @@ export function DogTaskRow({
           </Field>
           <ActionIcon
             aria-label="保存する"
-            className="border-bd bg-inset"
+            className="border-bd bg-inset transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
             type="submit"
             variant="default"
           >
@@ -82,7 +82,7 @@ export function DogTaskRow({
           </ActionIcon>
           <ActionIcon
             aria-label="キャンセル"
-            className="border-bd bg-inset"
+            className="border-bd bg-inset transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
             onClick={() => setIsEditing(false)}
             type="button"
             variant="default"
@@ -102,7 +102,7 @@ export function DogTaskRow({
       <Group gap={4} wrap="nowrap">
         <ActionIcon
           aria-label="上へ移動"
-          className="border-bd bg-inset"
+          className="border-bd bg-inset transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
           disabled={isFirst}
           onClick={() => onMove(task._id, "up")}
           variant="default"
@@ -111,7 +111,7 @@ export function DogTaskRow({
         </ActionIcon>
         <ActionIcon
           aria-label="下へ移動"
-          className="border-bd bg-inset"
+          className="border-bd bg-inset transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
           disabled={isLast}
           onClick={() => onMove(task._id, "down")}
           variant="default"
@@ -120,7 +120,7 @@ export function DogTaskRow({
         </ActionIcon>
         <ActionIcon
           aria-label="名前を変更"
-          className="border-bd bg-inset"
+          className="border-bd bg-inset transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
           onClick={startEditing}
           variant="default"
         >
@@ -132,6 +132,7 @@ export function DogTaskRow({
             ACCENT_CLASSES.coral.border,
             ACCENT_CLASSES.coral.bg,
             ACCENT_CLASSES.coral.text,
+            "transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100",
           )}
           onClick={() => onArchive(task)}
           variant="default"

@@ -10,6 +10,7 @@ import { useViewer } from "~/features/auth/hooks/use-viewer";
 import { useBoardClock } from "~/features/dashboard/hooks/use-board-clock";
 import { formatElapsedClock } from "~/features/dashboard/utils/format";
 import { FastingStartModal } from "~/features/fasting/components/fasting-start-modal";
+import { DEFAULT_FASTING_TARGET_MINUTES } from "~/features/fasting/constants/fasting-target";
 import { useEndFasting } from "~/features/fasting/hooks/use-end-fasting";
 import { useFastingWindow } from "~/features/fasting/hooks/use-fasting-window";
 import { deriveFastingElapsedMinutes } from "~/features/fasting/utils/fasting-utils";
@@ -20,10 +21,6 @@ import {
   FASTING_PHASE_LABELS,
   FASTING_PHASE_SUB_LABELS,
 } from "~/types/dashboard";
-
-// Matches the default applied server-side (services/appSettings/getFastingDefaultMinutes.ts)
-// when neither an active window's targetMinutes nor an appSettings override is available.
-const DEFAULT_FASTING_TARGET_MINUTES = 960;
 
 const PHASE_ORDER = [
   "early",
@@ -70,7 +67,10 @@ export function FastingStatusCard() {
 
   function onEndFasting() {
     modals.openConfirmModal({
-      cancelProps: { className: "border-bd bg-inset text-tx hover:bg-panel-2" },
+      cancelProps: {
+        className:
+          "border-bd bg-inset text-tx transition hover:bg-panel-2 hover:brightness-110 active:brightness-95",
+      },
       centered: true,
       children: (
         <Text size="sm">断食を終了して食事を開始します。ここまでの経過時間が記録されます。</Text>
@@ -180,11 +180,20 @@ function FastingStatusCardButton({ data, onOpen, onClose }: FastingStatusCardBut
   }
 
   return data === null ? (
-    <Button onClick={onOpen} style={ACCENT_SOLID_STYLE.blue} variant="filled">
+    <Button
+      className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+      onClick={onOpen}
+      style={ACCENT_SOLID_STYLE.blue}
+      variant="filled"
+    >
       断食開始
     </Button>
   ) : (
-    <Button className="border-bd-2 text-tx" onClick={onClose} variant="outline">
+    <Button
+      className="border-bd-2 text-tx transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+      onClick={onClose}
+      variant="outline"
+    >
       食事開始(断食終了)
     </Button>
   );

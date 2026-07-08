@@ -1,75 +1,55 @@
 import { v } from "convex/values";
 
+import {
+  BLOCK_STATUS_VALUES,
+  CATEGORY_VALUES,
+  DOG_TASK_MOVE_DIRECTION_VALUES,
+  EROSION_REASON_VALUES,
+  FASTING_PHASE_VALUES,
+  FASTING_STATUS_VALUES,
+  HEALTH_SOURCE_VALUES,
+  INTERRUPTION_REASON_VALUES,
+  PRESENCE_STATE_VALUES,
+  ROLE_VALUES,
+  SCHEDULED_FASTING_PHASE_VALUES,
+  SESSION_STATUS_VALUES,
+  STUDY_BLOCK_SOURCE_VALUES,
+  WORKOUT_KIND_VALUES,
+} from "./domain";
+
+function literalUnion<T extends string>(values: readonly T[]) {
+  return v.union(...values.map((value) => v.literal(value)));
+}
+
 export const creationTimeValidator = v.number();
 
-export const roleValidator = v.union(v.literal("self"), v.literal("partner"));
+export const roleValidator = literalUnion(ROLE_VALUES);
 
-export const categoryValidator = v.union(
-  v.literal("eikaiwa"),
-  v.literal("toeic"),
-  v.literal("reading"),
-  v.literal("other"),
-);
+export const categoryValidator = literalUnion(CATEGORY_VALUES);
 
-export const sessionStatusValidator = v.union(
-  v.literal("active"),
-  v.literal("paused"),
-  v.literal("completed"),
-  v.literal("abandoned"),
-);
+export const sessionStatusValidator = literalUnion(SESSION_STATUS_VALUES);
 
-export const interruptionReasonValidator = v.union(
-  v.literal("work"),
-  v.literal("dog"),
-  v.literal("chore"),
-  v.literal("other"),
-);
+export const interruptionReasonValidator = literalUnion(INTERRUPTION_REASON_VALUES);
 
-export const blockStatusValidator = v.union(
-  v.literal("planned"),
-  v.literal("done"),
-  v.literal("eroded"),
-  v.literal("rescheduled"),
-  v.literal("declined"),
-);
+export const blockStatusValidator = literalUnion(BLOCK_STATUS_VALUES);
 
-export const studyBlockSourceValidator = v.union(v.literal("manual"), v.literal("suggested"));
+export const studyBlockSourceValidator = literalUnion(STUDY_BLOCK_SOURCE_VALUES);
 
-export const erosionReasonValidator = v.union(
-  v.literal("work"),
-  v.literal("fatigue"),
-  v.literal("interruption"),
-  v.literal("other"),
-);
+export const erosionReasonValidator = literalUnion(EROSION_REASON_VALUES);
 
-export const fastingPhaseValidator = v.union(
-  v.literal("early"),
-  v.literal("fatburn"),
-  v.literal("goal"),
-);
+export const fastingPhaseValidator = literalUnion(FASTING_PHASE_VALUES);
+export const scheduledFastingPhaseValidator = literalUnion(SCHEDULED_FASTING_PHASE_VALUES);
 
-export const fastingStatusValidator = v.union(v.literal("fasting"), v.literal("ended"));
+export const fastingStatusValidator = literalUnion(FASTING_STATUS_VALUES);
 export const endedFastingStatusValidator = v.literal("ended");
 
-export const healthSourceValidator = v.union(
-  v.literal("garmin"),
-  v.literal("manual"),
-  v.literal("demo"),
-);
+export const healthSourceValidator = literalUnion(HEALTH_SOURCE_VALUES);
 
-export const workoutKindValidator = v.union(
-  v.literal("hiit"),
-  v.literal("walk"),
-  v.literal("other"),
-);
+export const workoutKindValidator = literalUnion(WORKOUT_KIND_VALUES);
 
-export const presenceStateValidator = v.union(
-  v.literal("home"),
-  v.literal("office"),
-  v.literal("commuting_home"),
-  v.literal("out"),
-  v.literal("sleeping"),
-);
+export const presenceStateValidator = literalUnion(PRESENCE_STATE_VALUES);
+
+export const dogTaskMoveDirectionValidator = literalUnion(DOG_TASK_MOVE_DIRECTION_VALUES);
 
 export const appUserFieldValidators = {
   avatarStorageId: v.optional(v.id("_storage")),

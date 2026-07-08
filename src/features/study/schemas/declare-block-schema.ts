@@ -1,10 +1,7 @@
 import * as v from "valibot";
 
-import { CATEGORY_LABELS, type SessionCategory } from "~/types/dashboard";
+import { CATEGORY_VALUES, DATE_TIME_PATTERN } from "~/../convex/lib/domain";
 import { todayJst } from "~/utils/date-jst";
-
-const CATEGORY_VALUES = Object.keys(CATEGORY_LABELS) as SessionCategory[];
-const DATE_TIME_PATTERN = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
 
 function hasBothDates(input: { endAt: string | null; startAt: string | null }) {
   return input.startAt !== null && input.endAt !== null;

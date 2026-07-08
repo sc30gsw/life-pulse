@@ -1,23 +1,21 @@
+import type {
+  BLOCK_STATUS_VALUES,
+  CATEGORY_VALUES,
+  EROSION_REASON_VALUES,
+  FASTING_PHASE_VALUES,
+  HEALTH_SOURCE_VALUES,
+  INTERRUPTION_REASON_VALUES,
+  PRESENCE_STATE_VALUES,
+  SESSION_STATUS_VALUES,
+  WORKOUT_KIND_VALUES,
+} from "~/../convex/lib/domain";
+
 // Display-oriented labels/tokens for the Live Board UI (see docs/design/live-board.md).
 // Data-shape types are NOT duplicated here — components import `Doc`/`FunctionReturnType`
 // from Convex's generated types directly, so convex/schema.ts stays the single source of
-// truth. Only label-map key types (which Convex has no concept of) are re-derived below
-// via `Infer` from convex/lib/validators.ts, per CVX-16.
-import type { Infer } from "convex/values";
+// truth. Label-map key types derive from convex/lib/domain.ts value tuples, per CVX-16.
 
-import type {
-  blockStatusValidator,
-  categoryValidator,
-  erosionReasonValidator,
-  fastingPhaseValidator,
-  healthSourceValidator,
-  interruptionReasonValidator,
-  presenceStateValidator,
-  sessionStatusValidator,
-  workoutKindValidator,
-} from "~/../convex/lib/validators";
-
-export type SessionCategory = Infer<typeof categoryValidator>;
+export type SessionCategory = (typeof CATEGORY_VALUES)[number];
 
 export const CATEGORY_LABELS = {
   eikaiwa: "英会話",
@@ -26,7 +24,7 @@ export const CATEGORY_LABELS = {
   toeic: "TOEIC",
 } as const satisfies Record<SessionCategory, string>;
 
-export type InterruptionReason = Infer<typeof interruptionReasonValidator>;
+export type InterruptionReason = (typeof INTERRUPTION_REASON_VALUES)[number];
 
 export const REASON_LABELS = {
   chore: "家事",
@@ -35,7 +33,7 @@ export const REASON_LABELS = {
   work: "仕事",
 } as const satisfies Record<InterruptionReason, string>;
 
-export type ErosionReason = Infer<typeof erosionReasonValidator>;
+export type ErosionReason = (typeof EROSION_REASON_VALUES)[number];
 
 export const EROSION_REASON_LABELS = {
   fatigue: "疲労",
@@ -44,7 +42,7 @@ export const EROSION_REASON_LABELS = {
   work: "仕事",
 } as const satisfies Record<ErosionReason, string>;
 
-export type SessionStatus = Infer<typeof sessionStatusValidator>;
+export type SessionStatus = (typeof SESSION_STATUS_VALUES)[number];
 
 export const SESSION_STATUS_LABELS = {
   abandoned: "放置終了",
@@ -53,7 +51,7 @@ export const SESSION_STATUS_LABELS = {
   paused: "中断中",
 } as const satisfies Record<SessionStatus, string>;
 
-type FastingPhase = Infer<typeof fastingPhaseValidator>;
+type FastingPhase = (typeof FASTING_PHASE_VALUES)[number];
 
 export const FASTING_PHASE_LABELS = {
   early: "空腹期",
@@ -67,7 +65,7 @@ export const FASTING_PHASE_SUB_LABELS = {
   goal: "16時間クリア",
 } as const satisfies Record<FastingPhase, string>;
 
-type HealthMetricsSource = Infer<typeof healthSourceValidator>;
+type HealthMetricsSource = (typeof HEALTH_SOURCE_VALUES)[number];
 
 export const HEALTH_SOURCE_LABELS = {
   demo: "source: demo",
@@ -75,7 +73,7 @@ export const HEALTH_SOURCE_LABELS = {
   manual: "source: manual",
 } as const satisfies Record<HealthMetricsSource, string>;
 
-export type WorkoutKind = Infer<typeof workoutKindValidator>;
+export type WorkoutKind = (typeof WORKOUT_KIND_VALUES)[number];
 
 export const WORKOUT_KIND_LABELS = {
   hiit: "HIIT",
@@ -83,7 +81,7 @@ export const WORKOUT_KIND_LABELS = {
   walk: "ウォーキング",
 } as const satisfies Record<WorkoutKind, string>;
 
-export type DeclarationStatus = Infer<typeof blockStatusValidator>;
+export type DeclarationStatus = (typeof BLOCK_STATUS_VALUES)[number];
 
 export const DECLARATION_STATUS_LABELS = {
   declined: "見送り",
@@ -93,7 +91,7 @@ export const DECLARATION_STATUS_LABELS = {
   rescheduled: "リスケ済",
 } as const satisfies Record<DeclarationStatus, string>;
 
-export type PresenceState = Infer<typeof presenceStateValidator>;
+export type PresenceState = (typeof PRESENCE_STATE_VALUES)[number];
 
 export const PRESENCE_LABELS = {
   commuting_home: "帰宅中",

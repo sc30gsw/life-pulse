@@ -38,7 +38,10 @@ function LoginPage() {
             <LoginForm />
             <Text c="dimmed" size="sm" ta="center">
               アカウントをお持ちでない方は{" "}
-              <Link className="text-blue inline-flex items-center gap-1" to="/signup">
+              <Link
+                className="text-blue inline-flex items-center gap-1 transition hover:brightness-110 active:brightness-95"
+                to="/signup"
+              >
                 <IconUserPlus aria-hidden size={14} />
                 サインアップ
               </Link>

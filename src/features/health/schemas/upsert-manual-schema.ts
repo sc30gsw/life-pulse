@@ -1,8 +1,7 @@
 import * as v from "valibot";
 
+import { DATE_JST_PATTERN } from "~/../convex/lib/domain";
 import { todayJst } from "~/utils/date-jst";
-
-const DATE_JST_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 export const UpsertManualSchema = v.pipe(
   v.object({

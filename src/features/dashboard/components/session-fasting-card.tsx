@@ -213,6 +213,7 @@ function SessionStatusGroup({ fastingFlash }: Partial<Record<"fastingFlash", boo
         {sessionStatus === "active" && (
           <>
             <Button
+              className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
               variant="filled"
               style={ACCENT_SOLID_STYLE.good}
               size="sm"
@@ -230,7 +231,7 @@ function SessionStatusGroup({ fastingFlash }: Partial<Record<"fastingFlash", boo
                   onClick={() => onPauseSession(reason)}
                   className={cn(
                     ACCENT_CLASSES.amber.border,
-                    "bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-semibold disabled:opacity-40",
+                    "bg-inset text-dim rounded-lg border px-3 py-1.5 text-xs font-semibold transition hover:brightness-110 active:brightness-95 disabled:opacity-40",
                   )}
                 >
                   {REASON_LABELS[reason]}
@@ -242,6 +243,7 @@ function SessionStatusGroup({ fastingFlash }: Partial<Record<"fastingFlash", boo
         {sessionStatus === "paused" && (
           <>
             <Button
+              className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
               variant="filled"
               style={ACCENT_SOLID_STYLE.good}
               size="sm"
@@ -252,7 +254,7 @@ function SessionStatusGroup({ fastingFlash }: Partial<Record<"fastingFlash", boo
             <Button
               variant="outline"
               size="sm"
-              className="border-bd-2 text-tx"
+              className="border-bd-2 text-tx transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
               onClick={onCompleteSession}
             >
               完了
@@ -264,6 +266,7 @@ function SessionStatusGroup({ fastingFlash }: Partial<Record<"fastingFlash", boo
           sessionStatus === "abandoned") && (
           <>
             <Button
+              className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
               variant="filled"
               style={ACCENT_SOLID_STYLE.good}
               size="sm"

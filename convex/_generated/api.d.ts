@@ -18,6 +18,7 @@ import type * as http from "../http.js";
 import type * as lib_auth from "../lib/auth.js";
 import type * as lib_dateRange from "../lib/dateRange.js";
 import type * as lib_demoConstants from "../lib/demoConstants.js";
+import type * as lib_domain from "../lib/domain.js";
 import type * as lib_hm from "../lib/hm.js";
 import type * as lib_passwordRequirements from "../lib/passwordRequirements.js";
 import type * as lib_validators from "../lib/validators.js";
@@ -171,6 +172,7 @@ declare const fullApi: ApiFromModules<{
   "lib/auth": typeof lib_auth;
   "lib/dateRange": typeof lib_dateRange;
   "lib/demoConstants": typeof lib_demoConstants;
+  "lib/domain": typeof lib_domain;
   "lib/hm": typeof lib_hm;
   "lib/passwordRequirements": typeof lib_passwordRequirements;
   "lib/validators": typeof lib_validators;

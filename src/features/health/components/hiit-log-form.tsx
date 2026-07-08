@@ -5,6 +5,7 @@ import { notifications } from "@mantine/notifications";
 import { cn } from "cnfast";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
+import { WORKOUT_KIND_VALUES } from "~/../convex/lib/domain";
 import {
   DATE_TIME_PICKER_CLASS_NAMES,
   DATE_TIME_PICKER_POPOVER_PROPS,
@@ -29,8 +30,6 @@ import {
 } from "~/types/dashboard";
 import { todayJst } from "~/utils/date-jst";
 import { dayjs } from "~/utils/dayjs";
-
-const WORKOUT_KIND_VALUES = Object.keys(WORKOUT_KIND_LABELS) as WorkoutKind[];
 
 export type EditableWorkout = Pick<
   Doc<"workouts">,

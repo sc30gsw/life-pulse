@@ -80,7 +80,12 @@ export function AvatarUploader() {
         <Avatar name={viewer.displayName} radius="xl" size={64} src={viewer.avatarUrl} />
         <FileButton accept="image/*" onChange={onFileSelect}>
           {(props) => (
-            <Button {...props} leftSection={<IconUpload size={16} />} variant="outline">
+            <Button
+              {...props}
+              className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+              leftSection={<IconUpload size={16} />}
+              variant="outline"
+            >
               画像を選ぶ
             </Button>
           )}
@@ -113,10 +118,15 @@ export function AvatarUploader() {
             value={zoom}
           />
           <Group justify="flex-end">
-            <Button variant="outline" onClick={() => setImageSrc(null)}>
+            <Button
+              className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+              variant="outline"
+              onClick={() => setImageSrc(null)}
+            >
               キャンセル
             </Button>
             <Button
+              className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
               loading={generateUploadUrl.isPending || setAvatar.isPending}
               onClick={onSave}
               style={ACCENT_SOLID_STYLE.good}

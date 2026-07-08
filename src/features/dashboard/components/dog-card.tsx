@@ -68,7 +68,12 @@ export function DogCard() {
           description="犬の管理画面でプロフィールを作成してください。"
         >
           <EmptyState.Actions>
-            <Button component={Link} to="/dog" style={ACCENT_SOLID_STYLE.coral}>
+            <Button
+              className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+              component={Link}
+              to="/dog"
+              style={ACCENT_SOLID_STYLE.coral}
+            >
               犬の管理へ
             </Button>
           </EmptyState.Actions>
@@ -118,7 +123,7 @@ export function DogCard() {
             {pendingCount > 0 ? `未実施 ${pendingCount} 件` : "すべて完了"}
           </Badge>
           <Button
-            className="border-bd-2 text-tx"
+            className="border-bd-2 text-tx transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
             onClick={openHistoryModal}
             size="xs"
             type="button"
@@ -128,7 +133,7 @@ export function DogCard() {
           </Button>
           <Button
             aria-label="犬の管理"
-            className="border-bd-2 text-tx"
+            className="border-bd-2 text-tx transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
             component={Link}
             leftSection={<IconSettings size={14} />}
             size="xs"
@@ -150,6 +155,7 @@ export function DogCard() {
             onClick={() => onToggleDogCare(item.taskId)}
             className={cn(
               "flex w-full items-center gap-3 rounded-xl border px-3.5 py-2.5 text-left",
+              "transition hover:brightness-110 active:brightness-95",
               item.done
                 ? "border-bd bg-panel-2"
                 : cn(ACCENT_CLASSES.coral.border, ACCENT_CLASSES.coral.bg),
@@ -203,7 +209,11 @@ function DogHistoryList() {
         description="犬のお世話履歴がありません"
       >
         <EmptyState.Actions>
-          <Button variant="outline" onClick={() => modals.closeAll()}>
+          <Button
+            className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+            variant="outline"
+            onClick={() => modals.closeAll()}
+          >
             閉じる
           </Button>
         </EmptyState.Actions>
@@ -229,7 +239,7 @@ function DogHistoryList() {
           </Stack>
           {history.summary.hasOlderDays ? (
             <Button
-              className="border-bd-2 text-tx"
+              className="border-bd-2 text-tx transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
               onClick={() => setShowOlderDays((current) => !current)}
               size="xs"
               type="button"

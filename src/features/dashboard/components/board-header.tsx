@@ -16,7 +16,10 @@ export function BoardHeader() {
     <Group component="header" wrap="wrap" gap="md" align="center">
       <Group mr="auto" gap={11}>
         <Box className="bg-good lp-pulse h-2.5 w-2.5 rounded-full shadow-[0_0_12px_var(--good)]" />
-        <Link to="/" className="text-inherit no-underline transition-opacity hover:opacity-80">
+        <Link
+          to="/"
+          className="text-inherit no-underline transition hover:opacity-80 hover:brightness-110 active:brightness-95"
+        >
           <Stack gap={0}>
             <Text className="lp-brandtext" component="h1" fw={700} size="lg" m={0}>
               Life Pulse
@@ -51,7 +54,7 @@ export function BoardHeader() {
         size="lg"
         radius="md"
         onClick={onToggleTheme}
-        className="border-bd bg-inset"
+        className="border-bd bg-inset transition hover:brightness-110 active:brightness-95"
         aria-label={theme === "dark" ? "ライトモードに切り替え" : "ダークモードに切り替え"}
       >
         {theme === "dark" ? <IconMoon size={16} className="text-white" /> : <IconSun size={16} />}

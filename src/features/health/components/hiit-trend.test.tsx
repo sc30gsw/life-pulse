@@ -4,7 +4,7 @@ import { expect, test, vi } from "vite-plus/test";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
 import { HiitTrend, HiitTrendFallback } from "~/features/health/components/hiit-trend";
-import { hiitTrendRangeJst } from "~/features/health/utils/hiit-trend";
+import { HIIT_TREND_DAYS, hiitTrendRangeJst } from "~/features/health/utils/hiit-trend";
 import { renderWithMantine } from "~/test-utils";
 
 const hookState = vi.hoisted(() => ({
@@ -49,7 +49,7 @@ test("shows an empty state when there are no workouts", () => {
   const { getByText } = renderWithMantine(<HiitTrend />);
 
   expect(getByText("トレーニングの記録はまだありません")).toBeDefined();
-  expect(getByText("直近14日間のトレーニング記録がありません")).toBeDefined();
+  expect(getByText(`直近${HIIT_TREND_DAYS}日間のトレーニング記録がありません`)).toBeDefined();
 });
 
 test("renders a bucketed, kind-split stacked bar chart from workout rows", () => {
@@ -63,7 +63,7 @@ test("renders a bucketed, kind-split stacked bar chart from workout rows", () =>
   const chart = getByTestId("bar-chart");
 
   expect(chart.getAttribute("data-series")).toBe("hiit,walk,other");
-  expect(chart.textContent).toBe("rows:14");
+  expect(chart.textContent).toBe(`rows:${HIIT_TREND_DAYS}`);
   expect(chart.getAttribute("data-first-row")).toContain('"hiit":0');
 });
 

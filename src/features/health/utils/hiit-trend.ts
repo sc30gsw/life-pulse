@@ -2,7 +2,7 @@ import type { Doc } from "~/../convex/_generated/dataModel";
 import { pastDateJstRange, todayJst } from "~/utils/date-jst";
 import { dayjs } from "~/utils/dayjs";
 
-export const HIIT_TREND_DAYS = 14;
+export const HIIT_TREND_DAYS = 28;
 
 export function hiitTrendRangeJst() {
   const toDateJst = todayJst();

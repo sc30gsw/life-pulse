@@ -53,7 +53,7 @@ export function AddDogTaskForm() {
         </Field>
 
         <Button
-          className="shrink-0 hover:brightness-120"
+          className="shrink-0 transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
           disabled={addDogTaskForm.isSubmitting}
           leftSection={<IconPlus size={16} />}
           loading={addDogTaskForm.isSubmitting}

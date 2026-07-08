@@ -101,7 +101,9 @@ function ProfileFormFallback() {
     <Shimmer loading>
       <Stack gap="md">
         <Text size="sm">プロフィールを読み込み中</Text>
-        <Button>保存する</Button>
+        <Button className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100">
+          保存する
+        </Button>
       </Stack>
     </Shimmer>
   );

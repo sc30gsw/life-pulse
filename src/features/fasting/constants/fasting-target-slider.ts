@@ -2,15 +2,16 @@ import type { Slider } from "@mantine/core";
 import type { ComponentProps } from "react";
 
 import {
+  FASTING_TARGET_SLIDER_MARK_MINUTES,
   MAX_FASTING_TARGET_MINUTES,
   MIN_FASTING_TARGET_MINUTES,
-} from "~/features/fasting/constants/fasting-target";
+} from "~/../convex/lib/domain";
 
 export const FASTING_TARGET_SLIDER_MARKS = [
   { value: MIN_FASTING_TARGET_MINUTES, label: "1m" },
-  { value: 240, label: "4h" },
-  { value: 480, label: "8h" },
-  { value: 720, label: "12h" },
+  { value: FASTING_TARGET_SLIDER_MARK_MINUTES[0], label: "4h" },
+  { value: FASTING_TARGET_SLIDER_MARK_MINUTES[1], label: "8h" },
+  { value: FASTING_TARGET_SLIDER_MARK_MINUTES[2], label: "12h" },
   { value: MAX_FASTING_TARGET_MINUTES, label: "16h" },
 ] as const satisfies ComponentProps<typeof Slider>["marks"];
 

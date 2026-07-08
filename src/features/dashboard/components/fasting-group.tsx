@@ -49,7 +49,10 @@ export function FastingGroup({
 
   function onEndFasting() {
     modals.openConfirmModal({
-      cancelProps: { className: "border-bd bg-inset text-tx hover:bg-panel-2" },
+      cancelProps: {
+        className:
+          "border-bd bg-inset text-tx transition hover:bg-panel-2 hover:brightness-110 active:brightness-95",
+      },
       centered: true,
       children: (
         <Text size="sm">断食を終了して食事を開始します。ここまでの経過時間が記録されます。</Text>
@@ -157,11 +160,22 @@ function FastingViewerButton({ fasting, onOpen, onClose }: FastingViewerButtonPr
   }
 
   return fasting === null ? (
-    <Button variant="filled" style={ACCENT_SOLID_STYLE.blue} size="xs" onClick={onOpen}>
+    <Button
+      className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+      variant="filled"
+      style={ACCENT_SOLID_STYLE.blue}
+      size="xs"
+      onClick={onOpen}
+    >
       断食開始
     </Button>
   ) : (
-    <Button variant="outline" size="xs" className="border-bd-2 text-tx" onClick={onClose}>
+    <Button
+      variant="outline"
+      size="xs"
+      className="border-bd-2 text-tx transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+      onClick={onClose}
+    >
       食事開始(断食終了)
     </Button>
   );

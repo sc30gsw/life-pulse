@@ -4,9 +4,8 @@ import { dashboardFastingQuery } from "~/features/dashboard/api/dashboard-fastin
 import { useBoardClock } from "~/features/dashboard/hooks/use-board-clock";
 import { useRemoteUpdateFlash } from "~/features/dashboard/hooks/use-remote-update-flash";
 import { formatElapsedClock } from "~/features/dashboard/utils/format";
+import { DEFAULT_FASTING_TARGET_MINUTES } from "~/features/fasting/constants/fasting-target";
 import { deriveFastingElapsedMinutes } from "~/features/fasting/utils/fasting-utils";
-
-const DEFAULT_FASTING_TARGET_MINUTES = 960;
 
 export function useDashboardFasting() {
   const { nowMs } = useBoardClock();

@@ -5,6 +5,7 @@ import { notifications } from "@mantine/notifications";
 import { cn } from "cnfast";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
+import { CATEGORY_VALUES } from "~/../convex/lib/domain";
 import {
   DATE_TIME_PICKER_CLASS_NAMES,
   DATE_TIME_PICKER_POPOVER_PROPS,
@@ -28,8 +29,6 @@ import {
   type SessionCategory,
 } from "~/types/dashboard";
 import { todayJst } from "~/utils/date-jst";
-
-const CATEGORY_VALUES = Object.keys(CATEGORY_LABELS) as SessionCategory[];
 
 type EditableBlock = Pick<Doc<"studyBlocks">, "_id" | "category" | "dateJst" | "endHm" | "startHm">;
 
@@ -111,7 +110,7 @@ export function DeclareBlockForm({ block, onDone }: DeclareBlockFormProps = {}) 
                       aria-pressed={isActive}
                       onClick={() => field.onChange(category)}
                       className={cn(
-                        "rounded-lg border px-3 py-1.5 text-xs hover:brightness-120",
+                        "rounded-lg border px-3 py-1.5 text-xs transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100",
                         isActive
                           ? cn(
                               ACCENT_CLASSES.good.border,
@@ -182,7 +181,7 @@ export function DeclareBlockForm({ block, onDone }: DeclareBlockFormProps = {}) 
         </Group>
 
         <Button
-          className="hover:brightness-120"
+          className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
           loading={declareForm.isSubmitting}
           disabled={declareForm.isSubmitting}
           style={ACCENT_SOLID_STYLE.good}

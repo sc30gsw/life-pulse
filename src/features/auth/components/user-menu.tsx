@@ -28,9 +28,9 @@ export function UserMenu() {
   const isSelf = viewer.role === "self";
 
   return (
-    <Menu opened={opened} onChange={toggle} position="bottom-end" shadow="md" width={200}>
+      <Menu opened={opened} onChange={toggle} position="bottom-end" shadow="md" width={200}>
       <Menu.Target>
-        <UnstyledButton>
+        <UnstyledButton className="transition hover:brightness-110 active:brightness-95">
           <Group gap="xs">
             <Avatar radius="xl" size="sm">
               {viewer.displayName.slice(0, 1)}
@@ -51,30 +51,65 @@ export function UserMenu() {
         </UnstyledButton>
       </Menu.Target>
       <Menu.Dropdown>
-        <Menu.Item component={Link} leftSection={<IconUser size={14} />} to="/profile">
+        <Menu.Item
+          className="transition hover:brightness-110 active:brightness-95"
+          component={Link}
+          leftSection={<IconUser size={14} />}
+          to="/profile"
+        >
           プロフィール
         </Menu.Item>
-        <Menu.Item component={Link} leftSection={<IconDog size={14} />} to="/dog">
+        <Menu.Item
+          className="transition hover:brightness-110 active:brightness-95"
+          component={Link}
+          leftSection={<IconDog size={14} />}
+          to="/dog"
+        >
           犬の管理
         </Menu.Item>
-        <Menu.Item component={Link} leftSection={<IconBook2 size={14} />} to="/study">
+        <Menu.Item
+          className="transition hover:brightness-110 active:brightness-95"
+          component={Link}
+          leftSection={<IconBook2 size={14} />}
+          to="/study"
+        >
           学習管理
         </Menu.Item>
-        <Menu.Item component={Link} leftSection={<IconHourglass size={14} />} to="/fasting">
+        <Menu.Item
+          className="transition hover:brightness-110 active:brightness-95"
+          component={Link}
+          leftSection={<IconHourglass size={14} />}
+          to="/fasting"
+        >
           断食
         </Menu.Item>
         {isSelf && (
-          <Menu.Item component={Link} leftSection={<IconHeartbeat size={14} />} to="/health">
+          <Menu.Item
+            className="transition hover:brightness-110 active:brightness-95"
+            component={Link}
+            leftSection={<IconHeartbeat size={14} />}
+            to="/health"
+          >
             健康
           </Menu.Item>
         )}
         {isSelf && (
-          <Menu.Item component={Link} leftSection={<IconChartScatter size={14} />} to="/insights">
+          <Menu.Item
+            className="transition hover:brightness-110 active:brightness-95"
+            component={Link}
+            leftSection={<IconChartScatter size={14} />}
+            to="/insights"
+          >
             インサイト
           </Menu.Item>
         )}
         {isSelf && (
-          <Menu.Item component={Link} leftSection={<IconSettings size={14} />} to="/settings">
+          <Menu.Item
+            className="transition hover:brightness-110 active:brightness-95"
+            component={Link}
+            leftSection={<IconSettings size={14} />}
+            to="/settings"
+          >
             設定
           </Menu.Item>
         )}
