@@ -1,11 +1,21 @@
 import { createAccount, retrieveAccount } from "@convex-dev/auth/server";
+import type { WithoutSystemFields } from "convex/server";
 import { convexTest } from "convex-test";
 import { expect, test } from "vite-plus/test";
 
 import { api } from "../../_generated/api";
+import type { Doc } from "../../_generated/dataModel";
 import type { ActionCtx } from "../../_generated/server";
 import schema from "../../schema";
 import { testModules } from "../../test.setup";
+
+// Mirrors convex/auth.ts's SignUpProfile: `email` lives on the auth `users`
+// table, while `displayName`/`role` belong to `appUsers` only — createAccount's
+// own type only allows `users` fields, but createOrUpdateUser's callback (see
+// convex/auth.ts) reads displayName/role off the same profile object at
+// runtime, exactly like a real Password sign-up.
+type SeedProfile = Pick<WithoutSystemFields<Doc<"users">>, "email"> &
+  Pick<WithoutSystemFields<Doc<"appUsers">>, "displayName" | "role">;
 
 const SELF_EMAIL = "self@example.com";
 const SELF_OLD_PASSWORD = "OldPassw0rd1";
@@ -30,8 +40,9 @@ async function createPasswordAccount(
     // profile flows straight into convex/auth.ts's createOrUpdateUser
     // callback (same as a real Password sign-up), which is what actually
     // creates the matching appUsers row via ensureUser — no separate insert
-    // needed here.
-    profile: { email, displayName, role },
+    // needed here. createAccount's own type only allows `users` fields; cast
+    // to SeedProfile the same way convex/auth.ts casts args.profile.
+    profile: { displayName, email, role } as SeedProfile as WithoutSystemFields<Doc<"users">>,
   });
 }
 
@@ -55,7 +66,7 @@ async function seedAccount(
   displayName: string,
   role: "self" | "partner",
 ) {
-  const { user } = await t.action((ctx) =>
+  const { user } = await t.action((ctx: ActionCtx) =>
     createPasswordAccount(ctx, email, password, displayName, role),
   );
   return user._id;
@@ -73,12 +84,12 @@ test("updatePassword rotates the caller's own credential", async () => {
 
   // Sign-in with the NEW password now succeeds...
   await expect(
-    t.action((ctx) => retrieveByEmail(ctx, SELF_EMAIL, SELF_NEW_PASSWORD)),
+    t.action((ctx: ActionCtx) => retrieveByEmail(ctx, SELF_EMAIL, SELF_NEW_PASSWORD)),
   ).resolves.toBeDefined();
 
   // ...and sign-in with the OLD password fails afterward.
   await expect(
-    t.action((ctx) => retrieveByEmail(ctx, SELF_EMAIL, SELF_OLD_PASSWORD)),
+    t.action((ctx: ActionCtx) => retrieveByEmail(ctx, SELF_EMAIL, SELF_OLD_PASSWORD)),
   ).rejects.toThrow();
 });
 
@@ -95,7 +106,7 @@ test("rejects an incorrect currentPassword and leaves the credential untouched",
   ).rejects.toThrow();
 
   await expect(
-    t.action((ctx) => retrieveByEmail(ctx, SELF_EMAIL, SELF_OLD_PASSWORD)),
+    t.action((ctx: ActionCtx) => retrieveByEmail(ctx, SELF_EMAIL, SELF_OLD_PASSWORD)),
   ).resolves.toBeDefined();
 });
 
@@ -112,7 +123,7 @@ test("rejects a newPassword that fails the shared password requirements", async 
   ).rejects.toThrow();
 
   await expect(
-    t.action((ctx) => retrieveByEmail(ctx, SELF_EMAIL, SELF_OLD_PASSWORD)),
+    t.action((ctx: ActionCtx) => retrieveByEmail(ctx, SELF_EMAIL, SELF_OLD_PASSWORD)),
   ).resolves.toBeDefined();
 });
 
@@ -130,6 +141,6 @@ test("acting as the partner never changes another user's password", async () => 
   // The self user's original password still works — untouched by the
   // partner's own password change.
   await expect(
-    t.action((ctx) => retrieveByEmail(ctx, SELF_EMAIL, SELF_OLD_PASSWORD)),
+    t.action((ctx: ActionCtx) => retrieveByEmail(ctx, SELF_EMAIL, SELF_OLD_PASSWORD)),
   ).resolves.toBeDefined();
 });
