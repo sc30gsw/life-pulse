@@ -124,6 +124,7 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 
 - [ ] FR-7.1 直近 28 日の「睡眠×学習分数」「Body Battery×学習分数」「HIIT 翌日 Body Battery」表示
 - [ ] FR-7.2 Convex クエリ内 join で導出、元データ変更で自動再計算・再描画(`/insights`、pearson 純関数)
+- 決定(2026-07-08): `/health` の HIIT トレンドチャート(`HiitTrend`)へ健康指標(睡眠/Body Battery 等)を area/line で重ねる案、および PieChart 追加案は本 FR-7 のスコープとし、`/health` 側では実装しない。`HiitTrend` は kind 別(hiit/walk/other)の stacked `BarChart` のみに留める。FR-7 実装時に `CompositeChart`(bar+area/line、`@mantine/charts`)採用を検討する。
 
 ### 磨き込み・発表準備
 

@@ -49,22 +49,22 @@ test("shows an empty state when there are no workouts", () => {
   const { getByText } = renderWithMantine(<HiitTrend />);
 
   expect(getByText("トレーニングの記録はまだありません")).toBeDefined();
-  expect(getByText("直近14日間のHIIT記録がありません")).toBeDefined();
+  expect(getByText("直近14日間のトレーニング記録がありません")).toBeDefined();
 });
 
-test("renders a bucketed bar chart from workout rows", () => {
+test("renders a bucketed, kind-split stacked bar chart from workout rows", () => {
   const { toDateJst } = hiitTrendRangeJst();
   hookState.workouts = [
-    buildWorkout({ dateJst: toDateJst, durationMinutes: 20 }),
-    buildWorkout({ dateJst: toDateJst, durationMinutes: 15 }),
+    buildWorkout({ dateJst: toDateJst, durationMinutes: 20, kind: "hiit" }),
+    buildWorkout({ dateJst: toDateJst, durationMinutes: 15, kind: "walk" }),
   ];
 
   const { getByTestId } = renderWithMantine(<HiitTrend />);
   const chart = getByTestId("bar-chart");
 
-  expect(chart.getAttribute("data-series")).toBe("durationMinutes");
+  expect(chart.getAttribute("data-series")).toBe("hiit,walk,other");
   expect(chart.textContent).toBe("rows:14");
-  expect(chart.getAttribute("data-first-row")).toContain('"durationMinutes":0');
+  expect(chart.getAttribute("data-first-row")).toContain('"hiit":0');
 });
 
 test("renders chart fallback placeholder", () => {

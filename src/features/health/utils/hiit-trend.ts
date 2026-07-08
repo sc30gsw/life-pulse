@@ -11,30 +11,32 @@ export function hiitTrendRangeJst() {
   return { fromDateJst, toDateJst };
 }
 
+type DurationByKind = Record<Doc<"workouts">["kind"], number>;
+
+function emptyDurationByKind(): DurationByKind {
+  return { hiit: 0, walk: 0, other: 0 };
+}
+
 export function bucketDailyDuration(
-  workouts: ReadonlyArray<Pick<Doc<"workouts">, "dateJst" | "durationMinutes">>,
+  workouts: ReadonlyArray<Pick<Doc<"workouts">, "dateJst" | "durationMinutes" | "kind">>,
 ) {
   const { fromDateJst, toDateJst } = hiitTrendRangeJst();
 
-  const totalsByDate = new Map<Doc<"workouts">["dateJst"], Doc<"workouts">["durationMinutes"]>();
+  const totalsByDate = new Map<Doc<"workouts">["dateJst"], DurationByKind>();
 
   for (const workout of workouts) {
-    totalsByDate.set(
-      workout.dateJst,
-      (totalsByDate.get(workout.dateJst) ?? 0) + workout.durationMinutes,
-    );
+    const totals = totalsByDate.get(workout.dateJst) ?? emptyDurationByKind();
+    totals[workout.kind] += workout.durationMinutes;
+    totalsByDate.set(workout.dateJst, totals);
   }
 
-  const days: Array<{
-    date: Doc<"workouts">["dateJst"];
-    durationMinutes: Doc<"workouts">["durationMinutes"];
-  }> = [];
+  const days: Array<{ date: Doc<"workouts">["dateJst"] } & DurationByKind> = [];
   const end = dayjs.tz(toDateJst, "Asia/Tokyo");
   let cursor = dayjs.tz(fromDateJst, "Asia/Tokyo");
   while (!cursor.isAfter(end)) {
     days.push({
       date: cursor.format("M/D"),
-      durationMinutes: totalsByDate.get(cursor.format("YYYY-MM-DD")) ?? 0,
+      ...(totalsByDate.get(cursor.format("YYYY-MM-DD")) ?? emptyDurationByKind()),
     });
     cursor = cursor.add(1, "day");
   }

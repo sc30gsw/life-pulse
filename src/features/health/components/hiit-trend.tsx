@@ -17,7 +17,7 @@ export function HiitTrend() {
   if (workouts.length === 0) {
     return (
       <EmptyState
-        description="直近14日間のHIIT記録がありません"
+        description="直近14日間のトレーニング記録がありません"
         icon={<IconChartBar size={48} />}
         title={
           <Text c="blue" fw={600} size="lg">
@@ -33,15 +33,21 @@ export function HiitTrend() {
   return (
     <Box mb="md">
       <Text c="dimmed" fw={600} mb="xs" size="xs">
-        直近14日間のHIITトレーニング時間(分)
+        直近14日間のトレーニング時間(分)
       </Text>
       <BarChart
         data={chartData}
         dataKey="date"
         gridColor={CHART_GRID_COLOR}
         h={CHART_HEIGHT}
-        series={[{ color: ACCENT_VARS.coral, name: "durationMinutes" }]}
+        series={[
+          { color: ACCENT_VARS.coral, label: "HIIT", name: "hiit" },
+          { color: ACCENT_VARS.blue, label: "ウォーキング", name: "walk" },
+          { color: ACCENT_VARS.faint, label: "その他", name: "other" },
+        ]}
         textColor={CHART_TEXT_COLOR}
+        type="stacked"
+        withLegend
       />
     </Box>
   );
