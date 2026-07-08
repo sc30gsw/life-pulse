@@ -3,7 +3,6 @@ import { Shimmer } from "@shimmer-from-structure/react";
 import { IconChevronDown, IconChevronUp, IconPencil, IconTrash } from "@tabler/icons-react";
 
 import { DogTaskRow } from "~/features/dog/components/dog-task-row";
-import { DOG_TASK_COPY } from "~/features/dog/constants/dog-profile";
 import { useDogTasks } from "~/features/dog/hooks/use-dog-tasks";
 
 export function DogTaskList() {
@@ -12,7 +11,7 @@ export function DogTaskList() {
   if (tasks.length === 0) {
     return (
       <Text c="dimmed" size="sm">
-        {DOG_TASK_COPY.states.empty}
+        お世話タスクがありません。上のフォームから追加してください。
       </Text>
     );
   }
@@ -34,11 +33,13 @@ export function DogTaskList() {
   );
 }
 
+const FALLBACK_TASK_NAMES = ["朝散歩", "朝ごはん", "薬"] as const;
+
 export function DogTaskListFallback() {
   return (
     <Shimmer loading>
       <Stack gap={8}>
-        {DOG_TASK_COPY.dashboard.fallbackTaskNames.map((label) => (
+        {FALLBACK_TASK_NAMES.map((label) => (
           <Group
             key={label}
             className="border-bd bg-panel-2 rounded-xl border px-3.5 py-2.5"

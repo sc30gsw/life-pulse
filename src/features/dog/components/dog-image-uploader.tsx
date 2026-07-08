@@ -5,7 +5,6 @@ import { IconPhotoUp } from "@tabler/icons-react";
 import { useRef, useState } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 
-import { DOG_PROFILE_COPY } from "~/features/dog/constants/dog-profile";
 import { useDog } from "~/features/dog/hooks/use-dog";
 import { useGenerateDogImageUploadUrl, useSetDogImage } from "~/features/dog/hooks/use-update-dog";
 import { cropImageToAvatarBlob } from "~/features/profile/utils/crop-image";
@@ -51,14 +50,14 @@ export function DogImageUploader() {
       setImageSrc(null);
       notifications.show({
         color: "green",
-        message: DOG_PROFILE_COPY.notification.imageSaveSuccessMessage,
-        title: DOG_PROFILE_COPY.notification.savedTitle,
+        message: "犬の写真を保存しました",
+        title: "保存しました",
       });
     } catch {
       notifications.show({
         color: "red",
-        message: DOG_PROFILE_COPY.notification.imageSaveErrorMessage,
-        title: DOG_PROFILE_COPY.notification.errorTitle,
+        message: "犬の写真の保存に失敗しました",
+        title: "エラー",
       });
     }
   }
@@ -75,7 +74,7 @@ export function DogImageUploader() {
               leftSection={<IconPhotoUp size={16} />}
               variant="outline"
             >
-              {DOG_PROFILE_COPY.actions.choosePhoto}
+              写真を選ぶ
             </Button>
           )}
         </FileButton>
@@ -112,7 +111,7 @@ export function DogImageUploader() {
               onClick={() => setImageSrc(null)}
               variant="outline"
             >
-              {DOG_PROFILE_COPY.actions.cancel}
+              キャンセル
             </Button>
             <Button
               className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
@@ -120,7 +119,7 @@ export function DogImageUploader() {
               onClick={onSave}
               style={ACCENT_SOLID_STYLE.good}
             >
-              {DOG_PROFILE_COPY.actions.savePhoto}
+              写真を保存
             </Button>
           </Group>
         </Stack>
@@ -134,9 +133,9 @@ export function DogImageUploaderFallback() {
     <Shimmer loading>
       <Stack gap="md">
         <Group align="center">
-          <Avatar name={DOG_PROFILE_COPY.fallbackName} radius="md" size={76} />
+          <Avatar name="犬" radius="md" size={76} />
           <Button className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100">
-            {DOG_PROFILE_COPY.actions.choosePhoto}
+            写真を選ぶ
           </Button>
         </Group>
       </Stack>
@@ -149,10 +148,10 @@ function MissingDogEmptyState() {
     <EmptyState
       title={
         <Text size="xl" fw={600} c="coral">
-          {DOG_PROFILE_COPY.missing.title}
+          犬プロフィール未作成
         </Text>
       }
-      description={DOG_PROFILE_COPY.missing.imageDescription}
+      description="先に犬の名前を登録すると、写真をアップロードできます。"
     />
   );
 }

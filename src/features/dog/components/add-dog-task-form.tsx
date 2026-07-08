@@ -3,7 +3,6 @@ import { Button, Group, TextInput } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconPlus } from "@tabler/icons-react";
 
-import { DOG_TASK_COPY } from "~/features/dog/constants/dog-profile";
 import { useCreateDogTask } from "~/features/dog/hooks/use-create-dog-task";
 import { DogTaskNameSchema } from "~/features/dog/schemas/dog-task-name-schema";
 import { ACCENT_SOLID_STYLE } from "~/types/dashboard";
@@ -23,15 +22,15 @@ export function AddDogTaskForm() {
           onError: () => {
             notifications.show({
               color: "red",
-              message: DOG_TASK_COPY.notification.addErrorMessage,
-              title: DOG_TASK_COPY.notification.errorTitle,
+              message: "タスクの追加に失敗しました",
+              title: "エラー",
             });
           },
           onSuccess: () => {
             notifications.show({
               color: "green",
-              message: DOG_TASK_COPY.notification.addedMessage(output.name),
-              title: DOG_TASK_COPY.notification.addedTitle,
+              message: `「${output.name}」を追加しました`,
+              title: "追加しました",
             });
             reset(addDogTaskForm);
           },
@@ -43,11 +42,11 @@ export function AddDogTaskForm() {
           {(field) => (
             <TextInput
               {...field.props}
-              aria-label={DOG_TASK_COPY.aria.newNameInput}
+              aria-label="新しいタスク名"
               className="flex-1"
               disabled={addDogTaskForm.isSubmitting}
               error={field.errors?.[0]}
-              placeholder={DOG_TASK_COPY.aria.newNameInput}
+              placeholder="新しいタスク名"
               value={field.input}
             />
           )}
@@ -61,7 +60,7 @@ export function AddDogTaskForm() {
           style={ACCENT_SOLID_STYLE.good}
           type="submit"
         >
-          {DOG_TASK_COPY.actions.add}
+          追加
         </Button>
       </Group>
     </Form>

@@ -8,7 +8,6 @@ import { Suspense, useState, type ComponentProps } from "react";
 import { GlowCard } from "~/components/glow-card";
 import { dogHistoryQuery } from "~/features/dashboard/api/dog-history-query";
 import { DogHistoryDayCard } from "~/features/dashboard/components/dog-history-day-card";
-import { DOG_PROFILE_COPY, DOG_TASK_COPY } from "~/features/dog/constants/dog-profile";
 import { ACCENT_VARS } from "~/types/dashboard";
 import { pastDateJstRange, todayJst } from "~/utils/date-jst";
 
@@ -26,7 +25,7 @@ function openDogHistoryModal() {
     centered: true,
     children: <DogHistoryModalContent />,
     styles: HISTORY_MODAL_STYLES,
-    title: DOG_PROFILE_COPY.history.modalTitle,
+    title: "犬のお世話履歴",
   });
 }
 
@@ -39,7 +38,7 @@ export function DogHistoryButton() {
       type="button"
       variant="outline"
     >
-      {DOG_PROFILE_COPY.history.open}
+      履歴
     </Button>
   );
 }
@@ -63,10 +62,10 @@ function DogHistoryList() {
         icon={<IconDog size={48} />}
         title={
           <Text size="xl" fw={600} c="coral">
-            {DOG_PROFILE_COPY.history.emptyTitle}
+            履歴なし
           </Text>
         }
-        description={DOG_PROFILE_COPY.history.emptyDescription}
+        description="犬のお世話履歴がありません"
       >
         <EmptyState.Actions>
           <Button
@@ -74,7 +73,7 @@ function DogHistoryList() {
             variant="outline"
             onClick={() => modals.closeAll()}
           >
-            {DOG_PROFILE_COPY.history.close}
+            閉じる
           </Button>
         </EmptyState.Actions>
       </EmptyState>
@@ -91,13 +90,10 @@ function DogHistoryList() {
         <Group justify="space-between" gap="xs">
           <Stack gap={2}>
             <Text size="10.5px" fw={700} tt="uppercase" c={ACCENT_VARS.faint}>
-              {DOG_PROFILE_COPY.history.latestRangeLabel}
+              直近7日
             </Text>
             <Text size="sm" fw={700}>
-              {DOG_PROFILE_COPY.history.rangeSummary(
-                history.summary.totalDayCount,
-                history.summary.eventCount,
-              )}
+              {history.summary.totalDayCount} 日分 · {history.summary.eventCount} 件
             </Text>
           </Stack>
           {history.summary.hasOlderDays ? (
@@ -108,9 +104,7 @@ function DogHistoryList() {
               type="button"
               variant="outline"
             >
-              {showOlderDays
-                ? DOG_PROFILE_COPY.history.latestOnly
-                : DOG_PROFILE_COPY.history.showOlderDays(history.summary.olderDayCount)}
+              {showOlderDays ? "直近だけ表示" : `過去 ${history.summary.olderDayCount} 日を表示`}
             </Button>
           ) : null}
         </Group>
@@ -136,9 +130,9 @@ function DogHistoryListFallback() {
             </Text>
             {[0, 1].map((rowIndex) => (
               <Group justify="space-between" key={rowIndex}>
-                <Text size="sm">{DOG_TASK_COPY.history.fallbackTaskName}</Text>
+                <Text size="sm">朝散歩</Text>
                 <Text c="dimmed" size="xs">
-                  {DOG_TASK_COPY.history.fallbackByline}
+                  本人 · 06:30:00
                 </Text>
               </Group>
             ))}

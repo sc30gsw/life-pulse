@@ -3,7 +3,6 @@ import { Button, Stack, TextInput } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { Shimmer } from "@shimmer-from-structure/react";
 
-import { DOG_PAGE_COPY, DOG_PROFILE_COPY } from "~/features/dog/constants/dog-profile";
 import { useDog } from "~/features/dog/hooks/use-dog";
 import { useUpdateDog } from "~/features/dog/hooks/use-update-dog";
 import { DogNameSchema } from "~/features/dog/schemas/dog-name-schema";
@@ -26,19 +25,17 @@ export function DogNameForm() {
           onError: () => {
             notifications.show({
               color: "red",
-              message: DOG_PROFILE_COPY.notification.profileSaveErrorMessage,
-              title: DOG_PROFILE_COPY.notification.errorTitle,
+              message: "犬プロフィールの保存に失敗しました",
+              title: "エラー",
             });
           },
           onSuccess: () => {
             notifications.show({
               color: "green",
               message: isCreating
-                ? DOG_PROFILE_COPY.notification.profileCreatedMessage(output.name)
-                : DOG_PROFILE_COPY.notification.profileUpdatedMessage(output.name),
-              title: isCreating
-                ? DOG_PROFILE_COPY.notification.profileCreatedTitle
-                : DOG_PROFILE_COPY.notification.profileUpdatedTitle,
+                ? `犬プロフィールを「${output.name}」で作成しました`
+                : `名前を「${output.name}」に変更しました`,
+              title: isCreating ? "作成しました" : "変更しました",
             });
           },
         });
@@ -51,7 +48,7 @@ export function DogNameForm() {
               {...field.props}
               disabled={dogNameForm.isSubmitting}
               error={field.errors?.[0]}
-              label={DOG_PAGE_COPY.sections.name}
+              label="犬の名前"
               value={field.input}
             />
           )}
@@ -64,7 +61,7 @@ export function DogNameForm() {
           style={ACCENT_SOLID_STYLE.good}
           type="submit"
         >
-          {isCreating ? DOG_PROFILE_COPY.actions.create : DOG_PROFILE_COPY.actions.save}
+          {isCreating ? "作成する" : "保存する"}
         </Button>
       </Stack>
     </Form>
@@ -75,14 +72,9 @@ export function DogNameFormFallback() {
   return (
     <Shimmer loading>
       <Stack gap="md">
-        <TextInput
-          disabled
-          label={DOG_PAGE_COPY.sections.name}
-          placeholder={DOG_PAGE_COPY.sections.name}
-          value=""
-        />
+        <TextInput disabled label="犬の名前" placeholder="犬の名前" value="" />
         <Button className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100">
-          {DOG_PROFILE_COPY.actions.create}
+          作成する
         </Button>
       </Stack>
     </Shimmer>

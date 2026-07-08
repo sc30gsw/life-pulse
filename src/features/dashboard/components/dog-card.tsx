@@ -8,8 +8,9 @@ import { GlowCard } from "~/components/glow-card";
 import { DogCareRow } from "~/features/dashboard/components/dog-care-row";
 import { DogHistoryButton } from "~/features/dashboard/components/dog-history-modal";
 import { useDashboardDog } from "~/features/dashboard/hooks/use-dashboard-dog";
-import { DOG_PROFILE_COPY, DOG_TASK_COPY } from "~/features/dog/constants/dog-profile";
 import { ACCENT_CLASSES, ACCENT_SOLID_STYLE, ACCENT_VARS } from "~/types/dashboard";
+
+const FALLBACK_TASK_NAMES = ["朝散歩", "朝ごはん", "薬", "トイレ"] as const;
 
 export function DogCard() {
   const { dogCare, dogFlashRef, dogImageUrl, dogName, hasDog, onToggleDogCare } = useDashboardDog();
@@ -27,10 +28,10 @@ export function DogCard() {
           icon={<IconDog size={48} />}
           title={
             <Text size="xl" fw={600} c="coral">
-              {DOG_PROFILE_COPY.missing.title}
+              犬プロフィール未作成
             </Text>
           }
-          description={DOG_PROFILE_COPY.missing.dashboardDescription}
+          description="犬の管理画面でプロフィールを作成してください。"
         >
           <EmptyState.Actions>
             <Button
@@ -39,7 +40,7 @@ export function DogCard() {
               to="/dog"
               style={ACCENT_SOLID_STYLE.coral}
             >
-              {DOG_PROFILE_COPY.navigation.manage}
+              犬の管理へ
             </Button>
           </EmptyState.Actions>
         </EmptyState>
@@ -76,7 +77,7 @@ export function DogCard() {
               c={ACCENT_VARS.faint}
               style={{ letterSpacing: "0.13em" }}
             >
-              {DOG_PROFILE_COPY.todayCare}
+              今日のケア
             </Text>
           </Stack>
         </Group>
@@ -85,13 +86,11 @@ export function DogCard() {
             variant="outline"
             className={cn(pendingAccent.border, pendingAccent.bg, pendingAccent.text)}
           >
-            {pendingCount > 0
-              ? DOG_TASK_COPY.dashboard.pendingCountLabel(pendingCount)
-              : DOG_TASK_COPY.dashboard.allDoneLabel}
+            {pendingCount > 0 ? `未実施 ${pendingCount} 件` : "すべて完了"}
           </Badge>
           <DogHistoryButton />
           <Button
-            aria-label={DOG_TASK_COPY.dashboard.manageAriaLabel}
+            aria-label="犬の管理"
             className="border-bd-2 text-tx transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
             component={Link}
             leftSection={<IconSettings size={14} />}
@@ -100,7 +99,7 @@ export function DogCard() {
             type="button"
             variant="outline"
           >
-            {DOG_TASK_COPY.dashboard.manageLabel}
+            管理
           </Button>
         </Group>
       </Group>
@@ -124,29 +123,23 @@ export function DogCardFallback() {
       >
         <Group justify="space-between" mb="md">
           <Group gap={11}>
-            <Avatar
-              alt={DOG_PROFILE_COPY.fallbackName}
-              className="border-coral border"
-              name={DOG_PROFILE_COPY.fallbackName}
-              radius="xl"
-              size={34}
-            />
+            <Avatar alt="犬" className="border-coral border" name="犬" radius="xl" size={34} />
             <Stack gap={0}>
               <Text size="sm" fw={600}>
-                {DOG_PROFILE_COPY.fallbackName}
+                犬
               </Text>
               <Text size="10.5px" fw={600} tt="uppercase" c={ACCENT_VARS.faint}>
-                {DOG_PROFILE_COPY.todayCare}
+                今日のケア
               </Text>
             </Stack>
           </Group>
           <Badge variant="outline" className="border-coral bg-coral/16 text-coral">
-            {DOG_TASK_COPY.dashboard.fallbackPendingLabel}
+            未実施 3 件
           </Badge>
         </Group>
 
         <Stack gap={8}>
-          {DOG_TASK_COPY.dashboard.fallbackTaskNames.map((label) => (
+          {FALLBACK_TASK_NAMES.map((label) => (
             <Group
               key={label}
               className="border-bd bg-panel-2 rounded-xl border px-3.5 py-2.5"
@@ -157,7 +150,7 @@ export function DogCardFallback() {
                 {label}
               </Text>
               <Text size="xs" c="dimmed" className="ml-auto">
-                {DOG_TASK_COPY.dashboard.incompleteLabel}
+                未
               </Text>
             </Group>
           ))}

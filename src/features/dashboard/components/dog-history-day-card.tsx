@@ -4,7 +4,6 @@ import type { FunctionReturnType } from "convex/server";
 import { api } from "~/../convex/_generated/api";
 import { GlowCard } from "~/components/glow-card";
 import { formatClockTime } from "~/features/dashboard/utils/format";
-import { DOG_TASK_COPY } from "~/features/dog/constants/dog-profile";
 
 type DogHistoryDay = FunctionReturnType<typeof api.queries.dog.history.history>["days"][number];
 
@@ -21,7 +20,7 @@ export function DogHistoryDayCard({ day }: Record<"day", DogHistoryDay>) {
             {day.dateJst}
           </Text>
           <Badge variant="outline" className="border-coral bg-coral/16 text-coral">
-            {DOG_TASK_COPY.history.eventCount(day.events.length)}
+            {day.events.length} 件
           </Badge>
         </Group>
         <Stack gap={6}>

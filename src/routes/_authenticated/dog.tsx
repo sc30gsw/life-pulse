@@ -10,7 +10,6 @@ import {
 } from "~/features/dog/components/dog-image-uploader";
 import { DogNameForm, DogNameFormFallback } from "~/features/dog/components/dog-name-form";
 import { DogTaskList, DogTaskListFallback } from "~/features/dog/components/dog-task-list";
-import { DOG_PAGE_COPY } from "~/features/dog/constants/dog-profile";
 import { ACCENT_VARS } from "~/types/dashboard";
 
 export const Route = createFileRoute("/_authenticated/dog")({
@@ -40,7 +39,7 @@ function DogPage() {
       <Group component="header" wrap="wrap" gap="md" align="center" mb="lg">
         <Stack gap={0} mr="auto">
           <Text className="lp-brandtext" component="h1" fw={700} size="lg" m={0}>
-            {DOG_PAGE_COPY.title}
+            犬の管理
           </Text>
           <Text
             size="10.5px"
@@ -49,7 +48,7 @@ function DogPage() {
             c={ACCENT_VARS.faint}
             style={{ letterSpacing: "0.13em" }}
           >
-            {DOG_PAGE_COPY.subtitle}
+            Dog Profile & Care Tasks
           </Text>
         </Stack>
       </Group>
@@ -61,7 +60,7 @@ function DogPage() {
             p="lg"
             radius={18}
           >
-            <SectionLabel label={DOG_PAGE_COPY.sections.name} />
+            <SectionLabel label="犬の名前" />
             <Suspense fallback={<DogNameFormFallback />}>
               <DogNameForm />
             </Suspense>
@@ -72,7 +71,7 @@ function DogPage() {
             p="lg"
             radius={18}
           >
-            <SectionLabel label={DOG_PAGE_COPY.sections.image} />
+            <SectionLabel label="犬の写真" />
             <Suspense fallback={<DogImageUploaderFallback />}>
               <DogImageUploader />
             </Suspense>
@@ -84,7 +83,7 @@ function DogPage() {
           p="lg"
           radius={18}
         >
-          <SectionLabel label={DOG_PAGE_COPY.sections.tasks} />
+          <SectionLabel label="お世話タスク管理" />
           <Stack gap="md">
             <AddDogTaskForm />
             <Suspense fallback={<DogTaskListFallback />}>

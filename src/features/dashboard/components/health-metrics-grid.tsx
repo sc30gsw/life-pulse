@@ -6,11 +6,7 @@ import { Link } from "@tanstack/react-router";
 
 import { GlowCard } from "~/components/glow-card";
 import { RingMetricCard, TextMetricCard } from "~/features/dashboard/components/health-metric-card";
-import {
-  DASHBOARD_HEALTH_COPY,
-  DASHBOARD_HEALTH_FALLBACK_VALUE,
-  DASHBOARD_HEALTH_METRICS,
-} from "~/features/dashboard/constants/health-metrics";
+import { DASHBOARD_HEALTH_METRICS } from "~/features/dashboard/constants/health-metrics";
 import { useDashboardHealth } from "~/features/dashboard/hooks/use-dashboard-health";
 import { useRequestGarminSync } from "~/features/health/hooks/use-request-garmin-sync";
 import { ACCENT_SOLID_STYLE, ACCENT_VARS, HEALTH_SOURCE_LABELS } from "~/types/dashboard";
@@ -27,15 +23,15 @@ export function HealthMetricsGrid() {
         onError: () => {
           notifications.show({
             color: "red",
-            message: DASHBOARD_HEALTH_COPY.notification.syncErrorMessage,
-            title: DASHBOARD_HEALTH_COPY.notification.errorTitle,
+            message: "同期のリクエストに失敗しました",
+            title: "エラー",
           });
         },
         onSuccess: () => {
           notifications.show({
             color: "green",
-            message: DASHBOARD_HEALTH_COPY.notification.syncSuccessMessage,
-            title: DASHBOARD_HEALTH_COPY.notification.syncSuccessTitle,
+            message: "Garminとの同期をリクエストしました",
+            title: "同期を開始しました",
           });
         },
       },
@@ -57,15 +53,15 @@ export function HealthMetricsGrid() {
             c={ACCENT_VARS.faint}
             style={{ letterSpacing: "0.13em" }}
           >
-            {DASHBOARD_HEALTH_COPY.title}
+            健康メトリクス · Garmin
           </Text>
         </Group>
         <Stack gap="xs">
           <Text size="sm" fw={600}>
-            {DASHBOARD_HEALTH_COPY.empty.title}
+            今日のデータはまだありません
           </Text>
           <Text size="xs" c="dimmed">
-            {DASHBOARD_HEALTH_COPY.empty.description}
+            Garminを同期すると、睡眠・Body Battery・歩数をここに表示します。
           </Text>
           <Text size="xs" c="dimmed">
             {dateLabel}
@@ -81,7 +77,7 @@ export function HealthMetricsGrid() {
               style={ACCENT_SOLID_STYLE.blue}
               type="button"
             >
-              {DASHBOARD_HEALTH_COPY.actions.syncGarmin}
+              Garminを同期
             </Button>
             <Button
               className="border-bd-2 text-tx transition hover:brightness-110 active:brightness-95"
@@ -92,7 +88,7 @@ export function HealthMetricsGrid() {
               type="button"
               variant="outline"
             >
-              {DASHBOARD_HEALTH_COPY.actions.details}
+              詳細
             </Button>
           </Group>
         </Stack>
@@ -122,7 +118,7 @@ export function HealthMetricsGrid() {
           c={ACCENT_VARS.faint}
           style={{ letterSpacing: "0.13em" }}
         >
-          {DASHBOARD_HEALTH_COPY.title}
+          健康メトリクス · Garmin
         </Text>
         <Text size="xs" c="dimmed">
           {HEALTH_SOURCE_LABELS[metrics.source]} · {dateLabel}
@@ -131,20 +127,20 @@ export function HealthMetricsGrid() {
       <Group wrap="wrap" gap="md">
         <RingMetricCard
           accentColor={ACCENT_VARS[DASHBOARD_HEALTH_METRICS[0].accent]}
-          label={DASHBOARD_HEALTH_METRICS[0].label}
-          subLabel={DASHBOARD_HEALTH_METRICS[0].subLabel}
+          label="Body Battery"
+          subLabel="起床時"
           value={bodyBattery}
         />
 
         <RingMetricCard
           accentColor={ACCENT_VARS[DASHBOARD_HEALTH_METRICS[1].accent]}
-          label={DASHBOARD_HEALTH_METRICS[1].label}
+          label="睡眠スコア"
           subLabel={sleepHoursLabel}
           value={sleepScore}
         />
 
         <TextMetricCard
-          label={DASHBOARD_HEALTH_METRICS[2].label}
+          label="HRV"
           value={
             <>
               {hrv}
@@ -156,7 +152,7 @@ export function HealthMetricsGrid() {
           }
           subLabel={
             <>
-              {DASHBOARD_HEALTH_COPY.status.restingHeartRate}{" "}
+              安静時心拍{" "}
               <Text component="span" c="var(--tx)">
                 {restingHr}
               </Text>
@@ -165,13 +161,13 @@ export function HealthMetricsGrid() {
         />
 
         <TextMetricCard
-          label={DASHBOARD_HEALTH_METRICS[3].label}
+          label="歩数"
           value={steps.toLocaleString("en-US")}
           subLabel={
             <>
-              {DASHBOARD_HEALTH_COPY.status.hiitLabel}{" "}
+              HIIT{" "}
               <Text component="span" c={ACCENT_VARS.good}>
-                {DASHBOARD_HEALTH_COPY.status.hiitWeeklyAchievement}
+                週2 達成
               </Text>
             </>
           }
@@ -193,23 +189,17 @@ export function HealthMetricsGridFallback() {
             c={ACCENT_VARS.faint}
             style={{ letterSpacing: "0.13em" }}
           >
-            {DASHBOARD_HEALTH_COPY.title}
+            健康メトリクス · Garmin
           </Text>
           <Text size="xs" c="dimmed">
-            {DASHBOARD_HEALTH_COPY.fallbackSource}
+            source: garmin
           </Text>
         </Group>
         <Group wrap="wrap" gap="md">
-          {DASHBOARD_HEALTH_METRICS.map((metric) => (
-            <TextMetricCard
-              key={metric.id}
-              label={metric.label}
-              subLabel={
-                "subLabel" in metric ? metric.subLabel : DASHBOARD_HEALTH_METRICS[0].subLabel
-              }
-              value={DASHBOARD_HEALTH_FALLBACK_VALUE}
-            />
-          ))}
+          <TextMetricCard label="Body Battery" subLabel="起床時" value="88" />
+          <TextMetricCard label="睡眠スコア" subLabel="起床時" value="88" />
+          <TextMetricCard label="HRV" subLabel="起床時" value="88" />
+          <TextMetricCard label="歩数" subLabel="起床時" value="88" />
         </Group>
       </Paper>
     </Shimmer>

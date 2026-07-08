@@ -1,9 +1,7 @@
 import * as v from "valibot";
 
-import { DOG_TASK_COPY } from "~/features/dog/constants/dog-profile";
-
 export const DogTaskNameSchema = v.object({
-  name: v.pipe(v.string(), v.trim(), v.minLength(1, DOG_TASK_COPY.validation.nameRequired)),
+  name: v.pipe(v.string(), v.trim(), v.minLength(1, "タスク名を入力してください")),
 });
 
 export type DogTaskNameInput = v.InferOutput<typeof DogTaskNameSchema>;

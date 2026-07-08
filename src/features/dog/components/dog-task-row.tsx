@@ -12,7 +12,6 @@ import { cn } from "cnfast";
 import { useState } from "react";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
-import { DOG_TASK_COPY } from "~/features/dog/constants/dog-profile";
 import { useDogTasks } from "~/features/dog/hooks/use-dog-tasks";
 import { DogTaskNameSchema } from "~/features/dog/schemas/dog-task-name-schema";
 import { ACCENT_CLASSES } from "~/types/dashboard";
@@ -60,7 +59,7 @@ export function DogTaskRow({
             {(field) => (
               <TextInput
                 {...field.props}
-                aria-label={DOG_TASK_COPY.aria.nameInput}
+                aria-label="タスク名"
                 className="flex-1"
                 error={field.errors?.[0]}
                 onKeyDown={(event) => {
@@ -74,7 +73,7 @@ export function DogTaskRow({
             )}
           </Field>
           <ActionIcon
-            aria-label={DOG_TASK_COPY.actions.save}
+            aria-label="保存する"
             className="border-bd bg-inset transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
             type="submit"
             variant="default"
@@ -82,7 +81,7 @@ export function DogTaskRow({
             <IconCheck size={16} />
           </ActionIcon>
           <ActionIcon
-            aria-label={DOG_TASK_COPY.actions.cancel}
+            aria-label="キャンセル"
             className="border-bd bg-inset transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
             onClick={() => setIsEditing(false)}
             type="button"
@@ -102,7 +101,7 @@ export function DogTaskRow({
       </Text>
       <Group gap={4} wrap="nowrap">
         <ActionIcon
-          aria-label={DOG_TASK_COPY.actions.moveUp}
+          aria-label="上へ移動"
           className="border-bd bg-inset transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
           disabled={isFirst}
           onClick={() => onMove(task._id, "up")}
@@ -111,7 +110,7 @@ export function DogTaskRow({
           <IconChevronUp size={16} />
         </ActionIcon>
         <ActionIcon
-          aria-label={DOG_TASK_COPY.actions.moveDown}
+          aria-label="下へ移動"
           className="border-bd bg-inset transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
           disabled={isLast}
           onClick={() => onMove(task._id, "down")}
@@ -120,7 +119,7 @@ export function DogTaskRow({
           <IconChevronDown size={16} />
         </ActionIcon>
         <ActionIcon
-          aria-label={DOG_TASK_COPY.actions.rename}
+          aria-label="名前を変更"
           className="border-bd bg-inset transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
           onClick={startEditing}
           variant="default"
@@ -128,7 +127,7 @@ export function DogTaskRow({
           <IconPencil size={16} />
         </ActionIcon>
         <ActionIcon
-          aria-label={DOG_TASK_COPY.actions.confirmDelete}
+          aria-label="削除"
           className={cn(
             ACCENT_CLASSES.coral.border,
             ACCENT_CLASSES.coral.bg,

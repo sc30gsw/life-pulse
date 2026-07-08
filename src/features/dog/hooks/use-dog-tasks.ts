@@ -4,13 +4,12 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
 import { dogTasksQuery } from "~/features/dog/api/dog-tasks-query";
-import { DOG_TASK_COPY } from "~/features/dog/constants/dog-profile";
 import { useArchiveDogTask } from "~/features/dog/hooks/use-archive-dog-task";
 import { useMoveDogTask } from "~/features/dog/hooks/use-move-dog-task";
 import { useRenameDogTask } from "~/features/dog/hooks/use-rename-dog-task";
 
 function showError(message: string) {
-  notifications.show({ color: "red", message, title: DOG_TASK_COPY.notification.errorTitle });
+  notifications.show({ color: "red", message, title: "エラー" });
 }
 
 function showSuccess(title: string, message: string) {
@@ -28,22 +27,16 @@ export function useDogTasks() {
       cancelProps: { variant: "subtle" },
       centered: true,
       confirmProps: { color: "red" },
-      labels: {
-        cancel: DOG_TASK_COPY.actions.undoDelete,
-        confirm: DOG_TASK_COPY.actions.confirmDelete,
-      },
+      labels: { cancel: "戻る", confirm: "削除する" },
       onConfirm: () => {
         archiveDogTask.mutate(
           { taskId: task._id },
           {
             onError: () => {
-              showError(DOG_TASK_COPY.notification.archiveErrorMessage);
+              showError("タスクの削除に失敗しました");
             },
             onSuccess: () => {
-              showSuccess(
-                DOG_TASK_COPY.notification.archivedTitle,
-                DOG_TASK_COPY.notification.archivedMessage(task.name),
-              );
+              showSuccess("削除しました", `「${task.name}」を削除しました`);
             },
           },
         );
@@ -58,7 +51,7 @@ export function useDogTasks() {
         header: { backgroundColor: "var(--panel)", color: "var(--tx)" },
         title: { color: "var(--tx)", fontWeight: 700 },
       },
-      title: DOG_TASK_COPY.notification.archiveConfirmTitle(task.name),
+      title: `「${task.name}」を削除しますか？`,
     });
   }
 
@@ -67,7 +60,7 @@ export function useDogTasks() {
       { direction, taskId },
       {
         onError: () => {
-          showError(DOG_TASK_COPY.notification.moveErrorMessage);
+          showError("並び替えに失敗しました");
         },
       },
     );
@@ -78,13 +71,10 @@ export function useDogTasks() {
       { name, taskId },
       {
         onError: () => {
-          showError(DOG_TASK_COPY.notification.renameErrorMessage);
+          showError("タスク名の変更に失敗しました");
         },
         onSuccess: () => {
-          showSuccess(
-            DOG_TASK_COPY.notification.renamedTitle,
-            DOG_TASK_COPY.notification.renamedMessage,
-          );
+          showSuccess("変更しました", "タスク名を変更しました");
         },
       },
     );

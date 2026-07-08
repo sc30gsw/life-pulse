@@ -13,7 +13,6 @@ import { cn } from "cnfast";
 import type { ComponentProps } from "react";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
-import { STUDY_BLOCK_LIST_COPY } from "~/features/study/constants/block-list";
 import {
   ACCENT_CLASSES,
   ACCENT_SOLID_STYLE,
@@ -156,7 +155,10 @@ function PlannedBlockActions({
       >
         この枠で開始
       </Button>
-      <Tooltip label={STUDY_BLOCK_LIST_COPY.erodeTooltip} styles={TOOLTIP_STYLES}>
+      <Tooltip
+        label="予定していた学習枠が仕事・疲労・割り込みで使えなくなったことを記録します"
+        styles={TOOLTIP_STYLES}
+      >
         <Button
           className={cn(
             ACCENT_CLASSES.coral.border,
