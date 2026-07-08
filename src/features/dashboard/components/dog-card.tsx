@@ -16,8 +16,10 @@ import { Shimmer } from "@shimmer-from-structure/react";
 import { IconDog } from "@tabler/icons-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { cn } from "cnfast";
-import { Suspense, type ComponentProps } from "react";
+import type { FunctionReturnType } from "convex/server";
+import { Suspense, useState, type ComponentProps } from "react";
 
+import { api } from "~/../convex/_generated/api";
 import { GlowCard } from "~/components/glow-card";
 import { dogHistoryQuery } from "~/features/dashboard/api/dog-history-query";
 import { useDashboardDog } from "~/features/dashboard/hooks/use-dashboard-dog";
@@ -153,7 +155,8 @@ function DogHistoryModalContent() {
 
 function DogHistoryList() {
   const { fromDateJst, toDateJst } = pastDateJstRange(todayJst(), HISTORY_RANGE_DAYS);
-  const history = useSuspenseQuery(dogHistoryQuery(fromDateJst, toDateJst)).data;
+  const [showOlderDays, setShowOlderDays] = useState(false);
+  const history = useSuspenseQuery(dogHistoryQuery(fromDateJst, toDateJst, showOlderDays)).data;
 
   if (history.days.length === 0) {
     return (
@@ -176,23 +179,81 @@ function DogHistoryList() {
   }
 
   return (
-    <Stack gap="md">
-      {history.days.map((day) => (
-        <Stack gap={6} key={day.dateJst}>
-          <Text fw={600} size="sm">
+    <Stack gap="md" className="max-h-[70vh] overflow-y-auto pr-1">
+      <GlowCard
+        p="sm"
+        radius={14}
+        className="border-bd bg-inset shadow-card relative overflow-hidden border"
+      >
+        <Group justify="space-between" gap="xs">
+          <Stack gap={2}>
+            <Text size="10.5px" fw={700} tt="uppercase" c={ACCENT_VARS.faint}>
+              直近7日
+            </Text>
+            <Text size="sm" fw={700}>
+              {history.summary.totalDayCount} 日分 · {history.summary.eventCount} 件
+            </Text>
+          </Stack>
+          {history.summary.hasOlderDays ? (
+            <Button
+              className="border-bd-2 text-tx"
+              onClick={() => setShowOlderDays((current) => !current)}
+              size="xs"
+              type="button"
+              variant="outline"
+            >
+              {showOlderDays ? "直近だけ表示" : `過去 ${history.summary.olderDayCount} 日を表示`}
+            </Button>
+          ) : null}
+        </Group>
+      </GlowCard>
+
+      <Stack gap="sm">
+        {history.days.map((day) => (
+          <DogHistoryDayCard day={day} key={day.dateJst} />
+        ))}
+      </Stack>
+    </Stack>
+  );
+}
+
+type DogHistoryDay = FunctionReturnType<typeof api.queries.dog.history.history>["days"][number];
+
+function DogHistoryDayCard({ day }: Record<"day", DogHistoryDay>) {
+  return (
+    <GlowCard
+      p="sm"
+      radius={14}
+      className="border-bd bg-panel-2 shadow-card relative overflow-hidden border"
+    >
+      <Stack gap={8}>
+        <Group justify="space-between" align="center">
+          <Text fw={700} size="sm">
             {day.dateJst}
           </Text>
+          <Badge variant="outline" className="border-coral bg-coral/16 text-coral">
+            {day.events.length} 件
+          </Badge>
+        </Group>
+        <Stack gap={6}>
           {day.events.map((event) => (
-            <Group justify="space-between" key={event.id}>
-              <Text size="sm">{DOG_EVENT_LABELS[event.kind]}</Text>
-              <Text c="dimmed" size="xs">
+            <Group
+              justify="space-between"
+              key={event.id}
+              className="border-bd bg-inset rounded-lg border px-3 py-2"
+              wrap="nowrap"
+            >
+              <Text size="sm" fw={600} className="text-tx">
+                {DOG_EVENT_LABELS[event.kind]}
+              </Text>
+              <Text c="dimmed" size="xs" className="shrink-0">
                 {event.byDisplayName} · {formatClockTime(event.at)}
               </Text>
             </Group>
           ))}
         </Stack>
-      ))}
-    </Stack>
+      </Stack>
+    </GlowCard>
   );
 }
 

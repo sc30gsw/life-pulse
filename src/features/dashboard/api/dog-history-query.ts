@@ -8,6 +8,11 @@ type HistoryQueryArgs = FunctionArgs<typeof api.queries.dog.history.history>;
 export function dogHistoryQuery(
   fromDateJst: HistoryQueryArgs["fromDateJst"],
   toDateJst: HistoryQueryArgs["toDateJst"],
+  includeOlderDays: HistoryQueryArgs["includeOlderDays"] = false,
 ) {
-  return convexQuery(api.queries.dog.history.history, { fromDateJst, toDateJst });
+  return convexQuery(api.queries.dog.history.history, {
+    fromDateJst,
+    includeOlderDays,
+    toDateJst,
+  });
 }

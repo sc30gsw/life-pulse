@@ -5,7 +5,8 @@ import { expect, test, vi } from "vite-plus/test";
 import { UserMenu } from "~/features/auth/components/user-menu";
 import { renderWithMantine } from "~/test-utils";
 
-const { navigateMock, signOutMock } = vi.hoisted(() => ({
+const { hookState, navigateMock, signOutMock } = vi.hoisted(() => ({
+  hookState: { viewerRole: "self" as "partner" | "self" },
   navigateMock: vi.fn(),
   signOutMock: vi.fn().mockResolvedValue(undefined),
 }));
@@ -28,17 +29,21 @@ vi.mock("@tanstack/react-router", async (importOriginal) => ({
 
 vi.mock("~/features/auth/hooks/use-viewer", () => ({
   useViewer: () => ({
-    data: { displayName: "テスト太郎", role: "self" },
+    data: { displayName: "テスト太郎", role: hookState.viewerRole },
   }),
 }));
 
 test("shows the viewer's display name", () => {
+  hookState.viewerRole = "self";
+
   const { getByText } = renderWithMantine(<UserMenu />);
 
   expect(getByText("テスト太郎")).toBeDefined();
 });
 
 test("offers a /study navigation item in the dropdown", async () => {
+  hookState.viewerRole = "self";
+
   const user = userEvent.setup();
   const { getByRole } = renderWithMantine(<UserMenu />);
 
@@ -49,6 +54,8 @@ test("offers a /study navigation item in the dropdown", async () => {
 });
 
 test("offers a /fasting navigation item in the dropdown", async () => {
+  hookState.viewerRole = "self";
+
   const user = userEvent.setup();
   const { getByRole } = renderWithMantine(<UserMenu />);
 
@@ -58,7 +65,36 @@ test("offers a /fasting navigation item in the dropdown", async () => {
   expect(fastingItem.getAttribute("href")).toBe("/fasting");
 });
 
+test("offers /health and /settings navigation items for the self viewer", async () => {
+  hookState.viewerRole = "self";
+
+  const user = userEvent.setup();
+  const { getByRole } = renderWithMantine(<UserMenu />);
+
+  await user.click(getByRole("button"));
+
+  const healthItem = getByRole("menuitem", { hidden: true, name: /健康/ });
+  expect(healthItem.getAttribute("href")).toBe("/health");
+
+  const settingsItem = getByRole("menuitem", { hidden: true, name: /設定/ });
+  expect(settingsItem.getAttribute("href")).toBe("/settings");
+});
+
+test("hides /health and /settings navigation items for the partner viewer", async () => {
+  hookState.viewerRole = "partner";
+
+  const user = userEvent.setup();
+  const { getByRole, queryByRole } = renderWithMantine(<UserMenu />);
+
+  await user.click(getByRole("button"));
+
+  expect(queryByRole("menuitem", { hidden: true, name: /健康/ })).toBeNull();
+  expect(queryByRole("menuitem", { hidden: true, name: /設定/ })).toBeNull();
+});
+
 test("signs out and navigates to /login when the logout item is clicked", async () => {
+  hookState.viewerRole = "self";
+
   const user = userEvent.setup();
   const { getByRole } = renderWithMantine(<UserMenu />);
 
