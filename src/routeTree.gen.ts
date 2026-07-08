@@ -15,6 +15,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedStudyRouteImport } from './routes/_authenticated/study'
 import { Route as AuthenticatedFastingRouteImport } from './routes/_authenticated/fasting'
+import { Route as AuthenticatedDogRouteImport } from './routes/_authenticated/dog'
 import { Route as AuthenticatedSelfRouteImport } from './routes/_authenticated/_self'
 import { Route as AuthenticatedSelfSettingsRouteImport } from './routes/_authenticated/_self/settings'
 import { Route as AuthenticatedSelfInsightsRouteImport } from './routes/_authenticated/_self/insights'
@@ -49,6 +50,11 @@ const AuthenticatedFastingRoute = AuthenticatedFastingRouteImport.update({
   path: '/fasting',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedDogRoute = AuthenticatedDogRouteImport.update({
+  id: '/dog',
+  path: '/dog',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedSelfRoute = AuthenticatedSelfRouteImport.update({
   id: '/_self',
   getParentRoute: () => AuthenticatedRoute,
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/dog': typeof AuthenticatedDogRoute
   '/fasting': typeof AuthenticatedFastingRoute
   '/study': typeof AuthenticatedStudyRoute
   '/health': typeof AuthenticatedSelfHealthRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/': typeof AuthenticatedIndexRoute
+  '/dog': typeof AuthenticatedDogRoute
   '/fasting': typeof AuthenticatedFastingRoute
   '/study': typeof AuthenticatedStudyRoute
   '/health': typeof AuthenticatedSelfHealthRoute
@@ -97,6 +105,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/_authenticated/_self': typeof AuthenticatedSelfRouteWithChildren
+  '/_authenticated/dog': typeof AuthenticatedDogRoute
   '/_authenticated/fasting': typeof AuthenticatedFastingRoute
   '/_authenticated/study': typeof AuthenticatedStudyRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/signup'
+    | '/dog'
     | '/fasting'
     | '/study'
     | '/health'
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/'
+    | '/dog'
     | '/fasting'
     | '/study'
     | '/health'
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/_authenticated/_self'
+    | '/_authenticated/dog'
     | '/_authenticated/fasting'
     | '/_authenticated/study'
     | '/_authenticated/'
@@ -189,6 +201,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFastingRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/dog': {
+      id: '/_authenticated/dog'
+      path: '/dog'
+      fullPath: '/dog'
+      preLoaderRoute: typeof AuthenticatedDogRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/_self': {
       id: '/_authenticated/_self'
       path: ''
@@ -237,6 +256,7 @@ const AuthenticatedSelfRouteWithChildren =
 
 interface AuthenticatedRouteChildren {
   AuthenticatedSelfRoute: typeof AuthenticatedSelfRouteWithChildren
+  AuthenticatedDogRoute: typeof AuthenticatedDogRoute
   AuthenticatedFastingRoute: typeof AuthenticatedFastingRoute
   AuthenticatedStudyRoute: typeof AuthenticatedStudyRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
@@ -244,6 +264,7 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSelfRoute: AuthenticatedSelfRouteWithChildren,
+  AuthenticatedDogRoute: AuthenticatedDogRoute,
   AuthenticatedFastingRoute: AuthenticatedFastingRoute,
   AuthenticatedStudyRoute: AuthenticatedStudyRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
