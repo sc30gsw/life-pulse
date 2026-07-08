@@ -7,7 +7,6 @@ import {
   formatClockDate,
   formatClockDateCompact,
   formatClockTime,
-  formatClockTimeMinutes,
   formatElapsedClock,
   formatMinutesAsHm,
   formatRelativeTime,
@@ -92,9 +91,9 @@ test("formatClockTime and formatClockDate format against Asia/Tokyo", () => {
   expect(formatClockDate(nowMs)).toBe("2026/7/7(火)");
 });
 
-test("formatClockTimeMinutes drops seconds for the once-a-minute board clock", () => {
+test("formatClockTime includes seconds for the board header clock", () => {
   const nowMs = Date.UTC(2026, 6, 7, 3, 15, 47);
-  expect(formatClockTimeMinutes(nowMs)).toBe("12:15");
+  expect(formatClockTime(nowMs)).toBe("12:15:47");
 });
 
 test("formatClockDateCompact drops the year for narrow viewports", () => {

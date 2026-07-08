@@ -37,7 +37,7 @@ vi.mock("~/features/dashboard/hooks/use-board-clock", () => ({
   useBoardClock: () => ({
     clockDateLabel: "7月7日(火)",
     clockDateLabelCompact: "7/7(火)",
-    clockTime: "12:15",
+    clockTime: "12:15:47",
     dateJst: "2026-07-07",
     nowMs: 0,
   }),
@@ -59,7 +59,7 @@ beforeEach(() => {
 test("renders the clock time and date", () => {
   const { getByText } = renderWithMantine(<BoardHeader />);
 
-  expect(getByText("12:15")).toBeDefined();
+  expect(getByText("12:15:47")).toBeDefined();
   expect(getByText("7月7日(火) · JST")).toBeDefined();
   expect(getByText("7/7(火) · JST")).toBeDefined();
 });

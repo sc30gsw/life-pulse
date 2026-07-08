@@ -35,13 +35,13 @@ test("returns the shared board clock and date key", () => {
   expect(result.current.clockDateLabelCompact).toBeDefined();
 });
 
-test("updates nowMs and dateJst on the one-minute clock tick", () => {
+test("updates nowMs and dateJst on the one-second clock tick", () => {
   const { result } = renderHook(() => useBoardClock());
   toDateJstMock.mockReturnValue("2026-07-08");
-  vi.setSystemTime(FIXED_NOW + 60_000);
+  vi.setSystemTime(FIXED_NOW + 1_000);
 
   act(() => {
-    vi.advanceTimersByTime(60_000);
+    vi.advanceTimersByTime(1_000);
   });
 
   expect(result.current.nowMs).toBeGreaterThan(FIXED_NOW);

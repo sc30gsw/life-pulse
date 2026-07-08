@@ -80,12 +80,6 @@ export function formatClockTime(nowMs: number) {
   return dayjs(nowMs).tz("Asia/Tokyo").format("HH:mm:ss");
 }
 
-// Board header clock updates once a minute (display-only, CVX-14) — seconds would
-// read as stale between ticks, so this drops them instead of reusing formatClockTime.
-export function formatClockTimeMinutes(nowMs: number) {
-  return dayjs(nowMs).tz("Asia/Tokyo").format("HH:mm");
-}
-
 export function formatClockDate(nowMs: number) {
   return dayjs(nowMs).tz("Asia/Tokyo").format("YYYY/M/D(ddd)");
 }

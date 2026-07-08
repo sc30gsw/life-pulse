@@ -34,6 +34,7 @@ plan: [2026-07-07_01-live-board-wiring.md](./plans/2026-07-07_01-live-board-wiri
 - [x] FR-1.4 犬カード(当日ケア項目の済・未+実施者・時刻)
 - [x] FR-1.5 self / partner どちらでも同一内容を閲覧可能
 - [ ] FR-1.6 2 端末で <1s 反映のデモ検証 ⏳ 実装は W2 plan §7 分含め完了。**2 ブラウザ実機検証は未実施**(AC-1 ゲートで最終確認)
+- [x] FR-1.7 グローバルヘッダーの JST 時計を秒表示(`HH:mm:ss`)にする。表示専用 1 秒 tick で、サーバ値導出原則は維持
 
 ### FR-5 犬のクイックアクション【P0】
 
@@ -130,6 +131,7 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 ### 磨き込み・発表準備
 
 - [ ] UI 磨き込み・モバイル 375px 検証(NFR-2)
+- [x] グローバルヘッダー時計の秒表示(`src/features/dashboard/components/board-header.tsx` / `useBoardClock`)
 - [ ] デモ録画+ `docs/demo-script.md`(AC-5、NFR-6 のデモ失敗保険)
 - [ ] 本番デプロイ + 本番環境変数チェックリスト(spec §7)
 
