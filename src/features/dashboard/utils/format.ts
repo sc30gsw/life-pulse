@@ -69,7 +69,7 @@ export function deriveFastingElapsedMinutes(
 
 export function toDeclarationItems(blocks: Doc<"studyBlocks">[]) {
   return blocks.map((block) => ({
-    category: block.category,
+    categoryId: block.categoryId,
     plannedMinutes: block.plannedMinutes,
     startHm: block.startHm,
     status: block.status,

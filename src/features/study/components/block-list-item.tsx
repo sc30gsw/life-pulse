@@ -39,10 +39,13 @@ function categoryLabel(category: SessionCategory) {
   switch (category) {
     case "eikaiwa":
       return "英会話";
+
     case "other":
       return "その他";
+
     case "reading":
       return "読書";
+
     case "toeic":
       return "TOEIC";
   }
@@ -52,12 +55,16 @@ function declarationStatusLabel(status: DeclarationStatus) {
   switch (status) {
     case "declined":
       return "見送り";
+
     case "done":
       return "済";
+
     case "eroded":
       return "侵食";
+
     case "planned":
       return "予定";
+
     case "rescheduled":
       return "リスケ済";
   }
@@ -67,10 +74,13 @@ function erosionReasonLabel(reason: ErosionReason) {
   switch (reason) {
     case "fatigue":
       return "疲労";
+
     case "interruption":
       return "割り込み";
+
     case "other":
       return "その他";
+
     case "work":
       return "仕事";
   }

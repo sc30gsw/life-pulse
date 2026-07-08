@@ -1,8 +1,9 @@
 import { Box, Group, Progress, Stack, Text } from "@mantine/core";
 
 import type { useDashboardStudy } from "~/features/dashboard/hooks/use-dashboard-study";
+import { useStudyCategoriesQuery } from "~/features/study-categories/hooks/use-study-categories-query";
 import { DECLARATION_STATUS_ACCENT } from "~/features/study/constants/declaration-status-accent";
-import { ACCENT_VARS, type DeclarationStatus, type SessionCategory } from "~/types/dashboard";
+import { ACCENT_VARS, type DeclarationStatus } from "~/types/dashboard";
 
 type DeclarationCardProps = {
   actualMinutes: ReturnType<typeof useDashboardStudy>["declarationActualMinutes"];
@@ -10,22 +11,6 @@ type DeclarationCardProps = {
   declarations: ReturnType<typeof useDashboardStudy>["declarations"];
   totalMinutes: ReturnType<typeof useDashboardStudy>["declarationTotalMinutes"];
 };
-
-function categoryLabel(category: SessionCategory) {
-  switch (category) {
-    case "eikaiwa":
-      return "英会話";
-
-    case "other":
-      return "その他";
-
-    case "reading":
-      return "読書";
-
-    case "toeic":
-      return "TOEIC";
-  }
-}
 
 function declarationStatusLabel(status: DeclarationStatus) {
   switch (status) {
@@ -52,6 +37,8 @@ export function DeclarationCard({
   declarations,
   totalMinutes,
 }: DeclarationCardProps) {
+  const { categoryName } = useStudyCategoriesQuery();
+
   return (
     <Box className="flex min-w-0 flex-1 flex-col gap-2">
       <Group justify="space-between" align="baseline">
@@ -91,7 +78,7 @@ export function DeclarationCard({
           const accent = DECLARATION_STATUS_ACCENT[item.status];
 
           return (
-            <Group key={`${item.startHm}-${item.category}`} gap={8}>
+            <Group key={`${item.startHm}-${item.categoryId ?? "none"}`} gap={8}>
               <Box
                 className="h-1.5 w-1.5 flex-none rounded-full"
                 style={{ backgroundColor: ACCENT_VARS[accent] }}
@@ -99,7 +86,7 @@ export function DeclarationCard({
               <Text size="xs" c="dimmed">
                 {item.startHm}
               </Text>
-              <Text size="xs">{categoryLabel(item.category as SessionCategory)}</Text>
+              <Text size="xs">{categoryName(item.categoryId)}</Text>
               <Text size="11px" c={ACCENT_VARS[accent]} className="ml-auto">
                 {declarationStatusLabel(item.status)}
               </Text>

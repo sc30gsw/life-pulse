@@ -3,6 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { ConvexError } from "convex/values";
 
 import { dashboardStudyQuery } from "~/features/dashboard/api/dashboard-study-query";
+import type { Id } from "~/../convex/_generated/dataModel";
 import { useBoardClock } from "~/features/dashboard/hooks/use-board-clock";
 import { useCompleteSession } from "~/features/dashboard/hooks/use-complete-session";
 import { usePauseSession } from "~/features/dashboard/hooks/use-pause-session";
@@ -14,7 +15,7 @@ import {
   formatElapsedClock,
   toDeclarationItems,
 } from "~/features/dashboard/utils/format";
-import type { InterruptionReason, SessionCategory } from "~/types/dashboard";
+import type { InterruptionReason } from "~/types/dashboard";
 
 const MINUTE_MS = 60_000;
 
@@ -61,7 +62,7 @@ export function useDashboardStudy() {
       : [
           study.session._id,
           study.session.status,
-          study.session.category,
+          study.session.categoryId,
           study.session.startedAt,
           study.session.lastResumedAt ?? "",
           study.session.accumulatedMs,
@@ -70,11 +71,11 @@ export function useDashboardStudy() {
         ].join("|");
   const { flashRef: sessionFlashRef, suppressNextFlash } = useRemoteUpdateFlash(sessionFingerprint);
 
-  function onStartSession(category: SessionCategory, plannedMinutes?: number) {
+  function onStartSession(categoryId: Id<"studyCategories">, plannedMinutes?: number) {
     const releaseFlashSuppression = suppressNextFlash();
 
     startSession.mutate(
-      { category, dateJst, plannedMinutes },
+      { categoryId, dateJst, plannedMinutes },
       {
         onError: (error) => {
           releaseFlashSuppression();

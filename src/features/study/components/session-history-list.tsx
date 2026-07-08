@@ -29,10 +29,13 @@ function categoryLabel(category: SessionCategory) {
   switch (category) {
     case "eikaiwa":
       return "英会話";
+
     case "other":
       return "その他";
+
     case "reading":
       return "読書";
+
     case "toeic":
       return "TOEIC";
   }
@@ -42,10 +45,13 @@ function reasonLabel(reason: InterruptionReason) {
   switch (reason) {
     case "chore":
       return "家事";
+
     case "dog":
       return "犬";
+
     case "other":
       return "その他";
+
     case "work":
       return "仕事";
   }
@@ -55,10 +61,13 @@ function sessionStatusLabel(status: SessionStatus) {
   switch (status) {
     case "abandoned":
       return "放置終了";
+
     case "active":
       return "進行中";
+
     case "completed":
       return "完了";
+
     case "paused":
       return "中断中";
   }

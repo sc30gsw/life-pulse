@@ -1,6 +1,6 @@
 import * as v from "valibot";
 
-import { CATEGORY_VALUES, DATE_TIME_PATTERN } from "~/../convex/lib/domain";
+import { DATE_TIME_PATTERN } from "~/../convex/lib/domain";
 import { todayJst } from "~/utils/date-jst";
 
 function hasBothDates(input: { endAt: string | null; startAt: string | null }) {
@@ -9,7 +9,7 @@ function hasBothDates(input: { endAt: string | null; startAt: string | null }) {
 
 export const DeclareBlockSchema = v.pipe(
   v.object({
-    category: v.picklist(CATEGORY_VALUES),
+    categoryId: v.pipe(v.string(), v.minLength(1, "カテゴリを選択してください")),
     endAt: v.nullable(v.pipe(v.string(), v.regex(DATE_TIME_PATTERN, "終了日時を選択してください"))),
     startAt: v.nullable(
       v.pipe(v.string(), v.regex(DATE_TIME_PATTERN, "開始日時を選択してください")),
@@ -48,7 +48,7 @@ export const DeclareBlockSchema = v.pipe(
     ["endAt"],
   ),
   v.transform((input) => ({
-    category: input.category,
+    categoryId: input.categoryId,
     dateJst: input.startAt!.slice(0, 10),
     endHm: input.endAt!.slice(11, 16),
     startHm: input.startAt!.slice(11, 16),

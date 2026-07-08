@@ -4,15 +4,11 @@ import type { UseDisclosureReturnValue } from "@mantine/hooks";
 import { cn } from "cnfast";
 import type { ComponentProps } from "react";
 
-import { CATEGORY_VALUES } from "~/../convex/lib/domain";
 import type { useDashboardStudy } from "~/features/dashboard/hooks/use-dashboard-study";
 import { StartSessionSchema } from "~/features/dashboard/schemas/start-session-schema";
-import {
-  ACCENT_CLASSES,
-  ACCENT_SOLID_STYLE,
-  ACCENT_VARS,
-  type SessionCategory,
-} from "~/types/dashboard";
+import { CategoryRequiredPrompt } from "~/features/study-categories/components/category-required-prompt";
+import { useStudyCategoriesQuery } from "~/features/study-categories/hooks/use-study-categories-query";
+import { ACCENT_CLASSES, ACCENT_SOLID_STYLE, ACCENT_VARS } from "~/types/dashboard";
 
 const MODAL_STYLES = {
   body: { color: "var(--tx)" },
@@ -21,19 +17,6 @@ const MODAL_STYLES = {
   title: { color: "var(--tx)", fontWeight: 700 },
 } as const satisfies ComponentProps<typeof Modal>["styles"];
 
-function categoryLabel(category: SessionCategory) {
-  switch (category) {
-    case "eikaiwa":
-      return "英会話";
-    case "other":
-      return "その他";
-    case "reading":
-      return "読書";
-    case "toeic":
-      return "TOEIC";
-  }
-}
-
 type SessionStartModalProps = {
   onStart: ReturnType<typeof useDashboardStudy>["onStartSession"];
   opened: UseDisclosureReturnValue[0];
@@ -41,17 +24,21 @@ type SessionStartModalProps = {
 };
 
 export function SessionStartModal({ opened, onClose, onStart }: SessionStartModalProps) {
+  const { activeCategories } = useStudyCategoriesQuery();
   const startSessionForm = useForm({
-    initialInput: { category: "toeic", plannedMinutes: 60 },
+    initialInput: { categoryId: activeCategories[0]?._id ?? "", plannedMinutes: 60 },
     schema: StartSessionSchema,
   });
 
   return (
     <Modal centered onClose={onClose} opened={opened} styles={MODAL_STYLES} title="セッション開始">
+      {activeCategories.length === 0 ? (
+        <CategoryRequiredPrompt />
+      ) : (
       <Form
         of={startSessionForm}
         onSubmit={(output) => {
-          onStart(output.category, output.plannedMinutes);
+          onStart(output.categoryId, output.plannedMinutes);
           onClose();
         }}
       >
@@ -67,19 +54,19 @@ export function SessionStartModal({ opened, onClose, onStart }: SessionStartModa
             >
               カテゴリ
             </Text>
-            <Field of={startSessionForm} path={["category"]}>
+            <Field of={startSessionForm} path={["categoryId"]}>
               {(field) => (
                 <Group component="fieldset" gap={8} m={0} p={0} style={{ border: 0 }} wrap="wrap">
                   <legend className="sr-only">カテゴリ</legend>
-                  {CATEGORY_VALUES.map((category) => {
-                    const isActive = field.input === category;
+                  {activeCategories.map((category) => {
+                    const isActive = field.input === category._id;
 
                     return (
                       <UnstyledButton
-                        key={category}
+                        key={category._id}
                         type="button"
                         aria-pressed={isActive}
-                        onClick={() => field.onChange(category)}
+                        onClick={() => field.onChange(category._id)}
                         className={cn(
                           "rounded-lg border px-3 py-1.5 text-xs",
                           "transition hover:brightness-110 active:brightness-95",
@@ -93,7 +80,7 @@ export function SessionStartModal({ opened, onClose, onStart }: SessionStartModa
                             : "border-bd-2 bg-inset text-dim font-medium",
                         )}
                       >
-                        {categoryLabel(category)}
+                        {category.name}
                       </UnstyledButton>
                     );
                   })}
@@ -122,6 +109,7 @@ export function SessionStartModal({ opened, onClose, onStart }: SessionStartModa
           </Button>
         </Stack>
       </Form>
+      )}
     </Modal>
   );
 }

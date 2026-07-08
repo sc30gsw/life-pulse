@@ -19,8 +19,10 @@ function workoutKindLabel(kind: WorkoutKind) {
   switch (kind) {
     case "hiit":
       return "HIIT";
+
     case "other":
       return "その他";
+
     case "walk":
       return "ウォーキング";
   }

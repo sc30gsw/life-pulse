@@ -14,10 +14,13 @@ function categoryLabel(category: SessionCategory) {
   switch (category) {
     case "eikaiwa":
       return "英会話";
+
     case "other":
       return "その他";
+
     case "reading":
       return "読書";
+
     case "toeic":
       return "TOEIC";
   }

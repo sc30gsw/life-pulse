@@ -5,7 +5,6 @@ import { notifications } from "@mantine/notifications";
 import { cn } from "cnfast";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
-import { CATEGORY_VALUES } from "~/../convex/lib/domain";
 import {
   DATE_TIME_PICKER_CLASS_NAMES,
   DATE_TIME_PICKER_POPOVER_PROPS,
@@ -15,6 +14,8 @@ import {
   getDayProps,
   renderHolidayDay,
 } from "~/components/date-time-picker-style";
+import { CategoryRequiredPrompt } from "~/features/study-categories/components/category-required-prompt";
+import { useStudyCategoriesQuery } from "~/features/study-categories/hooks/use-study-categories-query";
 import { useDeclareBlock } from "~/features/study/hooks/use-declare-block";
 import { useUpdateBlock } from "~/features/study/hooks/use-update-block";
 import {
@@ -25,48 +26,46 @@ import {
   ACCENT_CLASSES,
   ACCENT_SOLID_STYLE,
   ACCENT_VARS,
-  type SessionCategory,
 } from "~/types/dashboard";
 import { todayJst } from "~/utils/date-jst";
 
-type EditableBlock = Pick<Doc<"studyBlocks">, "_id" | "category" | "dateJst" | "endHm" | "startHm">;
+type EditableBlock = Pick<
+  Doc<"studyBlocks">,
+  "_id" | "categoryId" | "dateJst" | "endHm" | "startHm"
+>;
 
 type DeclareBlockFormProps = {
   block?: EditableBlock;
   onDone?: () => void;
 };
 
-function initialInput(block?: EditableBlock): DeclareBlockFormInput {
+function initialInput(
+  categoryId: Doc<"studyCategories">["_id"] | undefined,
+  block?: EditableBlock,
+): DeclareBlockFormInput {
   return {
-    category: (block?.category as SessionCategory | undefined) ?? "toeic",
+    categoryId: block?.categoryId ?? categoryId ?? "",
     endAt: block === undefined ? null : `${block.dateJst} ${block.endHm}:00`,
     startAt: block === undefined ? null : `${block.dateJst} ${block.startHm}:00`,
   };
 }
 
-function categoryLabel(category: SessionCategory) {
-  switch (category) {
-    case "eikaiwa":
-      return "英会話";
-    case "other":
-      return "その他";
-    case "reading":
-      return "読書";
-    case "toeic":
-      return "TOEIC";
-  }
-}
-
 export function DeclareBlockForm({ block, onDone }: DeclareBlockFormProps = {}) {
   // Deliberately does NOT read the blocks query — the form must render
   // instantly instead of suspending with the list.
+  const { activeCategories, categoryOptions } = useStudyCategoriesQuery();
+  const categories = categoryOptions(block?.categoryId);
   const declareBlock = useDeclareBlock();
   const updateBlock = useUpdateBlock();
   const declareForm = useForm({
-    initialInput: initialInput(block),
+    initialInput: initialInput(activeCategories[0]?._id, block),
     schema: DeclareBlockSchema,
   });
   const isEditing = block !== undefined;
+
+  if (!isEditing && activeCategories.length === 0) {
+    return <CategoryRequiredPrompt />;
+  }
 
   return (
     <Form
@@ -109,18 +108,18 @@ export function DeclareBlockForm({ block, onDone }: DeclareBlockFormProps = {}) 
           >
             カテゴリ
           </Text>
-          <Field of={declareForm} path={["category"]}>
+          <Field of={declareForm} path={["categoryId"]}>
             {(field) => (
               <Group gap={8} wrap="wrap">
-                {CATEGORY_VALUES.map((category) => {
-                  const isActive = field.input === category;
+                {categories.map((category) => {
+                  const isActive = field.input === category._id;
 
                   return (
                     <UnstyledButton
-                      key={category}
+                      key={category._id}
                       type="button"
                       aria-pressed={isActive}
-                      onClick={() => field.onChange(category)}
+                      onClick={() => field.onChange(category._id)}
                       className={cn(
                         "rounded-lg border px-3 py-1.5 text-xs transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100",
                         isActive
@@ -134,7 +133,7 @@ export function DeclareBlockForm({ block, onDone }: DeclareBlockFormProps = {}) 
                       )}
                       disabled={declareForm.isSubmitting}
                     >
-                      {categoryLabel(category)}
+                      {category.name}
                     </UnstyledButton>
                   );
                 })}
