@@ -1,7 +1,6 @@
 import { ScatterChart } from "@mantine/charts";
 import { Box } from "@mantine/core";
 import { Shimmer } from "@shimmer-from-structure/react";
-import { filter, map, pipe } from "remeda";
 
 import { CorrelationChartHeader } from "~/features/insights/components/correlation-chart-header";
 import { useInsightsCorrelations } from "~/features/insights/hooks/use-insights-correlations";
@@ -14,10 +13,10 @@ const CHART_HEIGHT = 220;
 export function BodyBatteryVsStudyScatter() {
   const { data } = useInsightsCorrelations();
 
-  const points = pipe(
-    data.days,
-    filter((day) => day.bodyBattery !== undefined),
-    map((day) => ({ bodyBattery: day.bodyBattery as number, studyMinutes: day.studyMinutes })),
+  const points = data.days.flatMap((day) =>
+    day.bodyBattery === undefined
+      ? []
+      : [{ bodyBattery: day.bodyBattery, studyMinutes: day.studyMinutes }],
   );
 
   return (

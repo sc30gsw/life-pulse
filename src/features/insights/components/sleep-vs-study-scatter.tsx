@@ -1,7 +1,6 @@
 import { ScatterChart } from "@mantine/charts";
 import { Box } from "@mantine/core";
 import { Shimmer } from "@shimmer-from-structure/react";
-import { filter, map, pipe } from "remeda";
 
 import { CorrelationChartHeader } from "~/features/insights/components/correlation-chart-header";
 import { useInsightsCorrelations } from "~/features/insights/hooks/use-insights-correlations";
@@ -14,10 +13,10 @@ const CHART_HEIGHT = 220;
 export function SleepVsStudyScatter() {
   const { data } = useInsightsCorrelations();
 
-  const points = pipe(
-    data.days,
-    filter((day) => day.sleepScore !== undefined),
-    map((day) => ({ sleepScore: day.sleepScore as number, studyMinutes: day.studyMinutes })),
+  const points = data.days.flatMap((day) =>
+    day.sleepScore === undefined
+      ? []
+      : [{ sleepScore: day.sleepScore, studyMinutes: day.studyMinutes }],
   );
 
   return (

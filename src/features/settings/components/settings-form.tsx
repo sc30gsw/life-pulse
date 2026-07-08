@@ -4,14 +4,14 @@ import { notifications } from "@mantine/notifications";
 import { Shimmer } from "@shimmer-from-structure/react";
 
 import {
-  FASTING_TARGET_SLIDER_MARKS,
-  FASTING_TARGET_SLIDER_STYLES,
-} from "~/features/fasting/constants/fasting-target-slider";
-import {
   formatFastingTargetMinutes,
   MAX_FASTING_TARGET_MINUTES,
   MIN_FASTING_TARGET_MINUTES,
 } from "~/features/fasting/constants/fasting-target";
+import {
+  FASTING_TARGET_SLIDER_MARKS,
+  FASTING_TARGET_SLIDER_STYLES,
+} from "~/features/fasting/constants/fasting-target-slider";
 import { useSettings } from "~/features/settings/api/settings-query";
 import { useUpdateSettings } from "~/features/settings/api/update-settings-mutation";
 import { UpdateSettingsSchema } from "~/features/settings/schemas/update-settings-schema";

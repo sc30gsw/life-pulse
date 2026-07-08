@@ -9,3 +9,4 @@ export type InsightsCorrelations = FunctionReturnType<
 >;
 
 export type InsightsDay = InsightsCorrelations["days"][number];
+export type InsightsCorrelation = InsightsCorrelations["bbVsStudy"];

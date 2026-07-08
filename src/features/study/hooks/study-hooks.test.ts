@@ -116,7 +116,7 @@ test("study block actions call mutations and surface outcomes", () => {
   result.onReschedule(buildBlock(), "bad");
   expect(hookState.rescheduleMutate).toHaveBeenCalledTimes(1);
 
-  result.onStartFromBlock(buildBlock({ category: "unknown" }));
+  result.onStartFromBlock(buildBlock({ category: "unknown" as Doc<"studyBlocks">["category"] }));
   const startOptions = hookState.startMutate.mock.calls[0]?.[1] as {
     onError: (error: unknown) => void;
   };

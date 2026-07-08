@@ -80,8 +80,20 @@ export function formatClockTime(nowMs: number) {
   return dayjs(nowMs).tz("Asia/Tokyo").format("HH:mm:ss");
 }
 
+// Board header clock updates once a minute (display-only, CVX-14) — seconds would
+// read as stale between ticks, so this drops them instead of reusing formatClockTime.
+export function formatClockTimeMinutes(nowMs: number) {
+  return dayjs(nowMs).tz("Asia/Tokyo").format("HH:mm");
+}
+
 export function formatClockDate(nowMs: number) {
   return dayjs(nowMs).tz("Asia/Tokyo").format("YYYY/M/D(ddd)");
+}
+
+// Compact variant for very narrow viewports (375px, NFR-2) — drops the year so the
+// board header's date + "· JST" suffix never risks wrapping.
+export function formatClockDateCompact(nowMs: number) {
+  return dayjs(nowMs).tz("Asia/Tokyo").format("M/D(ddd)");
 }
 
 export function deriveSessionElapsedMs(session: Doc<"studySessions"> | null, nowMs: number) {

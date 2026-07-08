@@ -110,12 +110,12 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 
 ## W4 — 外部連携 + 相関 + 磨き込み(FR-6.3 / FR-7)
 
-- PR1: Garmin 実連携(FR-6.3)— plan: [2026-07-08_05-garmin-sync.md](./plans/2026-07-08_05-garmin-sync.md)
+- PR1: Garmin 実連携(FR-6.3)— plan: [2026-07-07_05-garmin-sync.md](./plans/2026-07-07_05-garmin-sync.md)
 - PR2: 相関ビュー(FR-7)+ グローバルヘッダー — plan: [2026-07-08_06-insights.md](./plans/2026-07-08_06-insights.md)
 
 ### FR-6.3 Garmin 実連携【P1 — 難航時は打ち切り可】
 
-- [x] FR-6.3 `garmin-connect-sdk@1.0.0-alpha.4`(完全固定、`^` 禁止)+ "use node" action + cron(JST 6:30)、認証情報は Convex 環境変数のみ(NFR-4)、失敗は syncLogs+「最終同期」表示。実装(plan [2026-07-08_05-garmin-sync.md](./plans/2026-07-08_05-garmin-sync.md) Step 1〜9 分すべて main にマージ済み: `convex/actions/garmin/`, `convex/services/garmin/`, `convex/mutations/health/{upsertFromSync,recordSyncFailure,requestGarminSync}.ts`, `convex/queries/health/lastSync.ts`, `convex/crons.ts`, `convex.json`, `scripts/garmin-login.ts`, `/health` の `GarminSyncCard`)+ **実 Garmin アカウントでの手動 E2E 完了(2026-07-08)**: MFA ログイン → `GARMIN_TOKENS_JSON` 設定 → 28 日 `backfill` → `/health` UI 反映まで検証。過程で SDK パッチ(pnpm patch、レート制限 429 対応の逐次フェッチ化)と `syncDaily.ts` の日単位フォールトトレランス(1 日の `GarminValidationError` でレンジ全体を破棄せずスキップ+syncLogs 記録)を追加
+- [x] FR-6.3 `garmin-connect-sdk@1.0.0-alpha.4`(完全固定、`^` 禁止)+ "use node" action + cron(JST 6:30)、認証情報は Convex 環境変数のみ(NFR-4)、失敗は syncLogs+「最終同期」表示。実装(plan [2026-07-07_05-garmin-sync.md](./plans/2026-07-07_05-garmin-sync.md) Step 1〜9 分すべて main にマージ済み: `convex/actions/garmin/`, `convex/services/garmin/`, `convex/mutations/health/{upsertFromSync,recordSyncFailure,requestGarminSync}.ts`, `convex/queries/health/lastSync.ts`, `convex/crons.ts`, `convex.json`, `scripts/garmin-login.ts`, `/health` の `GarminSyncCard`)+ **実 Garmin アカウントでの手動 E2E 完了(2026-07-08)**: MFA ログイン → `GARMIN_TOKENS_JSON` 設定 → 28 日 `backfill` → `/health` UI 反映まで検証。過程で SDK パッチ(pnpm patch、レート制限 429 対応の逐次フェッチ化)と `syncDaily.ts` の日単位フォールトトレランス(1 日の `GarminValidationError` でレンジ全体を破棄せずスキップ+syncLogs 記録)を追加
   - 前提: `convex.json` で Node 24 を指定(SDK が `engines: >=24`。Convex は Node 20/22/24 対応・既定 20 — 公式 docs 確認済み)
   - MFA は `scripts/garmin-login.ts`(対話ログイン→トークンJSONをstdout出力、ファイルには書かない)で事前生成し `npx convex env set GARMIN_TOKENS_JSON '<出力>'` で設定。ランタイムは `TokenStorage` 抽象のカスタム実装(`convex/actions/garmin/client.ts` の `createEnvTokenStorage`)で `GARMIN_TOKENS_JSON` から復元する(旧 `GARMIN_OAUTH1_JSON`/`GARMIN_OAUTH2_JSON` 設計は SDK のトークン形式に合わせて再定義)
   - alpha のため自前の薄いラッパー(`GarminClient` インターフェース)越しに使用。退避先: `@gooin/garmin-connect@1.8.7`(要件 = requirements.md FR-6.3 v1.7 改訂参照)
@@ -123,9 +123,9 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 
 ### FR-7 相関ビュー【P1】
 
-- [ ] FR-7.1 直近 28 日の「睡眠×学習分数」「Body Battery×学習分数」「HIIT 翌日 Body Battery」表示
-- [ ] FR-7.2 Convex クエリ内 join で導出、元データ変更で自動再計算・再描画(`/insights`、pearson 純関数)
-- 決定(2026-07-08): `/health` の HIIT トレンドチャート(`HiitTrend`)へ健康指標(睡眠/Body Battery 等)を area/line で重ねる案、および PieChart 追加案は本 FR-7 のスコープとし、`/health` 側では実装しない。`HiitTrend` は kind 別(hiit/walk/other)の stacked `BarChart` のみに留める。FR-7 実装時に `CompositeChart`(bar+area/line、`@mantine/charts`)採用を検討する。
+- [x] FR-7.1 直近 28 日の「睡眠×学習分数」「Body Battery×学習分数」「HIIT 翌日 Body Battery」表示。実装: `convex/queries/insights/correlations.ts`(`requireSelf` + `services/insights/correlations.ts` の index-range join)、`src/routes/_authenticated/_self/insights.tsx`、`src/features/insights/components/{sleep-vs-study-scatter,body-battery-vs-study-scatter,hiit-body-battery-bar-chart}.tsx`(`@mantine/charts` の `ScatterChart`/`BarChart`)
+- [x] FR-7.2 Convex クエリ内 join で導出、元データ変更で自動再計算・再描画(`/insights`、pearson 純関数)。実装: `convex/services/insights/pearson.ts`(純関数、`pearson.test.ts` 6件)+ `convex/services/insights/correlations.test.ts`(convex-test 11件、pairwise除外・demoモード・HIIT翌日境界・partner拒否等)。フロントは `useSuspenseQuery(convexQuery(...))` でリアクティブ購読(`src/features/insights/hooks/use-insights-correlations.ts`)
+- [x] 決定(2026-07-08): `/health` の HIIT トレンドチャート(`HiitTrend`)へ健康指標(睡眠/Body Battery 等)を area/line で重ねる案、および PieChart 追加案は本 FR-7 のスコープとし、`/health` 側では実装しない。`HiitTrend` は kind 別(hiit/walk/other)の stacked `BarChart` のみに留める。FR-7 実装時に `CompositeChart`(bar+area/line、`@mantine/charts`)採用を検討する。→ **確定(2026-07-08)**: `@mantine/charts@9.4.1` は `CompositeChart`/`PieChart` とも提供済みで置き換え不要と判明し、採用。`src/features/insights/components/daily-composite-chart.tsx`(bar=学習分数/line=睡眠スコア+Body Battery、28日分)と `workout-kind-pie-chart.tsx`(`HiitTrend` と同じ hiit/walk/other→coral/blue/faint 配色)として実装済み
 
 ### 磨き込み・発表準備
 
