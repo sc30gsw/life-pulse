@@ -38,7 +38,8 @@ const PRESENCE_STATES = Object.keys(PRESENCE_LABELS) as PresenceState[];
 
 type PresenceCardProps = {
   editable: boolean;
-  flash: boolean;
+  flash?: boolean;
+  flashRef?: (element: HTMLDivElement | null) => void;
   onSetPresence: (
     state: PresenceState,
     etaHm?: FunctionArgs<typeof api.mutations.partnerStatus.setStatus.setStatus>["etaHm"],
@@ -50,7 +51,8 @@ type PresenceCardProps = {
 
 export function PresenceCard({
   editable,
-  flash,
+  flash = false,
+  flashRef,
   onSetPresence,
   presence,
   title,
@@ -61,6 +63,7 @@ export function PresenceCard({
 
   return (
     <GlowCard
+      ref={flashRef}
       className={cn(
         "bg-panel border-bd shadow-card relative overflow-hidden border",
         flash && "lp-flash",

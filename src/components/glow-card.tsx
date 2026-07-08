@@ -1,18 +1,32 @@
 import { Paper, type PaperProps } from "@mantine/core";
 import { cn } from "cnfast";
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 
 import { useCursorGlow } from "~/hooks/use-cursor-glow";
 
-type GlowCardProps = PaperProps & Record<"children", ReactNode>;
+type GlowCardProps = PaperProps & { children: ReactNode; ref?: Ref<HTMLDivElement> };
 
-export function GlowCard({ children, className, ...paperProps }: GlowCardProps) {
+export function GlowCard({ children, className, ref, ...paperProps }: GlowCardProps) {
   const { glowRef, onPointerEnter, onPointerLeave, onPointerMove } =
     useCursorGlow<HTMLDivElement>();
 
+  function setRefs(element: HTMLDivElement | null) {
+    glowRef.current = element;
+
+    if (typeof ref === "function") {
+      ref(element);
+
+      return;
+    }
+
+    if (ref != null) {
+      ref.current = element;
+    }
+  }
+
   return (
     <Paper
-      ref={glowRef}
+      ref={setRefs}
       className={cn("lp-glow-card", className)}
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}

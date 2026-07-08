@@ -47,7 +47,7 @@ function openHistoryModal() {
 }
 
 export function DogCard() {
-  const { dogCare, dogFlash, dogName, hasDog, onToggleDogCare } = useDashboardDog();
+  const { dogCare, dogFlashRef, dogName, hasDog, onToggleDogCare } = useDashboardDog();
   const pendingCount = dogCare.filter((item) => !item.done).length;
   const pendingAccent = pendingCount > 0 ? ACCENT_CLASSES.coral : ACCENT_CLASSES.good;
 
@@ -80,10 +80,8 @@ export function DogCard() {
 
   return (
     <GlowCard
-      className={cn(
-        "bg-panel border-bd shadow-card relative flex flex-1 flex-col overflow-hidden border",
-        dogFlash && "lp-flash",
-      )}
+      ref={dogFlashRef}
+      className="bg-panel border-bd shadow-card relative flex flex-1 flex-col overflow-hidden border"
       p="lg"
       radius={18}
     >

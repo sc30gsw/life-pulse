@@ -4,6 +4,7 @@ import type { FunctionArgs } from "convex/server";
 
 import { dashboardPresenceQuery } from "~/features/dashboard/api/dashboard-presence-query";
 import { useBoardClock } from "~/features/dashboard/hooks/use-board-clock";
+import { useRemoteUpdateFlash } from "~/features/dashboard/hooks/use-remote-update-flash";
 import { useSetPresence } from "~/features/dashboard/hooks/use-set-presence";
 import { formatRelativeTime } from "~/features/dashboard/utils/format";
 import { type PresenceState } from "~/types/dashboard";
@@ -14,15 +15,21 @@ export function useDashboardPresence() {
   const { nowMs } = useBoardClock();
   const partner = useSuspenseQuery(dashboardPresenceQuery()).data;
   const setPresence = useSetPresence();
+  const partnerFingerprint =
+    partner === null ? "none" : [partner.state, partner.etaHm ?? "", partner.updatedAt].join("|");
+  const { flashRef: partnerFlashRef, suppressNextFlash } = useRemoteUpdateFlash(partnerFingerprint);
 
   function onSetPresence(
     state: PresenceState,
     etaHm?: FunctionArgs<typeof api.mutations.partnerStatus.setStatus.setStatus>["etaHm"],
   ) {
+    const releaseFlashSuppression = suppressNextFlash();
+
     setPresence.mutate(
       { etaHm, state },
       {
         onError: () => {
+          releaseFlashSuppression();
           notifications.show({ color: "red", message: "更新に失敗しました", title: "エラー" });
         },
         onSuccess: () => {
@@ -39,8 +46,7 @@ export function useDashboardPresence() {
   return {
     onSetPresence,
     partner,
-    // Flash-on-remote-update (server push detection) is deferred past W1 — see the wiring plan.
-    partnerFlash: false,
+    partnerFlashRef,
     partnerUpdatedRelativeLabel:
       partner === null ? "未更新" : formatRelativeTime(partner.updatedAt, nowMs),
   } as const;

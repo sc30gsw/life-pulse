@@ -31,9 +31,17 @@ const FASTING_PHASE_ACCENT = {
   goal: "good",
 } as const satisfies Record<Doc<"fastingWindows">["phase"], keyof typeof ACCENT_VARS>;
 
-export function FastingGroup({ fastingFlash }: Record<"fastingFlash", boolean>) {
-  const { fasting, fastingElapsedLabel, fastingRingPercent, fastingRemainLabel } =
-    useDashboardFasting();
+export function FastingGroup({
+  fastingFlash: fastingFlashOverride,
+}: Partial<Record<"fastingFlash", boolean>> = {}) {
+  const {
+    fasting,
+    fastingElapsedLabel,
+    fastingFlashRef,
+    fastingRingPercent,
+    fastingRemainLabel,
+    suppressNextFastingFlash,
+  } = useDashboardFasting();
   const endFasting = useEndFasting();
   const [startModalOpened, { close: closeStartModal, open: openStartModal }] = useDisclosure(false);
   const fastingPhase = fasting?.phase ?? "early";
@@ -49,7 +57,16 @@ export function FastingGroup({ fastingFlash }: Record<"fastingFlash", boolean>) 
       confirmProps: { style: ACCENT_SOLID_STYLE.good },
       labels: { cancel: "キャンセル", confirm: "食事開始(断食終了)" },
       onConfirm: () => {
-        endFasting.mutate({});
+        const releaseFlashSuppression = suppressNextFastingFlash?.();
+
+        endFasting.mutate(
+          {},
+          {
+            onError: () => {
+              releaseFlashSuppression?.();
+            },
+          },
+        );
       },
       styles: CONFIRM_MODAL_STYLES,
       title: "断食を終了しますか?",
@@ -58,11 +75,16 @@ export function FastingGroup({ fastingFlash }: Record<"fastingFlash", boolean>) 
 
   return (
     <>
-      <FastingStartModal onClose={closeStartModal} opened={startModalOpened} />
+      <FastingStartModal
+        onClose={closeStartModal}
+        onStartAttempt={suppressNextFastingFlash}
+        opened={startModalOpened}
+      />
       <Group
+        ref={fastingFlashRef}
         gap="md"
         wrap="nowrap"
-        className={cn("relative min-w-[240px] flex-1", fastingFlash && "lp-flash")}
+        className={cn("relative min-w-[240px] flex-1", fastingFlashOverride && "lp-flash")}
       >
         <RingProgress
           size={96}

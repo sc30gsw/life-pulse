@@ -5,14 +5,15 @@ import { useDashboardViewer } from "~/features/dashboard/hooks/use-dashboard-vie
 const FALLBACK_TITLE = "本人";
 
 export function SelfStatusCard() {
-  const { onSetPresence, self, selfFlash, selfUpdatedRelativeLabel } = useDashboardSelfPresence();
+  const { onSetPresence, self, selfFlashRef, selfUpdatedRelativeLabel } =
+    useDashboardSelfPresence();
   const viewer = useDashboardViewer();
   const title = viewer.role === "self" ? "本人" : "パートナー";
 
   return (
     <PresenceCard
       editable={viewer.role === "self"}
-      flash={selfFlash}
+      flashRef={selfFlashRef}
       onSetPresence={onSetPresence}
       presence={self}
       title={title}

@@ -6,6 +6,7 @@ import { dashboardStudyQuery } from "~/features/dashboard/api/dashboard-study-qu
 import { useBoardClock } from "~/features/dashboard/hooks/use-board-clock";
 import { useCompleteSession } from "~/features/dashboard/hooks/use-complete-session";
 import { usePauseSession } from "~/features/dashboard/hooks/use-pause-session";
+import { useRemoteUpdateFlash } from "~/features/dashboard/hooks/use-remote-update-flash";
 import { useResumeSession } from "~/features/dashboard/hooks/use-resume-session";
 import { useStartSession } from "~/features/dashboard/hooks/use-start-session";
 import {
@@ -54,12 +55,29 @@ export function useDashboardStudy() {
       ? Math.round(sessionElapsedMs / MINUTE_MS)
       : 0;
   const declarationActualMinutes = study.todayActualMinutes + inProgressMinutes;
+  const sessionFingerprint =
+    study.session === null
+      ? "none"
+      : [
+          study.session._id,
+          study.session.status,
+          study.session.category,
+          study.session.startedAt,
+          study.session.lastResumedAt ?? "",
+          study.session.accumulatedMs,
+          study.session.interruptionCount,
+          study.session.plannedMinutes ?? "",
+        ].join("|");
+  const { flashRef: sessionFlashRef, suppressNextFlash } = useRemoteUpdateFlash(sessionFingerprint);
 
   function onStartSession(category: SessionCategory, plannedMinutes?: number) {
+    const releaseFlashSuppression = suppressNextFlash();
+
     startSession.mutate(
       { category, dateJst, plannedMinutes },
       {
         onError: (error) => {
+          releaseFlashSuppression();
           notifications.show({
             color: "red",
             message: sessionErrorMessage(error, "開始に失敗しました"),
@@ -78,10 +96,13 @@ export function useDashboardStudy() {
   }
 
   function onPauseSession(reason: InterruptionReason) {
+    const releaseFlashSuppression = suppressNextFlash();
+
     pauseSession.mutate(
       { reason },
       {
         onError: (error) => {
+          releaseFlashSuppression();
           notifications.show({
             color: "red",
             message: sessionErrorMessage(error, "中断に失敗しました"),
@@ -100,10 +121,13 @@ export function useDashboardStudy() {
   }
 
   function onResumeSession() {
+    const releaseFlashSuppression = suppressNextFlash();
+
     resumeSession.mutate(
       {},
       {
         onError: (error) => {
+          releaseFlashSuppression();
           notifications.show({
             color: "red",
             message: sessionErrorMessage(error, "再開に失敗しました"),
@@ -122,10 +146,13 @@ export function useDashboardStudy() {
   }
 
   function onCompleteSession() {
+    const releaseFlashSuppression = suppressNextFlash();
+
     completeSession.mutate(
       {},
       {
         onError: (error) => {
+          releaseFlashSuppression();
           notifications.show({
             color: "red",
             message: sessionErrorMessage(error, "完了に失敗しました"),
@@ -158,6 +185,7 @@ export function useDashboardStudy() {
     session: study.session,
     sessionElapsedMs,
     sessionElapsedLabel: formatElapsedClock(sessionElapsedMs),
+    sessionFlashRef,
     sessionGoalLabel: `${goalMinutes}分`,
     sessionProgressPercent:
       goalMinutes > 0

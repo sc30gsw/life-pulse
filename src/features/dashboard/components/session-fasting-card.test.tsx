@@ -316,7 +316,10 @@ test("shows the 食事開始(断食終了) button for the self viewer with an ac
   const modal = hookState.openConfirmModal.mock.calls[0]?.[0] as { onConfirm: () => void };
   modal.onConfirm();
 
-  expect(hookState.endMutate).toHaveBeenCalledWith({});
+  expect(hookState.endMutate).toHaveBeenCalledWith(
+    {},
+    expect.objectContaining({ onError: expect.any(Function) }),
+  );
 });
 
 test("hides both fasting action buttons for the partner viewer", () => {

@@ -1,9 +1,8 @@
 import { Field, Form, useForm } from "@formisch/react";
-import { Button, Stack, TextInput } from "@mantine/core";
+import { Button, EmptyState, Stack, Text, TextInput } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 
 import { useViewer } from "~/features/auth/hooks/use-viewer";
-import { MissingViewerEmptyState } from "~/features/profile/components/profile-states";
 import { useUpdateDisplayName } from "~/features/profile/hooks/use-profile-actions";
 import { DisplayNameSchema } from "~/features/profile/schemas/profile-schemas";
 import { ACCENT_SOLID_STYLE } from "~/types/dashboard";
@@ -59,5 +58,18 @@ export function DisplayNameForm() {
         </Button>
       </Stack>
     </Form>
+  );
+}
+
+function MissingViewerEmptyState() {
+  return (
+    <EmptyState
+      title={
+        <Text size="xl" fw={600} c="coral">
+          プロフィール未作成
+        </Text>
+      }
+      description="ログイン情報に対応するプロフィールが見つかりません。"
+    />
   );
 }

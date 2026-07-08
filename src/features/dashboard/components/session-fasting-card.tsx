@@ -70,7 +70,9 @@ const TOOLTIP_STYLES = {
   },
 } as const satisfies ComponentProps<typeof Tooltip>["styles"];
 
-export function SessionFastingCard({ sessionFlash }: Record<"sessionFlash", boolean>) {
+export function SessionFastingCard({
+  sessionFlash = false,
+}: Partial<Record<"sessionFlash", boolean>> = {}) {
   return (
     <GlowCard
       radius={18}
@@ -100,7 +102,7 @@ export function SessionFastingCard({ sessionFlash }: Record<"sessionFlash", bool
         </Text>
       </Group>
       <Suspense fallback={<SessionStatusGroupFallback />}>
-        <SessionStatusGroup fastingFlash={false} />
+        <SessionStatusGroup />
       </Suspense>
     </GlowCard>
   );
@@ -130,7 +132,7 @@ function SelfBadgeFallback() {
   );
 }
 
-function SessionStatusGroup({ fastingFlash }: Record<"fastingFlash", boolean>) {
+function SessionStatusGroup({ fastingFlash }: Partial<Record<"fastingFlash", boolean>> = {}) {
   const {
     declarationActualMinutes,
     declarationActualPercent,
@@ -142,6 +144,7 @@ function SessionStatusGroup({ fastingFlash }: Record<"fastingFlash", boolean>) {
     onStartSession,
     session,
     sessionElapsedLabel,
+    sessionFlashRef,
     sessionGoalLabel,
     sessionProgressPercent,
   } = useDashboardStudy();
@@ -152,7 +155,7 @@ function SessionStatusGroup({ fastingFlash }: Record<"fastingFlash", boolean>) {
   const [statusAccent, statusLabel] = SESSION_STATUS_ACCENT[sessionStatus];
 
   return (
-    <>
+    <Box ref={sessionFlashRef} className="relative">
       <SessionStartModal
         opened={startModalOpened}
         onClose={closeStartModal}
@@ -289,7 +292,7 @@ function SessionStatusGroup({ fastingFlash }: Record<"fastingFlash", boolean>) {
           totalMinutes={declarationTotalMinutes}
         />
       </Group>
-    </>
+    </Box>
   );
 }
 

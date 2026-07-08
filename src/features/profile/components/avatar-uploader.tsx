@@ -1,4 +1,4 @@
-import { Avatar, Button, FileButton, Group, Slider, Stack } from "@mantine/core";
+import { Avatar, Button, EmptyState, FileButton, Group, Slider, Stack, Text } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconUpload } from "@tabler/icons-react";
 import { useRef, useState } from "react";
@@ -6,7 +6,6 @@ import Cropper, { type Area } from "react-easy-crop";
 
 import type { Id } from "~/../convex/_generated/dataModel";
 import { useViewer } from "~/features/auth/hooks/use-viewer";
-import { MissingViewerEmptyState } from "~/features/profile/components/profile-states";
 import {
   useGenerateAvatarUploadUrl,
   useSetAvatar,
@@ -128,5 +127,18 @@ export function AvatarUploader() {
         </Stack>
       ) : null}
     </Stack>
+  );
+}
+
+function MissingViewerEmptyState() {
+  return (
+    <EmptyState
+      title={
+        <Text size="xl" fw={600} c="coral">
+          プロフィール未作成
+        </Text>
+      }
+      description="ログイン情報に対応するプロフィールが見つかりません。"
+    />
   );
 }

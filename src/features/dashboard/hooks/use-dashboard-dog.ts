@@ -5,6 +5,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { dashboardDogQuery } from "~/features/dashboard/api/dashboard-dog-query";
 import { useBoardClock } from "~/features/dashboard/hooks/use-board-clock";
 import { useLogDogEvent } from "~/features/dashboard/hooks/use-log-dog-event";
+import { useRemoteUpdateFlash } from "~/features/dashboard/hooks/use-remote-update-flash";
 import { useUndoDogEvent } from "~/features/dashboard/hooks/use-undo-dog-event";
 import { toDogCareItems } from "~/features/dashboard/utils/format";
 import { ACCENT_SOLID_STYLE } from "~/types/dashboard";
@@ -15,6 +16,16 @@ export function useDashboardDog() {
   const logDogEvent = useLogDogEvent();
   const undoDogEvent = useUndoDogEvent();
   const dogCare = dog === null ? [] : toDogCareItems(dog.tasks);
+  const dogFingerprint =
+    dog === null
+      ? "none"
+      : [
+          dog.dogName,
+          ...dog.tasks.map((task) =>
+            [task.taskId, task.done ? "done" : "todo", task.eventId ?? "", task.at ?? ""].join(":"),
+          ),
+        ].join("|");
+  const { flashRef: dogFlashRef, suppressNextFlash } = useRemoteUpdateFlash(dogFingerprint);
 
   function onToggleDogCare(taskId: (typeof dogCare)[number]["taskId"]) {
     const current = dogCare.find((item) => item.taskId === taskId);
@@ -24,10 +35,13 @@ export function useDashboardDog() {
     }
 
     if (!current.done) {
+      const releaseFlashSuppression = suppressNextFlash();
+
       logDogEvent.mutate(
         { dateJst, taskId },
         {
           onError: () => {
+            releaseFlashSuppression();
             notifications.show({ color: "red", message: "記録に失敗しました", title: "エラー" });
           },
           onSuccess: () => {
@@ -55,10 +69,13 @@ export function useDashboardDog() {
       confirmProps: { style: ACCENT_SOLID_STYLE.coral },
       labels: { cancel: "キャンセル", confirm: "取り消す" },
       onConfirm: () => {
+        const releaseFlashSuppression = suppressNextFlash();
+
         undoDogEvent.mutate(
           { dateJst, eventId },
           {
             onError: () => {
+              releaseFlashSuppression();
               notifications.show({ color: "red", message: "取消に失敗しました", title: "エラー" });
             },
             onSuccess: () => {
@@ -85,10 +102,9 @@ export function useDashboardDog() {
     });
   }
 
-  // Flash-on-remote-update (server push detection) is deferred past W1 — see the wiring plan.
   return {
     dogCare,
-    dogFlash: false,
+    dogFlashRef,
     dogName: dog?.dogName ?? null,
     hasDog: dog !== null,
     onToggleDogCare,

@@ -1,4 +1,5 @@
-import { Group, Stack, Text } from "@mantine/core";
+import { Button, Group, Stack, Text } from "@mantine/core";
+import { Shimmer } from "@shimmer-from-structure/react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 
@@ -7,7 +8,6 @@ import { AvatarUploader } from "~/features/profile/components/avatar-uploader";
 import { DisplayNameForm } from "~/features/profile/components/display-name-form";
 import { EmailChangeForm } from "~/features/profile/components/email-change-form";
 import { PasswordChangeForm } from "~/features/profile/components/password-change-form";
-import { ProfileFormFallback } from "~/features/profile/components/profile-states";
 import { ACCENT_VARS } from "~/types/dashboard";
 
 export const Route = createFileRoute("/_authenticated/profile")({
@@ -93,5 +93,16 @@ function ProfilePage() {
         </GlowCard>
       </main>
     </>
+  );
+}
+
+function ProfileFormFallback() {
+  return (
+    <Shimmer loading>
+      <Stack gap="md">
+        <Text size="sm">プロフィールを読み込み中</Text>
+        <Button>保存する</Button>
+      </Stack>
+    </Shimmer>
   );
 }

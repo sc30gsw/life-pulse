@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { createRef } from "react";
 import { expect, test, vi } from "vite-plus/test";
 
 import { GlowCard } from "~/components/glow-card";
@@ -10,6 +11,14 @@ test("renders its children", () => {
   const { getByText } = renderWithMantine(<GlowCard>hello</GlowCard>);
 
   expect(getByText("hello")).toBeDefined();
+});
+
+test("passes its root element through ref", () => {
+  const cardRef = createRef<HTMLDivElement>();
+  const { container } = renderWithMantine(<GlowCard ref={cardRef}>hello</GlowCard>);
+  const card = container.querySelector(".lp-glow-card");
+
+  expect(cardRef.current).toBe(card);
 });
 
 test("lights up the cursor-follow glow on pointer enter/leave and tracks the pointer on move", async () => {
