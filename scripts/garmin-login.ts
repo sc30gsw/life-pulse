@@ -17,18 +17,25 @@ async function main() {
 
   const email = await rl.question("Garmin email: ");
   const password = await rl.question("Garmin password: ");
-  const mfaCodeInput = await rl.question("MFA code (leave blank if not requested): ");
-
-  rl.close();
 
   const storage = new MemoryTokenStorage();
-  const garmin = new GarminConnectSDK({ storage });
+  // maxRetries: 0 — never auto-retry the SSO login POST; retries against the
+  // auth endpoint compound Garmin's rate limit (429) instead of helping.
+  const garmin = new GarminConnectSDK({ storage, maxRetries: 0 });
 
   await garmin.login({
     email,
     password,
-    mfaCode: mfaCodeInput.trim() === "" ? undefined : mfaCodeInput.trim(),
+    // alpha.4 accepts a function here (MfaCodeProvider). The SDK calls it only
+    // after Garmin's login response demands MFA — i.e. after the code email is
+    // triggered — so prompt at that moment, not up front.
+    mfaCode: async () => {
+      const code = await rl.question("MFA code (check your email now): ");
+      return code.trim();
+    },
   });
+
+  rl.close();
 
   const tokens = await storage.load();
 
