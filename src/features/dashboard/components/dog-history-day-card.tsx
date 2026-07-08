@@ -5,7 +5,9 @@ import { api } from "~/../convex/_generated/api";
 import { GlowCard } from "~/components/glow-card";
 import { formatClockTime } from "~/features/dashboard/utils/format";
 
-export function DogHistoryDayCard({ day }: Record<"day", FunctionReturnType<typeof api.queries.dog.history.history>["days"][number];>) {
+type DogHistoryDay = FunctionReturnType<typeof api.queries.dog.history.history>["days"][number];
+
+export function DogHistoryDayCard({ day }: Record<"day", DogHistoryDay>) {
   return (
     <GlowCard
       p="sm"

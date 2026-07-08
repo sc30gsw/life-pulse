@@ -20,13 +20,27 @@ const HISTORY_MODAL_STYLES = {
   title: { color: "var(--tx)", fontWeight: 700 },
 } as const satisfies ComponentProps<typeof Modal>["styles"];
 
-export function openDogHistoryModal() {
+function openDogHistoryModal() {
   modals.open({
     centered: true,
     children: <DogHistoryModalContent />,
     styles: HISTORY_MODAL_STYLES,
     title: "犬のお世話履歴",
   });
+}
+
+export function DogHistoryButton() {
+  return (
+    <Button
+      className="border-bd-2 text-tx transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+      onClick={openDogHistoryModal}
+      size="xs"
+      type="button"
+      variant="outline"
+    >
+      履歴
+    </Button>
+  );
 }
 
 export function DogHistoryModalContent() {
