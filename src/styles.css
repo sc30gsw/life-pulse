@@ -413,6 +413,117 @@ body {
   pointer-events: none;
 }
 
+.lp-user-menu-trigger {
+  position: relative;
+  max-width: min(260px, calc(100vw - 32px));
+  overflow: hidden;
+  border: 1px solid var(--bd2);
+  border-radius: 8px;
+  padding: 7px 9px 7px 7px;
+  color: var(--tx);
+  outline: none;
+}
+
+.lp-user-menu-trigger:hover,
+.lp-user-menu-trigger.is-open {
+  border-color: color-mix(in oklab, var(--good) 48%, var(--bd2));
+}
+
+.lp-user-menu-trigger:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.lp-user-menu-avatar {
+  background: color-mix(in oklab, var(--good) 18%, var(--inset)) !important;
+  border: 1px solid color-mix(in oklab, var(--good) 45%, var(--bd2));
+  color: var(--tx) !important;
+  font-weight: 800;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.035);
+}
+
+.lp-user-menu-dropdown {
+  overflow: hidden;
+  border: 1px solid var(--bd2) !important;
+  border-radius: 8px !important;
+  padding: 8px !important;
+  background:
+    radial-gradient(
+      180px circle at 100% 0%,
+      color-mix(in oklab, var(--blue) 18%, transparent),
+      transparent 58%
+    ),
+    linear-gradient(165deg, var(--panel), var(--panel2)) !important;
+  box-shadow: var(--cardsh) !important;
+  color: var(--tx) !important;
+}
+
+.lp-user-menu-heading {
+  padding: 4px 8px 8px;
+  color: var(--dim);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.lp-user-menu-item {
+  min-height: 34px;
+  border: 1px solid transparent;
+  border-radius: 7px !important;
+  color: var(--tx) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em;
+}
+
+.lp-user-menu-item [data-position="left"] {
+  color: var(--dim);
+}
+
+.lp-user-menu-item:hover,
+.lp-user-menu-item[data-hovered] {
+  background: color-mix(in oklab, var(--good) 12%, var(--inset)) !important;
+  border-color: color-mix(in oklab, var(--good) 38%, var(--bd2));
+  color: var(--tx) !important;
+}
+
+.lp-user-menu-item:hover [data-position="left"],
+.lp-user-menu-item[data-hovered] [data-position="left"] {
+  color: var(--good);
+}
+
+.lp-user-menu-item:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 1px;
+}
+
+.lp-user-menu-logout {
+  color: var(--coral) !important;
+}
+
+.lp-user-menu-logout [data-position="left"] {
+  color: var(--coral);
+}
+
+.lp-user-menu-logout:hover,
+.lp-user-menu-logout[data-hovered] {
+  background: color-mix(in oklab, var(--coral) 14%, var(--inset)) !important;
+  border-color: color-mix(in oklab, var(--coral) 42%, var(--bd2));
+  color: color-mix(in oklab, var(--coral) 88%, var(--tx)) !important;
+}
+
+.lp-user-menu-logout:hover [data-position="left"],
+.lp-user-menu-logout[data-hovered] [data-position="left"] {
+  color: color-mix(in oklab, var(--coral) 88%, var(--tx));
+}
+
+.lp-user-menu-divider {
+  margin: 8px 4px !important;
+  border-color: var(--bd2) !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lp-pulse,
   .lp-flash,
