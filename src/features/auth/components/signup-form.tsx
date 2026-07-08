@@ -77,7 +77,8 @@ export function SignupForm() {
               {...field.props}
               classNames={{
                 dropdown: "border-bd bg-panel-2",
-                option: "text-tx hover:bg-panel hover:text-tx active:bg-panel active:text-tx",
+                option:
+                  "text-tx transition hover:bg-panel hover:text-tx hover:brightness-110 active:bg-panel active:text-tx active:brightness-95",
               }}
               data={[
                 { label: "本人", value: "self" },

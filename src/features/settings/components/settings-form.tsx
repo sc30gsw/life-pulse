@@ -85,7 +85,7 @@ export function SettingsForm() {
         </Field>
 
         <Button
-          className="hover:brightness-120"
+          className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
           disabled={settingsForm.isSubmitting}
           loading={settingsForm.isSubmitting}
           style={ACCENT_SOLID_STYLE.good}
@@ -118,7 +118,9 @@ export function SettingsFormFallback() {
             className="mt-2 mb-4"
           />
         </Stack>
-        <Button className="hover:brightness-120">保存する</Button>
+        <Button className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100">
+          保存する
+        </Button>
       </Stack>
     </Shimmer>
   );

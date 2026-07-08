@@ -112,7 +112,7 @@ export function HiitLogForm({ workout, onDone }: HiitLogFormProps) {
                       aria-pressed={isActive}
                       onClick={() => field.onChange(kind)}
                       className={cn(
-                        "rounded-lg border px-3 py-1.5 text-xs hover:brightness-120",
+                        "rounded-lg border px-3 py-1.5 text-xs transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100",
                         isActive
                           ? cn(
                               ACCENT_CLASSES.good.border,
@@ -190,7 +190,7 @@ export function HiitLogForm({ workout, onDone }: HiitLogFormProps) {
         </Field>
 
         <Button
-          className="hover:brightness-120"
+          className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
           disabled={logForm.isSubmitting}
           loading={logForm.isSubmitting}
           style={ACCENT_SOLID_STYLE.good}

@@ -157,7 +157,7 @@ export function ManualInputForm() {
         </div>
 
         <Button
-          className="hover:brightness-120"
+          className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
           disabled={manualInputForm.isSubmitting}
           loading={manualInputForm.isSubmitting}
           style={ACCENT_SOLID_STYLE.good}

@@ -98,7 +98,7 @@ export function GarminSyncCard() {
       </Stack>
 
       <Button
-        className="hover:brightness-120"
+        className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
         disabled={requestGarminSync.isPending}
         loading={requestGarminSync.isPending}
         onClick={onSync}

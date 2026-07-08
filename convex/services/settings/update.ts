@@ -2,7 +2,7 @@ import { ConvexError } from "convex/values";
 
 import type { Doc } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
-import { DEFAULT_FASTING_MINUTES } from "../appSettings/getFastingDefaultMinutes";
+import { DEFAULT_FASTING_MINUTES } from "../../lib/domain";
 
 type UpdateArgs = Partial<Pick<Doc<"appSettings">, "fastingDefaultMinutes">>;
 

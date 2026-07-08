@@ -43,7 +43,10 @@ export function WorkoutList({ onEdit }: Record<"onEdit", (workout: EditableWorko
 
   function onDelete(workout: EditableWorkout) {
     modals.openConfirmModal({
-      cancelProps: { className: "border-bd bg-inset text-tx hover:bg-panel-2" },
+      cancelProps: {
+        className:
+          "border-bd bg-inset text-tx transition hover:bg-panel-2 hover:brightness-110 active:brightness-95",
+      },
       centered: true,
       children: <Text size="sm">この記録を削除します。元に戻せません。</Text>,
       confirmProps: { style: ACCENT_SOLID_STYLE.coral },
@@ -90,10 +93,21 @@ export function WorkoutList({ onEdit }: Record<"onEdit", (workout: EditableWorko
             </Text>
           )}
           <Group gap={6} ml="auto">
-            <Button onClick={() => onEdit(workout)} size="xs" variant="outline">
+            <Button
+              className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+              onClick={() => onEdit(workout)}
+              size="xs"
+              variant="outline"
+            >
               編集
             </Button>
-            <Button color="red" onClick={() => onDelete(workout)} size="xs" variant="outline">
+            <Button
+              className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+              color="red"
+              onClick={() => onDelete(workout)}
+              size="xs"
+              variant="outline"
+            >
               削除
             </Button>
           </Group>

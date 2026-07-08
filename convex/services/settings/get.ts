@@ -1,5 +1,5 @@
 import type { QueryCtx } from "../../_generated/server";
-import { DEFAULT_FASTING_MINUTES } from "../appSettings/getFastingDefaultMinutes";
+import { DEFAULT_FASTING_MINUTES } from "../../lib/domain";
 
 export async function get(ctx: QueryCtx) {
   const settings = await ctx.db.query("appSettings").first();

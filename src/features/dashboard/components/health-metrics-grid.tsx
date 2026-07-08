@@ -1,13 +1,40 @@
-import { Group, Paper, RingProgress, Stack, Text } from "@mantine/core";
+import { Button, Group, Paper, RingProgress, Stack, Text } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import { Shimmer } from "@shimmer-from-structure/react";
+import { IconRefresh, IconStethoscope } from "@tabler/icons-react";
+import { Link } from "@tanstack/react-router";
 
 import { GlowCard } from "~/components/glow-card";
 import { useDashboardHealth } from "~/features/dashboard/hooks/use-dashboard-health";
-import { ACCENT_VARS, HEALTH_SOURCE_LABELS } from "~/types/dashboard";
+import { useRequestGarminSync } from "~/features/health/hooks/use-request-garmin-sync";
+import { ACCENT_SOLID_STYLE, ACCENT_VARS, HEALTH_SOURCE_LABELS } from "~/types/dashboard";
 
 export function HealthMetricsGrid() {
   const { dateJst, metrics } = useDashboardHealth();
+  const requestGarminSync = useRequestGarminSync();
   const dateLabel = (metrics?.dateJst ?? dateJst).replaceAll("-", "/");
+
+  function onSync() {
+    requestGarminSync.mutate(
+      {},
+      {
+        onError: () => {
+          notifications.show({
+            color: "red",
+            message: "同期のリクエストに失敗しました",
+            title: "エラー",
+          });
+        },
+        onSuccess: () => {
+          notifications.show({
+            color: "green",
+            message: "Garminとの同期をリクエストしました",
+            title: "同期を開始しました",
+          });
+        },
+      },
+    );
+  }
 
   if (metrics === null) {
     return (
@@ -27,12 +54,42 @@ export function HealthMetricsGrid() {
             健康メトリクス · Garmin
           </Text>
         </Group>
-        <Text size="sm" c="dimmed">
-          未計測
-        </Text>
-        <Text size="xs" c="dimmed" mt="xs">
-          {dateLabel}
-        </Text>
+        <Stack gap="xs">
+          <Text size="sm" fw={600}>
+            今日のデータはまだありません
+          </Text>
+          <Text size="xs" c="dimmed">
+            Garminを同期すると、睡眠・Body Battery・歩数をここに表示します。
+          </Text>
+          <Text size="xs" c="dimmed">
+            {dateLabel}
+          </Text>
+          <Group gap="xs" justify="flex-end" mt="xs">
+            <Button
+              className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+              disabled={requestGarminSync.isPending}
+              leftSection={<IconRefresh size={14} />}
+              loading={requestGarminSync.isPending}
+              onClick={onSync}
+              size="xs"
+              style={ACCENT_SOLID_STYLE.blue}
+              type="button"
+            >
+              Garminを同期
+            </Button>
+            <Button
+              className="border-bd-2 text-tx transition hover:brightness-110 active:brightness-95"
+              component={Link}
+              leftSection={<IconStethoscope size={14} />}
+              size="xs"
+              to="/health"
+              type="button"
+              variant="outline"
+            >
+              詳細
+            </Button>
+          </Group>
+        </Stack>
       </GlowCard>
     );
   }

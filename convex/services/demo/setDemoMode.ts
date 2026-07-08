@@ -2,7 +2,7 @@ import { internal } from "../../_generated/api";
 import type { Doc } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
 import { DEMO_SEED_DAYS } from "../../lib/demoConstants";
-import { DEFAULT_FASTING_MINUTES } from "../appSettings/getFastingDefaultMinutes";
+import { DEFAULT_FASTING_MINUTES } from "../../lib/domain";
 import { seedMetrics } from "./seedMetrics";
 
 type SetDemoModeArgs = Record<"enabled", Doc<"appSettings">["demoMode"]> &
