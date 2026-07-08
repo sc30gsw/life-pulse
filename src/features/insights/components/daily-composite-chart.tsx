@@ -2,6 +2,7 @@ import { CompositeChart } from "@mantine/charts";
 import { Box, Text } from "@mantine/core";
 import { Shimmer } from "@shimmer-from-structure/react";
 
+import { CHART_LEGEND_CLASS_NAMES } from "~/components/chart-legend-style";
 import { useInsightsCorrelations } from "~/features/insights/hooks/use-insights-correlations";
 import { ACCENT_VARS } from "~/types/dashboard";
 import { dayjs } from "~/utils/dayjs";
@@ -26,6 +27,7 @@ export function DailyCompositeChart() {
         学習分数 × 睡眠スコア / Body Battery(直近28日)
       </Text>
       <CompositeChart
+        classNames={CHART_LEGEND_CLASS_NAMES}
         connectNulls={false}
         data={chartData}
         dataKey="date"

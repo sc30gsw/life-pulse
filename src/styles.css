@@ -79,6 +79,11 @@ body {
     color 0.35s ease;
 }
 
+.lp-chart-legend-item:hover .lp-chart-legend-item-name,
+.lp-chart-legend-item:active .lp-chart-legend-item-name {
+  color: var(--panel) !important;
+}
+
 .lp-dtp-calendar-level,
 .lp-dtp-calendar-control,
 .lp-dtp-weekday,

@@ -3,6 +3,7 @@ import { Box, EmptyState, Text } from "@mantine/core";
 import { Shimmer } from "@shimmer-from-structure/react";
 import { IconChartBar } from "@tabler/icons-react";
 
+import { CHART_LEGEND_CLASS_NAMES } from "~/components/chart-legend-style";
 import { useWorkouts } from "~/features/health/hooks/use-workouts";
 import { bucketDailyDuration } from "~/features/health/utils/hiit-trend";
 import { ACCENT_VARS } from "~/types/dashboard";
@@ -36,6 +37,7 @@ export function HiitTrend() {
         直近14日間のトレーニング時間(分)
       </Text>
       <BarChart
+        classNames={CHART_LEGEND_CLASS_NAMES}
         data={chartData}
         dataKey="date"
         gridColor={CHART_GRID_COLOR}

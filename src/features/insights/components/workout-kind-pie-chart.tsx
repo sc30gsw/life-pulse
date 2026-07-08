@@ -3,6 +3,7 @@ import { Box, EmptyState, Text } from "@mantine/core";
 import { Shimmer } from "@shimmer-from-structure/react";
 import { IconChartPie } from "@tabler/icons-react";
 
+import { CHART_LEGEND_CLASS_NAMES } from "~/components/chart-legend-style";
 import { useInsightsCorrelations } from "~/features/insights/hooks/use-insights-correlations";
 import { ACCENT_VARS, type WorkoutKind, WORKOUT_KIND_LABELS } from "~/types/dashboard";
 
@@ -43,7 +44,13 @@ export function WorkoutKindPieChart() {
       <Text c="dimmed" fw={600} mb="xs" size="xs">
         トレーニング種別内訳(直近28日)
       </Text>
-      <PieChart data={chartData} size={CHART_SIZE} withLabels withLegend />
+      <PieChart
+        classNames={CHART_LEGEND_CLASS_NAMES}
+        data={chartData}
+        size={CHART_SIZE}
+        withLabels
+        withLegend
+      />
     </Box>
   );
 }

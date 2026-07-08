@@ -3,6 +3,7 @@ import { Box, EmptyState, Stack, Text } from "@mantine/core";
 import { Shimmer } from "@shimmer-from-structure/react";
 import { IconChartLine } from "@tabler/icons-react";
 
+import { CHART_LEGEND_CLASS_NAMES } from "~/components/chart-legend-style";
 import { useHealthRange } from "~/features/health/hooks/use-health-range";
 import { ACCENT_VARS } from "~/types/dashboard";
 import { dayjs } from "~/utils/dayjs";
@@ -51,6 +52,7 @@ export function MetricsTrend() {
       <Box>
         <ChartTitle label="睡眠スコア / Body Battery" />
         <LineChart
+          classNames={CHART_LEGEND_CLASS_NAMES}
           connectNulls={false}
           curveType="monotone"
           data={chartData}
@@ -69,6 +71,7 @@ export function MetricsTrend() {
       <Box>
         <ChartTitle label="HRV / 安静時心拍" />
         <LineChart
+          classNames={CHART_LEGEND_CLASS_NAMES}
           connectNulls={false}
           curveType="monotone"
           data={chartData}
