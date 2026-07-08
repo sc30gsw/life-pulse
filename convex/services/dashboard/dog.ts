@@ -19,6 +19,8 @@ export async function dog(ctx: QueryCtx, args: DogArgs) {
     return null;
   }
 
+  const dogImageUrl =
+    dogDoc.imageStorageId === undefined ? null : await ctx.storage.getUrl(dogDoc.imageStorageId);
   const eventByTaskId = new Map(rawEvents.map((event) => [event.taskId, event]));
 
   const tasks = await Promise.all(
@@ -51,5 +53,5 @@ export async function dog(ctx: QueryCtx, args: DogArgs) {
     }),
   );
 
-  return { dogName: dogDoc.name, tasks };
+  return { dogImageUrl, dogName: dogDoc.name, tasks };
 }

@@ -25,6 +25,7 @@ import { GlowCard } from "~/components/glow-card";
 import { dogHistoryQuery } from "~/features/dashboard/api/dog-history-query";
 import { useDashboardDog } from "~/features/dashboard/hooks/use-dashboard-dog";
 import { formatClockTime } from "~/features/dashboard/utils/format";
+import { DOG_BREED_LABEL, DOG_IMAGE_FALLBACK_SRC } from "~/features/dog/constants/dog-profile";
 import { ACCENT_CLASSES, ACCENT_SOLID_STYLE, ACCENT_VARS } from "~/types/dashboard";
 import { pastDateJstRange, todayJst } from "~/utils/date-jst";
 
@@ -47,7 +48,7 @@ function openHistoryModal() {
 }
 
 export function DogCard() {
-  const { dogCare, dogFlashRef, dogName, hasDog, onToggleDogCare } = useDashboardDog();
+  const { dogCare, dogFlashRef, dogImageUrl, dogName, hasDog, onToggleDogCare } = useDashboardDog();
   const pendingCount = dogCare.filter((item) => !item.done).length;
   const pendingAccent = pendingCount > 0 ? ACCENT_CLASSES.coral : ACCENT_CLASSES.good;
 
@@ -98,7 +99,7 @@ export function DogCard() {
             name={displayDogName}
             radius="md"
             size={34}
-            src="/assets/hamaro.JPEG"
+            src={dogImageUrl ?? DOG_IMAGE_FALLBACK_SRC}
           />
           <Stack gap={0}>
             <Text size="sm" fw={600}>
@@ -111,7 +112,7 @@ export function DogCard() {
               c={ACCENT_VARS.faint}
               style={{ letterSpacing: "0.13em" }}
             >
-              トイプードル · 今日のケア
+              {DOG_BREED_LABEL} · 今日のケア
             </Text>
           </Stack>
         </Group>
@@ -340,14 +341,14 @@ export function DogCardFallback() {
               name="ハマロ"
               radius="xl"
               size={34}
-              src="/assets/hamaro.JPEG"
+              src={DOG_IMAGE_FALLBACK_SRC}
             />
             <Stack gap={0}>
               <Text size="sm" fw={600}>
                 ハマロ
               </Text>
               <Text size="10.5px" fw={600} tt="uppercase" c={ACCENT_VARS.faint}>
-                トイプードル · 今日のケア
+                {DOG_BREED_LABEL} · 今日のケア
               </Text>
             </Stack>
           </Group>

@@ -316,6 +316,106 @@ body {
   animation: lp-toast-in 0.32s cubic-bezier(0.2, 0.9, 0.3, 1);
 }
 
+.lp-notifications-root {
+  --notifications-container-width: min(420px, calc(100vw - 24px));
+}
+
+.lp-toast {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--bd2);
+  border-radius: 8px;
+  background:
+    radial-gradient(
+      260px circle at 92% 10%,
+      color-mix(in oklch, var(--notification-color, var(--good)) 18%, transparent),
+      transparent 56%
+    ),
+    linear-gradient(165deg, var(--panel), var(--panel2));
+  box-shadow: var(--cardsh);
+  color: var(--tx);
+  font-family: "JetBrains Mono", monospace;
+}
+
+.lp-toast::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.3px;
+  background: conic-gradient(
+    from 22deg,
+    transparent 0deg,
+    color-mix(in oklch, var(--notification-color, var(--streak)) 72%, transparent) 42deg,
+    transparent 96deg,
+    transparent 210deg,
+    color-mix(in oklch, var(--streak) 60%, transparent) 244deg,
+    transparent 296deg
+  );
+  content: "";
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.lp-toast::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklch, var(--notification-color, var(--good)) 72%, transparent) 0,
+    transparent 2px
+  );
+  content: "";
+  pointer-events: none;
+}
+
+.lp-toast :where(.mantine-Notification-body) {
+  position: relative;
+  z-index: 1;
+}
+
+.lp-toast :where(.mantine-Notification-title) {
+  color: var(--tx);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.lp-toast :where(.mantine-Notification-description) {
+  color: var(--dim);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.lp-toast :where(.mantine-Notification-closeButton) {
+  position: relative;
+  z-index: 1;
+  border: 1px solid transparent;
+  color: var(--dim);
+}
+
+.lp-toast :where(.mantine-Notification-closeButton:hover) {
+  border-color: var(--bd2);
+  background: var(--inset);
+  color: var(--tx);
+}
+
+.lp-toast :where(.mantine-Notification-icon) {
+  position: relative;
+  z-index: 1;
+  background: color-mix(in oklch, var(--notification-color, var(--good)) 18%, var(--inset));
+  color: var(--notification-color, var(--good));
+}
+
 /* Gradient/sheen text — Cursor-style off-white shine sliding across the glyphs */
 .lp-brandtext {
   background: var(--sheen);

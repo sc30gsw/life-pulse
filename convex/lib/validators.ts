@@ -128,7 +128,10 @@ export const fastingWindowDocumentValidator = v.object({
   ...fastingWindowFieldValidators,
 });
 
-export const dogFieldValidators = { name: v.string() };
+export const dogFieldValidators = {
+  imageStorageId: v.optional(v.id("_storage")),
+  name: v.string(),
+};
 
 export const dogDocumentValidator = v.object({
   _creationTime: creationTimeValidator,

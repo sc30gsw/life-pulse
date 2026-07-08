@@ -4,8 +4,13 @@ import { Suspense } from "react";
 
 import { GlowCard } from "~/components/glow-card";
 import { AddDogTaskForm } from "~/features/dog/components/add-dog-task-form";
+import {
+  DogImageUploader,
+  DogImageUploaderFallback,
+} from "~/features/dog/components/dog-image-uploader";
 import { DogNameForm, DogNameFormFallback } from "~/features/dog/components/dog-name-form";
 import { DogTaskList, DogTaskListFallback } from "~/features/dog/components/dog-task-list";
+import { DOG_PAGE_COPY } from "~/features/dog/constants/dog-profile";
 import { ACCENT_VARS } from "~/types/dashboard";
 
 export const Route = createFileRoute("/_authenticated/dog")({
@@ -35,7 +40,7 @@ function DogPage() {
       <Group component="header" wrap="wrap" gap="md" align="center" mb="lg">
         <Stack gap={0} mr="auto">
           <Text className="lp-brandtext" component="h1" fw={700} size="lg" m={0}>
-            犬の管理
+            {DOG_PAGE_COPY.title}
           </Text>
           <Text
             size="10.5px"
@@ -44,29 +49,42 @@ function DogPage() {
             c={ACCENT_VARS.faint}
             style={{ letterSpacing: "0.13em" }}
           >
-            Dog Profile & Care Tasks
+            {DOG_PAGE_COPY.subtitle}
           </Text>
         </Stack>
       </Group>
 
-      <main className="flex flex-col gap-4">
-        <GlowCard
-          className="bg-panel border-bd shadow-card relative overflow-hidden border"
-          p="lg"
-          radius={18}
-        >
-          <SectionLabel label="犬の名前" />
-          <Suspense fallback={<DogNameFormFallback />}>
-            <DogNameForm />
-          </Suspense>
-        </GlowCard>
+      <main className="flex min-w-0 flex-col gap-4">
+        <div className="grid min-w-0 gap-4 lg:grid-cols-2">
+          <GlowCard
+            className="bg-panel border-bd shadow-card relative overflow-hidden border"
+            p="lg"
+            radius={18}
+          >
+            <SectionLabel label={DOG_PAGE_COPY.sections.name} />
+            <Suspense fallback={<DogNameFormFallback />}>
+              <DogNameForm />
+            </Suspense>
+          </GlowCard>
+
+          <GlowCard
+            className="bg-panel border-bd shadow-card relative overflow-hidden border"
+            p="lg"
+            radius={18}
+          >
+            <SectionLabel label={DOG_PAGE_COPY.sections.image} />
+            <Suspense fallback={<DogImageUploaderFallback />}>
+              <DogImageUploader />
+            </Suspense>
+          </GlowCard>
+        </div>
 
         <GlowCard
           className="bg-panel border-bd shadow-card relative overflow-hidden border"
           p="lg"
           radius={18}
         >
-          <SectionLabel label="お世話タスク管理" />
+          <SectionLabel label={DOG_PAGE_COPY.sections.tasks} />
           <Stack gap="md">
             <AddDogTaskForm />
             <Suspense fallback={<DogTaskListFallback />}>

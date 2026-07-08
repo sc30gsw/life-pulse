@@ -16,7 +16,8 @@ export async function update(ctx: MutationCtx, args: UpdateArgs) {
   const dog = await getDog(ctx);
 
   if (dog === null) {
-    throw new ConvexError("DOG_NOT_FOUND");
+    await ctx.db.insert("dogs", { name });
+    return;
   }
 
   await ctx.db.patch("dogs", dog._id, { name });

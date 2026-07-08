@@ -15,6 +15,7 @@ export const dog = query({
   returns: v.union(
     v.null(),
     v.object({
+      dogImageUrl: v.union(v.null(), v.string()),
       dogName: dogFieldValidators.name,
       tasks: v.array(
         v.object({

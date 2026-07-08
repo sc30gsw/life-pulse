@@ -1,29 +1,28 @@
 import { Avatar, Button, EmptyState, FileButton, Group, Slider, Stack, Text } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconUpload } from "@tabler/icons-react";
+import { Shimmer } from "@shimmer-from-structure/react";
+import { IconPhotoUp } from "@tabler/icons-react";
 import { useRef, useState } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 
-import { useViewer } from "~/features/auth/hooks/use-viewer";
-import {
-  useGenerateAvatarUploadUrl,
-  useSetAvatar,
-} from "~/features/profile/hooks/use-profile-actions";
+import { DOG_IMAGE_FALLBACK_SRC } from "~/features/dog/constants/dog-profile";
+import { useDog } from "~/features/dog/hooks/use-dog";
+import { useGenerateDogImageUploadUrl, useSetDogImage } from "~/features/dog/hooks/use-update-dog";
 import { cropImageToAvatarBlob } from "~/features/profile/utils/crop-image";
 import { ACCENT_SOLID_STYLE } from "~/types/dashboard";
 import { uploadBlobToConvexStorage } from "~/utils/convex-storage-upload";
 
-export function AvatarUploader() {
-  const { data: viewer } = useViewer();
-  const generateUploadUrl = useGenerateAvatarUploadUrl();
-  const setAvatar = useSetAvatar();
+export function DogImageUploader() {
+  const { data: dog } = useDog();
+  const generateUploadUrl = useGenerateDogImageUploadUrl();
+  const setDogImage = useSetDogImage();
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const croppedAreaPixelsRef = useRef<Area | null>(null);
 
-  if (viewer === null) {
-    return <MissingViewerEmptyState />;
+  if (dog === null) {
+    return <MissingDogEmptyState />;
   }
 
   async function onFileSelect(file: File | null) {
@@ -48,35 +47,37 @@ export function AvatarUploader() {
         cropImageToAvatarBlob(imageSrc, croppedAreaPixels),
       ])
         .then(([uploadUrl, blob]) => uploadBlobToConvexStorage(uploadUrl, blob, "image/jpeg"))
-        .then((storageId) => setAvatar.mutateAsync({ storageId }));
+        .then((storageId) => setDogImage.mutateAsync({ storageId }));
       setImageSrc(null);
       notifications.show({
         color: "green",
-        message: "アバターを保存しました",
+        message: "犬の写真を保存しました",
         title: "保存しました",
       });
     } catch {
       notifications.show({
         color: "red",
-        message: "アバターの保存に失敗しました",
+        message: "犬の写真の保存に失敗しました",
         title: "エラー",
       });
     }
   }
 
+  const currentImageUrl = dog.imageUrl;
+
   return (
     <Stack gap="md">
       <Group align="center">
-        <Avatar name={viewer.displayName} radius="xl" size={64} src={viewer.avatarUrl} />
+        <Avatar name={dog.name} radius="md" size={76} src={currentImageUrl} />
         <FileButton accept="image/*" onChange={onFileSelect}>
           {(props) => (
             <Button
               {...props}
               className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
-              leftSection={<IconUpload size={16} />}
+              leftSection={<IconPhotoUp size={16} />}
               variant="outline"
             >
-              画像を選ぶ
+              写真を選ぶ
             </Button>
           )}
         </FileButton>
@@ -88,7 +89,7 @@ export function AvatarUploader() {
             <Cropper
               aspect={1}
               crop={crop}
-              cropShape="round"
+              cropShape="rect"
               image={imageSrc}
               onCropChange={setCrop}
               onCropComplete={(_, areaPixels) => {
@@ -110,18 +111,18 @@ export function AvatarUploader() {
           <Group justify="flex-end">
             <Button
               className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
-              variant="outline"
               onClick={() => setImageSrc(null)}
+              variant="outline"
             >
               キャンセル
             </Button>
             <Button
               className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
-              loading={generateUploadUrl.isPending || setAvatar.isPending}
+              loading={generateUploadUrl.isPending || setDogImage.isPending}
               onClick={onSave}
               style={ACCENT_SOLID_STYLE.good}
             >
-              アバターを保存
+              写真を保存
             </Button>
           </Group>
         </Stack>
@@ -130,15 +131,30 @@ export function AvatarUploader() {
   );
 }
 
-function MissingViewerEmptyState() {
+export function DogImageUploaderFallback() {
+  return (
+    <Shimmer loading>
+      <Stack gap="md">
+        <Group align="center">
+          <Avatar name="ハマロ" radius="md" size={76} src={DOG_IMAGE_FALLBACK_SRC} />
+          <Button className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100">
+            写真を選ぶ
+          </Button>
+        </Group>
+      </Stack>
+    </Shimmer>
+  );
+}
+
+function MissingDogEmptyState() {
   return (
     <EmptyState
       title={
         <Text size="xl" fw={600} c="coral">
-          プロフィール未作成
+          犬プロフィール未作成
         </Text>
       }
-      description="ログイン情報に対応するプロフィールが見つかりません。"
+      description="先に犬の名前を登録すると、写真をアップロードできます。"
     />
   );
 }

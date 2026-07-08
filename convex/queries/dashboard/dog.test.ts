@@ -28,7 +28,10 @@ test("dog returns dog name and merged per-task status for date events", async ()
     }),
   );
 
-  await t.run((ctx) => ctx.db.insert("dogs", { name: "ポチ" }));
+  const imageStorageId = await t.run((ctx) =>
+    ctx.storage.store(new Blob(["dog"], { type: "image/jpeg" })),
+  );
+  await t.run((ctx) => ctx.db.insert("dogs", { imageStorageId, name: "ポチ" }));
   const walkTaskId = await t.run((ctx) =>
     ctx.db.insert("dogTasks", { archivedAt: undefined, name: "朝散歩", sortOrder: 0 }),
   );
@@ -63,6 +66,7 @@ test("dog returns dog name and merged per-task status for date events", async ()
   }
 
   expect(dog.dogName).toBe("ポチ");
+  expect(dog.dogImageUrl).not.toBeNull();
   expect(dog.tasks).toHaveLength(2);
   const tasksByName = Object.fromEntries(dog.tasks.map((task) => [task.name, task]));
   expect(tasksByName["朝散歩"]?.done).toBe(true);

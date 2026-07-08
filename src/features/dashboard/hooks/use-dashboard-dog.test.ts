@@ -20,6 +20,7 @@ vi.mock("@mantine/notifications", () => ({
 vi.mock("@tanstack/react-query", () => ({
   useSuspenseQuery: () => ({
     data: {
+      dogImageUrl: "https://example.com/dog.jpg",
       dogName: "ハマロ",
       tasks: [
         {
@@ -62,6 +63,7 @@ test("logs a pending dog event and wires success/error notifications", () => {
   testState.show.mockClear();
   const { result } = renderHook(() => useDashboardDog());
 
+  expect(result.current.dogImageUrl).toBe("https://example.com/dog.jpg");
   result.current.onToggleDogCare("task_walk_am" as never);
 
   expect(testState.logMutate).toHaveBeenCalledWith(

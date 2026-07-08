@@ -27,6 +27,20 @@ test("self can update the dog's name", async () => {
   expect(dog?.name).toBe("ポチ");
 });
 
+test("self can create the singleton dog profile from the name form", async () => {
+  const t = convexTest(schema, testModules);
+  const asSelf = t.withIdentity({ subject: "self_1" });
+
+  await t.run((ctx) =>
+    ctx.db.insert("appUsers", { authSubject: "self_1", displayName: "本人", role: "self" }),
+  );
+
+  await asSelf.mutation(api.mutations.dogs.update.update, { name: "ハマロ" });
+
+  const dog = await asSelf.query(api.queries.dogs.get.get, {});
+  expect(dog?.name).toBe("ハマロ");
+});
+
 test("partner can update the dog's name", async () => {
   const t = convexTest(schema, testModules);
   const asPartner = t.withIdentity({ subject: "partner_1" });

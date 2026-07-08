@@ -66,7 +66,13 @@ function RootComponent() {
             }}
           >
             <ModalsProvider>
-              <Notifications position="top-center" />
+              <Notifications
+                classNames={{
+                  notification: "lp-toast",
+                  root: "lp-notifications-root",
+                }}
+                position="top-center"
+              />
               <Outlet />
               {TanStackRouterDevtools ? (
                 <Suspense fallback={null}>

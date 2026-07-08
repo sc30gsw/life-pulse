@@ -105,6 +105,7 @@ export function useDashboardDog() {
   return {
     dogCare,
     dogFlashRef,
+    dogImageUrl: dog?.dogImageUrl ?? null,
     dogName: dog?.dogName ?? null,
     hasDog: dog !== null,
     onToggleDogCare,

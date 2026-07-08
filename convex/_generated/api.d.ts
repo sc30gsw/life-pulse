@@ -38,6 +38,8 @@ import type * as mutations_dogTasks_create from "../mutations/dogTasks/create.js
 import type * as mutations_dogTasks_move from "../mutations/dogTasks/move.js";
 import type * as mutations_dogTasks_rename from "../mutations/dogTasks/rename.js";
 import type * as mutations_dogTasks_seed from "../mutations/dogTasks/seed.js";
+import type * as mutations_dogs_generateImageUploadUrl from "../mutations/dogs/generateImageUploadUrl.js";
+import type * as mutations_dogs_setImage from "../mutations/dogs/setImage.js";
 import type * as mutations_dogs_update from "../mutations/dogs/update.js";
 import type * as mutations_fasting_advancePhase from "../mutations/fasting/advancePhase.js";
 import type * as mutations_fasting_end from "../mutations/fasting/end.js";
@@ -114,6 +116,7 @@ import type * as services_dogTasks_list from "../services/dogTasks/list.js";
 import type * as services_dogTasks_move from "../services/dogTasks/move.js";
 import type * as services_dogTasks_rename from "../services/dogTasks/rename.js";
 import type * as services_dogs_get from "../services/dogs/get.js";
+import type * as services_dogs_setImage from "../services/dogs/setImage.js";
 import type * as services_dogs_update from "../services/dogs/update.js";
 import type * as services_fasting_advancePhase from "../services/fasting/advancePhase.js";
 import type * as services_fasting_end from "../services/fasting/end.js";
@@ -193,6 +196,8 @@ declare const fullApi: ApiFromModules<{
   "mutations/dogTasks/move": typeof mutations_dogTasks_move;
   "mutations/dogTasks/rename": typeof mutations_dogTasks_rename;
   "mutations/dogTasks/seed": typeof mutations_dogTasks_seed;
+  "mutations/dogs/generateImageUploadUrl": typeof mutations_dogs_generateImageUploadUrl;
+  "mutations/dogs/setImage": typeof mutations_dogs_setImage;
   "mutations/dogs/update": typeof mutations_dogs_update;
   "mutations/fasting/advancePhase": typeof mutations_fasting_advancePhase;
   "mutations/fasting/end": typeof mutations_fasting_end;
@@ -269,6 +274,7 @@ declare const fullApi: ApiFromModules<{
   "services/dogTasks/move": typeof services_dogTasks_move;
   "services/dogTasks/rename": typeof services_dogTasks_rename;
   "services/dogs/get": typeof services_dogs_get;
+  "services/dogs/setImage": typeof services_dogs_setImage;
   "services/dogs/update": typeof services_dogs_update;
   "services/fasting/advancePhase": typeof services_fasting_advancePhase;
   "services/fasting/end": typeof services_fasting_end;

@@ -53,9 +53,14 @@ export function UserMenu() {
           <span aria-hidden className="lp-glow-spot" />
           <span aria-hidden className="lp-glow-border" />
           <Group className="relative z-10" gap="xs" wrap="nowrap">
-            <Avatar className="lp-user-menu-avatar" radius="xl" size="sm">
-              {viewer.displayName.slice(0, 1)}
-            </Avatar>
+            <Avatar
+              src={viewer.avatarUrl}
+              alt={viewer.displayName}
+              name={viewer.displayName.slice(0, 1)}
+              className="lp-user-menu-avatar"
+              radius="xl"
+              size="sm"
+            />
             <div className="min-w-0">
               <Text className="text-tx truncate" fw={700} size="sm">
                 {viewer.displayName}

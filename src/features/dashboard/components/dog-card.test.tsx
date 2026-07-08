@@ -47,6 +47,7 @@ vi.mock("~/features/dashboard/hooks/use-dashboard-dog", () => ({
   useDashboardDog: () => ({
     dogCare: hookState.dogCare,
     dogFlash: false,
+    dogImageUrl: "https://example.com/dog.jpg",
     dogName: "ハマロ",
     hasDog: true,
     onToggleDogCare,
@@ -103,7 +104,7 @@ test("renders the dog name, photo avatar, pending count, and actor labels", () =
   const { getByAltText, getByText } = renderWithMantine(<DogCard />);
 
   expect(getByText("ハマロ")).toBeDefined();
-  expect(getByAltText("ハマロ").getAttribute("src")).toBe("/assets/hamaro.JPEG");
+  expect(getByAltText("ハマロ").getAttribute("src")).toBe("https://example.com/dog.jpg");
   expect(getByText("未実施 1 件")).toBeDefined();
   expect(getByText("本人")).toBeDefined();
   expect(getByText("パートナー")).toBeDefined();

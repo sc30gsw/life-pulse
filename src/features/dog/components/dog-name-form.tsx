@@ -1,5 +1,5 @@
 import { Field, Form, useForm } from "@formisch/react";
-import { Button, EmptyState, Stack, Text, TextInput } from "@mantine/core";
+import { Button, Stack, TextInput } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { Shimmer } from "@shimmer-from-structure/react";
 
@@ -11,23 +11,11 @@ import { ACCENT_SOLID_STYLE } from "~/types/dashboard";
 export function DogNameForm() {
   const { data: dog } = useDog();
   const updateDog = useUpdateDog();
+  const isCreating = dog === null;
   const dogNameForm = useForm({
     initialInput: { name: dog?.name ?? "" },
     schema: DogNameSchema,
   });
-
-  if (dog === null) {
-    return (
-      <EmptyState
-        title={
-          <Text size="xl" fw={600} c="coral">
-            犬プロフィール未作成
-          </Text>
-        }
-        description="初期データの seed がまだ実行されていません。dogTasks seed mutation で dogs を作成してください。"
-      />
-    );
-  }
 
   return (
     <Form
@@ -37,15 +25,17 @@ export function DogNameForm() {
           onError: () => {
             notifications.show({
               color: "red",
-              message: "犬の名前の変更に失敗しました",
+              message: "犬プロフィールの保存に失敗しました",
               title: "エラー",
             });
           },
           onSuccess: () => {
             notifications.show({
               color: "green",
-              message: `名前を「${output.name}」に変更しました`,
-              title: "変更しました",
+              message: isCreating
+                ? `犬プロフィールを「${output.name}」で作成しました`
+                : `名前を「${output.name}」に変更しました`,
+              title: isCreating ? "作成しました" : "変更しました",
             });
           },
         });
@@ -71,7 +61,7 @@ export function DogNameForm() {
           style={ACCENT_SOLID_STYLE.good}
           type="submit"
         >
-          保存する
+          {isCreating ? "作成する" : "保存する"}
         </Button>
       </Stack>
     </Form>
