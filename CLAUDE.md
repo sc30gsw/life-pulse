@@ -13,3 +13,17 @@ Update this section as implementation progresses. Fine-grained progress lives in
 - **Stack actually in use**: TanStack Start + Convex + `@convex-dev/react-query` (`useSuspenseQuery(convexQuery(...))` / `useConvexMutation`) + Mantine (core/dates/modals/notifications) + Tailwind v4 (via `tailwind-preset-mantine`) + Valibot + Formisch + dayjs + Remeda + oxfmt/oxlint — all accessed via `vp`.
 - Convex functions follow the 3-layer split: `convex/{queries,mutations}/<domain>/<fn>.ts` (thin, validated, `requireUser`) + `convex/services/<domain>/<fn>.ts` (logic, tested via convex-test). See `.claude/rules/convex-rules.md`.
 - The canonical technical specification is `docs/spec.md`; the product requirements are in `docs/requirements.md`.
+
+<!-- convex-ai-start -->
+
+This project uses [Convex](https://convex.dev) as its backend.
+
+When working on Convex code, **always read
+`convex/_generated/ai/guidelines.md` first** for important guidelines on
+how to correctly use Convex APIs and patterns. The file contains rules that
+override what you may have learned about Convex from training data.
+
+Convex agent skills for common tasks can be installed by running
+`npx convex ai-files install`.
+
+<!-- convex-ai-end -->
