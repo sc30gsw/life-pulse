@@ -32,7 +32,10 @@ export function partnerUser(overrides: Partial<AppUserFixture> = {}): AppUserFix
   };
 }
 
-type AppSettingsFixture = Pick<Doc<"appSettings">, "demoMode" | "fastingDefaultMinutes">;
+type AppSettingsFixture = Pick<
+  Doc<"appSettings">,
+  "demoJobId" | "demoMode" | "fastingDefaultMinutes"
+>;
 
 export function appSettings(overrides: Partial<AppSettingsFixture> = {}): AppSettingsFixture {
   return {

@@ -4,12 +4,17 @@ import { expect, test } from "vite-plus/test";
 import { api } from "../../_generated/api";
 import schema from "../../schema";
 import { testModules } from "../../test.setup";
+import {
+  appSettings,
+  partnerIdentity,
+  partnerUser,
+  selfIdentity,
+  selfUser,
+} from "../../test/fixtures";
 
 async function seedSelf(t: ReturnType<typeof convexTest>) {
-  const asSelf = t.withIdentity({ subject: "user_1" });
-  await t.run((ctx) =>
-    ctx.db.insert("appUsers", { authSubject: "user_1", displayName: "本人", role: "self" }),
-  );
+  const asSelf = t.withIdentity(selfIdentity());
+  await t.run((ctx) => ctx.db.insert("appUsers", selfUser()));
 
   return asSelf;
 }
@@ -29,11 +34,13 @@ test("patches an existing row without touching demoMode or demoJobId", async () 
   const t = convexTest(schema, testModules);
   const asSelf = await seedSelf(t);
   await t.run((ctx) =>
-    ctx.db.insert("appSettings", {
-      demoJobId: undefined,
-      demoMode: true,
-      fastingDefaultMinutes: 960,
-    }),
+    ctx.db.insert(
+      "appSettings",
+      appSettings({
+        demoJobId: undefined,
+        demoMode: true,
+      }),
+    ),
   );
 
   await asSelf.mutation(api.mutations.settings.update.update, { fastingDefaultMinutes: 600 });
@@ -63,14 +70,8 @@ test("rejects a non-integer fastingDefaultMinutes", async () => {
 
 test("rejects a non-self identity", async () => {
   const t = convexTest(schema, testModules);
-  const asPartner = t.withIdentity({ subject: "user_2" });
-  await t.run((ctx) =>
-    ctx.db.insert("appUsers", {
-      authSubject: "user_2",
-      displayName: "パートナー",
-      role: "partner",
-    }),
-  );
+  const asPartner = t.withIdentity(partnerIdentity());
+  await t.run((ctx) => ctx.db.insert("appUsers", partnerUser()));
 
   await expect(
     asPartner.mutation(api.mutations.settings.update.update, { fastingDefaultMinutes: 600 }),
