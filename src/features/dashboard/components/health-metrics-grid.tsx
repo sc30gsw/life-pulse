@@ -28,7 +28,7 @@ export function HealthMetricsGrid() {
           notifications.show({
             color: "red",
             message: DASHBOARD_HEALTH_COPY.notification.syncErrorMessage,
-            title: "エラー",
+            title: DASHBOARD_HEALTH_COPY.notification.errorTitle,
           });
         },
         onSuccess: () => {
@@ -156,7 +156,7 @@ export function HealthMetricsGrid() {
           }
           subLabel={
             <>
-              安静時心拍{" "}
+              {DASHBOARD_HEALTH_COPY.status.restingHeartRate}{" "}
               <Text component="span" c="var(--tx)">
                 {restingHr}
               </Text>
@@ -169,9 +169,9 @@ export function HealthMetricsGrid() {
           value={steps.toLocaleString("en-US")}
           subLabel={
             <>
-              HIIT{" "}
+              {DASHBOARD_HEALTH_COPY.status.hiitLabel}{" "}
               <Text component="span" c={ACCENT_VARS.good}>
-                週2 達成
+                {DASHBOARD_HEALTH_COPY.status.hiitWeeklyAchievement}
               </Text>
             </>
           }

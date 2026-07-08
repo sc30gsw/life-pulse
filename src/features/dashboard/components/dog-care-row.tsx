@@ -2,6 +2,7 @@ import { Box, Text, UnstyledButton } from "@mantine/core";
 import { cn } from "cnfast";
 
 import type { useDashboardDog } from "~/features/dashboard/hooks/use-dashboard-dog";
+import { DOG_TASK_COPY } from "~/features/dog/constants/dog-profile";
 import { ACCENT_CLASSES, ACCENT_SOLID_STYLE } from "~/types/dashboard";
 
 type DogCareRowProps = {
@@ -37,7 +38,11 @@ export function DogCareRow({ item, onToggle }: DogCareRowProps) {
         {item.name}
       </Text>
       <Text size="xs" c="dimmed" className="ml-auto">
-        {item.done ? (item.by === "self" ? "本人" : "パートナー") : "未"}
+        {item.done
+          ? item.by === "self"
+            ? DOG_TASK_COPY.dashboard.doneBySelf
+            : DOG_TASK_COPY.dashboard.doneByPartner
+          : DOG_TASK_COPY.dashboard.incompleteLabel}
       </Text>
     </UnstyledButton>
   );

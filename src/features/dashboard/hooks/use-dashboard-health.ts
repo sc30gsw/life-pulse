@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { dashboardHealthQuery } from "~/features/dashboard/api/dashboard-health-query";
+import { DASHBOARD_HEALTH_COPY } from "~/features/dashboard/constants/health-metrics";
 import { useBoardClock } from "~/features/dashboard/hooks/use-board-clock";
 import { formatRelativeTime } from "~/features/dashboard/utils/format";
 
@@ -11,7 +12,9 @@ export function useDashboardHealth() {
   return {
     dateJst,
     lastSyncRelativeLabel:
-      metrics === null ? "未同期" : formatRelativeTime(metrics.syncedAt, nowMs),
+      metrics === null
+        ? DASHBOARD_HEALTH_COPY.status.noSync
+        : formatRelativeTime(metrics.syncedAt, nowMs),
     metrics,
   } as const;
 }

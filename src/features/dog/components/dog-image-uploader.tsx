@@ -58,7 +58,7 @@ export function DogImageUploader() {
       notifications.show({
         color: "red",
         message: DOG_PROFILE_COPY.notification.imageSaveErrorMessage,
-        title: "エラー",
+        title: DOG_PROFILE_COPY.notification.errorTitle,
       });
     }
   }

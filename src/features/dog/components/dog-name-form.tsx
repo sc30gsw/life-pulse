@@ -27,16 +27,18 @@ export function DogNameForm() {
             notifications.show({
               color: "red",
               message: DOG_PROFILE_COPY.notification.profileSaveErrorMessage,
-              title: "エラー",
+              title: DOG_PROFILE_COPY.notification.errorTitle,
             });
           },
           onSuccess: () => {
             notifications.show({
               color: "green",
               message: isCreating
-                ? `犬プロフィールを「${output.name}」で作成しました`
-                : `名前を「${output.name}」に変更しました`,
-              title: isCreating ? "作成しました" : "変更しました",
+                ? DOG_PROFILE_COPY.notification.profileCreatedMessage(output.name)
+                : DOG_PROFILE_COPY.notification.profileUpdatedMessage(output.name),
+              title: isCreating
+                ? DOG_PROFILE_COPY.notification.profileCreatedTitle
+                : DOG_PROFILE_COPY.notification.profileUpdatedTitle,
             });
           },
         });

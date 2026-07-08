@@ -8,6 +8,7 @@ import { useLogDogEvent } from "~/features/dashboard/hooks/use-log-dog-event";
 import { useRemoteUpdateFlash } from "~/features/dashboard/hooks/use-remote-update-flash";
 import { useUndoDogEvent } from "~/features/dashboard/hooks/use-undo-dog-event";
 import { toDogCareItems } from "~/features/dashboard/utils/format";
+import { DOG_PROFILE_COPY, DOG_TASK_COPY } from "~/features/dog/constants/dog-profile";
 import { ACCENT_SOLID_STYLE } from "~/types/dashboard";
 
 export function useDashboardDog() {
@@ -42,13 +43,20 @@ export function useDashboardDog() {
         {
           onError: () => {
             releaseFlashSuppression();
-            notifications.show({ color: "red", message: "記録に失敗しました", title: "エラー" });
+            notifications.show({
+              color: "red",
+              message: DOG_TASK_COPY.notification.recordErrorMessage,
+              title: DOG_TASK_COPY.notification.errorTitle,
+            });
           },
           onSuccess: () => {
             notifications.show({
               color: "green",
-              message: `${dog?.dogName ?? "犬"}の${current.name}を記録しました`,
-              title: "記録しました",
+              message: DOG_TASK_COPY.notification.recordedMessage(
+                dog?.dogName ?? DOG_PROFILE_COPY.fallbackName,
+                current.name,
+              ),
+              title: DOG_TASK_COPY.notification.recordedTitle,
             });
           },
         },
@@ -67,7 +75,10 @@ export function useDashboardDog() {
       centered: true,
       cancelProps: { className: "border-bd bg-inset text-tx hover:bg-panel-2" },
       confirmProps: { style: ACCENT_SOLID_STYLE.coral },
-      labels: { cancel: "キャンセル", confirm: "取り消す" },
+      labels: {
+        cancel: DOG_TASK_COPY.actions.cancel,
+        confirm: DOG_TASK_COPY.actions.undoRecord,
+      },
       onConfirm: () => {
         const releaseFlashSuppression = suppressNextFlash();
 
@@ -76,13 +87,20 @@ export function useDashboardDog() {
           {
             onError: () => {
               releaseFlashSuppression();
-              notifications.show({ color: "red", message: "取消に失敗しました", title: "エラー" });
+              notifications.show({
+                color: "red",
+                message: DOG_TASK_COPY.notification.undoErrorMessage,
+                title: DOG_TASK_COPY.notification.errorTitle,
+              });
             },
             onSuccess: () => {
               notifications.show({
                 color: "red",
-                message: `${dog?.dogName ?? "犬"}の${current.name}を取り消しました`,
-                title: "取り消しました",
+                message: DOG_TASK_COPY.notification.undoneMessage(
+                  dog?.dogName ?? DOG_PROFILE_COPY.fallbackName,
+                  current.name,
+                ),
+                title: DOG_TASK_COPY.notification.undoneTitle,
               });
             },
           },
@@ -98,7 +116,7 @@ export function useDashboardDog() {
         header: { backgroundColor: "var(--panel)", color: "var(--text)" },
         title: { color: "var(--text)", fontWeight: 700 },
       },
-      title: "記録を取り消しますか?",
+      title: DOG_TASK_COPY.notification.undoConfirmTitle,
     });
   }
 
