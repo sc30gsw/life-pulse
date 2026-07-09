@@ -36,12 +36,14 @@ export function LiveStrip() {
 
       <Divider orientation="vertical" h={12} className="border-bd-2" />
 
-      <Text size="xs" c="dimmed">
-        Garmin 最終同期 ·
+      <Group gap={4}>
+        <Text component="span" size="xs" c="dimmed">
+          Garmin 最終同期 ·
+        </Text>
         <Suspense fallback={<LiveStripLastSyncLabelFallback />}>
           <LiveStripLastSyncLabel />
         </Suspense>
-      </Text>
+      </Group>
 
       <Divider orientation="vertical" h={12} className="border-bd-2" />
 
