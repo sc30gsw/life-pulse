@@ -25,6 +25,9 @@ plan: [2026-07-07_01-live-board-wiring.md](./plans/2026-07-07_01-live-board-wiri
 - [x] FR-9.2 全 Convex 関数がサーバ側で認証検証(requireUser)
 - [x] FR-9.3 オープンサインアップ(email+パスワード 12 文字以上・英大小・数字+表示名+ロール自己選択)
 - [x] FR-9.4 self 専用ページ(`/health` `/insights` `/settings`)の role ガード+サーバ側 requireSelf
+- [x] FR-9.5 サインイン/サインアップ後のメールOTP(6桁・10分)とサーバ側2FA強制
+- [x] FR-9.6 パスワードリセットメールリンク(1時間・1回限り)
+- [x] FR-9.7 Resend Convex Component による認証メール送信・webhook受信口
 
 ### FR-1 ライブボード【P0】
 

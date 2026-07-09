@@ -17,15 +17,20 @@ test("PasswordChangeForm submits current and new password only", async () => {
   state.updatePassword.mutate.mockClear();
   state.updatePassword.mutate.mockImplementation((_input, callbacks) => callbacks.onSuccess());
   const user = userEvent.setup();
-  const { getByLabelText, getByRole } = renderWithMantine(<PasswordChangeForm />);
+  const { getByLabelText, getByPlaceholderText, getByRole } = renderWithMantine(
+    <PasswordChangeForm />,
+  );
 
-  await user.type(getByLabelText("現在のパスワード"), "OldPassw0rd1");
-  await user.type(getByLabelText("新しいパスワード"), "NewPassw0rd1");
-  await user.type(getByLabelText("新しいパスワード(確認)"), "NewPassw0rd1");
+  await user.type(getByLabelText(/現在のパスワード/), "OldPassw0rd1");
+  await user.type(getByPlaceholderText("12文字以上・英大小文字+数字"), "NewPassw0rd1");
+  await user.type(getByPlaceholderText("もう一度入力"), "NewPassw0rd1");
   await user.click(getByRole("button", { name: "パスワードを変更" }));
 
   expect(state.updatePassword.mutate).toHaveBeenCalledWith(
     { currentPassword: "OldPassw0rd1", newPassword: "NewPassw0rd1" },
     expect.objectContaining({ onError: expect.any(Function), onSuccess: expect.any(Function) }),
   );
+  expect((getByLabelText(/現在のパスワード/) as HTMLInputElement).value).toBe("");
+  expect((getByPlaceholderText("12文字以上・英大小文字+数字") as HTMLInputElement).value).toBe("");
+  expect((getByPlaceholderText("もう一度入力") as HTMLInputElement).value).toBe("");
 });

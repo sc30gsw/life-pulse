@@ -16,6 +16,7 @@ dist
 # caches
 .cache
 .fallow
+.pnpm-store
 *.tsbuildinfo
 
 # IntelliJ based IDEs

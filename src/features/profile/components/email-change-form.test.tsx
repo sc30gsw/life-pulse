@@ -6,25 +6,26 @@ import { EmailChangeForm } from "~/features/profile/components/email-change-form
 import { renderWithMantine } from "~/test-utils";
 
 const state = vi.hoisted(() => ({
-  updateEmail: { mutate: vi.fn() },
+  requestEmailChange: { mutate: vi.fn() },
 }));
 
 vi.mock("~/features/profile/hooks/use-profile-actions", () => ({
-  useUpdateEmail: () => state.updateEmail,
+  useRequestEmailChange: () => state.requestEmailChange,
 }));
 
-test("EmailChangeForm submits email change payload", async () => {
-  state.updateEmail.mutate.mockClear();
-  state.updateEmail.mutate.mockImplementation((_input, callbacks) => callbacks.onSuccess());
+test("EmailChangeForm requests a confirmation email without asking for the current password", async () => {
+  state.requestEmailChange.mutate.mockClear();
+  state.requestEmailChange.mutate.mockImplementation((_input, callbacks) => callbacks.onSuccess());
   const user = userEvent.setup();
-  const { getByLabelText, getByRole } = renderWithMantine(<EmailChangeForm />);
+  const { getByLabelText, getByRole, queryByLabelText } = renderWithMantine(<EmailChangeForm />);
 
-  await user.type(getByLabelText("新しいメールアドレス"), "new@example.com");
-  await user.type(getByLabelText("現在のパスワード"), "OldPassw0rd1");
-  await user.click(getByRole("button", { name: "メールアドレスを変更" }));
+  await user.type(getByLabelText(/新しいメールアドレス/), "new@example.com");
+  expect(queryByLabelText("現在のパスワード")).toBeNull();
+  await user.click(getByRole("button", { name: "確認メールを送信" }));
 
-  expect(state.updateEmail.mutate).toHaveBeenCalledWith(
-    { currentPassword: "OldPassw0rd1", newEmail: "new@example.com" },
+  expect(state.requestEmailChange.mutate).toHaveBeenCalledWith(
+    { newEmail: "new@example.com" },
     expect.objectContaining({ onError: expect.any(Function), onSuccess: expect.any(Function) }),
   );
+  expect((getByLabelText(/新しいメールアドレス/) as HTMLInputElement).value).toBe("");
 });

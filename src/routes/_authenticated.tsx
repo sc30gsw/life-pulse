@@ -1,6 +1,7 @@
 import { Navigate, Outlet, createFileRoute } from "@tanstack/react-router";
-import { useConvexAuth } from "convex/react";
+import { useConvexAuth, useQuery } from "convex/react";
 
+import { api } from "~/../convex/_generated/api";
 import { PendingComponent } from "~/components/layouts/pending";
 import { BoardHeader } from "~/features/dashboard/components/board-header";
 
@@ -10,6 +11,10 @@ export const Route = createFileRoute("/_authenticated")({
 
 function AuthenticatedLayout() {
   const { isAuthenticated, isLoading } = useConvexAuth();
+  const secondFactorStatus = useQuery(
+    api.queries.auth.secondFactorStatus.secondFactorStatus,
+    isAuthenticated ? {} : "skip",
+  );
 
   if (isLoading) {
     return <PendingComponent />;
@@ -17,6 +22,14 @@ function AuthenticatedLayout() {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
+  }
+
+  if (secondFactorStatus === undefined) {
+    return <PendingComponent />;
+  }
+
+  if (secondFactorStatus.required && !secondFactorStatus.verified) {
+    return <Navigate to="/verify-otp" />;
   }
 
   return (

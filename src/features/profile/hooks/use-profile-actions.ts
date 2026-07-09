@@ -20,9 +20,14 @@ export function useRemoveAvatar() {
   return useConvexMutation(api.mutations.users.removeAvatar.removeAvatar);
 }
 
-export function useUpdateEmail() {
-  const updateEmail = useAction(api.actions.users.updateEmail.updateEmail);
-  return useMutation({ mutationFn: updateEmail });
+export function useRequestEmailChange() {
+  const requestEmailChange = useAction(api.actions.users.requestEmailChange.requestEmailChange);
+  return useMutation({ mutationFn: requestEmailChange });
+}
+
+export function useConfirmEmailChange() {
+  const confirmEmailChange = useAction(api.actions.users.confirmEmailChange.confirmEmailChange);
+  return useMutation({ mutationFn: confirmEmailChange });
 }
 
 export function useUpdatePassword() {

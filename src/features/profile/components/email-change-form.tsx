@@ -1,15 +1,16 @@
-import { Field, Form, useForm } from "@formisch/react";
+import { Field, Form, reset, useForm } from "@formisch/react";
 import { Button, Stack, TextInput } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
+import { IconMail } from "@tabler/icons-react";
 
-import { useUpdateEmail } from "~/features/profile/hooks/use-profile-actions";
+import { useRequestEmailChange } from "~/features/profile/hooks/use-profile-actions";
 import { EmailChangeSchema } from "~/features/profile/schemas/profile-schemas";
 import { ACCENT_SOLID_STYLE } from "~/types/dashboard";
 
 export function EmailChangeForm() {
-  const updateEmail = useUpdateEmail();
+  const requestEmailChange = useRequestEmailChange();
   const form = useForm({
-    initialInput: { currentPassword: "", newEmail: "" },
+    initialInput: { newEmail: "" },
     schema: EmailChangeSchema,
   });
 
@@ -17,19 +18,21 @@ export function EmailChangeForm() {
     <Form
       of={form}
       onSubmit={(output) => {
-        updateEmail.mutate(output, {
+        requestEmailChange.mutate(output, {
           onError: () => {
             notifications.show({
               color: "red",
-              message: "メールアドレスの変更に失敗しました",
+              message: "確認メールの送信に失敗しました",
               title: "エラー",
             });
           },
           onSuccess: () => {
+            reset(form);
+
             notifications.show({
               color: "green",
-              message: "メールアドレスを変更しました",
-              title: "変更しました",
+              message: "新しいメールアドレス宛に確認メールを送信しました",
+              title: "確認メールを送信しました",
             });
           },
         });
@@ -43,17 +46,10 @@ export function EmailChangeForm() {
               error={field.errors?.[0]}
               label="新しいメールアドレス"
               value={field.input}
-            />
-          )}
-        </Field>
-        <Field of={form} path={["currentPassword"]}>
-          {(field) => (
-            <TextInput
-              {...field.props}
-              error={field.errors?.[0]}
-              label="現在のパスワード"
-              type="password"
-              value={field.input}
+              disabled={form.isSubmitting}
+              required
+              leftSection={<IconMail size={16} />}
+              placeholder="you@example.com"
             />
           )}
         </Field>
@@ -62,8 +58,9 @@ export function EmailChangeForm() {
           type="submit"
           style={ACCENT_SOLID_STYLE.good}
           loading={form.isSubmitting}
+          disabled={form.isSubmitting}
         >
-          メールアドレスを変更
+          確認メールを送信
         </Button>
       </Stack>
     </Form>

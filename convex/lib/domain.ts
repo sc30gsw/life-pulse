@@ -63,6 +63,23 @@ export const PRESENCE_STATE_VALUES = [
 
 export const DOG_TASK_MOVE_DIRECTION_VALUES = ["up", "down"] as const satisfies readonly string[];
 
+export const AUTH_SECOND_FACTOR_PURPOSE_VALUES = ["signin"] as const satisfies readonly string[];
+export const AUTH_SECOND_FACTOR_SIGNIN_PURPOSE =
+  "signin" satisfies (typeof AUTH_SECOND_FACTOR_PURPOSE_VALUES)[number];
+
+export const AUTH_FLOW_ERROR_CODE_VALUES = [
+  "EMAIL_NOT_FOUND",
+  "OTP_ATTEMPTS_EXCEEDED",
+  "OTP_EXPIRED",
+  "OTP_INVALID",
+  "OTP_NOT_FOUND",
+  "OTP_RESEND_WAIT",
+  "OTP_SESSION_NOT_FOUND",
+  "RESET_TOKEN_EXPIRED",
+  "RESET_TOKEN_INVALID",
+  "UNAUTHENTICATED",
+] as const satisfies readonly string[];
+
 export const DATE_JST_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 export const DATE_TIME_PATTERN = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
 

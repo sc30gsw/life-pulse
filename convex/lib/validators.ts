@@ -14,6 +14,8 @@ import {
   SESSION_STATUS_VALUES,
   STUDY_BLOCK_SOURCE_VALUES,
   WORKOUT_KIND_VALUES,
+  AUTH_SECOND_FACTOR_PURPOSE_VALUES,
+  AUTH_FLOW_ERROR_CODE_VALUES,
 } from "./domain";
 
 function literalUnion<T extends string>(values: readonly T[]) {
@@ -60,6 +62,47 @@ export const appUserDocumentValidator = v.object({
   _id: v.id("appUsers"),
   ...appUserFieldValidators,
 });
+
+export const authSecondFactorPurposeValidator = literalUnion(AUTH_SECOND_FACTOR_PURPOSE_VALUES);
+export const authFlowErrorCodeValidator = literalUnion(AUTH_FLOW_ERROR_CODE_VALUES);
+
+export const authSecondFactorChallengeFieldValidators = {
+  attemptCount: v.number(),
+  authUserId: v.id("users"),
+  codeHash: v.string(),
+  consumedAt: v.optional(v.number()),
+  email: v.string(),
+  emailId: v.optional(v.string()),
+  expiresAt: v.number(),
+  purpose: authSecondFactorPurposeValidator,
+  resendAvailableAt: v.number(),
+  sessionId: v.id("authSessions"),
+};
+
+export const authSecondFactorSessionFieldValidators = {
+  authUserId: v.id("users"),
+  expiresAt: v.number(),
+  sessionId: v.id("authSessions"),
+  verifiedAt: v.number(),
+};
+
+export const passwordResetTokenFieldValidators = {
+  authUserId: v.id("users"),
+  consumedAt: v.optional(v.number()),
+  email: v.string(),
+  emailId: v.optional(v.string()),
+  expiresAt: v.number(),
+  tokenHash: v.string(),
+};
+
+export const emailChangeTokenFieldValidators = {
+  authUserId: v.id("users"),
+  consumedAt: v.optional(v.number()),
+  emailId: v.optional(v.string()),
+  expiresAt: v.number(),
+  newEmail: v.string(),
+  tokenHash: v.string(),
+};
 
 export const studySessionFieldValidators = {
   abandonJobId: v.optional(v.id("_scheduled_functions")),

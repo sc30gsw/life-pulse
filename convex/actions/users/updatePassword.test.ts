@@ -17,6 +17,8 @@ const AUTH_ROUND_TRIP_TIMEOUT_MS = 60_000;
 // runtime, exactly like a real Password sign-up.
 type SeedProfile = Pick<WithoutSystemFields<Doc<"users">>, "email"> &
   Pick<WithoutSystemFields<Doc<"appUsers">>, "displayName" | "role">;
+type AuthEmail = NonNullable<Doc<"users">["email"]>;
+type AuthPasswordSecret = Parameters<typeof createAccount>[1]["account"]["secret"];
 
 const SELF_EMAIL = "self@example.com";
 const SELF_OLD_PASSWORD = "OldPassw0rd1";
@@ -30,10 +32,10 @@ const PARTNER_PASSWORD = "PartnerPassw0rd1";
 // function.
 async function createPasswordAccount(
   ctx: Parameters<typeof createAccount>[0],
-  email: string,
-  password: string,
-  displayName: string,
-  role: "self" | "partner",
+  email: AuthEmail,
+  password: AuthPasswordSecret,
+  displayName: Doc<"appUsers">["displayName"],
+  role: Doc<"appUsers">["role"],
 ) {
   return createAccount(ctx, {
     provider: "password",
@@ -49,8 +51,8 @@ async function createPasswordAccount(
 
 async function retrieveByEmail(
   ctx: Parameters<typeof retrieveAccount>[0],
-  email: string,
-  password: string,
+  email: AuthEmail,
+  password: AuthPasswordSecret,
 ) {
   return retrieveAccount(ctx, {
     provider: "password",
@@ -66,10 +68,10 @@ async function retrieveByEmail(
 // against real auth tables, not fake identity strings.
 async function seedAccount(
   t: ReturnType<typeof convexTest>,
-  email: string,
-  password: string,
-  displayName: string,
-  role: "self" | "partner",
+  email: AuthEmail,
+  password: AuthPasswordSecret,
+  displayName: Doc<"appUsers">["displayName"],
+  role: Doc<"appUsers">["role"],
 ) {
   const { user } = await t.action((ctx) =>
     createPasswordAccount(

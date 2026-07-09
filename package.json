@@ -1,5 +1,5 @@
 {
-  "name": "tanstack-start-start",
+  "name": "life-pulse",
   "private": true,
   "license": "MIT",
   "type": "module",
@@ -19,6 +19,7 @@
     "@auth/core": "^0.41.2",
     "@convex-dev/auth": "^0.0.94",
     "@convex-dev/react-query": "^0.1.0",
+    "@convex-dev/resend": "^0.2.5",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
@@ -42,9 +43,11 @@
     "convex": "^1.42.1",
     "dayjs": "^1.11.21",
     "garmin-connect-sdk": "1.0.0-alpha.4",
+    "nitro": "3.0.260610-beta",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-easy-crop": "^6.2.0",
+    "react-email": "^6.6.8",
     "recharts": "^3.9.2",
     "remeda": "^2.39.0",
     "valibot": "^1.4.2"

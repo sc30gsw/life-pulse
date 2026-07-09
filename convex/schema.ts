@@ -4,6 +4,9 @@ import { defineSchema, defineTable } from "convex/server";
 import {
   appSettingsFieldValidators,
   appUserFieldValidators,
+  authSecondFactorChallengeFieldValidators,
+  authSecondFactorSessionFieldValidators,
+  emailChangeTokenFieldValidators,
   dogEventFieldValidators,
   dogFieldValidators,
   dogTaskFieldValidators,
@@ -11,6 +14,7 @@ import {
   healthMetricFieldValidators,
   interruptionFieldValidators,
   presenceFieldValidators,
+  passwordResetTokenFieldValidators,
   studyBlockFieldValidators,
   studyCategoryFieldValidators,
   studySessionFieldValidators,
@@ -24,6 +28,22 @@ export default defineSchema({
   appUsers: defineTable(appUserFieldValidators)
     .index("by_subject", ["authSubject"])
     .index("by_role", ["role"]),
+
+  authSecondFactorChallenges: defineTable(authSecondFactorChallengeFieldValidators)
+    .index("by_session", ["sessionId"])
+    .index("by_authUser", ["authUserId"]),
+
+  authSecondFactorSessions: defineTable(authSecondFactorSessionFieldValidators)
+    .index("by_session", ["sessionId"])
+    .index("by_authUser", ["authUserId"]),
+
+  passwordResetTokens: defineTable(passwordResetTokenFieldValidators)
+    .index("by_tokenHash", ["tokenHash"])
+    .index("by_authUser", ["authUserId"]),
+
+  emailChangeTokens: defineTable(emailChangeTokenFieldValidators)
+    .index("by_tokenHash", ["tokenHash"])
+    .index("by_authUser", ["authUserId"]),
 
   // FR-2 学習セッション(ライブ状態そのもの)
   studySessions: defineTable(studySessionFieldValidators)

@@ -37,6 +37,14 @@ function LoginPage() {
             </div>
             <LoginForm />
             <Text c="dimmed" size="sm" ta="center">
+              <Link
+                className="text-blue inline-flex items-center gap-1 transition hover:brightness-110 active:brightness-95"
+                to="/forgot-password"
+              >
+                パスワードを忘れた方
+              </Link>
+            </Text>
+            <Text c="dimmed" size="sm" ta="center">
               アカウントをお持ちでない方は{" "}
               <Link
                 className="text-blue inline-flex items-center gap-1 transition hover:brightness-110 active:brightness-95"

@@ -3,6 +3,7 @@ import { Field, Form, useForm } from "@formisch/react";
 import { Button, PasswordInput, Select, Stack, TextInput } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconLock, IconMail, IconUser, IconUserPlus, IconUsers } from "@tabler/icons-react";
+import { useNavigate } from "@tanstack/react-router";
 import { Result } from "better-result";
 import { ConvexError } from "convex/values";
 
@@ -12,6 +13,7 @@ import { getFieldError } from "~/utils/field-error";
 
 export function SignupForm() {
   const { signIn } = useAuthActions();
+  const navigate = useNavigate();
   const form = useForm({ revalidate: "input", schema: SignupSchema, validate: "blur" });
 
   return (
@@ -24,19 +26,24 @@ export function SignupForm() {
               cause,
               message: cause instanceof ConvexError ? String(cause.data) : "登録に失敗しました",
             }),
-          try: () =>
-            signIn("password", {
+          try: async () => {
+            await signIn("password", {
               displayName: output.displayName,
               email: output.email,
               flow: "signUp",
               password: output.password,
               role: output.role,
-            }),
+            });
+          },
         });
 
         if (Result.isError(result)) {
           notifications.show({ color: "red", message: result.error.message, title: "登録エラー" });
+
+          return;
         }
+
+        await navigate({ to: "/verify-otp" });
       }}
     >
       <Stack gap="md">

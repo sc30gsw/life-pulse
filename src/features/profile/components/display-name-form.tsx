@@ -1,6 +1,7 @@
-import { Field, Form, useForm } from "@formisch/react";
+import { Field, Form, reset, useForm } from "@formisch/react";
 import { Button, EmptyState, Stack, Text, TextInput } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
+import { IconUser } from "@tabler/icons-react";
 
 import { useViewer } from "~/features/auth/hooks/use-viewer";
 import { useUpdateDisplayName } from "~/features/profile/hooks/use-profile-actions";
@@ -32,6 +33,8 @@ export function DisplayNameForm() {
             });
           },
           onSuccess: () => {
+            reset(form, { initialInput: output });
+
             notifications.show({
               color: "green",
               message: "表示名を保存しました",
@@ -46,10 +49,12 @@ export function DisplayNameForm() {
           {(field) => (
             <TextInput
               {...field.props}
-              disabled={form.isSubmitting}
               error={field.errors?.[0]}
               label="表示名"
               value={field.input}
+              leftSection={<IconUser size={16} />}
+              required
+              disabled={form.isSubmitting}
             />
           )}
         </Field>
@@ -58,6 +63,7 @@ export function DisplayNameForm() {
           type="submit"
           style={ACCENT_SOLID_STYLE.good}
           loading={form.isSubmitting}
+          disabled={form.isSubmitting}
         >
           保存する
         </Button>

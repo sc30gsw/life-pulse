@@ -1,21 +1,33 @@
 import { Group, Stack, Text } from "@mantine/core";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
+import { valibotValidator } from "@tanstack/valibot-adapter";
 import { Suspense } from "react";
 
 import { GlowCard } from "~/components/glow-card";
 import { AvatarUploader } from "~/features/profile/components/avatar-uploader";
 import { DisplayNameForm } from "~/features/profile/components/display-name-form";
+import { EmailChangeConfirmation } from "~/features/profile/components/email-change-confirmation";
 import { EmailChangeForm } from "~/features/profile/components/email-change-form";
 import { PasswordChangeForm } from "~/features/profile/components/password-change-form";
 import { ProfileFormFallback } from "~/features/profile/components/profile-form-fallback";
 import { SectionLabel } from "~/features/profile/components/section-label";
+import {
+  ProfileSearchSchema,
+  defaultProfileSearchParams,
+} from "~/features/profile/schemas/profile-search-schema";
 import { ACCENT_VARS } from "~/types/dashboard";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   component: ProfilePage,
+  validateSearch: valibotValidator(ProfileSearchSchema),
+  search: {
+    middlewares: [stripSearchParams(defaultProfileSearchParams)],
+  },
 });
 
 function ProfilePage() {
+  const { emailChangeToken } = Route.useSearch();
+
   return (
     <>
       <Group component="header" wrap="wrap" gap="md" align="center" mb="lg">
@@ -34,6 +46,8 @@ function ProfilePage() {
           </Text>
         </Stack>
       </Group>
+
+      {emailChangeToken !== undefined && <EmailChangeConfirmation />}
 
       <main className="grid gap-4 lg:grid-cols-2">
         <GlowCard

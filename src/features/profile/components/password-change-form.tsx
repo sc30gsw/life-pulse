@@ -1,6 +1,7 @@
-import { Field, Form, useForm } from "@formisch/react";
-import { Button, Stack, TextInput } from "@mantine/core";
+import { Field, Form, reset, useForm } from "@formisch/react";
+import { Button, PasswordInput, Stack } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
+import { IconLock } from "@tabler/icons-react";
 
 import { useUpdatePassword } from "~/features/profile/hooks/use-profile-actions";
 import { PasswordChangeSchema } from "~/features/profile/schemas/profile-schemas";
@@ -28,6 +29,8 @@ export function PasswordChangeForm() {
               });
             },
             onSuccess: () => {
+              reset(form);
+
               notifications.show({
                 color: "green",
                 message: "パスワードを変更しました",
@@ -41,34 +44,43 @@ export function PasswordChangeForm() {
       <Stack gap="md">
         <Field of={form} path={["currentPassword"]}>
           {(field) => (
-            <TextInput
+            <PasswordInput
               {...field.props}
               error={field.errors?.[0]}
               label="現在のパスワード"
-              type="password"
+              leftSection={<IconLock size={16} />}
+              required
               value={field.input}
+              disabled={form.isSubmitting}
+              placeholder="現在のパスワードを入力"
             />
           )}
         </Field>
         <Field of={form} path={["newPassword"]}>
           {(field) => (
-            <TextInput
+            <PasswordInput
               {...field.props}
               error={field.errors?.[0]}
               label="新しいパスワード"
-              type="password"
+              leftSection={<IconLock size={16} />}
+              required
               value={field.input}
+              disabled={form.isSubmitting}
+              placeholder="12文字以上・英大小文字+数字"
             />
           )}
         </Field>
         <Field of={form} path={["confirmPassword"]}>
           {(field) => (
-            <TextInput
+            <PasswordInput
               {...field.props}
               error={field.errors?.[0]}
               label="新しいパスワード(確認)"
-              type="password"
+              leftSection={<IconLock size={16} />}
+              required
               value={field.input}
+              disabled={form.isSubmitting}
+              placeholder="もう一度入力"
             />
           )}
         </Field>
@@ -77,6 +89,7 @@ export function PasswordChangeForm() {
           type="submit"
           style={ACCENT_SOLID_STYLE.good}
           loading={form.isSubmitting}
+          disabled={form.isSubmitting}
         >
           パスワードを変更
         </Button>

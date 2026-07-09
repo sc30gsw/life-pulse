@@ -13,7 +13,6 @@ export const DisplayNameSchema = v.object({
 });
 
 export const EmailChangeSchema = v.object({
-  currentPassword: v.pipe(v.string(), v.minLength(1, "現在のパスワードを入力してください")),
   newEmail: v.pipe(v.string(), v.email("有効なメールアドレスを入力してください")),
 });
 
