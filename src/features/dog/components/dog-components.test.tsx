@@ -12,6 +12,8 @@ import { DogTaskList, DogTaskListFallback } from "~/features/dog/components/dog-
 import { DogTaskRow } from "~/features/dog/components/dog-task-row";
 import { renderWithMantine } from "~/test-utils";
 
+type DogQueryResult = (Doc<"dogs"> & { imageUrl: string | null }) | null;
+
 const state = vi.hoisted(() => ({
   createMutate: vi.fn(),
   dog: {
@@ -20,7 +22,7 @@ const state = vi.hoisted(() => ({
     imageStorageId: undefined,
     imageUrl: null,
     name: "ハマロ",
-  },
+  } as DogQueryResult,
   dogTasks: [] as Doc<"dogTasks">[],
   notificationShow: vi.fn(),
   onArchiveTask: vi.fn(),
@@ -205,8 +207,8 @@ test("DogImageUploader uploads a cropped dog image and stores its storage id", a
 test("DogImageUploader confirms before removing the current dog image", async () => {
   state.dog = {
     _creationTime: 0,
-    _id: "dog_1",
-    imageStorageId: "storage_dog",
+    _id: "dog_1" as Id<"dogs">,
+    imageStorageId: "storage_dog" as Id<"_storage">,
     imageUrl: "https://example.com/dog.jpg",
     name: "ハマロ",
   };

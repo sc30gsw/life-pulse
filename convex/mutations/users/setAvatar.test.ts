@@ -139,7 +139,9 @@ test("acting as the partner only removes the partner avatar", async () => {
       .withIndex("by_subject", (q) => q.eq("authSubject", "user_2"))
       .collect(),
   );
-  const selfFileExists = await t.run(async (ctx) => (await ctx.storage.get(selfStorageId)) !== null);
+  const selfFileExists = await t.run(
+    async (ctx) => (await ctx.storage.get(selfStorageId)) !== null,
+  );
   const partnerFile = await t.run((ctx) => ctx.storage.get(partnerStorageId));
   expect(selfRows[0]?.avatarStorageId).toBe(selfStorageId);
   expect(partnerRows[0]?.avatarStorageId).toBeUndefined();
