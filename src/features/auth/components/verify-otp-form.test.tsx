@@ -1,8 +1,8 @@
 // @vitest-environment happy-dom
 import userEvent from "@testing-library/user-event";
 import { ConvexError } from "convex/values";
-import type { ButtonHTMLAttributes, ComponentProps, ReactNode } from "react";
-import { beforeEach, expect, test, vi } from "vite-plus/test";
+import type { ComponentProps, MouseEventHandler, ReactNode } from "react";
+import { afterEach, beforeEach, expect, test, vi } from "vite-plus/test";
 
 import { VerifyOtpForm } from "~/features/auth/components/verify-otp-form";
 import { renderWithMantine } from "~/test-utils";
@@ -42,9 +42,13 @@ vi.mock("@mantine/notifications", () => ({
 vi.mock("@mantine/core", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@mantine/core")>();
 
-  type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  type ButtonProps = {
+    children?: ReactNode;
+    disabled?: boolean;
     leftSection?: ReactNode;
     loading?: boolean;
+    onClick?: MouseEventHandler<HTMLButtonElement>;
+    type?: "button" | "reset" | "submit";
   };
   type GroupProps = { children?: ReactNode };
   type MantineProviderProps = ComponentProps<typeof actual.MantineProvider> & {
@@ -109,6 +113,10 @@ beforeEach(() => {
 
     return action;
   });
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 test("submits a complete OTP code and navigates home", async () => {
@@ -190,9 +198,37 @@ test("sends an OTP when the form opens without an active challenge", async () =>
   await vi.waitFor(() => {
     expect(sendOtpMock).toHaveBeenCalledWith({});
   });
-  expect(notificationsShowMock).toHaveBeenCalledWith({
-    color: "green",
-    message: "確認コードを送信しました",
-    title: "OTP送信",
+  await vi.waitFor(() => {
+    expect(notificationsShowMock).toHaveBeenCalledWith({
+      color: "green",
+      message: "確認コードを送信しました",
+      title: "OTP送信",
+    });
+  });
+});
+
+test("retries the initial OTP send when auth is still refreshing", async () => {
+  vi.useFakeTimers();
+  secondFactorStatusState.value = { required: true, resendAvailableAt: null, verified: false };
+  sendOtpMock.mockRejectedValueOnce(new ConvexError("UNAUTHENTICATED"));
+
+  renderWithMantine(<VerifyOtpForm />);
+
+  await vi.waitFor(() => {
+    expect(sendOtpMock).toHaveBeenCalledTimes(1);
+  });
+  expect(notificationsShowMock).not.toHaveBeenCalled();
+
+  await vi.advanceTimersByTimeAsync(1_000);
+
+  await vi.waitFor(() => {
+    expect(sendOtpMock).toHaveBeenCalledTimes(2);
+  });
+  await vi.waitFor(() => {
+    expect(notificationsShowMock).toHaveBeenCalledWith({
+      color: "green",
+      message: "確認コードを送信しました",
+      title: "OTP送信",
+    });
   });
 });

@@ -1,6 +1,7 @@
-import { Field, Form, useForm } from "@formisch/react";
+import { Field, Form, reset, useForm } from "@formisch/react";
 import { Button, Stack, TextInput } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
+import { IconMail } from "@tabler/icons-react";
 
 import { useRequestEmailChange } from "~/features/profile/hooks/use-profile-actions";
 import { EmailChangeSchema } from "~/features/profile/schemas/profile-schemas";
@@ -26,6 +27,8 @@ export function EmailChangeForm() {
             });
           },
           onSuccess: () => {
+            reset(form);
+
             notifications.show({
               color: "green",
               message: "新しいメールアドレス宛に確認メールを送信しました",
@@ -43,6 +46,10 @@ export function EmailChangeForm() {
               error={field.errors?.[0]}
               label="新しいメールアドレス"
               value={field.input}
+              disabled={form.isSubmitting}
+              required
+              leftSection={<IconMail size={16} />}
+              placeholder="example@example.com"
             />
           )}
         </Field>
@@ -51,6 +58,7 @@ export function EmailChangeForm() {
           type="submit"
           style={ACCENT_SOLID_STYLE.good}
           loading={form.isSubmitting}
+          disabled={form.isSubmitting}
         >
           確認メールを送信
         </Button>

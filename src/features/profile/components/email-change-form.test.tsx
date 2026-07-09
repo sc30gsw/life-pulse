@@ -19,7 +19,7 @@ test("EmailChangeForm requests a confirmation email without asking for the curre
   const user = userEvent.setup();
   const { getByLabelText, getByRole, queryByLabelText } = renderWithMantine(<EmailChangeForm />);
 
-  await user.type(getByLabelText("新しいメールアドレス"), "new@example.com");
+  await user.type(getByLabelText(/新しいメールアドレス/), "new@example.com");
   expect(queryByLabelText("現在のパスワード")).toBeNull();
   await user.click(getByRole("button", { name: "確認メールを送信" }));
 
@@ -27,4 +27,5 @@ test("EmailChangeForm requests a confirmation email without asking for the curre
     { newEmail: "new@example.com" },
     expect.objectContaining({ onError: expect.any(Function), onSuccess: expect.any(Function) }),
   );
+  expect((getByLabelText(/新しいメールアドレス/) as HTMLInputElement).value).toBe("");
 });

@@ -54,8 +54,8 @@ test("DisplayNameForm submits a trimmed display name and reports success", async
   const user = userEvent.setup();
   const { getByLabelText, getByRole } = renderWithMantine(<DisplayNameForm />);
 
-  await user.clear(getByLabelText("表示名"));
-  await user.type(getByLabelText("表示名"), " 新しい本人 ");
+  await user.clear(getByLabelText(/表示名/));
+  await user.type(getByLabelText(/表示名/), " 新しい本人 ");
   await user.click(getByRole("button", { name: "保存する" }));
 
   expect(state.updateDisplayName.mutate).toHaveBeenCalledWith(
@@ -67,4 +67,5 @@ test("DisplayNameForm submits a trimmed display name and reports success", async
     message: "表示名を保存しました",
     title: "保存しました",
   });
+  expect((getByLabelText(/表示名/) as HTMLInputElement).value).toBe("新しい本人");
 });
