@@ -42,7 +42,7 @@ export const Route = createRootRouteWithContext<{
     meta: [
       { charSet: "utf-8" },
       { content: "width=device-width, initial-scale=1", name: "viewport" },
-      { title: "TanStack Start Template" },
+      { title: "Life Pulse" },
     ],
   }),
   notFoundComponent: NotFoundComponent,
