@@ -147,9 +147,9 @@ export function DogTaskRow({ onArchive, onRename, task }: DogTaskRowProps) {
         <ActionIcon
           aria-label="削除"
           className={cn(
-            ACCENT_CLASSES.coral.border,
-            ACCENT_CLASSES.coral.bg,
-            ACCENT_CLASSES.coral.text,
+            ACCENT_CLASSES.amber.border,
+            ACCENT_CLASSES.amber.bg,
+            ACCENT_CLASSES.amber.text,
             "transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100",
           )}
           onClick={() => onArchive(task)}

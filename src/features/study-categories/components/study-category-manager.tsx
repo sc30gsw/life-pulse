@@ -375,7 +375,12 @@ function StudyCategoryRow({ category }: StudyCategoryRowProps) {
         ) : (
           <ActionIcon
             aria-label="非表示"
-            className="border-bd bg-inset text-tx hover:bg-panel-2 focus-visible:outline-blue transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:brightness-95"
+            className={cn(
+              ACCENT_CLASSES.amber.border,
+              ACCENT_CLASSES.amber.bg,
+              ACCENT_CLASSES.amber.text,
+              "focus-visible:outline-amber transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:brightness-95",
+            )}
             onClick={onArchive}
             variant="default"
           >
