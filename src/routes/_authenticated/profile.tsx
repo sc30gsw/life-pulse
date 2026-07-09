@@ -1,5 +1,4 @@
-import { Button, Group, Stack, Text } from "@mantine/core";
-import { Shimmer } from "@shimmer-from-structure/react";
+import { Group, Stack, Text } from "@mantine/core";
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 
@@ -8,28 +7,13 @@ import { AvatarUploader } from "~/features/profile/components/avatar-uploader";
 import { DisplayNameForm } from "~/features/profile/components/display-name-form";
 import { EmailChangeForm } from "~/features/profile/components/email-change-form";
 import { PasswordChangeForm } from "~/features/profile/components/password-change-form";
+import { ProfileFormFallback } from "~/features/profile/components/profile-form-fallback";
+import { SectionLabel } from "~/features/profile/components/section-label";
 import { ACCENT_VARS } from "~/types/dashboard";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   component: ProfilePage,
 });
-
-function SectionLabel({ label }: Record<"label", string>) {
-  return (
-    <Text
-      component="h2"
-      size="11px"
-      fw={600}
-      tt="uppercase"
-      c={ACCENT_VARS.faint}
-      style={{ letterSpacing: "0.14em" }}
-      m={0}
-      mb="md"
-    >
-      {label}
-    </Text>
-  );
-}
 
 function ProfilePage() {
   return (
@@ -87,18 +71,5 @@ function ProfilePage() {
         </GlowCard>
       </main>
     </>
-  );
-}
-
-function ProfileFormFallback() {
-  return (
-    <Shimmer loading>
-      <Stack gap="md">
-        <Text size="sm">プロフィールを読み込み中</Text>
-        <Button className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100">
-          保存する
-        </Button>
-      </Stack>
-    </Shimmer>
   );
 }
