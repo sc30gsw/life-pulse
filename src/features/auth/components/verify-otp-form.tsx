@@ -136,14 +136,10 @@ export function VerifyOtpForm() {
   }
 
   async function resendCode() {
-    await sendOtp("manual");
-  }
-
-  async function sendOtp(mode: "initial" | "manual") {
     const result = await runOtpAction({
       action: () => sendSecondFactorOtp({}),
       messages: OTP_SEND_MESSAGES,
-      pending: mode === "manual" ? "resend" : null,
+      pending: "resend",
       setPendingAction,
     });
 
@@ -231,7 +227,7 @@ export function VerifyOtpForm() {
                 type="button"
                 onClick={resendCode}
               >
-                {isResendCoolingDown ? `再送 (${resendWaitSeconds}s)` : "再送"}
+                {isResendCoolingDown ? `再送 （${resendWaitSeconds}s）` : "再送"}
               </Button>
             </Group>
           </>
