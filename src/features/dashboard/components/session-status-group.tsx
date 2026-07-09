@@ -157,6 +157,7 @@ export function SessionStatusGroup({
             fw={600}
             className="lp-brandtext leading-none tabular-nums"
             style={{ fontSize: "clamp(2.5rem,7vw,3.9rem)" }}
+            suppressHydrationWarning
           >
             {sessionElapsedLabel}
           </Text>

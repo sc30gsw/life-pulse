@@ -38,13 +38,13 @@ export function BoardHeader() {
       </Group>
 
       <Stack gap={2} align="flex-end">
-        <Text fw={600} size="xl">
+        <Text fw={600} size="xl" suppressHydrationWarning>
           {clockTime}
         </Text>
-        <Text size="xs" c="dimmed" className="hidden sm:block">
+        <Text size="xs" c="dimmed" className="hidden sm:block" suppressHydrationWarning>
           {clockDateLabel} · JST
         </Text>
-        <Text size="xs" c="dimmed" className="sm:hidden">
+        <Text size="xs" c="dimmed" className="sm:hidden" suppressHydrationWarning>
           {clockDateLabelCompact} · JST
         </Text>
       </Stack>

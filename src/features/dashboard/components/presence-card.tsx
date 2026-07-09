@@ -146,7 +146,7 @@ export function PresenceCard({
                 ? `ETA ${presence.etaHm}`
                 : presenceSubLabel(presence.state)}
           </Text>
-          <Text size="xs" c={ACCENT_VARS.faint}>
+          <Text size="xs" c={ACCENT_VARS.faint} suppressHydrationWarning>
             更新 {updatedRelativeLabel}
           </Text>
         </Stack>

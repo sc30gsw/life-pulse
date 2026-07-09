@@ -110,7 +110,7 @@ export function FastingGroup({
           sections={[{ value: fastingRingPercent ?? 0, color: ACCENT_VARS[phaseAccent] }]}
           label={
             <Stack gap={1} align="center">
-              <Text fw={600} size="lg" c={ACCENT_VARS[phaseAccent]}>
+              <Text fw={600} size="lg" c={ACCENT_VARS[phaseAccent]} suppressHydrationWarning>
                 {fastingElapsedLabel ?? ""}
               </Text>
               <Text size="9px" c={ACCENT_VARS.faint}>
@@ -135,13 +135,13 @@ export function FastingGroup({
           <Text size="sm" c="dimmed">
             {fasting === null ? "断食を開始していません" : phaseSubLabel(fastingPhase)}
           </Text>
-          <Text size="xs" c="dimmed">
+          <Text size="xs" c="dimmed" suppressHydrationWarning>
             経過{" "}
-            <Text component="span" size="xs" c="var(--tx)">
+            <Text component="span" size="xs" c="var(--tx)" suppressHydrationWarning>
               {fastingElapsedLabel}
             </Text>{" "}
             · 残{" "}
-            <Text component="span" size="xs" c="var(--tx)">
+            <Text component="span" size="xs" c="var(--tx)" suppressHydrationWarning>
               {fastingRemainLabel}
             </Text>
           </Text>

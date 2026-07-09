@@ -52,13 +52,7 @@ export function GarminSyncCard() {
         >
           {statusLabel}
         </Badge>
-        {/* Relative time is derived from Date.now() at render time, so it is
-            expected to differ between the server-rendered markup and the
-            client's first paint (and again on every subsequent render as
-            time passes) — that's the point of "5分前"-style text, not a bug.
-            suppressHydrationWarning silences the mismatch warning for this
-            node only, per design-live-board.md's real-Convex-subscription
-            model (no client is meant to match the server here). */}
+        {/* Relative time is expected to differ between SSR and hydration. */}
         <Text c="dimmed" size="xs" suppressHydrationWarning>
           {lastSync === null
             ? "まだ同期していません"

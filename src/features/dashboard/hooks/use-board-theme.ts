@@ -3,10 +3,14 @@ import { useEffect } from "react";
 
 import type { ThemeMode } from "~/types/dashboard";
 
+const DEFAULT_THEME: ThemeMode = "dark";
+const STORAGE_KEY = "board-theme";
+
 export function useBoardTheme() {
   const [theme, setTheme] = useLocalStorage<ThemeMode>({
-    defaultValue: "dark",
-    key: "board-theme",
+    defaultValue: DEFAULT_THEME,
+    getInitialValueInEffect: true,
+    key: STORAGE_KEY,
   });
 
   function onToggleTheme() {
