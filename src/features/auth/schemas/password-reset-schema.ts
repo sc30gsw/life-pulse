@@ -11,6 +11,7 @@ const PasswordSchema = v.pipe(
 export const ForgotPasswordSchema = v.object({
   email: v.pipe(v.string(), v.email("有効なメールアドレスを入力してください")),
 });
+export type ForgotPasswordSchemaType = v.InferOutput<typeof ForgotPasswordSchema>;
 
 export const ResetPasswordSchema = v.pipe(
   v.object({

@@ -49,7 +49,7 @@ export function EmailChangeForm() {
               disabled={form.isSubmitting}
               required
               leftSection={<IconMail size={16} />}
-              placeholder="example@example.com"
+              placeholder="you@example.com"
             />
           )}
         </Field>
