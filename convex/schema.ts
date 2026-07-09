@@ -78,7 +78,9 @@ export default defineSchema({
   dogEvents: defineTable(dogEventFieldValidators).index("by_date", ["dateJst"]),
 
   // FR-6 日次健康メトリクス(本人のみ)
-  healthMetrics: defineTable(healthMetricFieldValidators).index("by_date", ["dateJst"]), // 同日再同期はpatchで上書き(demoは別レコード可)
+  healthMetrics: defineTable(healthMetricFieldValidators)
+    .index("by_date", ["dateJst"])
+    .index("by_source", ["source"]), // 同日再同期はpatchで上書き(demoは別レコード可)
 
   // FR-6.5 ワークアウト
   workouts: defineTable(workoutFieldValidators).index("by_date", ["dateJst"]),
@@ -87,7 +89,7 @@ export default defineSchema({
   presence: defineTable(presenceFieldValidators).index("by_user", ["userId"]),
 
   // FR-6.3 同期ログ
-  syncLogs: defineTable(syncLogFieldValidators).index("by_source_and_ok", ["source", "ok"]),
+  syncLogs: defineTable(syncLogFieldValidators),
 
   // 設定(単一ドキュメント運用)
   appSettings: defineTable(appSettingsFieldValidators),
