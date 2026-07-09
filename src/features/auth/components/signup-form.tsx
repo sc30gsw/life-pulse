@@ -5,17 +5,14 @@ import { notifications } from "@mantine/notifications";
 import { IconLock, IconMail, IconUser, IconUserPlus, IconUsers } from "@tabler/icons-react";
 import { useNavigate } from "@tanstack/react-router";
 import { Result } from "better-result";
-import { useAction } from "convex/react";
 import { ConvexError } from "convex/values";
 
-import { api } from "~/../convex/_generated/api";
 import { SignupSchema } from "~/features/auth/schemas/signup-schema";
 import { AuthError } from "~/features/auth/types/auth-error";
 import { getFieldError } from "~/utils/field-error";
 
 export function SignupForm() {
   const { signIn } = useAuthActions();
-  const sendSecondFactorOtp = useAction(api.actions.auth.sendSecondFactorOtp.sendSecondFactorOtp);
   const navigate = useNavigate();
   const form = useForm({ revalidate: "input", schema: SignupSchema, validate: "blur" });
 
@@ -37,8 +34,6 @@ export function SignupForm() {
               password: output.password,
               role: output.role,
             });
-
-            await sendSecondFactorOtp({});
           },
         });
 
