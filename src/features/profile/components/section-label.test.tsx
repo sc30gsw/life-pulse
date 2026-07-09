@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { expect, test } from "vite-plus/test";
 
 import { SectionLabel } from "~/features/profile/components/section-label";

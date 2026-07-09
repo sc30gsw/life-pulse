@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { expect, test } from "vite-plus/test";
 
 import { ProfileFormFallback } from "~/features/profile/components/profile-form-fallback";
