@@ -14,10 +14,10 @@
 // parallel. Each day's raw payload goes through the pure mapDailyMetrics
 // (Step 4), then ALL days are written with exactly ONE ctx.runMutation call
 // (CVX-07 — never per-day in a loop, all within upsertFromSync's single
-// transaction, CVX-15). Any thrown error (missing/expired tokens, Garmin API
-// failure, etc.) is caught, recorded via recordSyncFailure, and swallowed so a
-// failed sync never crashes or blocks tomorrow's cron run (CVX-17: every
-// scheduler / runMutation call below is awaited).
+// transaction, CVX-15). Any thrown full-range error (missing/expired tokens,
+// Garmin API failure, etc.) is caught, recorded via recordSyncFailure, and
+// swallowed so a failed sync never crashes or blocks tomorrow's cron run
+// (CVX-17: every scheduler / runMutation call below is awaited).
 import { Result, TaggedError } from "better-result";
 import { v } from "convex/values";
 import { filter, isNonNullish, map, pipe } from "remeda";
@@ -63,8 +63,6 @@ async function syncRange(ctx: ActionCtx, fromJst: DateJst, toJst: DateJst) {
       );
 
       const days = [];
-      const failedDates: DateJst[] = [];
-      let firstDayError: unknown;
       let first = true;
 
       for (let dateJst = fromJst; dateJst <= toJst; dateJst = addDaysJst(dateJst, 1)) {
@@ -77,16 +75,15 @@ async function syncRange(ctx: ActionCtx, fromJst: DateJst, toJst: DateJst) {
         // One bad day must not abort the whole range: Garmin's per-day payloads
         // for older dates can fail the SDK's zod validation
         // (GarminValidationError — observed aborting a 28-day backfill after
-        // writing nothing). Skip that day, keep the rest, and report the skipped
-        // dates through recordSyncFailure below.
+        // writing nothing). Skip that day and keep the rest. Missing historical
+        // days are not surfaced as sync failures because there is no action for
+        // the user to take when Garmin has no valid payload for that date.
         const rawResult = await Result.tryPromise({
           catch: (cause) => new GarminSyncError({ cause, dateJst }),
           try: () => client.fetchDailyMetrics(dateJst),
         });
 
         if (Result.isError(rawResult)) {
-          failedDates.push(dateJst);
-          firstDayError ??= rawResult.error.cause;
           continue;
         }
 
@@ -106,12 +103,6 @@ async function syncRange(ctx: ActionCtx, fromJst: DateJst, toJst: DateJst) {
 
       if (days.length > 0) {
         await ctx.runMutation(internal.mutations.health.upsertFromSync.upsertFromSync, { days });
-      }
-
-      if (failedDates.length > 0) {
-        await ctx.runMutation(internal.mutations.health.recordSyncFailure.recordSyncFailure, {
-          message: `${failedDates.length} day(s) skipped [${failedDates.join(", ")}]: ${String(firstDayError)}`,
-        });
       }
     },
   });
