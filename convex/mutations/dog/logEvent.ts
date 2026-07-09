@@ -2,6 +2,7 @@ import { v } from "convex/values";
 
 import { mutation } from "../../_generated/server";
 import { requireUser } from "../../lib/auth";
+import { unwrapConvexResult } from "../../lib/result";
 import { dogEventFieldValidators } from "../../lib/validators";
 import { logEvent as logDogEvent } from "../../services/dog/logEvent";
 
@@ -10,6 +11,6 @@ export const logEvent = mutation({
   returns: v.id("dogEvents"),
   handler: async (ctx, args) => {
     const user = await requireUser(ctx);
-    return await logDogEvent(ctx, user, args);
+    return unwrapConvexResult(await logDogEvent(ctx, user, args));
   },
 });

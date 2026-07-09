@@ -2,6 +2,7 @@ import { v } from "convex/values";
 
 import { mutation } from "../../_generated/server";
 import { requireUser } from "../../lib/auth";
+import { unwrapConvexResult } from "../../lib/result";
 import { studyCategoryFieldValidators } from "../../lib/validators";
 import { create as createStudyCategory } from "../../services/studyCategories/create";
 
@@ -11,6 +12,6 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const user = await requireUser(ctx);
 
-    return await createStudyCategory(ctx, user, args);
+    return unwrapConvexResult(await createStudyCategory(ctx, user, args));
   },
 });

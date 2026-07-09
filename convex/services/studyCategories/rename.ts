@@ -1,25 +1,40 @@
-import { ConvexError } from "convex/values";
+import { Result, type Result as ResultType } from "better-result";
 
 import type { Doc } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
+import { StudyCategoryError } from "./errors";
 import { assertCategoryNameAvailable, normalizeCategoryName } from "./validate";
 
 type RenameArgs = Pick<Doc<"studyCategories">, "name"> &
   Record<"categoryId", Doc<"studyCategories">["_id"]>;
 
-export async function rename(ctx: MutationCtx, user: Doc<"appUsers">, args: RenameArgs) {
+export async function rename(
+  ctx: MutationCtx,
+  user: Doc<"appUsers">,
+  args: RenameArgs,
+): Promise<ResultType<void, StudyCategoryError>> {
   const name = normalizeCategoryName(args.name);
 
   if (name.length === 0) {
-    throw new ConvexError("INVALID_NAME");
+    return Result.err(
+      new StudyCategoryError({ categoryId: args.categoryId, code: "INVALID_NAME" }),
+    );
   }
 
   const category = await ctx.db.get(args.categoryId);
 
   if (category === null || category.userId !== user._id) {
-    throw new ConvexError("CATEGORY_NOT_FOUND");
+    return Result.err(
+      new StudyCategoryError({ categoryId: args.categoryId, code: "CATEGORY_NOT_FOUND" }),
+    );
   }
 
-  await assertCategoryNameAvailable(ctx, user, name, args.categoryId);
+  const availableResult = await assertCategoryNameAvailable(ctx, user, name, args.categoryId);
+  if (Result.isError(availableResult)) {
+    return availableResult;
+  }
+
   await ctx.db.patch(args.categoryId, { name });
+
+  return Result.ok();
 }

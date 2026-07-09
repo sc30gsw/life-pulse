@@ -2,6 +2,7 @@ import { v } from "convex/values";
 
 import { mutation } from "../../_generated/server";
 import { requireUser } from "../../lib/auth";
+import { unwrapConvexResult } from "../../lib/result";
 import { studySessionFieldValidators } from "../../lib/validators";
 import { start as startSession } from "../../services/sessions/start";
 
@@ -16,6 +17,6 @@ export const start = mutation({
   handler: async (ctx, args) => {
     const user = await requireUser(ctx);
 
-    return await startSession(ctx, user, args);
+    return unwrapConvexResult(await startSession(ctx, user, args));
   },
 });

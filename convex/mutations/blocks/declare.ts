@@ -2,6 +2,7 @@ import { v } from "convex/values";
 
 import { mutation } from "../../_generated/server";
 import { requireUser } from "../../lib/auth";
+import { unwrapConvexResult } from "../../lib/result";
 import { studyBlockFieldValidators } from "../../lib/validators";
 import { declare as declareBlock } from "../../services/blocks/declare";
 
@@ -16,6 +17,6 @@ export const declare = mutation({
   handler: async (ctx, args) => {
     const user = await requireUser(ctx);
 
-    return await declareBlock(ctx, user, args);
+    return unwrapConvexResult(await declareBlock(ctx, user, args));
   },
 });

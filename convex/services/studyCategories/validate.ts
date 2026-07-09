@@ -1,7 +1,8 @@
-import { ConvexError } from "convex/values";
+import { Result, type Result as ResultType } from "better-result";
 
 import type { Doc } from "../../_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "../../_generated/server";
+import { StudyCategoryError } from "./errors";
 
 export function normalizeCategoryName(name: string) {
   return name.trim();
@@ -11,28 +12,28 @@ export async function assertCategoryIsActive(
   ctx: QueryCtx | MutationCtx,
   user: Doc<"appUsers">,
   categoryId: Doc<"studyCategories">["_id"],
-) {
+): Promise<ResultType<Doc<"studyCategories">, StudyCategoryError>> {
   const category = await ctx.db.get(categoryId);
 
   if (category === null || category.userId !== user._id || category.archivedAt !== undefined) {
-    throw new ConvexError("CATEGORY_NOT_FOUND");
+    return Result.err(new StudyCategoryError({ categoryId, code: "CATEGORY_NOT_FOUND" }));
   }
 
-  return category;
+  return Result.ok(category);
 }
 
 export async function assertCategoryBelongsToUser(
   ctx: QueryCtx | MutationCtx,
   user: Doc<"appUsers">,
   categoryId: Doc<"studyCategories">["_id"],
-) {
+): Promise<ResultType<Doc<"studyCategories">, StudyCategoryError>> {
   const category = await ctx.db.get(categoryId);
 
   if (category === null || category.userId !== user._id) {
-    throw new ConvexError("CATEGORY_NOT_FOUND");
+    return Result.err(new StudyCategoryError({ categoryId, code: "CATEGORY_NOT_FOUND" }));
   }
 
-  return category;
+  return Result.ok(category);
 }
 
 export async function assertCategoryNameAvailable(
@@ -40,7 +41,7 @@ export async function assertCategoryNameAvailable(
   user: Doc<"appUsers">,
   name: Doc<"studyCategories">["name"],
   ignoreCategoryId?: Doc<"studyCategories">["_id"],
-) {
+): Promise<ResultType<void, StudyCategoryError>> {
   const categories = await ctx.db
     .query("studyCategories")
     .withIndex("by_user", (q) => q.eq("userId", user._id))
@@ -51,6 +52,10 @@ export async function assertCategoryNameAvailable(
       (category) => category._id !== ignoreCategoryId && category.name.trim() === name,
     )
   ) {
-    throw new ConvexError("CATEGORY_EXISTS");
+    return Result.err(
+      new StudyCategoryError({ categoryId: ignoreCategoryId, code: "CATEGORY_EXISTS" }),
+    );
   }
+
+  return Result.ok();
 }

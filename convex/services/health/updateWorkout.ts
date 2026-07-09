@@ -1,8 +1,9 @@
-import { ConvexError } from "convex/values";
+import { Result, type Result as ResultType } from "better-result";
 
 import type { Doc } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
 import { deriveDateJst } from "./deriveDateJst";
+import { HealthError } from "./errors";
 import { assertWorkoutAtIsNotFuture } from "./validateWorkoutAt";
 
 type UpdateWorkoutArgs = Pick<
@@ -11,14 +12,20 @@ type UpdateWorkoutArgs = Pick<
 > &
   Record<"workoutId", Doc<"workouts">["_id"]>;
 
-export async function updateWorkout(ctx: MutationCtx, args: UpdateWorkoutArgs) {
+export async function updateWorkout(
+  ctx: MutationCtx,
+  args: UpdateWorkoutArgs,
+): Promise<ResultType<void, HealthError>> {
   const workout = await ctx.db.get("workouts", args.workoutId);
 
   if (workout === null) {
-    throw new ConvexError("WORKOUT_NOT_FOUND");
+    return Result.err(new HealthError({ code: "WORKOUT_NOT_FOUND", workoutId: args.workoutId }));
   }
 
-  assertWorkoutAtIsNotFuture(args.at);
+  const workoutAtResult = assertWorkoutAtIsNotFuture(args.at);
+  if (Result.isError(workoutAtResult)) {
+    return workoutAtResult;
+  }
 
   await ctx.db.patch("workouts", args.workoutId, {
     at: args.at,
@@ -27,4 +34,6 @@ export async function updateWorkout(ctx: MutationCtx, args: UpdateWorkoutArgs) {
     kind: args.kind,
     perceivedIntensity: args.perceivedIntensity,
   });
+
+  return Result.ok();
 }

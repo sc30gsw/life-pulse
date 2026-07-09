@@ -1,8 +1,9 @@
-import { ConvexError } from "convex/values";
+import { Result, type Result as ResultType } from "better-result";
 
 import type { Doc } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
 import { archive } from "./archive";
+import { StudyCategoryError } from "./errors";
 
 type RemoveArgs = Record<"categoryId", Doc<"studyCategories">["_id"]>;
 
@@ -21,18 +22,28 @@ async function hasCategoryUsage(ctx: MutationCtx, categoryId: Doc<"studyCategori
   return block !== null || session !== null;
 }
 
-export async function remove(ctx: MutationCtx, user: Doc<"appUsers">, args: RemoveArgs) {
+export async function remove(
+  ctx: MutationCtx,
+  user: Doc<"appUsers">,
+  args: RemoveArgs,
+): Promise<ResultType<"archived" | "deleted", StudyCategoryError>> {
   const category = await ctx.db.get(args.categoryId);
 
   if (category === null || category.userId !== user._id) {
-    throw new ConvexError("CATEGORY_NOT_FOUND");
+    return Result.err(
+      new StudyCategoryError({ categoryId: args.categoryId, code: "CATEGORY_NOT_FOUND" }),
+    );
   }
 
   if (await hasCategoryUsage(ctx, args.categoryId)) {
-    await archive(ctx, user, args);
-    return "archived";
+    const archiveResult = await archive(ctx, user, args);
+    if (Result.isError(archiveResult)) {
+      return archiveResult;
+    }
+
+    return Result.ok("archived");
   }
 
   await ctx.db.delete(args.categoryId);
-  return "deleted";
+  return Result.ok("deleted");
 }

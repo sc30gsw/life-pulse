@@ -1,16 +1,20 @@
-import { ConvexError } from "convex/values";
+import { Result, type Result as ResultType } from "better-result";
 
 import type { Doc } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
+import { FastingError } from "./errors";
 
-export async function end(ctx: MutationCtx, user: Doc<"appUsers">) {
+export async function end(
+  ctx: MutationCtx,
+  user: Doc<"appUsers">,
+): Promise<ResultType<void, FastingError>> {
   const window = await ctx.db
     .query("fastingWindows")
     .withIndex("by_user_status", (q) => q.eq("userId", user._id).eq("status", "fasting"))
     .first();
 
   if (window === null) {
-    throw new ConvexError("FASTING_NOT_ACTIVE");
+    return Result.err(new FastingError({ code: "FASTING_NOT_ACTIVE" }));
   }
 
   const now = Date.now();
@@ -23,4 +27,6 @@ export async function end(ctx: MutationCtx, user: Doc<"appUsers">) {
     endedAt: now,
     status: "ended",
   });
+
+  return Result.ok();
 }

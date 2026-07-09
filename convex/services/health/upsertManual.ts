@@ -1,7 +1,8 @@
-import { ConvexError } from "convex/values";
+import { Result, type Result as ResultType } from "better-result";
 
 import type { Doc } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
+import { HealthError } from "./errors";
 
 type UpsertManualArgs = Pick<
   Doc<"healthMetrics">,
@@ -9,11 +10,14 @@ type UpsertManualArgs = Pick<
 > &
   Record<"todayJst", Doc<"healthMetrics">["dateJst"]>;
 
-export async function upsertManual(ctx: MutationCtx, args: UpsertManualArgs) {
+export async function upsertManual(
+  ctx: MutationCtx,
+  args: UpsertManualArgs,
+): Promise<ResultType<Doc<"healthMetrics">["_id"], HealthError>> {
   const { dateJst, todayJst, ...metrics } = args;
 
   if (dateJst > todayJst) {
-    throw new ConvexError("INVALID_DATE");
+    return Result.err(new HealthError({ code: "INVALID_DATE" }));
   }
 
   const rows = await ctx.db
@@ -29,13 +33,15 @@ export async function upsertManual(ctx: MutationCtx, args: UpsertManualArgs) {
       syncedAt: Date.now(),
     });
 
-    return existing._id;
+    return Result.ok(existing._id);
   }
 
-  return await ctx.db.insert("healthMetrics", {
-    dateJst,
-    source: "manual",
-    syncedAt: Date.now(),
-    ...metrics,
-  });
+  return Result.ok(
+    await ctx.db.insert("healthMetrics", {
+      dateJst,
+      source: "manual",
+      syncedAt: Date.now(),
+      ...metrics,
+    }),
+  );
 }

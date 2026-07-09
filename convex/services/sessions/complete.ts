@@ -1,14 +1,18 @@
-import { ConvexError } from "convex/values";
+import { Result, type Result as ResultType } from "better-result";
 
 import type { Doc } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
+import { SessionError } from "./errors";
 import { resolveCurrentSession } from "./resolveCurrentSession";
 
-export async function complete(ctx: MutationCtx, user: Doc<"appUsers">) {
+export async function complete(
+  ctx: MutationCtx,
+  user: Doc<"appUsers">,
+): Promise<ResultType<void, SessionError>> {
   const session = await resolveCurrentSession(ctx, user._id);
 
   if (session === null) {
-    throw new ConvexError("NO_ACTIVE_SESSION");
+    return Result.err(new SessionError({ code: "NO_ACTIVE_SESSION" }));
   }
 
   const now = Date.now();
@@ -30,4 +34,6 @@ export async function complete(ctx: MutationCtx, user: Doc<"appUsers">) {
   if (session.blockId !== undefined) {
     await ctx.db.patch("studyBlocks", session.blockId, { status: "done" });
   }
+
+  return Result.ok();
 }
