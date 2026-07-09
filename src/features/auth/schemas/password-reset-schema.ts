@@ -27,3 +27,12 @@ export const ResetPasswordSchema = v.pipe(
     ["confirmPassword"],
   ),
 );
+export type ResetPasswordSchemaType = v.InferOutput<typeof ResetPasswordSchema>;
+
+export const defaultResetPasswordSearchParams = {
+  token: "",
+} as const satisfies Record<string, string>;
+
+export const ResetPasswordSearchSchema = v.object({
+  token: v.optional(v.string(), defaultResetPasswordSearchParams.token),
+});
