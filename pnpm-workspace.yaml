@@ -8,6 +8,8 @@ trustPolicy: no-downgrade
 trustPolicyExclude:
   - "nanoid@3.3.14"
   - "semver@6.3.1"
+  # react-email@6.6.8 CLI が引く chokidar。特定バージョンのみ除外し、将来版は検証対象に残す。
+  - "chokidar@4.0.3"
 
 onlyBuiltDependencies:
   - esbuild

@@ -344,7 +344,9 @@ eroded --decline()--> declined --undoDecline()--> eroded (FR-3.7, 確認ダイ�
 - 統合: 公式Quickstartどおり `router.tsx` で `ConvexQueryClient` を `QueryClient` に接続し、ルートで `ConvexAuthProvider`(`@convex-dev/auth/react`)を巻く。データ取得は原則 `useSuspenseQuery(convexQuery(api.x.y, args))`(SSR初期描画→ブラウザでライブ購読に自動移行)。ミューテーションは `useConvexMutation`。
 - デザイン: 全ルート(`/login` `/signup` 含む)は `docs/design/live-board.md` のデザイン言語(ダーク+JetBrains Mono+カードUI)に準拠する。
 - ルート:
-  - `/login` / `/signup`(未認証専用、認証済みは `/` へ): Formisch+valibotフォーム。signupは email / password(確認入力付き) / displayName / role(self|partner 自己選択)。成功後 `users.ensureUser` を呼ぶ(FR-9.1/9.3)。
+  - `/login` / `/signup`(未認証専用): Formisch+valibotフォーム。signupは email / password(確認入力付き) / displayName / role(self|partner 自己選択)。password sign-in/sign-up 成功後はメールOTP送信を開始し `/verify-otp` へ遷移する(FR-9.1/9.3/9.5)。
+  - `/verify-otp`: 認証済み・2FA未確認セッション専用。Mantine `PinInput`(6桁数字、`oneTimeCode`、`aria-label`)でOTPを検証し、成功後 `/` へ遷移する。再送は60秒後から可能。
+  - `/forgot-password` / `/reset-password`: メールリンク式のパスワードリセット。requestはアカウント存在有無を漏らさず成功表示、reset tokenは1時間有効・1回限り。
   - `/`(ライブボード): `dashboard.live` を購読する3カード+今日の宣言vs実績バー。各カードにクイック操作(犬: 未項目のワンタップ、セッション: 開始/中断/再開、断食: 開始/終了、presence: 自分の状態変更)。**この画面だけでデモが完結する**ことを目標にする。
   - `/study`: 枠の宣言UI(時刻ピッカー)、枠一覧(planned/eroded/done)、侵食→リスケ候補選択、セッション詳細(中断内訳)。
   - `/fasting`: 断食の現在状態(フェーズタイムライン+経過/残り、開始/終了操作は self のみ)の拡大カードと、過去断食の簡易履歴(直近30件、編集・削除なし)(FR-4.5)。**注**: FR-4.4 の「セッション画面」はライブボードの `session-fasting-card`(セッションと断食が同居するカード)を指すものと解釈する。
@@ -359,9 +361,11 @@ eroded --decline()--> declined --undoDecline()--> eroded (FR-3.7, 確認ダイ�
 
 > **2026-07-06改訂(v1.2)**: 発注者判断により (1) Clerk → Convex Auth(Password provider)、(2) 「2ユーザー固定・allow-list」を廃止し**オープンサインアップ**へ変更。実装手順の詳細は `docs/plans/2026-07-06-convex-auth.md`(Sonnet 5 実行用 plan)を正とする。
 
-- プロバイダ: Convex Auth(`@convex-dev/auth`)+ **Password provider のみ**(OAuth / Magic Link / OTP なし)。
-- サインアップ(FR-9.3): `/signup` で email + password + displayName + role(self/partner の自己選択)を登録。**allow-list なし、即時有効**。`ensureUser` は未知の authSubject を拒否せず appUsers 行を新規作成する(冪等)。
-- パスワードポリシー: 12文字以上+英大文字・小文字・数字を含む(Password provider の `validatePasswordRequirements` で実装、クライアント側 valibot でも同等の検証)。確認入力フィールドあり。**パスワードリセット・メール検証はスコープ外**。
+- プロバイダ: Convex Auth(`@convex-dev/auth`)+ **Password provider のみ**(OAuth / Magic Link なし)。Password認証後にアプリ独自のメールOTPを要求する。
+- サインアップ(FR-9.3): `/signup` で email + password + displayName + role(self/partner の自己選択)を登録。**allow-list なし**。`ensureUser` は未知の authSubject を拒否せず appUsers 行を新規作成する(冪等)。登録直後はOTP未確認として扱う。
+- パスワードポリシー: 12文字以上+英大文字・小文字・数字を含む(Password provider の `validatePasswordRequirements` で実装、クライアント側 valibot でも同等の検証)。確認入力フィールドあり。パスワードリセットは `/forgot-password` → メールリンク → `/reset-password` で提供する。
+- メールOTP(FR-9.5): サインイン/サインアップ後に6桁数字OTPをメール送信し、10分以内・最大5回試行で検証する。検証済み状態はConvex Authの `authSessions` ID単位で保持し、sign outまたは新規sessionでは再OTPを要求する。`requireUser` / `requireSelf` は本番JWT形式(`userId|sessionId`)の場合にOTP済みを確認する。
+- 認証メール送信(FR-9.7): `@convex-dev/resend` を `convex/convex.config.ts` で登録し、`convex/resend.ts` の `Resend` clientから送信する。webhookは `/resend-webhook` にmountし、`RESEND_WEBHOOK_SECRET` で検証する。React Emailは `@react-email/components` + `@react-email/render` をNode action内で使う。`react-email` CLIは供給網trust checkで導入しない。
 - ログイン/ログアウト: 未認証アクセスは `/login` へリダイレクト(FR-9.1)。logout は共通レイアウトのユーザーメニューから `signOut`。
 - 認可(FR-9.4): self 専用ルート(`/health` `/insights` `/settings`)は role ガード。partner がアクセスした場合は `/` へリダイレクト+通知。サーバ側も `requireSelf(ctx)`(lib/auth)で二重に防御する。
 - サーバ側検証(FR-9.2): 全 public 関数の冒頭で `requireUser(ctx)`(CVX-04)。`getAuthUserId(ctx)` → appUsers 解決、未認証は `ConvexError("UNAUTHENTICATED")`。
