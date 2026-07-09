@@ -18,7 +18,7 @@ const state = vi.hoisted(() => ({
   createMutate: vi.fn(),
   dog: {
     _creationTime: 0,
-    _id: "dog_1",
+    _id: "dog_1" as Id<"dogs">,
     imageStorageId: undefined,
     imageUrl: null,
     name: "ハマロ",
@@ -97,7 +97,7 @@ function buildTask(name: string, id: string, sortOrder: number): Doc<"dogTasks">
 beforeEach(() => {
   state.dog = {
     _creationTime: 0,
-    _id: "dog_1",
+    _id: "dog_1" as Id<"dogs">,
     imageStorageId: undefined,
     imageUrl: null,
     name: "ハマロ",
@@ -150,7 +150,7 @@ test("DogNameForm creates the dog profile when it is missing", async () => {
 test("DogNameForm submits an updated dog name", async () => {
   state.dog = {
     _creationTime: 0,
-    _id: "dog_1",
+    _id: "dog_1" as Id<"dogs">,
     imageStorageId: undefined,
     imageUrl: null,
     name: "ハマロ",
@@ -173,7 +173,7 @@ test("DogNameForm submits an updated dog name", async () => {
 test("DogImageUploader uploads a cropped dog image and stores its storage id", async () => {
   state.dog = {
     _creationTime: 0,
-    _id: "dog_1",
+    _id: "dog_1" as Id<"dogs">,
     imageStorageId: undefined,
     imageUrl: null,
     name: "ハマロ",
@@ -218,7 +218,7 @@ test("DogImageUploader confirms before removing the current dog image", async ()
   const user = userEvent.setup();
   const { getByRole } = renderWithMantine(<DogImageUploader />);
 
-  await user.click(getByRole("button", { name: "削除" }));
+  await user.click(getByRole("button", { name: "犬の写真を削除" }));
 
   expect(state.removeDogImage.mutate).not.toHaveBeenCalled();
   expect(state.openConfirmModal).toHaveBeenCalledWith(
@@ -245,14 +245,14 @@ test("DogImageUploader confirms before removing the current dog image", async ()
 test("DogImageUploader hides the remove button when no dog image is stored", () => {
   state.dog = {
     _creationTime: 0,
-    _id: "dog_1",
+    _id: "dog_1" as Id<"dogs">,
     imageStorageId: undefined,
     imageUrl: null,
     name: "ハマロ",
   };
   const { queryByRole } = renderWithMantine(<DogImageUploader />);
 
-  expect(queryByRole("button", { name: "削除" })).toBeNull();
+  expect(queryByRole("button", { name: "犬の写真を削除" })).toBeNull();
 });
 
 test("DogTaskList renders an empty message and fallback rows", () => {

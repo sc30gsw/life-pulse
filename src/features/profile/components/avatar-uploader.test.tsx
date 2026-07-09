@@ -127,7 +127,7 @@ test("AvatarUploader confirms before removing the current avatar", async () => {
   const user = userEvent.setup();
   const { getByRole } = renderWithMantine(<AvatarUploader />);
 
-  await user.click(getByRole("button", { name: "削除" }));
+  await user.click(getByRole("button", { name: "アバター画像を削除" }));
 
   expect(state.removeAvatar.mutate).not.toHaveBeenCalled();
   expect(state.openConfirmModal).toHaveBeenCalledWith(
@@ -159,7 +159,7 @@ test("AvatarUploader hides the remove button when no avatar is stored", () => {
   } as never;
   const { queryByRole } = renderWithMantine(<AvatarUploader />);
 
-  expect(queryByRole("button", { name: "削除" })).toBeNull();
+  expect(queryByRole("button", { name: "アバター画像を削除" })).toBeNull();
 });
 
 test("AvatarUploader reports upload errors", async () => {

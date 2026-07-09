@@ -56,25 +56,19 @@ function DogPage() {
       <main className="flex min-w-0 flex-col gap-4">
         <div className="grid min-w-0 gap-4 lg:grid-cols-2">
           <GlowCard
-            className="bg-panel border-bd shadow-card relative overflow-hidden border"
+            className="bg-panel border-bd shadow-card relative overflow-hidden border lg:col-span-2"
             p="lg"
             radius={18}
           >
-            <SectionLabel label="犬の名前" />
-            <Suspense fallback={<DogNameFormFallback />}>
-              <DogNameForm />
-            </Suspense>
-          </GlowCard>
-
-          <GlowCard
-            className="bg-panel border-bd shadow-card relative overflow-hidden border"
-            p="lg"
-            radius={18}
-          >
-            <SectionLabel label="犬の写真" />
-            <Suspense fallback={<DogImageUploaderFallback />}>
-              <DogImageUploader />
-            </Suspense>
+            <SectionLabel label="犬のプロフィール" />
+            <div className="grid min-w-0 gap-5 md:grid-cols-[auto_minmax(0,1fr)] md:items-start">
+              <Suspense fallback={<DogImageUploaderFallback />}>
+                <DogImageUploader />
+              </Suspense>
+              <Suspense fallback={<DogNameFormFallback />}>
+                <DogNameForm />
+              </Suspense>
+            </div>
           </GlowCard>
         </div>
 

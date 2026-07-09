@@ -19,20 +19,20 @@ export function optimisticReorderByTarget<T extends Reorderable<string>>(
   const toIndex = movableItems.findIndex((item) => item._id === targetId);
 
   if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) {
-    return items;
+    return [...items];
   }
 
   const reorderedItems = [...movableItems];
   const [movedItem] = reorderedItems.splice(fromIndex, 1);
 
   if (movedItem === undefined) {
-    return items;
+    return [...items];
   }
 
   const targetIndexAfterRemoval = reorderedItems.findIndex((item) => item._id === targetId);
 
   if (targetIndexAfterRemoval === -1) {
-    return items;
+    return [...items];
   }
 
   const insertIndex = fromIndex < toIndex ? targetIndexAfterRemoval + 1 : targetIndexAfterRemoval;

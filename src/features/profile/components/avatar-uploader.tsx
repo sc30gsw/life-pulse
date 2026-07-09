@@ -115,32 +115,37 @@ export function AvatarUploader() {
 
   return (
     <Stack gap="md">
-      <Group align="center">
+      <Group align="center" gap="md" wrap="nowrap">
         <Avatar name={viewer.displayName} radius="xl" size={64} src={viewer.avatarUrl} />
-        <FileButton accept="image/*" onChange={onFileSelect}>
-          {(props) => (
+        <Stack gap={4} className="min-w-0">
+          <FileButton accept="image/*" onChange={onFileSelect}>
+            {(props) => (
+              <Button
+                {...props}
+                className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+                leftSection={<IconUpload size={16} />}
+                size="sm"
+                variant="outline"
+              >
+                画像を選ぶ
+              </Button>
+            )}
+          </FileButton>
+          {hasAvatar ? (
             <Button
-              {...props}
-              className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
-              leftSection={<IconUpload size={16} />}
-              variant="outline"
+              aria-label="アバター画像を削除"
+              className="self-start transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+              color="red"
+              leftSection={<IconTrash size={14} />}
+              loading={removeAvatar.isPending}
+              onClick={onRemove}
+              size="xs"
+              variant="subtle"
             >
-              画像を選ぶ
+              削除
             </Button>
-          )}
-        </FileButton>
-        {hasAvatar ? (
-          <Button
-            className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
-            color="red"
-            leftSection={<IconTrash size={16} />}
-            loading={removeAvatar.isPending}
-            onClick={onRemove}
-            variant="outline"
-          >
-            削除
-          </Button>
-        ) : null}
+          ) : null}
+        </Stack>
       </Group>
 
       {imageSrc !== null ? (

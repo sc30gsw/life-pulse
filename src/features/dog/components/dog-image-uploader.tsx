@@ -114,32 +114,37 @@ export function DogImageUploader() {
 
   return (
     <Stack gap="md">
-      <Group align="center">
+      <Group align="center" gap="md" wrap="nowrap">
         <Avatar name={dog.name} radius="md" size={76} src={dog.imageUrl} />
-        <FileButton accept="image/*" onChange={onFileSelect}>
-          {(props) => (
+        <Stack gap={4} className="min-w-0">
+          <FileButton accept="image/*" onChange={onFileSelect}>
+            {(props) => (
+              <Button
+                {...props}
+                className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+                leftSection={<IconPhotoUp size={16} />}
+                size="sm"
+                variant="outline"
+              >
+                写真を選ぶ
+              </Button>
+            )}
+          </FileButton>
+          {hasDogImage ? (
             <Button
-              {...props}
-              className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
-              leftSection={<IconPhotoUp size={16} />}
-              variant="outline"
+              aria-label="犬の写真を削除"
+              className="self-start transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+              color="red"
+              leftSection={<IconTrash size={14} />}
+              loading={removeDogImage.isPending}
+              onClick={onRemove}
+              size="xs"
+              variant="subtle"
             >
-              写真を選ぶ
+              削除
             </Button>
-          )}
-        </FileButton>
-        {hasDogImage ? (
-          <Button
-            className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
-            color="red"
-            leftSection={<IconTrash size={16} />}
-            loading={removeDogImage.isPending}
-            onClick={onRemove}
-            variant="outline"
-          >
-            削除
-          </Button>
-        ) : null}
+          ) : null}
+        </Stack>
       </Group>
 
       {imageSrc !== null ? (
@@ -196,7 +201,10 @@ export function DogImageUploaderFallback() {
       <Stack gap="md">
         <Group align="center">
           <Avatar name="犬" radius="md" size={76} />
-          <Button className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100">
+          <Button
+            className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+            size="sm"
+          >
             写真を選ぶ
           </Button>
         </Group>

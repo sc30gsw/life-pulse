@@ -53,25 +53,19 @@ function ProfilePage() {
 
       <main className="grid gap-4 lg:grid-cols-2">
         <GlowCard
-          className="bg-panel border-bd shadow-card relative overflow-hidden border"
+          className="bg-panel border-bd shadow-card relative overflow-hidden border lg:col-span-2"
           p="lg"
           radius={18}
         >
-          <SectionLabel label="表示名" />
-          <Suspense fallback={<ProfileFormFallback />}>
-            <DisplayNameForm />
-          </Suspense>
-        </GlowCard>
-
-        <GlowCard
-          className="bg-panel border-bd shadow-card relative overflow-hidden border"
-          p="lg"
-          radius={18}
-        >
-          <SectionLabel label="アバター" />
-          <Suspense fallback={<ProfileFormFallback />}>
-            <AvatarUploader />
-          </Suspense>
+          <SectionLabel label="プロフィール" />
+          <div className="grid gap-5 md:grid-cols-[auto_minmax(0,1fr)] md:items-start">
+            <Suspense fallback={<ProfileFormFallback />}>
+              <AvatarUploader />
+            </Suspense>
+            <Suspense fallback={<ProfileFormFallback />}>
+              <DisplayNameForm />
+            </Suspense>
+          </div>
         </GlowCard>
 
         <GlowCard
