@@ -5,7 +5,7 @@ import { IconMail, IconShieldCheck } from "@tabler/icons-react";
 import { useNavigate } from "@tanstack/react-router";
 import { Result } from "better-result";
 import { useAction } from "convex/react";
-import { useTransition } from "react";
+import { useState } from "react";
 import * as v from "valibot";
 
 import { api } from "~/../convex/_generated/api";
@@ -22,7 +22,7 @@ export function VerifyOtpForm() {
     api.actions.auth.verifySecondFactorOtp.verifySecondFactorOtp,
   );
   const sendSecondFactorOtp = useAction(api.actions.auth.sendSecondFactorOtp.sendSecondFactorOtp);
-  const [isPending, startTransition] = useTransition();
+  const [pendingAction, setPendingAction] = useState<"resend" | "verify" | null>(null);
 
   const form = useForm({
     initialInput: { code: "" },
@@ -31,62 +31,71 @@ export function VerifyOtpForm() {
     validate: "submit",
   });
 
-  function submitOtp(output: VerifyOtpSchemaType) {
-    startTransition(async () => {
-      const result = await Result.tryPromise({
-        catch: (cause) =>
-          new AuthError({
-            cause,
-            message: cause instanceof Error ? cause.message : "確認コードが正しくありません",
-          }),
-        try: () => verifySecondFactorOtp(output),
+  async function submitOtp(output: VerifyOtpSchemaType) {
+    setPendingAction("verify");
+
+    const result = await Result.tryPromise({
+      catch: (cause) =>
+        new AuthError({
+          cause,
+          message: cause instanceof Error ? cause.message : "確認コードが正しくありません",
+        }),
+      try: () => verifySecondFactorOtp(output),
+    });
+
+    if (Result.isError(result)) {
+      notifications.show({
+        color: "red",
+        message: result.error.message,
+        title: "OTPエラー",
       });
 
-      if (Result.isError(result)) {
-        notifications.show({
-          color: "red",
-          message: result.error.message,
-          title: "OTPエラー",
-        });
-        return;
-      }
+      setPendingAction(null);
 
-      notifications.show({ color: "green", message: "確認が完了しました", title: "OTP確認" });
-      void navigate({ to: "/" });
-    });
+      return;
+    }
+
+    notifications.show({ color: "green", message: "確認が完了しました", title: "OTP確認" });
+    void navigate({ to: "/" });
+    setPendingAction(null);
   }
 
-  function resendCode() {
-    startTransition(async () => {
-      const result = await Result.tryPromise({
-        catch: (cause) =>
-          new AuthError({
-            cause,
-            message: cause instanceof Error ? cause.message : "確認コードの送信に失敗しました",
-          }),
-        try: () => sendSecondFactorOtp({}),
+  async function resendCode() {
+    setPendingAction("resend");
+
+    const result = await Result.tryPromise({
+      catch: (cause) =>
+        new AuthError({
+          cause,
+          message: cause instanceof Error ? cause.message : "確認コードの送信に失敗しました",
+        }),
+      try: () => sendSecondFactorOtp({}),
+    });
+
+    if (Result.isError(result)) {
+      notifications.show({
+        color: "red",
+        message: result.error.message,
+        title: "OTP送信エラー",
       });
 
-      if (Result.isError(result)) {
-        notifications.show({
-          color: "red",
-          message: result.error.message,
-          title: "OTP送信エラー",
-        });
-        return;
-      }
+      setPendingAction(null);
+      return;
+    }
 
-      notifications.show({ color: "green", message: "確認コードを送信しました", title: "OTP送信" });
-    });
+    notifications.show({ color: "green", message: "確認コードを送信しました", title: "OTP送信" });
+    setPendingAction(null);
   }
 
   function submitCode(code: VerifyOtpSchemaType["code"]) {
     const result = v.safeParse(VerifyOtpSchema, { code });
 
     if (result.success) {
-      submitOtp(result.output);
+      void submitOtp(result.output);
     }
   }
+
+  const isPending = pendingAction !== null || form.isSubmitting;
 
   return (
     <Form of={form} onSubmit={(output) => void submitOtp(output)}>
@@ -95,7 +104,7 @@ export function VerifyOtpForm() {
           <>
             <PinInput
               aria-label="One time code"
-              disabled={isPending || form.isSubmitting}
+              disabled={isPending}
               inputMode="numeric"
               length={6}
               oneTimeCode
@@ -104,12 +113,13 @@ export function VerifyOtpForm() {
               value={field.input ?? ""}
               onChange={field.onChange}
               onComplete={submitCode}
+              mask
             />
             <Group grow w="100%" mt="md">
               <Button
                 leftSection={<IconShieldCheck size={18} />}
-                loading={isPending || form.isSubmitting}
-                disabled={(field.input ?? "").length !== 6 || isPending || form.isSubmitting}
+                loading={pendingAction === "verify" || form.isSubmitting}
+                disabled={(field.input ?? "").length !== 6 || isPending}
                 type="submit"
               >
                 確認
@@ -117,8 +127,8 @@ export function VerifyOtpForm() {
               <Button
                 variant="light"
                 leftSection={<IconMail size={18} />}
-                loading={isPending || form.isSubmitting}
-                disabled={isPending || form.isSubmitting}
+                loading={pendingAction === "resend"}
+                disabled={isPending}
                 type="button"
                 onClick={() => void resendCode()}
               >
