@@ -87,7 +87,7 @@ export default defineSchema({
   presence: defineTable(presenceFieldValidators).index("by_user", ["userId"]),
 
   // FR-6.3 同期ログ
-  syncLogs: defineTable(syncLogFieldValidators),
+  syncLogs: defineTable(syncLogFieldValidators).index("by_source_and_ok", ["source", "ok"]),
 
   // 設定(単一ドキュメント運用)
   appSettings: defineTable(appSettingsFieldValidators),
