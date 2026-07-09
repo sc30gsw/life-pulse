@@ -77,6 +77,12 @@
       "skillPath": "skills/engineering/diagnosing-bugs/SKILL.md",
       "computedHash": "1a993ce9b2aaa653ee441c8d7efb7f27de03493c722be6dfb8137bcb8db1bc72"
     },
+    "fallow": {
+      "source": "fallow-rs/fallow-skills",
+      "sourceType": "github",
+      "skillPath": "fallow/skills/fallow/SKILL.md",
+      "computedHash": "f849e72a2a8e65a1fa527c3674d6b7dda109996c42565f72bce94372e3ac5fc9"
+    },
     "find-docs": {
       "source": "upstash/context7",
       "sourceType": "github",
