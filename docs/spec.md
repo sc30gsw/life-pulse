@@ -365,7 +365,7 @@ eroded --decline()--> declined --undoDecline()--> eroded (FR-3.7, 確認ダイ�
 - サインアップ(FR-9.3): `/signup` で email + password + displayName + role(self/partner の自己選択)を登録。**allow-list なし**。`ensureUser` は未知の authSubject を拒否せず appUsers 行を新規作成する(冪等)。登録直後はOTP未確認として扱う。
 - パスワードポリシー: 12文字以上+英大文字・小文字・数字を含む(Password provider の `validatePasswordRequirements` で実装、クライアント側 valibot でも同等の検証)。確認入力フィールドあり。パスワードリセットは `/forgot-password` → メールリンク → `/reset-password` で提供する。
 - メールOTP(FR-9.5): サインイン/サインアップ後に6桁数字OTPをメール送信し、10分以内・最大5回試行で検証する。検証済み状態はConvex Authの `authSessions` ID単位で保持し、sign outまたは新規sessionでは再OTPを要求する。`requireUser` / `requireSelf` は本番JWT形式(`userId|sessionId`)の場合にOTP済みを確認する。
-- 認証メール送信(FR-9.7): `@convex-dev/resend` を `convex/convex.config.ts` で登録し、`convex/resend.ts` の `Resend` clientから送信する。webhookは `/resend-webhook` にmountし、`RESEND_WEBHOOK_SECRET` で検証する。React Emailは `@react-email/components` + `@react-email/render` をNode action内で使う。`react-email` CLIは供給網trust checkで導入しない。
+- 認証メール送信(FR-9.7): `@convex-dev/resend` を `convex/convex.config.ts` で登録し、`convex/resend.ts` の `Resend` clientから送信する。webhookは `/resend-webhook` にmountし、`RESEND_WEBHOOK_SECRET` で検証する。React Emailは `react-email` packageからcomponent/render utilityをimportし、Node action内でHTML/plain textを生成して送信する。
 - ログイン/ログアウト: 未認証アクセスは `/login` へリダイレクト(FR-9.1)。logout は共通レイアウトのユーザーメニューから `signOut`。
 - 認可(FR-9.4): self 専用ルート(`/health` `/insights` `/settings`)は role ガード。partner がアクセスした場合は `/` へリダイレクト+通知。サーバ側も `requireSelf(ctx)`(lib/auth)で二重に防御する。
 - サーバ側検証(FR-9.2): 全 public 関数の冒頭で `requireUser(ctx)`(CVX-04)。`getAuthUserId(ctx)` → appUsers 解決、未認証は `ConvexError("UNAUTHENTICATED")`。

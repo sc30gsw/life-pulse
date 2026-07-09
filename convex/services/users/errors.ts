@@ -4,6 +4,9 @@ import type { Id } from "../../_generated/dataModel";
 
 type UserErrorCode =
   | "ACCOUNT_NOT_FOUND"
+  | "EMAIL_CHANGE_TOKEN_EXPIRED"
+  | "EMAIL_CHANGE_TOKEN_INVALID"
+  | "EMAIL_CHANGE_TOKEN_NOT_OWNED"
   | "INVALID_DISPLAY_NAME"
   | "INVALID_PASSWORD"
   | "STORAGE_DELETE_FAILED"

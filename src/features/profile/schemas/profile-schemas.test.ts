@@ -20,16 +20,15 @@ test("DisplayNameSchema rejects a blank display name", () => {
 test("EmailChangeSchema accepts a valid email with current password", () => {
   expect(
     v.parse(EmailChangeSchema, {
-      currentPassword: "OldPassw0rd1",
       newEmail: "new@example.com",
     }),
-  ).toEqual({ currentPassword: "OldPassw0rd1", newEmail: "new@example.com" });
+  ).toEqual({ newEmail: "new@example.com" });
 });
 
 test("EmailChangeSchema rejects invalid email", () => {
-  expect(() =>
-    v.parse(EmailChangeSchema, { currentPassword: "OldPassw0rd1", newEmail: "invalid" }),
-  ).toThrow("有効なメールアドレスを入力してください");
+  expect(() => v.parse(EmailChangeSchema, { newEmail: "invalid" })).toThrow(
+    "有効なメールアドレスを入力してください",
+  );
 });
 
 test("PasswordChangeSchema accepts a strong matching password", () => {

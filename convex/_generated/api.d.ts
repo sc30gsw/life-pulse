@@ -8,12 +8,21 @@
  * @module
  */
 
+import type * as actions_auth_requestPasswordReset from "../actions/auth/requestPasswordReset.js";
+import type * as actions_auth_resetPassword from "../actions/auth/resetPassword.js";
+import type * as actions_auth_sendSecondFactorOtp from "../actions/auth/sendSecondFactorOtp.js";
+import type * as actions_auth_verifySecondFactorOtp from "../actions/auth/verifySecondFactorOtp.js";
 import type * as actions_garmin_client from "../actions/garmin/client.js";
 import type * as actions_garmin_syncDaily from "../actions/garmin/syncDaily.js";
+import type * as actions_users_confirmEmailChange from "../actions/users/confirmEmailChange.js";
+import type * as actions_users_requestEmailChange from "../actions/users/requestEmailChange.js";
 import type * as actions_users_updateEmail from "../actions/users/updateEmail.js";
 import type * as actions_users_updatePassword from "../actions/users/updatePassword.js";
 import type * as auth from "../auth.js";
 import type * as crons from "../crons.js";
+import type * as emails_emailChangeConfirmationEmail from "../emails/emailChangeConfirmationEmail.js";
+import type * as emails_otpEmail from "../emails/otpEmail.js";
+import type * as emails_passwordResetEmail from "../emails/passwordResetEmail.js";
 import type * as http from "../http.js";
 import type * as lib_auth from "../lib/auth.js";
 import type * as lib_dateRange from "../lib/dateRange.js";
@@ -23,6 +32,12 @@ import type * as lib_hm from "../lib/hm.js";
 import type * as lib_passwordRequirements from "../lib/passwordRequirements.js";
 import type * as lib_result from "../lib/result.js";
 import type * as lib_validators from "../lib/validators.js";
+import type * as mutations_auth_consumePasswordResetToken from "../mutations/auth/consumePasswordResetToken.js";
+import type * as mutations_auth_createPasswordResetToken from "../mutations/auth/createPasswordResetToken.js";
+import type * as mutations_auth_createSecondFactorChallenge from "../mutations/auth/createSecondFactorChallenge.js";
+import type * as mutations_auth_setPasswordResetEmailId from "../mutations/auth/setPasswordResetEmailId.js";
+import type * as mutations_auth_setSecondFactorChallengeEmailId from "../mutations/auth/setSecondFactorChallengeEmailId.js";
+import type * as mutations_auth_verifySecondFactorChallenge from "../mutations/auth/verifySecondFactorChallenge.js";
 import type * as mutations_blocks_declare from "../mutations/blocks/declare.js";
 import type * as mutations_blocks_decline from "../mutations/blocks/decline.js";
 import type * as mutations_blocks_erode from "../mutations/blocks/erode.js";
@@ -67,10 +82,16 @@ import type * as mutations_studyCategories_remove from "../mutations/studyCatego
 import type * as mutations_studyCategories_rename from "../mutations/studyCategories/rename.js";
 import type * as mutations_studyCategories_restore from "../mutations/studyCategories/restore.js";
 import type * as mutations_users_applyEmailChange from "../mutations/users/applyEmailChange.js";
+import type * as mutations_users_confirmEmailChangeTokenAndApply from "../mutations/users/confirmEmailChangeTokenAndApply.js";
+import type * as mutations_users_createEmailChangeToken from "../mutations/users/createEmailChangeToken.js";
 import type * as mutations_users_generateAvatarUploadUrl from "../mutations/users/generateAvatarUploadUrl.js";
 import type * as mutations_users_removeAvatar from "../mutations/users/removeAvatar.js";
 import type * as mutations_users_setAvatar from "../mutations/users/setAvatar.js";
+import type * as mutations_users_setEmailChangeTokenEmailId from "../mutations/users/setEmailChangeTokenEmailId.js";
 import type * as mutations_users_updateDisplayName from "../mutations/users/updateDisplayName.js";
+import type * as queries_auth_getAuthUserByEmail from "../queries/auth/getAuthUserByEmail.js";
+import type * as queries_auth_getAuthUserEmail from "../queries/auth/getAuthUserEmail.js";
+import type * as queries_auth_secondFactorStatus from "../queries/auth/secondFactorStatus.js";
 import type * as queries_blocks_todayWithSuggestions from "../queries/blocks/todayWithSuggestions.js";
 import type * as queries_blocks_upcoming from "../queries/blocks/upcoming.js";
 import type * as queries_dashboard_dog from "../queries/dashboard/dog.js";
@@ -95,7 +116,12 @@ import type * as queries_settings_get from "../queries/settings/get.js";
 import type * as queries_studyCategories_list from "../queries/studyCategories/list.js";
 import type * as queries_users_getEmailForCaller from "../queries/users/getEmailForCaller.js";
 import type * as queries_users_viewer from "../queries/users/viewer.js";
+import type * as resend from "../resend.js";
 import type * as services_appSettings_getFastingDefaultMinutes from "../services/appSettings/getFastingDefaultMinutes.js";
+import type * as services_auth_constants from "../services/auth/constants.js";
+import type * as services_auth_errors from "../services/auth/errors.js";
+import type * as services_auth_passwordReset from "../services/auth/passwordReset.js";
+import type * as services_auth_secondFactor from "../services/auth/secondFactor.js";
 import type * as services_blocks_declare from "../services/blocks/declare.js";
 import type * as services_blocks_decline from "../services/blocks/decline.js";
 import type * as services_blocks_erode from "../services/blocks/erode.js";
@@ -180,6 +206,7 @@ import type * as services_studyCategories_rename from "../services/studyCategori
 import type * as services_studyCategories_restore from "../services/studyCategories/restore.js";
 import type * as services_studyCategories_validate from "../services/studyCategories/validate.js";
 import type * as services_users_applyEmailChange from "../services/users/applyEmailChange.js";
+import type * as services_users_emailChange from "../services/users/emailChange.js";
 import type * as services_users_ensureUser from "../services/users/ensureUser.js";
 import type * as services_users_errors from "../services/users/errors.js";
 import type * as services_users_getEmailForCaller from "../services/users/getEmailForCaller.js";
@@ -198,12 +225,21 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  "actions/auth/requestPasswordReset": typeof actions_auth_requestPasswordReset;
+  "actions/auth/resetPassword": typeof actions_auth_resetPassword;
+  "actions/auth/sendSecondFactorOtp": typeof actions_auth_sendSecondFactorOtp;
+  "actions/auth/verifySecondFactorOtp": typeof actions_auth_verifySecondFactorOtp;
   "actions/garmin/client": typeof actions_garmin_client;
   "actions/garmin/syncDaily": typeof actions_garmin_syncDaily;
+  "actions/users/confirmEmailChange": typeof actions_users_confirmEmailChange;
+  "actions/users/requestEmailChange": typeof actions_users_requestEmailChange;
   "actions/users/updateEmail": typeof actions_users_updateEmail;
   "actions/users/updatePassword": typeof actions_users_updatePassword;
   auth: typeof auth;
   crons: typeof crons;
+  "emails/emailChangeConfirmationEmail": typeof emails_emailChangeConfirmationEmail;
+  "emails/otpEmail": typeof emails_otpEmail;
+  "emails/passwordResetEmail": typeof emails_passwordResetEmail;
   http: typeof http;
   "lib/auth": typeof lib_auth;
   "lib/dateRange": typeof lib_dateRange;
@@ -213,6 +249,12 @@ declare const fullApi: ApiFromModules<{
   "lib/passwordRequirements": typeof lib_passwordRequirements;
   "lib/result": typeof lib_result;
   "lib/validators": typeof lib_validators;
+  "mutations/auth/consumePasswordResetToken": typeof mutations_auth_consumePasswordResetToken;
+  "mutations/auth/createPasswordResetToken": typeof mutations_auth_createPasswordResetToken;
+  "mutations/auth/createSecondFactorChallenge": typeof mutations_auth_createSecondFactorChallenge;
+  "mutations/auth/setPasswordResetEmailId": typeof mutations_auth_setPasswordResetEmailId;
+  "mutations/auth/setSecondFactorChallengeEmailId": typeof mutations_auth_setSecondFactorChallengeEmailId;
+  "mutations/auth/verifySecondFactorChallenge": typeof mutations_auth_verifySecondFactorChallenge;
   "mutations/blocks/declare": typeof mutations_blocks_declare;
   "mutations/blocks/decline": typeof mutations_blocks_decline;
   "mutations/blocks/erode": typeof mutations_blocks_erode;
@@ -257,10 +299,16 @@ declare const fullApi: ApiFromModules<{
   "mutations/studyCategories/rename": typeof mutations_studyCategories_rename;
   "mutations/studyCategories/restore": typeof mutations_studyCategories_restore;
   "mutations/users/applyEmailChange": typeof mutations_users_applyEmailChange;
+  "mutations/users/confirmEmailChangeTokenAndApply": typeof mutations_users_confirmEmailChangeTokenAndApply;
+  "mutations/users/createEmailChangeToken": typeof mutations_users_createEmailChangeToken;
   "mutations/users/generateAvatarUploadUrl": typeof mutations_users_generateAvatarUploadUrl;
   "mutations/users/removeAvatar": typeof mutations_users_removeAvatar;
   "mutations/users/setAvatar": typeof mutations_users_setAvatar;
+  "mutations/users/setEmailChangeTokenEmailId": typeof mutations_users_setEmailChangeTokenEmailId;
   "mutations/users/updateDisplayName": typeof mutations_users_updateDisplayName;
+  "queries/auth/getAuthUserByEmail": typeof queries_auth_getAuthUserByEmail;
+  "queries/auth/getAuthUserEmail": typeof queries_auth_getAuthUserEmail;
+  "queries/auth/secondFactorStatus": typeof queries_auth_secondFactorStatus;
   "queries/blocks/todayWithSuggestions": typeof queries_blocks_todayWithSuggestions;
   "queries/blocks/upcoming": typeof queries_blocks_upcoming;
   "queries/dashboard/dog": typeof queries_dashboard_dog;
@@ -285,7 +333,12 @@ declare const fullApi: ApiFromModules<{
   "queries/studyCategories/list": typeof queries_studyCategories_list;
   "queries/users/getEmailForCaller": typeof queries_users_getEmailForCaller;
   "queries/users/viewer": typeof queries_users_viewer;
+  resend: typeof resend;
   "services/appSettings/getFastingDefaultMinutes": typeof services_appSettings_getFastingDefaultMinutes;
+  "services/auth/constants": typeof services_auth_constants;
+  "services/auth/errors": typeof services_auth_errors;
+  "services/auth/passwordReset": typeof services_auth_passwordReset;
+  "services/auth/secondFactor": typeof services_auth_secondFactor;
   "services/blocks/declare": typeof services_blocks_declare;
   "services/blocks/decline": typeof services_blocks_decline;
   "services/blocks/erode": typeof services_blocks_erode;
@@ -370,6 +423,7 @@ declare const fullApi: ApiFromModules<{
   "services/studyCategories/restore": typeof services_studyCategories_restore;
   "services/studyCategories/validate": typeof services_studyCategories_validate;
   "services/users/applyEmailChange": typeof services_users_applyEmailChange;
+  "services/users/emailChange": typeof services_users_emailChange;
   "services/users/ensureUser": typeof services_users_ensureUser;
   "services/users/errors": typeof services_users_errors;
   "services/users/getEmailForCaller": typeof services_users_getEmailForCaller;
@@ -408,4 +462,6 @@ export declare const internal: FilterApi<
   FunctionReference<any, "internal">
 >;
 
-export declare const components: {};
+export declare const components: {
+  resend: import("@convex-dev/resend/_generated/component.js").ComponentApi<"resend">;
+};

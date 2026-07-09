@@ -3,15 +3,20 @@ import { Field, Form, useForm } from "@formisch/react";
 import { Button, PasswordInput, Stack, TextInput } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconLock, IconLogin2, IconMail } from "@tabler/icons-react";
+import { useNavigate } from "@tanstack/react-router";
 import { Result } from "better-result";
+import { useAction } from "convex/react";
 import { ConvexError } from "convex/values";
 
+import { api } from "~/../convex/_generated/api";
 import { LoginSchema } from "~/features/auth/schemas/login-schema";
 import { AuthError } from "~/features/auth/types/auth-error";
 import { getFieldError } from "~/utils/field-error";
 
 export function LoginForm() {
   const { signIn } = useAuthActions();
+  const sendSecondFactorOtp = useAction(api.actions.auth.sendSecondFactorOtp.sendSecondFactorOtp);
+  const navigate = useNavigate();
   const form = useForm({ revalidate: "input", schema: LoginSchema, validate: "blur" });
 
   return (
@@ -25,12 +30,15 @@ export function LoginForm() {
               message: cause instanceof ConvexError ? String(cause.data) : "ログインに失敗しました",
             }),
 
-          try: () =>
-            signIn("password", {
+          try: async () => {
+            await signIn("password", {
               email: output.email,
               flow: "signIn",
               password: output.password,
-            }),
+            });
+
+            await sendSecondFactorOtp({});
+          },
         });
 
         if (Result.isError(result)) {
@@ -39,7 +47,11 @@ export function LoginForm() {
             message: result.error.message,
             title: "ログインエラー",
           });
+
+          return;
         }
+
+        await navigate({ to: "/verify-otp" });
       }}
     >
       <Stack gap="md">
