@@ -26,11 +26,17 @@ const MODAL_STYLES = {
 
 type FastingStartModalProps = {
   onClose: UseDisclosureReturnValue[1]["close"];
+  onStartAttempt?: () => (() => void) | void;
   onSuccess?: () => void;
   opened: UseDisclosureReturnValue[0];
 };
 
-export function FastingStartModal({ opened, onClose, onSuccess }: FastingStartModalProps) {
+export function FastingStartModal({
+  opened,
+  onClose,
+  onStartAttempt,
+  onSuccess,
+}: FastingStartModalProps) {
   const startFastingForm = useForm({
     revalidate: "input",
     schema: StartFastingSchema,
@@ -43,9 +49,14 @@ export function FastingStartModal({ opened, onClose, onSuccess }: FastingStartMo
       <Form
         of={startFastingForm}
         onSubmit={(output) => {
+          const releaseFlashSuppression = onStartAttempt?.();
+
           startFasting.mutate(
             { targetMinutes: output.targetMinutes },
             {
+              onError: () => {
+                releaseFlashSuppression?.();
+              },
               onSuccess: () => {
                 onClose();
                 onSuccess?.();
@@ -93,7 +104,7 @@ export function FastingStartModal({ opened, onClose, onSuccess }: FastingStartMo
             loading={startFastingForm.isSubmitting}
             style={ACCENT_SOLID_STYLE.good}
             type="submit"
-            className="hover:brightness-120"
+            className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
           >
             開始する
           </Button>

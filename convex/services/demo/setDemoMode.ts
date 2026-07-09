@@ -2,14 +2,10 @@ import { internal } from "../../_generated/api";
 import type { Doc } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
 import { DEMO_SEED_DAYS } from "../../lib/demoConstants";
-import { DEFAULT_FASTING_MINUTES } from "../appSettings/getFastingDefaultMinutes";
+import { DEFAULT_FASTING_MINUTES } from "../../lib/domain";
 import { seedMetrics } from "./seedMetrics";
 
-// Matches services/dashboard/dog.ts's no-appSettings-row fallback, reused
-// here since enabling demo mode may need to lazy-create the singleton row.
-const DEFAULT_DOG_NAME = "ハマロ";
-
-type SetDemoModeArgs = Record<"enabled", boolean> &
+type SetDemoModeArgs = Record<"enabled", Doc<"appSettings">["demoMode"]> &
   Record<"todayJst", Doc<"healthMetrics">["dateJst"]>;
 
 export async function setDemoMode(ctx: MutationCtx, args: SetDemoModeArgs) {
@@ -43,7 +39,6 @@ async function enableDemoMode(
     await ctx.db.insert("appSettings", {
       demoJobId: jobId,
       demoMode: true,
-      dogName: DEFAULT_DOG_NAME,
       fastingDefaultMinutes: DEFAULT_FASTING_MINUTES,
     });
     return;

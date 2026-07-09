@@ -2,7 +2,7 @@
 import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vite-plus/test";
 
-import type { Doc } from "~/../convex/_generated/dataModel";
+import type { Doc, Id } from "~/../convex/_generated/dataModel";
 import {
   SessionFastingCard,
   SessionFastingCardFallback,
@@ -10,6 +10,7 @@ import {
 import { renderWithMantine } from "~/test-utils";
 
 const hookState = vi.hoisted(() => ({
+  eikaiwaCategoryId: "category_eikaiwa" as Id<"studyCategories">,
   endMutate: vi.fn(),
   fasting: null as Doc<"fastingWindows"> | null,
   onCompleteSession: vi.fn(),
@@ -22,6 +23,7 @@ const hookState = vi.hoisted(() => ({
   suspendFasting: false,
   suspendStudy: false,
   suspendViewer: false,
+  toeicCategoryId: "category_toeic" as Id<"studyCategories">,
   viewerRole: "self" as "partner" | "self",
 }));
 
@@ -73,6 +75,35 @@ vi.mock("~/features/dashboard/hooks/use-dashboard-fasting", () => ({
   },
 }));
 
+vi.mock("~/features/study-categories/hooks/use-study-categories-query", () => ({
+  useStudyCategoriesQuery: () => {
+    const categories = [
+      {
+        _creationTime: 0,
+        _id: hookState.toeicCategoryId,
+        archivedAt: undefined,
+        name: "TOEIC",
+        sortOrder: 0,
+        userId: "user_1" as Id<"appUsers">,
+      },
+      {
+        _creationTime: 0,
+        _id: hookState.eikaiwaCategoryId,
+        archivedAt: undefined,
+        name: "英会話",
+        sortOrder: 1,
+        userId: "user_1" as Id<"appUsers">,
+      },
+    ];
+
+    return {
+      activeCategories: categories,
+      categoryName: (categoryId: Id<"studyCategories"> | undefined) =>
+        categories.find((category) => category._id === categoryId)?.name ?? "カテゴリ未設定",
+    };
+  },
+}));
+
 vi.mock("~/features/fasting/hooks/use-end-fasting", () => ({
   useEndFasting: () => ({ mutate: hookState.endMutate }),
 }));
@@ -90,7 +121,7 @@ function buildSession(overrides: Partial<Doc<"studySessions">> = {}): Doc<"study
     _creationTime: 0,
     _id: "session_1",
     accumulatedMs: 0,
-    category: "toeic",
+    categoryId: hookState.toeicCategoryId,
     dateJst: "2026-07-07",
     interruptionCount: 0,
     startedAt: 0,
@@ -266,7 +297,7 @@ test("opens the start modal and submits the default category and planned minutes
   await user.click(getByRole("button", { name: "セッション開始" }));
   await user.click(getByRole("button", { name: "開始する" }));
 
-  expect(hookState.onStartSession).toHaveBeenCalledWith("toeic", 60);
+  expect(hookState.onStartSession).toHaveBeenCalledWith(hookState.toeicCategoryId, 60);
 });
 
 test("submits the category selected in the start modal", async () => {
@@ -280,7 +311,7 @@ test("submits the category selected in the start modal", async () => {
   await user.click(getByRole("button", { name: "英会話" }));
   await user.click(getByRole("button", { name: "開始する" }));
 
-  expect(hookState.onStartSession).toHaveBeenCalledWith("eikaiwa", 60);
+  expect(hookState.onStartSession).toHaveBeenCalledWith(hookState.eikaiwaCategoryId, 60);
 });
 
 test("shows the 断食開始 button for the self viewer when there is no active fasting window", () => {
@@ -316,7 +347,10 @@ test("shows the 食事開始(断食終了) button for the self viewer with an ac
   const modal = hookState.openConfirmModal.mock.calls[0]?.[0] as { onConfirm: () => void };
   modal.onConfirm();
 
-  expect(hookState.endMutate).toHaveBeenCalledWith({});
+  expect(hookState.endMutate).toHaveBeenCalledWith(
+    {},
+    expect.objectContaining({ onError: expect.any(Function) }),
+  );
 });
 
 test("hides both fasting action buttons for the partner viewer", () => {

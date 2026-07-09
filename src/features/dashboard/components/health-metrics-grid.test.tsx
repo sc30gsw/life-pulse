@@ -1,4 +1,5 @@
 // @vitest-environment happy-dom
+import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vite-plus/test";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
@@ -9,9 +10,29 @@ import {
 import { renderWithMantine } from "~/test-utils";
 
 let metrics: Doc<"healthMetrics"> | null = null;
+const hookState = vi.hoisted(() => ({
+  mutate: vi.fn(),
+  notificationShow: vi.fn(),
+}));
 
 vi.mock("~/features/dashboard/hooks/use-dashboard-health", () => ({
   useDashboardHealth: () => ({ dateJst: "2026-07-08", lastSyncRelativeLabel: "5分前", metrics }),
+}));
+
+vi.mock("~/features/health/hooks/use-request-garmin-sync", () => ({
+  useRequestGarminSync: () => ({ isPending: false, mutate: hookState.mutate }),
+}));
+
+vi.mock("@mantine/notifications", () => ({
+  notifications: { show: hookState.notificationShow },
+}));
+
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({ children, to, ...props }: { children: React.ReactNode; to: string }) => (
+    <a href={to} {...props}>
+      {children}
+    </a>
+  ),
 }));
 
 function buildMetrics(overrides: Partial<Doc<"healthMetrics">> = {}): Doc<"healthMetrics"> {
@@ -25,13 +46,32 @@ function buildMetrics(overrides: Partial<Doc<"healthMetrics">> = {}): Doc<"healt
   } as unknown as Doc<"healthMetrics">;
 }
 
-test("renders 未計測 when metrics is null", () => {
+test("renders recovery actions when metrics is null", () => {
   metrics = null;
 
-  const { getByText } = renderWithMantine(<HealthMetricsGrid />);
+  const { getByRole, getByText } = renderWithMantine(<HealthMetricsGrid />);
 
-  expect(getByText("未計測")).toBeDefined();
+  expect(getByText("今日のデータはまだありません")).toBeDefined();
+  expect(
+    getByText("Garminを同期すると、睡眠・Body Battery・歩数をここに表示します。"),
+  ).toBeDefined();
   expect(getByText("2026/07/08")).toBeDefined();
+  expect(getByRole("button", { name: "Garminを同期" })).toBeDefined();
+  expect(getByRole("link", { name: "詳細" }).getAttribute("href")).toBe("/health");
+});
+
+test("clicking the empty-state sync button requests Garmin sync", async () => {
+  metrics = null;
+  hookState.mutate.mockClear();
+  const user = userEvent.setup();
+
+  const { getByRole } = renderWithMantine(<HealthMetricsGrid />);
+
+  await user.click(getByRole("button", { name: "Garminを同期" }));
+
+  expect(hookState.mutate).toHaveBeenCalledTimes(1);
+  const [payload] = hookState.mutate.mock.calls[0] as [Record<string, unknown>];
+  expect(payload).toEqual({});
 });
 
 test("renders the source label and full metric values", () => {

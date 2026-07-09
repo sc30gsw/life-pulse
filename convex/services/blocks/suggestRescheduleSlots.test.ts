@@ -3,11 +3,13 @@ import { expect, test } from "vite-plus/test";
 import type { Doc } from "../../_generated/dataModel";
 import { suggestRescheduleSlots } from "./suggestRescheduleSlots";
 
+const CATEGORY_ID = "category_toeic" as Doc<"studyBlocks">["categoryId"];
+
 function buildBlock(overrides: Partial<Doc<"studyBlocks">>): Doc<"studyBlocks"> {
   return {
     _creationTime: 0,
     _id: "block_1",
-    category: "toeic",
+    categoryId: CATEGORY_ID,
     dateJst: "2026-07-07",
     endHm: "07:00",
     plannedMinutes: 60,
@@ -16,7 +18,7 @@ function buildBlock(overrides: Partial<Doc<"studyBlocks">>): Doc<"studyBlocks"> 
     status: "planned",
     userId: "user_1",
     ...overrides,
-  } as Doc<"studyBlocks">;
+  } as unknown as Doc<"studyBlocks">;
 }
 
 test("returns up to 5 half-hour slots from the next 30-minute mark", () => {

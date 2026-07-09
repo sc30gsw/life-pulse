@@ -1,5 +1,7 @@
 import * as v from "valibot";
 
+import { ROLE_VALUES } from "~/../convex/lib/domain";
+
 const PasswordSchema = v.pipe(
   v.string(),
   v.minLength(12, "パスワードは12文字以上で入力してください"),
@@ -14,7 +16,7 @@ export const SignupSchema = v.pipe(
     displayName: v.pipe(v.string(), v.minLength(1, "表示名を入力してください")),
     email: v.pipe(v.string(), v.email("有効なメールアドレスを入力してください")),
     password: PasswordSchema,
-    role: v.picklist(["self", "partner"], "ロールを選択してください"),
+    role: v.picklist(ROLE_VALUES, "ロールを選択してください"),
   }),
   v.forward(
     v.partialCheck(

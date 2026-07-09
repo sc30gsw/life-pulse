@@ -32,6 +32,7 @@ test("returns the shared board clock and date key", () => {
   expect(result.current.nowMs).toBe(FIXED_NOW);
   expect(result.current.clockTime).toBeDefined();
   expect(result.current.clockDateLabel).toBeDefined();
+  expect(result.current.clockDateLabelCompact).toBeDefined();
 });
 
 test("updates nowMs and dateJst on the one-second clock tick", () => {

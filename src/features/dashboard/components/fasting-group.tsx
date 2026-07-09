@@ -9,13 +9,9 @@ import type { Doc } from "~/../convex/_generated/dataModel";
 import { useDashboardFasting } from "~/features/dashboard/hooks/use-dashboard-fasting";
 import { useDashboardViewer } from "~/features/dashboard/hooks/use-dashboard-viewer";
 import { FastingStartModal } from "~/features/fasting/components/fasting-start-modal";
+import { FASTING_PHASE_ACCENT } from "~/features/fasting/constants/fasting-phase-accent";
 import { useEndFasting } from "~/features/fasting/hooks/use-end-fasting";
-import {
-  ACCENT_SOLID_STYLE,
-  ACCENT_VARS,
-  FASTING_PHASE_LABELS,
-  FASTING_PHASE_SUB_LABELS,
-} from "~/types/dashboard";
+import { ACCENT_SOLID_STYLE, ACCENT_VARS } from "~/types/dashboard";
 
 const CONFIRM_MODAL_STYLES = {
   body: { color: "var(--tx)" },
@@ -24,16 +20,43 @@ const CONFIRM_MODAL_STYLES = {
   title: { color: "var(--tx)", fontWeight: 700 },
 } as const satisfies ComponentProps<typeof Modal>["styles"];
 
-// Single consumer: maps fasting phase to its accent key for the ring/labels.
-const FASTING_PHASE_ACCENT = {
-  early: "blue",
-  fatburn: "amber",
-  goal: "good",
-} as const satisfies Record<Doc<"fastingWindows">["phase"], keyof typeof ACCENT_VARS>;
+function phaseLabel(phase: Doc<"fastingWindows">["phase"]) {
+  switch (phase) {
+    case "early":
+      return "空腹期";
 
-export function FastingGroup({ fastingFlash }: Record<"fastingFlash", boolean>) {
-  const { fasting, fastingElapsedLabel, fastingRingPercent, fastingRemainLabel } =
-    useDashboardFasting();
+    case "fatburn":
+      return "脂肪燃焼帯";
+
+    case "goal":
+      return "目標達成";
+  }
+}
+
+function phaseSubLabel(phase: Doc<"fastingWindows">["phase"]) {
+  switch (phase) {
+    case "early":
+      return "12hで脂肪燃焼帯";
+
+    case "fatburn":
+      return "16hで目標達成";
+
+    case "goal":
+      return "16時間クリア";
+  }
+}
+
+export function FastingGroup({
+  fastingFlash: fastingFlashOverride,
+}: Partial<Record<"fastingFlash", boolean>> = {}) {
+  const {
+    fasting,
+    fastingElapsedLabel,
+    fastingFlashRef,
+    fastingRingPercent,
+    fastingRemainLabel,
+    suppressNextFastingFlash,
+  } = useDashboardFasting();
   const endFasting = useEndFasting();
   const [startModalOpened, { close: closeStartModal, open: openStartModal }] = useDisclosure(false);
   const fastingPhase = fasting?.phase ?? "early";
@@ -41,7 +64,10 @@ export function FastingGroup({ fastingFlash }: Record<"fastingFlash", boolean>) 
 
   function onEndFasting() {
     modals.openConfirmModal({
-      cancelProps: { className: "border-bd bg-inset text-tx hover:bg-panel-2" },
+      cancelProps: {
+        className:
+          "border-bd bg-inset text-tx transition hover:bg-panel-2 hover:brightness-110 active:brightness-95",
+      },
       centered: true,
       children: (
         <Text size="sm">断食を終了して食事を開始します。ここまでの経過時間が記録されます。</Text>
@@ -49,7 +75,16 @@ export function FastingGroup({ fastingFlash }: Record<"fastingFlash", boolean>) 
       confirmProps: { style: ACCENT_SOLID_STYLE.good },
       labels: { cancel: "キャンセル", confirm: "食事開始(断食終了)" },
       onConfirm: () => {
-        endFasting.mutate({});
+        const releaseFlashSuppression = suppressNextFastingFlash?.();
+
+        endFasting.mutate(
+          {},
+          {
+            onError: () => {
+              releaseFlashSuppression?.();
+            },
+          },
+        );
       },
       styles: CONFIRM_MODAL_STYLES,
       title: "断食を終了しますか?",
@@ -58,11 +93,16 @@ export function FastingGroup({ fastingFlash }: Record<"fastingFlash", boolean>) 
 
   return (
     <>
-      <FastingStartModal onClose={closeStartModal} opened={startModalOpened} />
+      <FastingStartModal
+        onClose={closeStartModal}
+        onStartAttempt={suppressNextFastingFlash}
+        opened={startModalOpened}
+      />
       <Group
+        ref={fastingFlashRef}
         gap="md"
         wrap="nowrap"
-        className={cn("relative min-w-[240px] flex-1", fastingFlash && "lp-flash")}
+        className={cn("relative min-w-[240px] flex-1", fastingFlashOverride && "lp-flash")}
       >
         <RingProgress
           size={96}
@@ -70,7 +110,7 @@ export function FastingGroup({ fastingFlash }: Record<"fastingFlash", boolean>) 
           sections={[{ value: fastingRingPercent ?? 0, color: ACCENT_VARS[phaseAccent] }]}
           label={
             <Stack gap={1} align="center">
-              <Text fw={600} size="lg" c={ACCENT_VARS[phaseAccent]}>
+              <Text fw={600} size="lg" c={ACCENT_VARS[phaseAccent]} suppressHydrationWarning>
                 {fastingElapsedLabel ?? ""}
               </Text>
               <Text size="9px" c={ACCENT_VARS.faint}>
@@ -90,18 +130,18 @@ export function FastingGroup({ fastingFlash }: Record<"fastingFlash", boolean>) 
             断食
           </Text>
           <Text fw={600} size="lg" c={ACCENT_VARS[phaseAccent]}>
-            {fasting === null ? "未開始" : FASTING_PHASE_LABELS[fastingPhase]}
+            {fasting === null ? "未開始" : phaseLabel(fastingPhase)}
           </Text>
           <Text size="sm" c="dimmed">
-            {fasting === null ? "断食を開始していません" : FASTING_PHASE_SUB_LABELS[fastingPhase]}
+            {fasting === null ? "断食を開始していません" : phaseSubLabel(fastingPhase)}
           </Text>
-          <Text size="xs" c="dimmed">
+          <Text size="xs" c="dimmed" suppressHydrationWarning>
             経過{" "}
-            <Text component="span" size="xs" c="var(--tx)">
+            <Text component="span" size="xs" c="var(--tx)" suppressHydrationWarning>
               {fastingElapsedLabel}
             </Text>{" "}
             · 残{" "}
-            <Text component="span" size="xs" c="var(--tx)">
+            <Text component="span" size="xs" c="var(--tx)" suppressHydrationWarning>
               {fastingRemainLabel}
             </Text>
           </Text>
@@ -135,11 +175,22 @@ function FastingViewerButton({ fasting, onOpen, onClose }: FastingViewerButtonPr
   }
 
   return fasting === null ? (
-    <Button variant="filled" style={ACCENT_SOLID_STYLE.blue} size="xs" onClick={onOpen}>
+    <Button
+      className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+      variant="filled"
+      style={ACCENT_SOLID_STYLE.blue}
+      size="xs"
+      onClick={onOpen}
+    >
       断食開始
     </Button>
   ) : (
-    <Button variant="outline" size="xs" className="border-bd-2 text-tx" onClick={onClose}>
+    <Button
+      variant="outline"
+      size="xs"
+      className="border-bd-2 text-tx transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+      onClick={onClose}
+    >
       食事開始(断食終了)
     </Button>
   );

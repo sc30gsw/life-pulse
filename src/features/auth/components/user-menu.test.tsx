@@ -65,7 +65,7 @@ test("offers a /fasting navigation item in the dropdown", async () => {
   expect(fastingItem.getAttribute("href")).toBe("/fasting");
 });
 
-test("offers /health and /settings navigation items for the self viewer", async () => {
+test("offers /health, /insights and /settings navigation items for the self viewer", async () => {
   hookState.viewerRole = "self";
 
   const user = userEvent.setup();
@@ -76,11 +76,14 @@ test("offers /health and /settings navigation items for the self viewer", async 
   const healthItem = getByRole("menuitem", { hidden: true, name: /健康/ });
   expect(healthItem.getAttribute("href")).toBe("/health");
 
+  const insightsItem = getByRole("menuitem", { hidden: true, name: /インサイト/ });
+  expect(insightsItem.getAttribute("href")).toBe("/insights");
+
   const settingsItem = getByRole("menuitem", { hidden: true, name: /設定/ });
   expect(settingsItem.getAttribute("href")).toBe("/settings");
 });
 
-test("hides /health and /settings navigation items for the partner viewer", async () => {
+test("hides /health, /insights and /settings navigation items for the partner viewer", async () => {
   hookState.viewerRole = "partner";
 
   const user = userEvent.setup();
@@ -89,6 +92,7 @@ test("hides /health and /settings navigation items for the partner viewer", asyn
   await user.click(getByRole("button"));
 
   expect(queryByRole("menuitem", { hidden: true, name: /健康/ })).toBeNull();
+  expect(queryByRole("menuitem", { hidden: true, name: /インサイト/ })).toBeNull();
   expect(queryByRole("menuitem", { hidden: true, name: /設定/ })).toBeNull();
 });
 

@@ -3,7 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { api } from "~/../convex/_generated/api";
 
-export function settingsQuery() {
+function settingsQuery() {
   return convexQuery(api.queries.settings.get.get, {});
 }
 

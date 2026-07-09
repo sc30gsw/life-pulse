@@ -24,7 +24,7 @@ export function HiitSection() {
           直近28日間の記録
         </Text>
         <Button
-          className="hover:brightness-120"
+          className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
           onClick={() => setTarget("new")}
           size="xs"
           style={ACCENT_SOLID_STYLE.good}

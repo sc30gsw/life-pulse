@@ -1,20 +1,27 @@
-import { ConvexError } from "convex/values";
+import { Result, type Result as ResultType } from "better-result";
 
 import type { Doc } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
+import { BlockError } from "./errors";
 
 type DeclineArgs = Record<"blockId", Doc<"studyBlocks">["_id"]>;
 
-export async function decline(ctx: MutationCtx, user: Doc<"appUsers">, args: DeclineArgs) {
+export async function decline(
+  ctx: MutationCtx,
+  user: Doc<"appUsers">,
+  args: DeclineArgs,
+): Promise<ResultType<void, BlockError>> {
   const block = await ctx.db.get("studyBlocks", args.blockId);
 
   if (block === null || block.userId !== user._id) {
-    throw new ConvexError("BLOCK_NOT_FOUND");
+    return Result.err(new BlockError({ blockId: args.blockId, code: "BLOCK_NOT_FOUND" }));
   }
 
   if (block.status !== "eroded") {
-    throw new ConvexError("NOT_ERODED");
+    return Result.err(new BlockError({ blockId: args.blockId, code: "NOT_ERODED" }));
   }
 
   await ctx.db.patch("studyBlocks", block._id, { status: "declined" });
+
+  return Result.ok();
 }

@@ -2,34 +2,41 @@ import { v } from "convex/values";
 
 import { query } from "../../_generated/server";
 import { requireUser } from "../../lib/auth";
-import { dogEventKindValidator } from "../../lib/validators";
+import {
+  appUserFieldValidators,
+  dogEventFieldValidators,
+  dogTaskFieldValidators,
+} from "../../lib/validators";
 import { history as historyService } from "../../services/dog/history";
+
+const dayCountValidator = v.number();
+const eventCountValidator = v.number();
 
 export const history = query({
   args: {
-    fromDateJst: v.string(),
+    fromDateJst: dogEventFieldValidators.dateJst,
     includeOlderDays: v.optional(v.boolean()),
-    toDateJst: v.string(),
+    toDateJst: dogEventFieldValidators.dateJst,
   },
   returns: v.object({
     days: v.array(
       v.object({
-        dateJst: v.string(),
+        dateJst: dogEventFieldValidators.dateJst,
         events: v.array(
           v.object({
-            at: v.number(),
-            byDisplayName: v.string(),
+            at: dogEventFieldValidators.at,
+            byDisplayName: appUserFieldValidators.displayName,
             id: v.id("dogEvents"),
-            kind: dogEventKindValidator,
+            taskName: dogTaskFieldValidators.name,
           }),
         ),
       }),
     ),
     summary: v.object({
-      eventCount: v.number(),
+      eventCount: eventCountValidator,
       hasOlderDays: v.boolean(),
-      olderDayCount: v.number(),
-      totalDayCount: v.number(),
+      olderDayCount: dayCountValidator,
+      totalDayCount: dayCountValidator,
     }),
   }),
   handler: async (ctx, args) => {

@@ -2,6 +2,7 @@ import { v } from "convex/values";
 
 import { mutation } from "../../_generated/server";
 import { requireUser } from "../../lib/auth";
+import { unwrapConvexResult } from "../../lib/result";
 import { erosionReasonValidator } from "../../lib/validators";
 import { erode as erodeBlock } from "../../services/blocks/erode";
 
@@ -13,7 +14,7 @@ export const erode = mutation({
   returns: v.null(),
   handler: async (ctx, args) => {
     const user = await requireUser(ctx);
-    await erodeBlock(ctx, user, args);
+    unwrapConvexResult(await erodeBlock(ctx, user, args));
 
     return null;
   },

@@ -52,7 +52,6 @@ test("tick is a no-op (no writes, no reschedule) when demoMode is false", async 
   await t.run((ctx) =>
     ctx.db.insert("appSettings", {
       demoMode: false,
-      dogName: "ハマロ",
       fastingDefaultMinutes: 960,
     }),
   );

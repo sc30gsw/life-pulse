@@ -48,7 +48,7 @@ test("health prefers the demo row for the date when demoMode is on", async () =>
     ctx.db.insert("appUsers", { authSubject: "self_1", displayName: "本人", role: "self" }),
   );
   await t.run((ctx) =>
-    ctx.db.insert("appSettings", { demoMode: true, dogName: "ハマロ", fastingDefaultMinutes: 960 }),
+    ctx.db.insert("appSettings", { demoMode: true, fastingDefaultMinutes: 960 }),
   );
   await t.run((ctx) =>
     ctx.db.insert("healthMetrics", {

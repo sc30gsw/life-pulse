@@ -16,6 +16,15 @@ test("starts in dark mode and writes it to the document dataset", () => {
   expect(document.documentElement.dataset.theme).toBe("dark");
 });
 
+test("loads a saved theme after mount", () => {
+  localStorage.setItem("board-theme", "light");
+
+  const { result } = renderHook(() => useBoardTheme());
+
+  expect(result.current.theme).toBe("light");
+  expect(document.documentElement.dataset.theme).toBe("light");
+});
+
 test("onToggleTheme flips the theme and updates the document dataset", () => {
   const { result } = renderHook(() => useBoardTheme());
 
@@ -25,6 +34,7 @@ test("onToggleTheme flips the theme and updates the document dataset", () => {
 
   expect(result.current.theme).toBe("light");
   expect(document.documentElement.dataset.theme).toBe("light");
+  expect(localStorage.getItem("board-theme")).not.toBeNull();
 });
 
 test("onToggleTheme flips light mode back to dark mode", () => {
@@ -37,4 +47,5 @@ test("onToggleTheme flips light mode back to dark mode", () => {
 
   expect(result.current.theme).toBe("dark");
   expect(document.documentElement.dataset.theme).toBe("dark");
+  expect(localStorage.getItem("board-theme")).not.toBeNull();
 });

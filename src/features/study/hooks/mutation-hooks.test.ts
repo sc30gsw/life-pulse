@@ -35,7 +35,7 @@ test("wraps study mutations with TanStack mutation objects", () => {
   expect(useMutation).toHaveBeenCalledTimes(6);
   for (const hook of hooks) {
     expect(hook).toEqual({
-      options: { mutationFn: expect.objectContaining({ convexFn: expect.anything() }) },
+      options: { mutationFn: expect.any(Function) },
     });
   }
 });

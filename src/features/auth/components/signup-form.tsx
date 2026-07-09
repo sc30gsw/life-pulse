@@ -77,7 +77,8 @@ export function SignupForm() {
               {...field.props}
               classNames={{
                 dropdown: "border-bd bg-panel-2",
-                option: "text-tx hover:bg-panel hover:text-tx active:bg-panel active:text-tx",
+                option:
+                  "text-tx transition hover:bg-panel hover:text-tx hover:brightness-110 active:bg-panel active:text-tx active:brightness-95",
               }}
               data={[
                 { label: "本人", value: "self" },
@@ -126,6 +127,7 @@ export function SignupForm() {
           )}
         </Field>
         <Button
+          className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
           fullWidth
           leftSection={<IconUserPlus size={18} />}
           loading={form.isSubmitting}

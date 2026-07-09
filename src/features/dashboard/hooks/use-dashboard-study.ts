@@ -2,10 +2,12 @@ import { notifications } from "@mantine/notifications";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ConvexError } from "convex/values";
 
+import type { Id } from "~/../convex/_generated/dataModel";
 import { dashboardStudyQuery } from "~/features/dashboard/api/dashboard-study-query";
 import { useBoardClock } from "~/features/dashboard/hooks/use-board-clock";
 import { useCompleteSession } from "~/features/dashboard/hooks/use-complete-session";
 import { usePauseSession } from "~/features/dashboard/hooks/use-pause-session";
+import { useRemoteUpdateFlash } from "~/features/dashboard/hooks/use-remote-update-flash";
 import { useResumeSession } from "~/features/dashboard/hooks/use-resume-session";
 import { useStartSession } from "~/features/dashboard/hooks/use-start-session";
 import {
@@ -13,7 +15,7 @@ import {
   formatElapsedClock,
   toDeclarationItems,
 } from "~/features/dashboard/utils/format";
-import type { InterruptionReason, SessionCategory } from "~/types/dashboard";
+import type { InterruptionReason } from "~/types/dashboard";
 
 const MINUTE_MS = 60_000;
 
@@ -54,12 +56,29 @@ export function useDashboardStudy() {
       ? Math.round(sessionElapsedMs / MINUTE_MS)
       : 0;
   const declarationActualMinutes = study.todayActualMinutes + inProgressMinutes;
+  const sessionFingerprint =
+    study.session === null
+      ? "none"
+      : [
+          study.session._id,
+          study.session.status,
+          study.session.categoryId,
+          study.session.startedAt,
+          study.session.lastResumedAt ?? "",
+          study.session.accumulatedMs,
+          study.session.interruptionCount,
+          study.session.plannedMinutes ?? "",
+        ].join("|");
+  const { flashRef: sessionFlashRef, suppressNextFlash } = useRemoteUpdateFlash(sessionFingerprint);
 
-  function onStartSession(category: SessionCategory, plannedMinutes?: number) {
+  function onStartSession(categoryId: Id<"studyCategories">, plannedMinutes?: number) {
+    const releaseFlashSuppression = suppressNextFlash();
+
     startSession.mutate(
-      { category, dateJst, plannedMinutes },
+      { categoryId, dateJst, plannedMinutes },
       {
         onError: (error) => {
+          releaseFlashSuppression();
           notifications.show({
             color: "red",
             message: sessionErrorMessage(error, "開始に失敗しました"),
@@ -78,10 +97,13 @@ export function useDashboardStudy() {
   }
 
   function onPauseSession(reason: InterruptionReason) {
+    const releaseFlashSuppression = suppressNextFlash();
+
     pauseSession.mutate(
       { reason },
       {
         onError: (error) => {
+          releaseFlashSuppression();
           notifications.show({
             color: "red",
             message: sessionErrorMessage(error, "中断に失敗しました"),
@@ -100,10 +122,13 @@ export function useDashboardStudy() {
   }
 
   function onResumeSession() {
+    const releaseFlashSuppression = suppressNextFlash();
+
     resumeSession.mutate(
       {},
       {
         onError: (error) => {
+          releaseFlashSuppression();
           notifications.show({
             color: "red",
             message: sessionErrorMessage(error, "再開に失敗しました"),
@@ -122,10 +147,13 @@ export function useDashboardStudy() {
   }
 
   function onCompleteSession() {
+    const releaseFlashSuppression = suppressNextFlash();
+
     completeSession.mutate(
       {},
       {
         onError: (error) => {
+          releaseFlashSuppression();
           notifications.show({
             color: "red",
             message: sessionErrorMessage(error, "完了に失敗しました"),
@@ -158,6 +186,7 @@ export function useDashboardStudy() {
     session: study.session,
     sessionElapsedMs,
     sessionElapsedLabel: formatElapsedClock(sessionElapsedMs),
+    sessionFlashRef,
     sessionGoalLabel: `${goalMinutes}分`,
     sessionProgressPercent:
       goalMinutes > 0

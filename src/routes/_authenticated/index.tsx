@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 
 import { PendingComponent } from "~/components/layouts/pending";
-import { BoardHeader } from "~/features/dashboard/components/board-header";
 import { DogCard, DogCardFallback } from "~/features/dashboard/components/dog-card";
 import {
   HealthMetricsGrid,
@@ -29,13 +28,12 @@ export const Route = createFileRoute("/_authenticated/")({
 
 function Home() {
   return (
-    <div className="min-h-dvh px-4 py-5 pb-16 sm:px-8 sm:py-6">
-      <BoardHeader />
+    <>
       <LiveStrip />
       <main className="flex flex-col gap-4 lg:flex-row lg:items-stretch">
         <section className="flex min-w-0 flex-col gap-4 lg:flex-3">
           <Suspense fallback={<SessionFastingCardFallback />}>
-            <SessionFastingCard sessionFlash={false} />
+            <SessionFastingCard />
           </Suspense>
           <Suspense fallback={<HealthMetricsGridFallback />}>
             <HealthMetricsGrid />
@@ -53,6 +51,6 @@ function Home() {
           </Suspense>
         </section>
       </main>
-    </div>
+    </>
   );
 }

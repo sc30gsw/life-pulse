@@ -34,6 +34,7 @@ plan: [2026-07-07_01-live-board-wiring.md](./plans/2026-07-07_01-live-board-wiri
 - [x] FR-1.4 犬カード(当日ケア項目の済・未+実施者・時刻)
 - [x] FR-1.5 self / partner どちらでも同一内容を閲覧可能
 - [ ] FR-1.6 2 端末で <1s 反映のデモ検証 ⏳ 実装は W2 plan §7 分含め完了。**2 ブラウザ実機検証は未実施**(AC-1 ゲートで最終確認)
+- [x] FR-1.7 グローバルヘッダーの JST 時計を秒表示(`HH:mm:ss`)にする。表示専用 1 秒 tick で、サーバ値導出原則は維持
 
 ### FR-5 犬のクイックアクション【P0】
 
@@ -54,7 +55,7 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 ### FR-2 学習ライブセッション【P0】
 
 - [x] FR-2.1 サーバ側ステートマシン(idle → active ⇄ paused → completed / abandoned)
-- [x] FR-2.2 開始時にカテゴリ+任意目標分数を指定、宣言済み枠(FR-3)へ紐づけ可能(`/study` の「この枠で開始」で blockId 連携)
+- [x] FR-2.2 開始時にユーザー管理カテゴリ+任意目標分数を指定、宣言済み枠(FR-3)へ紐づけ可能(`/study` の「この枠で開始」で blockId 連携)
 - [x] FR-2.3 経過時間は `startedAt / accumulatedMs / lastResumedAt` からサーバ値で導出(全デバイス同一値)
 - [x] FR-2.4 ワンタップ中断(理由: 仕事/犬/家事/その他)+どのデバイスからも操作・即時反映
 - [x] FR-2.5 アクティブ同時 1 つ制約(既存アクティブ時の start 拒否/誘導、`SESSION_EXISTS`)
@@ -64,7 +65,7 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 
 ### FR-3 学習枠の宣言と防衛(Lv2)【P0】
 
-- [x] FR-3.1 日単位で枠(開始・終了時刻、カテゴリ、予定分数)を複数宣言(blocks.declare、plannedMinutes はサーバ導出)
+- [x] FR-3.1 日単位で枠(開始・終了時刻、ユーザー管理カテゴリ、予定分数)を複数宣言(blocks.declare、plannedMinutes はサーバ導出)
 - [x] FR-3.2 planned → done / eroded(理由付き) / rescheduled / declined の遷移(done はセッション complete 連動)
 - [x] FR-3.3 侵食時に当日残り時間帯からリスケ候補提示→選択で新枠生成(元枠リンク保持、suggestRescheduleSlots 純関数)
 - [x] FR-3.4 「宣言 vs 実績」当日サマリがライブボードに表示(FR-1.2 の学習分を解消)
@@ -76,7 +77,8 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 ### UI 配線
 
 - [x] `/study` ルート(枠宣言 UI・予定一覧・予定編集/キャンセル・侵食→リスケ・セッション履歴。導線は UserMenu の「学習管理」)
-- [x] ライブボードのセッション操作ボタン配線(開始/中断/再開/完了、Mantine modal でカテゴリ+目標分入力)
+- [x] ライブボードのセッション操作ボタン配線(開始/中断/再開/完了、Mantine modal でユーザー管理カテゴリ+目標分入力)
+- [x] 学習カテゴリ管理(追加/更新/非表示/復元/未使用削除/並び替え、0件時の `/study` 導線)
 
 ## W3 — 断食 + 健康データ + デモモード(FR-4 / FR-6.2 / FR-6.4 / FR-6.5)
 
@@ -110,12 +112,12 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 
 ## W4 — 外部連携 + 相関 + 磨き込み(FR-6.3 / FR-7)
 
-- PR1: Garmin 実連携(FR-6.3)— plan: [2026-07-08_05-garmin-sync.md](./plans/2026-07-08_05-garmin-sync.md)
-- PR2: 相関ビュー(FR-7)— plan: 未作成
+- PR1: Garmin 実連携(FR-6.3)— plan: [2026-07-07_05-garmin-sync.md](./plans/2026-07-07_05-garmin-sync.md)
+- PR2: 相関ビュー(FR-7)+ グローバルヘッダー — plan: [2026-07-08_06-insights.md](./plans/2026-07-08_06-insights.md)
 
 ### FR-6.3 Garmin 実連携【P1 — 難航時は打ち切り可】
 
-- [x] FR-6.3 `garmin-connect-sdk@1.0.0-alpha.4`(完全固定、`^` 禁止)+ "use node" action + cron(JST 6:30)、認証情報は Convex 環境変数のみ(NFR-4)、失敗は syncLogs+「最終同期」表示。実装(plan [2026-07-08_05-garmin-sync.md](./plans/2026-07-08_05-garmin-sync.md) Step 1〜9 分すべて main にマージ済み: `convex/actions/garmin/`, `convex/services/garmin/`, `convex/mutations/health/{upsertFromSync,recordSyncFailure,requestGarminSync}.ts`, `convex/queries/health/lastSync.ts`, `convex/crons.ts`, `convex.json`, `scripts/garmin-login.ts`, `/health` の `GarminSyncCard`)+ **実 Garmin アカウントでの手動 E2E 完了(2026-07-08)**: MFA ログイン → `GARMIN_TOKENS_JSON` 設定 → 28 日 `backfill` → `/health` UI 反映まで検証。過程で SDK パッチ(pnpm patch、レート制限 429 対応の逐次フェッチ化)と `syncDaily.ts` の日単位フォールトトレランス(1 日の `GarminValidationError` でレンジ全体を破棄せずスキップ+syncLogs 記録)を追加
+- [x] FR-6.3 `garmin-connect-sdk@1.0.0-alpha.4`(完全固定、`^` 禁止)+ "use node" action + cron(JST 6:30)、認証情報は Convex 環境変数のみ(NFR-4)、失敗は syncLogs+「最終同期」表示。実装(plan [2026-07-07_05-garmin-sync.md](./plans/2026-07-07_05-garmin-sync.md) Step 1〜9 分すべて main にマージ済み: `convex/actions/garmin/`, `convex/services/garmin/`, `convex/mutations/health/{upsertFromSync,recordSyncFailure,requestGarminSync}.ts`, `convex/queries/health/lastSync.ts`, `convex/crons.ts`, `convex.json`, `scripts/garmin-login.ts`, `/health` の `GarminSyncCard`)+ **実 Garmin アカウントでの手動 E2E 完了(2026-07-08)**: MFA ログイン → `GARMIN_TOKENS_JSON` 設定 → 28 日 `backfill` → `/health` UI 反映まで検証。過程で SDK パッチ(pnpm patch、レート制限 429 対応の逐次フェッチ化)と `syncDaily.ts` の日単位フォールトトレランス(1 日の `GarminValidationError` でレンジ全体を破棄せずスキップ+syncLogs 記録)を追加
   - 前提: `convex.json` で Node 24 を指定(SDK が `engines: >=24`。Convex は Node 20/22/24 対応・既定 20 — 公式 docs 確認済み)
   - MFA は `scripts/garmin-login.ts`(対話ログイン→トークンJSONをstdout出力、ファイルには書かない)で事前生成し `npx convex env set GARMIN_TOKENS_JSON '<出力>'` で設定。ランタイムは `TokenStorage` 抽象のカスタム実装(`convex/actions/garmin/client.ts` の `createEnvTokenStorage`)で `GARMIN_TOKENS_JSON` から復元する(旧 `GARMIN_OAUTH1_JSON`/`GARMIN_OAUTH2_JSON` 設計は SDK のトークン形式に合わせて再定義)
   - alpha のため自前の薄いラッパー(`GarminClient` インターフェース)越しに使用。退避先: `@gooin/garmin-connect@1.8.7`(要件 = requirements.md FR-6.3 v1.7 改訂参照)
@@ -123,17 +125,48 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 
 ### FR-7 相関ビュー【P1】
 
-- [ ] FR-7.1 直近 28 日の「睡眠×学習分数」「Body Battery×学習分数」「HIIT 翌日 Body Battery」表示
-- [ ] FR-7.2 Convex クエリ内 join で導出、元データ変更で自動再計算・再描画(`/insights`、pearson 純関数)
-- 決定(2026-07-08): `/health` の HIIT トレンドチャート(`HiitTrend`)へ健康指標(睡眠/Body Battery 等)を area/line で重ねる案、および PieChart 追加案は本 FR-7 のスコープとし、`/health` 側では実装しない。`HiitTrend` は kind 別(hiit/walk/other)の stacked `BarChart` のみに留める。FR-7 実装時に `CompositeChart`(bar+area/line、`@mantine/charts`)採用を検討する。
+- [x] FR-7.1 直近 28 日の「睡眠×学習分数」「Body Battery×学習分数」「HIIT 翌日 Body Battery」表示。実装: `convex/queries/insights/correlations.ts`(`requireSelf` + `services/insights/correlations.ts` の index-range join)、`src/routes/_authenticated/_self/insights.tsx`、`src/features/insights/components/{sleep-vs-study-scatter,body-battery-vs-study-scatter,hiit-body-battery-bar-chart}.tsx`(`@mantine/charts` の `ScatterChart`/`BarChart`)
+- [x] FR-7.2 Convex クエリ内 join で導出、元データ変更で自動再計算・再描画(`/insights`、pearson 純関数)。実装: `convex/services/insights/pearson.ts`(純関数、`pearson.test.ts` 6件)+ `convex/services/insights/correlations.test.ts`(convex-test 11件、pairwise除外・demoモード・HIIT翌日境界・partner拒否等)。フロントは `useSuspenseQuery(convexQuery(...))` でリアクティブ購読(`src/features/insights/hooks/use-insights-correlations.ts`)
+- [x] 決定(2026-07-08): `/health` の HIIT トレンドチャート(`HiitTrend`)へ健康指標(睡眠/Body Battery 等)を area/line で重ねる案、および PieChart 追加案は本 FR-7 のスコープとし、`/health` 側では実装しない。`HiitTrend` は kind 別(hiit/walk/other)の stacked `BarChart` のみに留める。FR-7 実装時に `CompositeChart`(bar+area/line、`@mantine/charts`)採用を検討する。→ **確定(2026-07-08)**: `@mantine/charts@9.4.1` は `CompositeChart`/`PieChart` とも提供済みで置き換え不要と判明し、採用。`src/features/insights/components/daily-composite-chart.tsx`(bar=学習分数/line=睡眠スコア+Body Battery、28日分)と `workout-kind-pie-chart.tsx`(`HiitTrend` と同じ hiit/walk/other→coral/blue/faint 配色)として実装済み
 
 ### 磨き込み・発表準備
 
 - [ ] UI 磨き込み・モバイル 375px 検証(NFR-2)
+- [x] グローバルヘッダー時計の秒表示(`src/features/dashboard/components/board-header.tsx` / `useBoardClock`)
 - [ ] デモ録画+ `docs/demo-script.md`(AC-5、NFR-6 のデモ失敗保険)
 - [ ] 本番デプロイ + 本番環境変数チェックリスト(spec §7)
 
 ---
+
+## W5 — プロフィール & 犬管理(FR-10)
+
+計画詳細: `docs/plans/2026-07-08_07-profile-dog-management.md`
+
+### Phase 0 — スキーマ & マイグレーション
+
+- [x] `dogs` テーブル追加(`name`)。`appSettings.dogName` から1件コピー → 旧フィールド削除
+- [x] `dogTasks` テーブル追加(`name` / `sortOrder` / `archivedAt?`)
+- [x] `dogEvents` wipe(demo データのため損失なし)→ `kind` 廃止、`taskId: v.id("dogTasks")` required で一発デプロイ
+- [x] `dogTasks` シード: 現 `DOG_CARE_KINDS` 相当を時系列順 `sortOrder` で投入
+
+### Phase 1 — /dog ページ
+
+- [x] 犬情報編集(`dogs.name`)— self/partner 両ロール
+- [x] 犬タスク CRUD + 上下移動ボタン(`sortOrder` 隣接 swap、dnd 依存なし)
+- [x] 削除 = `archivedAt` ソフトデリート。一覧は `archivedAt === undefined` フィルタ
+
+### Phase 2 — /profile ページ(本人のみ)
+
+- [x] 表示名編集
+- [x] アバター画像アップロード(Convex File Storage / `avatarStorageId`)
+- [x] メールアドレス変更 / パスワード変更
+
+### Phase 3 — 動的化・導線・整理
+
+- [x] `DOG_CARE_KINDS` / `DOG_EVENT_LABELS` 全廃 → 犬カード・履歴モーダルを `dogTasks` 駆動に
+- [x] ユーザーメニューに「プロフィール」「愛犬の管理」リンク、犬カードヘッダーに歯車 → `/dog`
+- [x] `/settings` を `demoMode` + `fastingDefaultMinutes` のみに縮小
+- [x] テスト: dogTasks CRUD 権限(両ロール)、ソフトデリート後の履歴参照、sortOrder swap
 
 ## 受け入れ基準ゲート(requirements.md §8 — 発表可能の定義)
 

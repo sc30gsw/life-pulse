@@ -3,8 +3,9 @@ import { Box, EmptyState, Text } from "@mantine/core";
 import { Shimmer } from "@shimmer-from-structure/react";
 import { IconChartBar } from "@tabler/icons-react";
 
+import { CHART_LEGEND_CLASS_NAMES } from "~/components/chart-legend-style";
 import { useWorkouts } from "~/features/health/hooks/use-workouts";
-import { bucketDailyDuration } from "~/features/health/utils/hiit-trend";
+import { HIIT_TREND_DAYS, bucketDailyDuration } from "~/features/health/utils/hiit-trend";
 import { ACCENT_VARS } from "~/types/dashboard";
 
 const CHART_GRID_COLOR = "var(--bd2)";
@@ -17,7 +18,7 @@ export function HiitTrend() {
   if (workouts.length === 0) {
     return (
       <EmptyState
-        description="直近14日間のトレーニング記録がありません"
+        description={`直近${HIIT_TREND_DAYS}日間のトレーニング記録がありません`}
         icon={<IconChartBar size={48} />}
         title={
           <Text c="blue" fw={600} size="lg">
@@ -33,9 +34,10 @@ export function HiitTrend() {
   return (
     <Box mb="md">
       <Text c="dimmed" fw={600} mb="xs" size="xs">
-        直近14日間のトレーニング時間(分)
+        直近{HIIT_TREND_DAYS}日間のトレーニング時間(分)
       </Text>
       <BarChart
+        classNames={CHART_LEGEND_CLASS_NAMES}
         data={chartData}
         dataKey="date"
         gridColor={CHART_GRID_COLOR}

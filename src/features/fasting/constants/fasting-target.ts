@@ -1,6 +1,11 @@
-export const DEFAULT_FASTING_TARGET_MINUTES = 960;
-export const MAX_FASTING_TARGET_MINUTES = 960;
-export const MIN_FASTING_TARGET_MINUTES = 1;
+import {
+  DEFAULT_FASTING_MINUTES,
+  MAX_FASTING_TARGET_MINUTES,
+  MIN_FASTING_TARGET_MINUTES,
+} from "~/../convex/lib/domain";
+
+export { MAX_FASTING_TARGET_MINUTES, MIN_FASTING_TARGET_MINUTES };
+export const DEFAULT_FASTING_TARGET_MINUTES = DEFAULT_FASTING_MINUTES;
 
 export function formatFastingTargetMinutes(minutes: number) {
   if (minutes < 60) {

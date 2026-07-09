@@ -4,13 +4,11 @@ import { IconHistory } from "@tabler/icons-react";
 import { cn } from "cnfast";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
+import { useStudyCategoriesQuery } from "~/features/study-categories/hooks/use-study-categories-query";
 import { useSessionHistory } from "~/features/study/hooks/use-session-history";
 import {
   ACCENT_CLASSES,
   ACCENT_VARS,
-  CATEGORY_LABELS,
-  REASON_LABELS,
-  SESSION_STATUS_LABELS,
   type InterruptionReason,
   type SessionStatus,
 } from "~/types/dashboard";
@@ -27,6 +25,38 @@ function formatStartTime(startedAt: Doc<"studySessions">["startedAt"]) {
   return dayjs(startedAt).tz("Asia/Tokyo").format("HH:mm");
 }
 
+function reasonLabel(reason: InterruptionReason) {
+  switch (reason) {
+    case "chore":
+      return "家事";
+
+    case "dog":
+      return "犬";
+
+    case "other":
+      return "その他";
+
+    case "work":
+      return "仕事";
+  }
+}
+
+function sessionStatusLabel(status: SessionStatus) {
+  switch (status) {
+    case "abandoned":
+      return "放置終了";
+
+    case "active":
+      return "進行中";
+
+    case "completed":
+      return "完了";
+
+    case "paused":
+      return "中断中";
+  }
+}
+
 function formatReasonBreakdown(reasons: InterruptionReason[]) {
   const counts = new Map<InterruptionReason, number>();
 
@@ -35,12 +65,13 @@ function formatReasonBreakdown(reasons: InterruptionReason[]) {
   }
 
   return [...counts.entries()]
-    .map(([reason, count]) => `${REASON_LABELS[reason]}×${count}`)
+    .map(([reason, count]) => `${reasonLabel(reason)}×${count}`)
     .join(" · ");
 }
 
 export function SessionHistoryList() {
   const history = useSessionHistory();
+  const { categoryName } = useStudyCategoriesQuery();
 
   if (history.days.length === 0) {
     return (
@@ -82,7 +113,7 @@ export function SessionHistoryList() {
                     ),
                   }}
                 >
-                  {CATEGORY_LABELS[session.category]}
+                  {categoryName(session.categoryId)}
                 </Chip>
                 <Text className="tabular-nums" size="xs">
                   {session.actualMinutes}分
@@ -101,7 +132,7 @@ export function SessionHistoryList() {
                   size="sm"
                   variant="outline"
                 >
-                  {SESSION_STATUS_LABELS[session.status]}
+                  {sessionStatusLabel(session.status)}
                 </Badge>
               </Group>
             );

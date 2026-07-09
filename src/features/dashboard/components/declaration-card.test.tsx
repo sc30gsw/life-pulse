@@ -1,8 +1,35 @@
 // @vitest-environment happy-dom
-import { expect, test } from "vite-plus/test";
+import { expect, test, vi } from "vite-plus/test";
 
+import type { Id } from "~/../convex/_generated/dataModel";
 import { DeclarationCard } from "~/features/dashboard/components/declaration-card";
 import { renderWithMantine } from "~/test-utils";
+
+const categoryIds = vi.hoisted(() => ({
+  eikaiwa: "category_eikaiwa" as Id<"studyCategories">,
+  other: "category_other" as Id<"studyCategories">,
+  reading: "category_reading" as Id<"studyCategories">,
+  toeic: "category_toeic" as Id<"studyCategories">,
+}));
+
+vi.mock("~/features/study-categories/hooks/use-study-categories-query", () => ({
+  useStudyCategoriesQuery: () => ({
+    categoryName: (categoryId: Id<"studyCategories"> | undefined) => {
+      switch (categoryId) {
+        case categoryIds.eikaiwa:
+          return "英会話";
+        case categoryIds.other:
+          return "その他";
+        case categoryIds.reading:
+          return "読書";
+        case categoryIds.toeic:
+          return "TOEIC";
+        default:
+          return "カテゴリ未設定";
+      }
+    },
+  }),
+}));
 
 test("renders actual/total minutes", () => {
   const { getByText } = renderWithMantine(
@@ -27,11 +54,26 @@ test("renders each declaration's time, category label, and status label", () => 
       actualMinutes={30}
       actualPercent={50}
       declarations={[
-        { category: "toeic", plannedMinutes: 30, startHm: "06:00", status: "planned" },
-        { category: "reading", plannedMinutes: 20, startHm: "21:00", status: "done" },
-        { category: "eikaiwa", plannedMinutes: 20, startHm: "22:00", status: "eroded" },
-        { category: "other", plannedMinutes: 10, startHm: "23:00", status: "rescheduled" },
-        { category: "toeic", plannedMinutes: 15, startHm: "23:30", status: "declined" },
+        { categoryId: categoryIds.toeic, plannedMinutes: 30, startHm: "06:00", status: "planned" },
+        { categoryId: categoryIds.reading, plannedMinutes: 20, startHm: "21:00", status: "done" },
+        {
+          categoryId: categoryIds.eikaiwa,
+          plannedMinutes: 20,
+          startHm: "22:00",
+          status: "eroded",
+        },
+        {
+          categoryId: categoryIds.other,
+          plannedMinutes: 10,
+          startHm: "23:00",
+          status: "rescheduled",
+        },
+        {
+          categoryId: categoryIds.toeic,
+          plannedMinutes: 15,
+          startHm: "23:30",
+          status: "declined",
+        },
       ]}
       totalMinutes={95}
     />,

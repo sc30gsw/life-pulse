@@ -5,38 +5,46 @@ import { api } from "../../_generated/api";
 import { addDaysJst, todayJst } from "../../lib/dateRange";
 import schema from "../../schema";
 import { testModules } from "../../test.setup";
+import { insertAppUserWithStudyCategory, insertStudyCategory } from "../../test/fixtures";
 
 async function seedPlannedBlock(t: ReturnType<typeof convexTest>) {
   const asSelf = t.withIdentity({ subject: "user_1" });
-  await t.run((ctx) =>
-    ctx.db.insert("appUsers", { authSubject: "user_1", displayName: "本人", role: "self" }),
+  const { categoryId, userId } = await t.run((ctx) =>
+    insertAppUserWithStudyCategory(ctx, {
+      authSubject: "user_1",
+      displayName: "本人",
+      role: "self",
+    }),
+  );
+  const readingCategoryId = await t.run((ctx) =>
+    insertStudyCategory(ctx, userId, "読書", { sortOrder: 1 }),
   );
 
   const dateJst = addDaysJst(todayJst(), 1);
   const blockId = await asSelf.mutation(api.mutations.blocks.declare.declare, {
-    category: "toeic",
+    categoryId,
     dateJst,
     endHm: "07:00",
     startHm: "06:00",
   });
 
-  return { asSelf, blockId, dateJst };
+  return { asSelf, blockId, dateJst, readingCategoryId };
 }
 
 test("updates a planned block and derives planned minutes", async () => {
   const t = convexTest(schema, testModules);
-  const { asSelf, blockId, dateJst } = await seedPlannedBlock(t);
+  const { asSelf, blockId, dateJst, readingCategoryId } = await seedPlannedBlock(t);
 
   await asSelf.mutation(api.mutations.blocks.update.update, {
     blockId,
-    category: "reading",
+    categoryId: readingCategoryId,
     dateJst,
     endHm: "08:30",
     startHm: "07:00",
   });
 
   const block = await t.run((ctx) => ctx.db.get("studyBlocks", blockId));
-  expect(block?.category).toBe("reading");
+  expect(block?.categoryId).toBe(readingCategoryId);
   expect(block?.startHm).toBe("07:00");
   expect(block?.endHm).toBe("08:30");
   expect(block?.plannedMinutes).toBe(90);
@@ -44,7 +52,7 @@ test("updates a planned block and derives planned minutes", async () => {
 
 test("rejects updating another user's block", async () => {
   const t = convexTest(schema, testModules);
-  const { blockId, dateJst } = await seedPlannedBlock(t);
+  const { blockId, dateJst, readingCategoryId } = await seedPlannedBlock(t);
   const asPartner = t.withIdentity({ subject: "user_2" });
   await t.run((ctx) =>
     ctx.db.insert("appUsers", {
@@ -57,7 +65,7 @@ test("rejects updating another user's block", async () => {
   await expect(
     asPartner.mutation(api.mutations.blocks.update.update, {
       blockId,
-      category: "reading",
+      categoryId: readingCategoryId,
       dateJst,
       endHm: "08:30",
       startHm: "07:00",
@@ -67,13 +75,13 @@ test("rejects updating another user's block", async () => {
 
 test("rejects updating a block that is not planned", async () => {
   const t = convexTest(schema, testModules);
-  const { asSelf, blockId, dateJst } = await seedPlannedBlock(t);
+  const { asSelf, blockId, dateJst, readingCategoryId } = await seedPlannedBlock(t);
   await asSelf.mutation(api.mutations.blocks.erode.erode, { blockId, reason: "work" });
 
   await expect(
     asSelf.mutation(api.mutations.blocks.update.update, {
       blockId,
-      category: "reading",
+      categoryId: readingCategoryId,
       dateJst,
       endHm: "08:30",
       startHm: "07:00",
@@ -83,12 +91,12 @@ test("rejects updating a block that is not planned", async () => {
 
 test("rejects updating to a past date or invalid range", async () => {
   const t = convexTest(schema, testModules);
-  const { asSelf, blockId, dateJst } = await seedPlannedBlock(t);
+  const { asSelf, blockId, dateJst, readingCategoryId } = await seedPlannedBlock(t);
 
   await expect(
     asSelf.mutation(api.mutations.blocks.update.update, {
       blockId,
-      category: "reading",
+      categoryId: readingCategoryId,
       dateJst: "2000-01-01",
       endHm: "08:30",
       startHm: "07:00",
@@ -98,7 +106,7 @@ test("rejects updating to a past date or invalid range", async () => {
   await expect(
     asSelf.mutation(api.mutations.blocks.update.update, {
       blockId,
-      category: "reading",
+      categoryId: readingCategoryId,
       dateJst,
       endHm: "07:00",
       startHm: "08:30",
@@ -108,12 +116,12 @@ test("rejects updating to a past date or invalid range", async () => {
 
 test("rejects an unauthenticated update", async () => {
   const t = convexTest(schema, testModules);
-  const { blockId, dateJst } = await seedPlannedBlock(t);
+  const { blockId, dateJst, readingCategoryId } = await seedPlannedBlock(t);
 
   await expect(
     t.mutation(api.mutations.blocks.update.update, {
       blockId,
-      category: "reading",
+      categoryId: readingCategoryId,
       dateJst,
       endHm: "08:30",
       startHm: "07:00",

@@ -75,6 +75,7 @@ export function LoginForm() {
           )}
         </Field>
         <Button
+          className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
           fullWidth
           leftSection={<IconLogin2 size={18} />}
           loading={form.isSubmitting}

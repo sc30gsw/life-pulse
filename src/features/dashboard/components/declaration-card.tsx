@@ -1,21 +1,9 @@
 import { Box, Group, Progress, Stack, Text } from "@mantine/core";
 
 import type { useDashboardStudy } from "~/features/dashboard/hooks/use-dashboard-study";
-import {
-  ACCENT_VARS,
-  CATEGORY_LABELS,
-  DECLARATION_STATUS_LABELS,
-  type DeclarationStatus,
-  type SessionCategory,
-} from "~/types/dashboard";
-
-const STATUS_ACCENT = {
-  declined: "blue",
-  done: "good",
-  eroded: "coral",
-  planned: "faint",
-  rescheduled: "violet",
-} as const satisfies Record<DeclarationStatus, keyof typeof ACCENT_VARS>;
+import { useStudyCategoriesQuery } from "~/features/study-categories/hooks/use-study-categories-query";
+import { DECLARATION_STATUS_ACCENT } from "~/features/study/constants/declaration-status-accent";
+import { ACCENT_VARS, type DeclarationStatus } from "~/types/dashboard";
 
 type DeclarationCardProps = {
   actualMinutes: ReturnType<typeof useDashboardStudy>["declarationActualMinutes"];
@@ -24,12 +12,33 @@ type DeclarationCardProps = {
   totalMinutes: ReturnType<typeof useDashboardStudy>["declarationTotalMinutes"];
 };
 
+function declarationStatusLabel(status: DeclarationStatus) {
+  switch (status) {
+    case "declined":
+      return "見送り";
+
+    case "done":
+      return "済";
+
+    case "eroded":
+      return "侵食";
+
+    case "planned":
+      return "予定";
+
+    case "rescheduled":
+      return "リスケ済";
+  }
+}
+
 export function DeclarationCard({
   actualMinutes,
   actualPercent,
   declarations,
   totalMinutes,
 }: DeclarationCardProps) {
+  const { categoryName } = useStudyCategoriesQuery();
+
   return (
     <Box className="flex min-w-0 flex-1 flex-col gap-2">
       <Group justify="space-between" align="baseline">
@@ -66,10 +75,10 @@ export function DeclarationCard({
 
       <Stack gap={5} mt={2}>
         {declarations.map((item) => {
-          const accent = STATUS_ACCENT[item.status];
+          const accent = DECLARATION_STATUS_ACCENT[item.status];
 
           return (
-            <Group key={`${item.startHm}-${item.category}`} gap={8}>
+            <Group key={`${item.startHm}-${item.categoryId ?? "none"}`} gap={8}>
               <Box
                 className="h-1.5 w-1.5 flex-none rounded-full"
                 style={{ backgroundColor: ACCENT_VARS[accent] }}
@@ -77,9 +86,9 @@ export function DeclarationCard({
               <Text size="xs" c="dimmed">
                 {item.startHm}
               </Text>
-              <Text size="xs">{CATEGORY_LABELS[item.category as SessionCategory]}</Text>
+              <Text size="xs">{categoryName(item.categoryId)}</Text>
               <Text size="11px" c={ACCENT_VARS[accent]} className="ml-auto">
-                {DECLARATION_STATUS_LABELS[item.status]}
+                {declarationStatusLabel(item.status)}
               </Text>
             </Group>
           );

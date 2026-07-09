@@ -79,6 +79,11 @@ body {
     color 0.35s ease;
 }
 
+.lp-chart-legend-item:hover .lp-chart-legend-item-name,
+.lp-chart-legend-item:active .lp-chart-legend-item-name {
+  color: var(--panel) !important;
+}
+
 .lp-dtp-calendar-level,
 .lp-dtp-calendar-control,
 .lp-dtp-weekday,
@@ -311,6 +316,106 @@ body {
   animation: lp-toast-in 0.32s cubic-bezier(0.2, 0.9, 0.3, 1);
 }
 
+.lp-notifications-root {
+  --notifications-container-width: min(420px, calc(100vw - 24px));
+}
+
+.lp-toast {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--bd2);
+  border-radius: 8px;
+  background:
+    radial-gradient(
+      260px circle at 92% 10%,
+      color-mix(in oklch, var(--notification-color, var(--good)) 18%, transparent),
+      transparent 56%
+    ),
+    linear-gradient(165deg, var(--panel), var(--panel2));
+  box-shadow: var(--cardsh);
+  color: var(--tx);
+  font-family: "JetBrains Mono", monospace;
+}
+
+.lp-toast::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.3px;
+  background: conic-gradient(
+    from 22deg,
+    transparent 0deg,
+    color-mix(in oklch, var(--notification-color, var(--streak)) 72%, transparent) 42deg,
+    transparent 96deg,
+    transparent 210deg,
+    color-mix(in oklch, var(--streak) 60%, transparent) 244deg,
+    transparent 296deg
+  );
+  content: "";
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.lp-toast::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklch, var(--notification-color, var(--good)) 72%, transparent) 0,
+    transparent 2px
+  );
+  content: "";
+  pointer-events: none;
+}
+
+.lp-toast :where(.mantine-Notification-body) {
+  position: relative;
+  z-index: 1;
+}
+
+.lp-toast :where(.mantine-Notification-title) {
+  color: var(--tx);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.lp-toast :where(.mantine-Notification-description) {
+  color: var(--dim);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.lp-toast :where(.mantine-Notification-closeButton) {
+  position: relative;
+  z-index: 1;
+  border: 1px solid transparent;
+  color: var(--dim);
+}
+
+.lp-toast :where(.mantine-Notification-closeButton:hover) {
+  border-color: var(--bd2);
+  background: var(--inset);
+  color: var(--tx);
+}
+
+.lp-toast :where(.mantine-Notification-icon) {
+  position: relative;
+  z-index: 1;
+  background: color-mix(in oklch, var(--notification-color, var(--good)) 18%, var(--inset));
+  color: var(--notification-color, var(--good));
+}
+
 /* Gradient/sheen text — Cursor-style off-white shine sliding across the glyphs */
 .lp-brandtext {
   background: var(--sheen);
@@ -406,6 +511,117 @@ body {
   opacity: var(--gop, 0);
   transition: opacity 0.4s ease;
   pointer-events: none;
+}
+
+.lp-user-menu-trigger {
+  position: relative;
+  max-width: min(260px, calc(100vw - 32px));
+  overflow: hidden;
+  border: 1px solid var(--bd2);
+  border-radius: 8px;
+  padding: 7px 9px 7px 7px;
+  color: var(--tx);
+  outline: none;
+}
+
+.lp-user-menu-trigger:hover,
+.lp-user-menu-trigger.is-open {
+  border-color: color-mix(in oklab, var(--good) 48%, var(--bd2));
+}
+
+.lp-user-menu-trigger:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.lp-user-menu-avatar {
+  background: color-mix(in oklab, var(--good) 18%, var(--inset)) !important;
+  border: 1px solid color-mix(in oklab, var(--good) 45%, var(--bd2));
+  color: var(--tx) !important;
+  font-weight: 800;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.035);
+}
+
+.lp-user-menu-dropdown {
+  overflow: hidden;
+  border: 1px solid var(--bd2) !important;
+  border-radius: 8px !important;
+  padding: 8px !important;
+  background:
+    radial-gradient(
+      180px circle at 100% 0%,
+      color-mix(in oklab, var(--blue) 18%, transparent),
+      transparent 58%
+    ),
+    linear-gradient(165deg, var(--panel), var(--panel2)) !important;
+  box-shadow: var(--cardsh) !important;
+  color: var(--tx) !important;
+}
+
+.lp-user-menu-heading {
+  padding: 4px 8px 8px;
+  color: var(--dim);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.lp-user-menu-item {
+  min-height: 34px;
+  border: 1px solid transparent;
+  border-radius: 7px !important;
+  color: var(--tx) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em;
+}
+
+.lp-user-menu-item [data-position="left"] {
+  color: var(--dim);
+}
+
+.lp-user-menu-item:hover,
+.lp-user-menu-item[data-hovered] {
+  background: color-mix(in oklab, var(--good) 12%, var(--inset)) !important;
+  border-color: color-mix(in oklab, var(--good) 38%, var(--bd2));
+  color: var(--tx) !important;
+}
+
+.lp-user-menu-item:hover [data-position="left"],
+.lp-user-menu-item[data-hovered] [data-position="left"] {
+  color: var(--good);
+}
+
+.lp-user-menu-item:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 1px;
+}
+
+.lp-user-menu-logout {
+  color: var(--coral) !important;
+}
+
+.lp-user-menu-logout [data-position="left"] {
+  color: var(--coral);
+}
+
+.lp-user-menu-logout:hover,
+.lp-user-menu-logout[data-hovered] {
+  background: color-mix(in oklab, var(--coral) 14%, var(--inset)) !important;
+  border-color: color-mix(in oklab, var(--coral) 42%, var(--bd2));
+  color: color-mix(in oklab, var(--coral) 88%, var(--tx)) !important;
+}
+
+.lp-user-menu-logout:hover [data-position="left"],
+.lp-user-menu-logout[data-hovered] [data-position="left"] {
+  color: color-mix(in oklab, var(--coral) 88%, var(--tx));
+}
+
+.lp-user-menu-divider {
+  margin: 8px 4px !important;
+  border-color: var(--bd2) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

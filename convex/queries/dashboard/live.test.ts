@@ -4,6 +4,7 @@ import { expect, test } from "vite-plus/test";
 import { api } from "../../_generated/api";
 import schema from "../../schema";
 import { testModules } from "../../test.setup";
+import { insertAppUserWithStudyCategory, insertStudyCategory } from "../../test/fixtures";
 
 const DATE_JST = "2026-07-07";
 
@@ -17,8 +18,15 @@ test("aggregates session, fasting, blocks, dog events, health, and partner prese
   const t = convexTest(schema, testModules);
   const asSelf = t.withIdentity({ subject: "self_1" });
 
-  const selfId = await t.run((ctx) =>
-    ctx.db.insert("appUsers", { authSubject: "self_1", displayName: "本人", role: "self" }),
+  const { categoryId: eikaiwaCategoryId, userId: selfId } = await t.run((ctx) =>
+    insertAppUserWithStudyCategory(
+      ctx,
+      { authSubject: "self_1", displayName: "本人", role: "self" },
+      "英会話",
+    ),
+  );
+  const toeicCategoryId = await t.run((ctx) =>
+    insertStudyCategory(ctx, selfId, "TOEIC", { sortOrder: 1 }),
   );
   const partnerId = await t.run((ctx) =>
     ctx.db.insert("appUsers", {
@@ -31,7 +39,7 @@ test("aggregates session, fasting, blocks, dog events, health, and partner prese
   const sessionId = await t.run((ctx) =>
     ctx.db.insert("studySessions", {
       accumulatedMs: 0,
-      category: "eikaiwa",
+      categoryId: eikaiwaCategoryId,
       dateJst: DATE_JST,
       interruptionCount: 0,
       lastResumedAt: Date.now(),
@@ -54,7 +62,7 @@ test("aggregates session, fasting, blocks, dog events, health, and partner prese
 
   await t.run((ctx) =>
     ctx.db.insert("studyBlocks", {
-      category: "eikaiwa",
+      categoryId: eikaiwaCategoryId,
       dateJst: DATE_JST,
       endHm: "06:30",
       plannedMinutes: 30,
@@ -66,7 +74,7 @@ test("aggregates session, fasting, blocks, dog events, health, and partner prese
   );
   await t.run((ctx) =>
     ctx.db.insert("studyBlocks", {
-      category: "toeic",
+      categoryId: toeicCategoryId,
       dateJst: DATE_JST,
       endHm: "20:30",
       plannedMinutes: 30,
@@ -77,12 +85,20 @@ test("aggregates session, fasting, blocks, dog events, health, and partner prese
     }),
   );
 
+  await t.run((ctx) => ctx.db.insert("dogs", { name: "ハマロ" }));
+  const walkTaskId = await t.run((ctx) =>
+    ctx.db.insert("dogTasks", { archivedAt: undefined, name: "朝散歩", sortOrder: 0 }),
+  );
+  const mealTaskId = await t.run((ctx) =>
+    ctx.db.insert("dogTasks", { archivedAt: undefined, name: "朝ごはん", sortOrder: 1 }),
+  );
+
   await t.run((ctx) =>
     ctx.db.insert("dogEvents", {
       at: Date.now(),
       byUserId: selfId,
       dateJst: DATE_JST,
-      kind: "walk_am",
+      taskId: walkTaskId,
     }),
   );
   await t.run((ctx) =>
@@ -90,7 +106,7 @@ test("aggregates session, fasting, blocks, dog events, health, and partner prese
       at: Date.now(),
       byUserId: partnerId,
       dateJst: DATE_JST,
-      kind: "meal_am",
+      taskId: mealTaskId,
     }),
   );
 
@@ -125,10 +141,15 @@ test("aggregates session, fasting, blocks, dog events, health, and partner prese
   expect(result.fasting).not.toBeNull();
   expect(result.blocks).toHaveLength(2);
 
-  expect(result.dog.events).toHaveLength(2);
-  const eventsByKind = Object.fromEntries(result.dog.events.map((event) => [event.kind, event]));
-  expect(eventsByKind.walk_am?.byDisplayName).toBe("本人");
-  expect(eventsByKind.meal_am?.byDisplayName).toBe("パートナー");
+  if (result.dog === null) {
+    throw new Error("expected dog");
+  }
+  expect(result.dog.tasks).toHaveLength(2);
+  const tasksByName = Object.fromEntries(result.dog.tasks.map((task) => [task.name, task]));
+  expect(tasksByName["朝散歩"]?.done).toBe(true);
+  expect(tasksByName["朝散歩"]?.byRole).toBe("self");
+  expect(tasksByName["朝ごはん"]?.done).toBe(true);
+  expect(tasksByName["朝ごはん"]?.byRole).toBe("partner");
 
   expect(result.health).not.toBeNull();
   expect(result.health?.source).toBe("manual");
@@ -147,6 +168,7 @@ test("health is null when the only healthMetrics row for the date is demo-source
   await t.run((ctx) =>
     ctx.db.insert("appUsers", { authSubject: "self_1", displayName: "本人", role: "self" }),
   );
+  await t.run((ctx) => ctx.db.insert("dogs", { name: "ハマロ" }));
   await t.run((ctx) =>
     ctx.db.insert("healthMetrics", { dateJst: DATE_JST, source: "demo", syncedAt: Date.now() }),
   );
@@ -167,6 +189,7 @@ test("degrades to empty/null self-scoped fields without throwing when no self ap
       role: "partner",
     }),
   );
+  await t.run((ctx) => ctx.db.insert("dogs", { name: "ハマロ" }));
 
   const result = await asPartner.query(api.queries.dashboard.live.live, { dateJst: DATE_JST });
 
@@ -176,15 +199,19 @@ test("degrades to empty/null self-scoped fields without throwing when no self ap
   expect(result.todayActualMinutes).toBe(0);
 });
 
-test("dog.dogName falls back to the default when no appSettings row exists", async () => {
+test("dog.dogName reflects the dogs singleton", async () => {
   const t = convexTest(schema, testModules);
   const asSelf = t.withIdentity({ subject: "self_1" });
 
   await t.run((ctx) =>
     ctx.db.insert("appUsers", { authSubject: "self_1", displayName: "本人", role: "self" }),
   );
+  await t.run((ctx) => ctx.db.insert("dogs", { name: "ハマロ" }));
 
   const result = await asSelf.query(api.queries.dashboard.live.live, { dateJst: DATE_JST });
+  if (result.dog === null) {
+    throw new Error("expected dog");
+  }
 
   expect(result.dog.dogName).toBe("ハマロ");
 });

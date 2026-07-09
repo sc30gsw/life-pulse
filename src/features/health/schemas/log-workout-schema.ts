@@ -1,10 +1,7 @@
 import * as v from "valibot";
 
-import { WORKOUT_KIND_LABELS, type WorkoutKind } from "~/types/dashboard";
+import { DATE_TIME_PATTERN, WORKOUT_KIND_VALUES } from "~/../convex/lib/domain";
 import { dayjs } from "~/utils/dayjs";
-
-const WORKOUT_KIND_VALUES = Object.keys(WORKOUT_KIND_LABELS) as WorkoutKind[];
-const DATE_TIME_PATTERN = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
 
 export const LogWorkoutSchema = v.pipe(
   v.object({
@@ -35,5 +32,4 @@ export const LogWorkoutSchema = v.pipe(
   })),
 );
 
-export type LogWorkoutInput = v.InferOutput<typeof LogWorkoutSchema>;
 export type LogWorkoutFormInput = v.InferInput<typeof LogWorkoutSchema>;

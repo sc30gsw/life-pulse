@@ -1,10 +1,7 @@
 import * as v from "valibot";
 
-import { CATEGORY_LABELS, type SessionCategory } from "~/types/dashboard";
+import { DATE_TIME_PATTERN } from "~/../convex/lib/domain";
 import { todayJst } from "~/utils/date-jst";
-
-const CATEGORY_VALUES = Object.keys(CATEGORY_LABELS) as SessionCategory[];
-const DATE_TIME_PATTERN = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
 
 function hasBothDates(input: { endAt: string | null; startAt: string | null }) {
   return input.startAt !== null && input.endAt !== null;
@@ -12,7 +9,7 @@ function hasBothDates(input: { endAt: string | null; startAt: string | null }) {
 
 export const DeclareBlockSchema = v.pipe(
   v.object({
-    category: v.picklist(CATEGORY_VALUES),
+    categoryId: v.pipe(v.string(), v.minLength(1, "カテゴリを選択してください")),
     endAt: v.nullable(v.pipe(v.string(), v.regex(DATE_TIME_PATTERN, "終了日時を選択してください"))),
     startAt: v.nullable(
       v.pipe(v.string(), v.regex(DATE_TIME_PATTERN, "開始日時を選択してください")),
@@ -51,12 +48,11 @@ export const DeclareBlockSchema = v.pipe(
     ["endAt"],
   ),
   v.transform((input) => ({
-    category: input.category,
+    categoryId: input.categoryId,
     dateJst: input.startAt!.slice(0, 10),
     endHm: input.endAt!.slice(11, 16),
     startHm: input.startAt!.slice(11, 16),
   })),
 );
 
-export type DeclareBlockInput = v.InferOutput<typeof DeclareBlockSchema>;
 export type DeclareBlockFormInput = v.InferInput<typeof DeclareBlockSchema>;

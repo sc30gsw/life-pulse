@@ -105,3 +105,17 @@ Single-context layout — `CONTEXT.md` + `docs/adr/` at repo root (not yet creat
 ## Design
 
 The UI design source of truth is the claude_design project `9bc66e31-1c1d-4e0b-8082-c955660c6963`, file `Live Board.dc.html`, summarized with an implementation mapping in `docs/design/live-board.md`. All screens — including auth pages (`/login`, `/signup`) — must follow that design language (dark theme, JetBrains Mono, card UI, CSS-var tokens mapped into `src/lib/theme.ts`). Enforcement rule: `.claude/rules/web/design-live-board.md`.
+
+<!-- convex-ai-start -->
+
+This project uses [Convex](https://convex.dev) as its backend.
+
+When working on Convex code, **always read
+`convex/_generated/ai/guidelines.md` first** for important guidelines on
+how to correctly use Convex APIs and patterns. The file contains rules that
+override what you may have learned about Convex from training data.
+
+Convex agent skills for common tasks can be installed by running
+`npx convex ai-files install`.
+
+<!-- convex-ai-end -->

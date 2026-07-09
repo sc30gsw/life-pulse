@@ -2,9 +2,9 @@ import { expect, test } from "vite-plus/test";
 
 import type { Doc, Id } from "~/../convex/_generated/dataModel";
 import {
-  deriveFastingElapsedMinutes,
   deriveSessionElapsedMs,
   formatClockDate,
+  formatClockDateCompact,
   formatClockTime,
   formatElapsedClock,
   formatMinutesAsHm,
@@ -13,12 +13,15 @@ import {
   toDogCareItems,
 } from "~/features/dashboard/utils/format";
 
+const TOEIC_CATEGORY_ID = "category_toeic" as Id<"studyCategories">;
+const READING_CATEGORY_ID = "category_reading" as Id<"studyCategories">;
+
 function buildStudySession(overrides: Partial<Doc<"studySessions">> = {}): Doc<"studySessions"> {
   return {
     _creationTime: 0,
     _id: "session_1",
     accumulatedMs: 0,
-    category: "toeic",
+    categoryId: TOEIC_CATEGORY_ID,
     dateJst: "2026-07-07",
     interruptionCount: 0,
     startedAt: 1_000,
@@ -32,7 +35,7 @@ function buildStudyBlock(overrides: Partial<Doc<"studyBlocks">> = {}): Doc<"stud
   return {
     _creationTime: 0,
     _id: "block_1",
-    category: "toeic",
+    categoryId: TOEIC_CATEGORY_ID,
     dateJst: "2026-07-07",
     endHm: "07:00",
     plannedMinutes: 30,
@@ -90,6 +93,16 @@ test("formatClockTime and formatClockDate format against Asia/Tokyo", () => {
   expect(formatClockDate(nowMs)).toBe("2026/7/7(火)");
 });
 
+test("formatClockTime includes seconds for the board header clock", () => {
+  const nowMs = Date.UTC(2026, 6, 7, 3, 15, 47);
+  expect(formatClockTime(nowMs)).toBe("12:15:47");
+});
+
+test("formatClockDateCompact drops the year for narrow viewports", () => {
+  const nowMs = Date.UTC(2026, 6, 7, 3, 15, 0);
+  expect(formatClockDateCompact(nowMs)).toBe("7/7(火)");
+});
+
 test("deriveSessionElapsedMs returns 0 when there is no session", () => {
   expect(deriveSessionElapsedMs(null, 9_000)).toBe(0);
 });
@@ -115,19 +128,20 @@ test("deriveSessionElapsedMs falls back lastResumedAt to startedAt when absent",
   expect(deriveSessionElapsedMs(session, 9_000)).toBe(Math.max(0, 9_000 - 3_000));
 });
 
-test("deriveFastingElapsedMinutes derives elapsed minutes from start to now", () => {
-  expect(deriveFastingElapsedMinutes(0, 5 * 60_000)).toBe(5);
-});
-
 test("toDeclarationItems maps an empty array to an empty array", () => {
   expect(toDeclarationItems([])).toEqual([]);
 });
 
 test("toDeclarationItems maps blocks through, applying the category cast", () => {
   const blocks = [
-    buildStudyBlock({ category: "toeic", plannedMinutes: 30, startHm: "06:00", status: "planned" }),
     buildStudyBlock({
-      category: "reading",
+      categoryId: TOEIC_CATEGORY_ID,
+      plannedMinutes: 30,
+      startHm: "06:00",
+      status: "planned",
+    }),
+    buildStudyBlock({
+      categoryId: READING_CATEGORY_ID,
       plannedMinutes: 20,
       startHm: "21:00",
       status: "rescheduled",
@@ -135,52 +149,60 @@ test("toDeclarationItems maps blocks through, applying the category cast", () =>
   ];
 
   expect(toDeclarationItems(blocks)).toEqual([
-    { category: "toeic", plannedMinutes: 30, startHm: "06:00", status: "planned" },
-    { category: "reading", plannedMinutes: 20, startHm: "21:00", status: "rescheduled" },
+    { categoryId: TOEIC_CATEGORY_ID, plannedMinutes: 30, startHm: "06:00", status: "planned" },
+    {
+      categoryId: READING_CATEGORY_ID,
+      plannedMinutes: 20,
+      startHm: "21:00",
+      status: "rescheduled",
+    },
   ]);
 });
 
-test("toDogCareItems returns all seven fixed kinds as pending when no events exist", () => {
-  const items = toDogCareItems([]);
-
-  expect(items).toHaveLength(7);
-  expect(items.map((item) => item.kind)).toEqual([
-    "walk_am",
-    "meal_am",
-    "meal_noon",
-    "meds",
-    "walk_pm",
-    "meal_pm",
-    "brush_teeth",
+test("toDogCareItems maps dynamic dog tasks as pending when no event is attached", () => {
+  const items = toDogCareItems([
+    {
+      at: undefined,
+      byRole: undefined,
+      done: false,
+      eventId: undefined,
+      name: "朝散歩",
+      taskId: "task_1" as Id<"dogTasks">,
+    },
+    {
+      at: undefined,
+      byRole: undefined,
+      done: false,
+      eventId: undefined,
+      name: "朝ごはん",
+      taskId: "task_2" as Id<"dogTasks">,
+    },
   ]);
+
+  expect(items).toHaveLength(2);
+  expect(items.map((item) => item.name)).toEqual(["朝散歩", "朝ごはん"]);
   expect(items.every((item) => !item.done && item.at === null && item.by === null)).toBe(true);
 });
 
-test("toDogCareItems marks a logged kind as done with its actor and time", () => {
+test("toDogCareItems marks a logged task as done with its actor and time", () => {
   const items = toDogCareItems([
     {
       at: 1000,
-      byDisplayName: "パートナー",
       byRole: "partner",
-      id: "event_1" as Id<"dogEvents">,
-      kind: "meal_am",
+      done: true,
+      eventId: "event_1" as Id<"dogEvents">,
+      name: "朝ごはん",
+      taskId: "task_1" as Id<"dogTasks">,
     },
   ]);
-  const mealAm = items.find((item) => item.kind === "meal_am");
+  const mealAm = items.find((item) => item.taskId === ("task_1" as Id<"dogTasks">));
 
-  expect(mealAm).toEqual({ at: 1000, by: "partner", done: true, kind: "meal_am" });
-});
-
-test("toDogCareItems ignores logged kinds outside the fixed checklist", () => {
-  const items = toDogCareItems([
-    {
-      at: 1000,
-      byDisplayName: "本人",
-      byRole: "self",
-      id: "event_2" as Id<"dogEvents">,
-      kind: "toilet",
-    },
-  ]);
-
-  expect(items.every((item) => !item.done)).toBe(true);
+  expect(mealAm).toEqual({
+    at: 1000,
+    by: "partner",
+    done: true,
+    eventId: "event_1",
+    name: "朝ごはん",
+    taskId: "task_1",
+  });
 });

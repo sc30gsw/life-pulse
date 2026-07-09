@@ -1,14 +1,18 @@
-import { ConvexError } from "convex/values";
+import { Result, type Result as ResultType } from "better-result";
 
 import type { Doc } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
+import { SessionError } from "./errors";
 import { resolveCurrentSession } from "./resolveCurrentSession";
 
-export async function resume(ctx: MutationCtx, user: Doc<"appUsers">) {
+export async function resume(
+  ctx: MutationCtx,
+  user: Doc<"appUsers">,
+): Promise<ResultType<void, SessionError>> {
   const session = await resolveCurrentSession(ctx, user._id);
 
   if (session === null || session.status !== "paused") {
-    throw new ConvexError("NO_PAUSED_SESSION");
+    return Result.err(new SessionError({ code: "NO_PAUSED_SESSION" }));
   }
 
   const now = Date.now();
@@ -27,4 +31,6 @@ export async function resume(ctx: MutationCtx, user: Doc<"appUsers">) {
   if (openInterruption !== null && openInterruption.resumedAt === undefined) {
     await ctx.db.patch("interruptions", openInterruption._id, { resumedAt: now });
   }
+
+  return Result.ok();
 }

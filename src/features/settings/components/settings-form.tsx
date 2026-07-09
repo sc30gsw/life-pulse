@@ -1,17 +1,17 @@
 import { Field, Form, useForm } from "@formisch/react";
-import { Button, Slider, Stack, Text, TextInput } from "@mantine/core";
+import { Button, Slider, Stack, Text } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { Shimmer } from "@shimmer-from-structure/react";
 
-import {
-  FASTING_TARGET_SLIDER_MARKS,
-  FASTING_TARGET_SLIDER_STYLES,
-} from "~/features/fasting/constants/fasting-target-slider";
 import {
   formatFastingTargetMinutes,
   MAX_FASTING_TARGET_MINUTES,
   MIN_FASTING_TARGET_MINUTES,
 } from "~/features/fasting/constants/fasting-target";
+import {
+  FASTING_TARGET_SLIDER_MARKS,
+  FASTING_TARGET_SLIDER_STYLES,
+} from "~/features/fasting/constants/fasting-target-slider";
 import { useSettings } from "~/features/settings/api/settings-query";
 import { useUpdateSettings } from "~/features/settings/api/update-settings-mutation";
 import { UpdateSettingsSchema } from "~/features/settings/schemas/update-settings-schema";
@@ -22,7 +22,6 @@ export function SettingsForm() {
   const updateSettings = useUpdateSettings();
   const settingsForm = useForm({
     initialInput: {
-      dogName: settings.dogName,
       fastingDefaultMinutes: settings.fastingDefaultMinutes,
     },
     schema: UpdateSettingsSchema,
@@ -85,20 +84,8 @@ export function SettingsForm() {
           )}
         </Field>
 
-        <Field of={settingsForm} path={["dogName"]}>
-          {(field) => (
-            <TextInput
-              {...field.props}
-              error={field.errors?.[0]}
-              label="犬の名前"
-              value={field.input}
-              disabled={settingsForm.isSubmitting}
-            />
-          )}
-        </Field>
-
         <Button
-          className="hover:brightness-120"
+          className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
           disabled={settingsForm.isSubmitting}
           loading={settingsForm.isSubmitting}
           style={ACCENT_SOLID_STYLE.good}
@@ -131,8 +118,9 @@ export function SettingsFormFallback() {
             className="mt-2 mb-4"
           />
         </Stack>
-        <TextInput label="犬の名前" />
-        <Button className="hover:brightness-120">保存する</Button>
+        <Button className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100">
+          保存する
+        </Button>
       </Stack>
     </Shimmer>
   );

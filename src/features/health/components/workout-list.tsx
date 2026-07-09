@@ -1,4 +1,5 @@
-import { Button, Chip, EmptyState, Group, Stack, Text } from "@mantine/core";
+import { Button, Chip, Collapse, EmptyState, Group, Stack, Text } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import { modals } from "@mantine/modals";
 import { Shimmer } from "@shimmer-from-structure/react";
 import { IconBarbell } from "@tabler/icons-react";
@@ -8,8 +9,8 @@ import type { ComponentProps } from "react";
 import type { Doc } from "~/../convex/_generated/dataModel";
 import type { EditableWorkout } from "~/features/health/components/hiit-log-form";
 import { useDeleteWorkout } from "~/features/health/hooks/use-delete-workout";
-import { useWorkouts } from "~/features/health/hooks/use-workouts";
-import { ACCENT_CLASSES, ACCENT_SOLID_STYLE, WORKOUT_KIND_LABELS } from "~/types/dashboard";
+import { useWorkoutList } from "~/features/health/hooks/use-workout-list";
+import { ACCENT_CLASSES, ACCENT_SOLID_STYLE, type WorkoutKind } from "~/types/dashboard";
 import { dayjs } from "~/utils/dayjs";
 
 const CONFIRM_MODAL_STYLES = {
@@ -23,9 +24,24 @@ function formatAt(at: Doc<"workouts">["at"]) {
   return dayjs(at).tz("Asia/Tokyo").format("M/D HH:mm");
 }
 
+function workoutKindLabel(kind: WorkoutKind) {
+  switch (kind) {
+    case "hiit":
+      return "HIIT";
+
+    case "other":
+      return "その他";
+
+    case "walk":
+      return "ウォーキング";
+  }
+}
+
 export function WorkoutList({ onEdit }: Record<"onEdit", (workout: EditableWorkout) => void>) {
-  const { data: workouts } = useWorkouts();
+  const [opened, { toggle }] = useDisclosure(false);
+  const { data } = useWorkoutList();
   const deleteWorkout = useDeleteWorkout();
+  const workouts = data.visibleWorkouts;
 
   if (workouts.length === 0) {
     return (
@@ -43,7 +59,10 @@ export function WorkoutList({ onEdit }: Record<"onEdit", (workout: EditableWorko
 
   function onDelete(workout: EditableWorkout) {
     modals.openConfirmModal({
-      cancelProps: { className: "border-bd bg-inset text-tx hover:bg-panel-2" },
+      cancelProps: {
+        className:
+          "border-bd bg-inset text-tx transition hover:bg-panel-2 hover:brightness-110 active:brightness-95",
+      },
       centered: true,
       children: <Text size="sm">この記録を削除します。元に戻せません。</Text>,
       confirmProps: { style: ACCENT_SOLID_STYLE.coral },
@@ -59,47 +78,84 @@ export function WorkoutList({ onEdit }: Record<"onEdit", (workout: EditableWorko
   return (
     <Stack gap={8}>
       {workouts.map((workout) => (
-        <Group
-          className="border-bd bg-panel-2 rounded-xl border px-3.5 py-2.5"
-          gap={8}
-          key={workout._id}
-          wrap="wrap"
-        >
-          <Chip
-            classNames={{
-              label: cn(
-                "rounded-lg border px-3 py-1.5 text-xs",
-                ACCENT_CLASSES.good.border,
-                ACCENT_CLASSES.good.bg,
-                ACCENT_CLASSES.good.text,
-                "font-semibold",
-              ),
-            }}
-          >
-            {WORKOUT_KIND_LABELS[workout.kind]}
-          </Chip>
-          <Text className="tabular-nums" fw={600} size="sm">
-            {formatAt(workout.at)}
-          </Text>
-          <Text c="dimmed" className="tabular-nums" size="xs">
-            {workout.durationMinutes}分
-          </Text>
-          {workout.perceivedIntensity !== undefined && (
-            <Text c="dimmed" className="tabular-nums" size="xs">
-              強度 {workout.perceivedIntensity}
-            </Text>
-          )}
-          <Group gap={6} ml="auto">
-            <Button onClick={() => onEdit(workout)} size="xs" variant="outline">
-              編集
-            </Button>
-            <Button color="red" onClick={() => onDelete(workout)} size="xs" variant="outline">
-              削除
-            </Button>
-          </Group>
-        </Group>
+        <WorkoutRow key={workout._id} onDelete={onDelete} onEdit={onEdit} workout={workout} />
       ))}
+      <Collapse expanded={opened}>
+        <Stack gap={8} pt={8}>
+          {data.hiddenWorkouts.map((workout) => (
+            <WorkoutRow key={workout._id} onDelete={onDelete} onEdit={onEdit} workout={workout} />
+          ))}
+        </Stack>
+      </Collapse>
+      {data.hiddenWorkouts.length > 0 && (
+        <Button
+          className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+          onClick={toggle}
+          size="xs"
+          variant="outline"
+        >
+          {opened ? "閉じる" : "さらに表示"}
+        </Button>
+      )}
     </Stack>
+  );
+}
+
+function WorkoutRow({
+  onDelete,
+  onEdit,
+  workout,
+}: {
+  onDelete: (workout: EditableWorkout) => void;
+  onEdit: (workout: EditableWorkout) => void;
+  workout: EditableWorkout;
+}) {
+  return (
+    <Group className="border-bd bg-panel-2 rounded-xl border px-3.5 py-2.5" gap={8} wrap="wrap">
+      <Chip
+        classNames={{
+          label: cn(
+            "rounded-lg border px-3 py-1.5 text-xs",
+            ACCENT_CLASSES.good.border,
+            ACCENT_CLASSES.good.bg,
+            ACCENT_CLASSES.good.text,
+            "font-semibold",
+          ),
+        }}
+      >
+        {workoutKindLabel(workout.kind)}
+      </Chip>
+      <Text className="tabular-nums" fw={600} size="sm">
+        {formatAt(workout.at)}
+      </Text>
+      <Text c="dimmed" className="tabular-nums" size="xs">
+        {workout.durationMinutes}分
+      </Text>
+      {workout.perceivedIntensity !== undefined && (
+        <Text c="dimmed" className="tabular-nums" size="xs">
+          強度 {workout.perceivedIntensity}
+        </Text>
+      )}
+      <Group gap={6} ml="auto">
+        <Button
+          className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+          onClick={() => onEdit(workout)}
+          size="xs"
+          variant="outline"
+        >
+          編集
+        </Button>
+        <Button
+          className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+          color="red"
+          onClick={() => onDelete(workout)}
+          size="xs"
+          variant="outline"
+        >
+          削除
+        </Button>
+      </Group>
+    </Group>
   );
 }
 

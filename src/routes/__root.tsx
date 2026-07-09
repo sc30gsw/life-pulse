@@ -42,7 +42,7 @@ export const Route = createRootRouteWithContext<{
     meta: [
       { charSet: "utf-8" },
       { content: "width=device-width, initial-scale=1", name: "viewport" },
-      { title: "TanStack Start Template" },
+      { title: "Life Pulse" },
     ],
   }),
   notFoundComponent: NotFoundComponent,
@@ -51,7 +51,7 @@ export const Route = createRootRouteWithContext<{
 
 function RootComponent() {
   return (
-    <html lang="ja">
+    <html lang="ja" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
@@ -66,7 +66,13 @@ function RootComponent() {
             }}
           >
             <ModalsProvider>
-              <Notifications position="top-center" />
+              <Notifications
+                classNames={{
+                  notification: "lp-toast",
+                  root: "lp-notifications-root",
+                }}
+                position="top-center"
+              />
               <Outlet />
               {TanStackRouterDevtools ? (
                 <Suspense fallback={null}>

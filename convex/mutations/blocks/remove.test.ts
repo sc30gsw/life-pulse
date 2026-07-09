@@ -5,15 +5,20 @@ import { api } from "../../_generated/api";
 import { addDaysJst, todayJst } from "../../lib/dateRange";
 import schema from "../../schema";
 import { testModules } from "../../test.setup";
+import { insertAppUserWithStudyCategory } from "../../test/fixtures";
 
 async function seedPlannedBlock(t: ReturnType<typeof convexTest>) {
   const asSelf = t.withIdentity({ subject: "user_1" });
-  await t.run((ctx) =>
-    ctx.db.insert("appUsers", { authSubject: "user_1", displayName: "本人", role: "self" }),
+  const { categoryId } = await t.run((ctx) =>
+    insertAppUserWithStudyCategory(ctx, {
+      authSubject: "user_1",
+      displayName: "本人",
+      role: "self",
+    }),
   );
 
   const blockId = await asSelf.mutation(api.mutations.blocks.declare.declare, {
-    category: "toeic",
+    categoryId,
     dateJst: addDaysJst(todayJst(), 1),
     endHm: "07:00",
     startHm: "06:00",

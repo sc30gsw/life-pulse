@@ -1,13 +1,57 @@
-import { Group, Paper, RingProgress, Stack, Text } from "@mantine/core";
+import { Button, Group, Paper, Stack, Text } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import { Shimmer } from "@shimmer-from-structure/react";
+import { IconRefresh, IconStethoscope } from "@tabler/icons-react";
+import { Link } from "@tanstack/react-router";
 
 import { GlowCard } from "~/components/glow-card";
+import { RingMetricCard, TextMetricCard } from "~/features/dashboard/components/health-metric-card";
+import { DASHBOARD_HEALTH_METRICS } from "~/features/dashboard/constants/health-metrics";
 import { useDashboardHealth } from "~/features/dashboard/hooks/use-dashboard-health";
-import { ACCENT_VARS, HEALTH_SOURCE_LABELS } from "~/types/dashboard";
+import { useRequestGarminSync } from "~/features/health/hooks/use-request-garmin-sync";
+import { ACCENT_SOLID_STYLE, ACCENT_VARS } from "~/types/dashboard";
+
+function healthSourceLabel(
+  source: NonNullable<ReturnType<typeof useDashboardHealth>["metrics"]>["source"],
+) {
+  switch (source) {
+    case "demo":
+      return "source: demo";
+
+    case "garmin":
+      return "source: garmin";
+
+    case "manual":
+      return "source: manual";
+  }
+}
 
 export function HealthMetricsGrid() {
   const { dateJst, metrics } = useDashboardHealth();
+  const requestGarminSync = useRequestGarminSync();
   const dateLabel = (metrics?.dateJst ?? dateJst).replaceAll("-", "/");
+
+  function onSync() {
+    requestGarminSync.mutate(
+      {},
+      {
+        onError: () => {
+          notifications.show({
+            color: "red",
+            message: "同期のリクエストに失敗しました",
+            title: "エラー",
+          });
+        },
+        onSuccess: () => {
+          notifications.show({
+            color: "green",
+            message: "Garminとの同期をリクエストしました",
+            title: "同期を開始しました",
+          });
+        },
+      },
+    );
+  }
 
   if (metrics === null) {
     return (
@@ -27,12 +71,42 @@ export function HealthMetricsGrid() {
             健康メトリクス · Garmin
           </Text>
         </Group>
-        <Text size="sm" c="dimmed">
-          未計測
-        </Text>
-        <Text size="xs" c="dimmed" mt="xs">
-          {dateLabel}
-        </Text>
+        <Stack gap="xs">
+          <Text size="sm" fw={600}>
+            今日のデータはまだありません
+          </Text>
+          <Text size="xs" c="dimmed">
+            Garminを同期すると、睡眠・Body Battery・歩数をここに表示します。
+          </Text>
+          <Text size="xs" c="dimmed">
+            {dateLabel}
+          </Text>
+          <Group gap="xs" justify="flex-end" mt="xs">
+            <Button
+              className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+              disabled={requestGarminSync.isPending}
+              leftSection={<IconRefresh size={14} />}
+              loading={requestGarminSync.isPending}
+              onClick={onSync}
+              size="xs"
+              style={ACCENT_SOLID_STYLE.blue}
+              type="button"
+            >
+              Garminを同期
+            </Button>
+            <Button
+              className="border-bd-2 text-tx transition hover:brightness-110 active:brightness-95"
+              component={Link}
+              leftSection={<IconStethoscope size={14} />}
+              size="xs"
+              to="/health"
+              type="button"
+              variant="outline"
+            >
+              詳細
+            </Button>
+          </Group>
+        </Stack>
       </GlowCard>
     );
   }
@@ -62,113 +136,57 @@ export function HealthMetricsGrid() {
           健康メトリクス · Garmin
         </Text>
         <Text size="xs" c="dimmed">
-          {HEALTH_SOURCE_LABELS[metrics.source]} · {dateLabel}
+          {healthSourceLabel(metrics.source)} · {dateLabel}
         </Text>
       </Group>
       <Group wrap="wrap" gap="md">
-        <Paper
-          radius="md"
-          p="sm"
-          className="bg-panel-2 border-bd flex-1 border"
-          style={{ minWidth: 110 }}
-        >
-          <Group gap="sm" wrap="nowrap">
-            <RingProgress
-              size={56}
-              thickness={6}
-              sections={[{ value: bodyBattery, color: ACCENT_VARS.good }]}
-              label={
-                <Text size="16px" fw={600} ta="center">
-                  {bodyBattery}
-                </Text>
-              }
-            />
-            <Stack gap={2}>
-              <Text size="xs" fw={600}>
-                Body Battery
-              </Text>
-              <Text size="11px" c="dimmed">
-                起床時
-              </Text>
-            </Stack>
-          </Group>
-        </Paper>
+        <RingMetricCard
+          accentColor={ACCENT_VARS[DASHBOARD_HEALTH_METRICS.bodyBattery.accent]}
+          label="Body Battery"
+          subLabel="起床時"
+          value={bodyBattery}
+        />
 
-        <Paper
-          radius="md"
-          p="sm"
-          className="bg-panel-2 border-bd flex-1 border"
-          style={{ minWidth: 110 }}
-        >
-          <Group gap="sm" wrap="nowrap">
-            <RingProgress
-              size={56}
-              thickness={6}
-              sections={[{ value: sleepScore, color: ACCENT_VARS.violet }]}
-              label={
-                <Text size="16px" fw={600} ta="center">
-                  {sleepScore}
-                </Text>
-              }
-            />
-            <Stack gap={2}>
-              <Text size="xs" fw={600}>
-                睡眠スコア
-              </Text>
-              <Text size="11px" c="dimmed">
-                {sleepHoursLabel}
-              </Text>
-            </Stack>
-          </Group>
-        </Paper>
+        <RingMetricCard
+          accentColor={ACCENT_VARS[DASHBOARD_HEALTH_METRICS.sleepScore.accent]}
+          label="睡眠スコア"
+          subLabel={sleepHoursLabel}
+          value={sleepScore}
+        />
 
-        <Paper
-          radius="md"
-          p="sm"
-          className="bg-panel-2 border-bd flex-1 border"
-          style={{ minWidth: 110 }}
-        >
-          <Stack gap={2} justify="center">
-            <Text size="xs" c="dimmed">
-              HRV
-            </Text>
-            <Text size="xl" fw={600}>
+        <TextMetricCard
+          label="HRV"
+          value={
+            <>
               {hrv}
               <Text component="span" size="xs" c="dimmed">
                 {" "}
                 ms
               </Text>
-            </Text>
-            <Text size="xs" c="dimmed">
+            </>
+          }
+          subLabel={
+            <>
               安静時心拍{" "}
               <Text component="span" c="var(--tx)">
                 {restingHr}
               </Text>
-            </Text>
-          </Stack>
-        </Paper>
+            </>
+          }
+        />
 
-        <Paper
-          radius="md"
-          p="sm"
-          className="bg-panel-2 border-bd flex-1 border"
-          style={{ minWidth: 110 }}
-        >
-          <Stack gap={2} justify="center">
-            <Text size="xs" c="dimmed">
-              歩数
-            </Text>
-            <Text size="xl" fw={600}>
-              {steps.toLocaleString("en-US")}
-            </Text>
-            <Text size="xs" c="dimmed">
+        <TextMetricCard
+          label="歩数"
+          value={steps.toLocaleString("en-US")}
+          subLabel={
+            <>
               HIIT{" "}
               <Text component="span" c={ACCENT_VARS.good}>
                 週2 達成
               </Text>
-            </Text>
-          </Stack>
-        </Paper>
+            </>
+          }
+        />
       </Group>
     </GlowCard>
   );
@@ -193,27 +211,10 @@ export function HealthMetricsGridFallback() {
           </Text>
         </Group>
         <Group wrap="wrap" gap="md">
-          {["Body Battery", "睡眠スコア", "HRV", "歩数"].map((label) => (
-            <Paper
-              key={label}
-              radius="md"
-              p="sm"
-              className="bg-panel-2 border-bd flex-1 border"
-              style={{ minWidth: 110 }}
-            >
-              <Stack gap={2} justify="center">
-                <Text size="xs" c="dimmed">
-                  {label}
-                </Text>
-                <Text size="xl" fw={600}>
-                  88
-                </Text>
-                <Text size="xs" c="dimmed">
-                  起床時
-                </Text>
-              </Stack>
-            </Paper>
-          ))}
+          <TextMetricCard label="Body Battery" subLabel="起床時" value="88" />
+          <TextMetricCard label="睡眠スコア" subLabel="起床時" value="88" />
+          <TextMetricCard label="HRV" subLabel="起床時" value="88" />
+          <TextMetricCard label="歩数" subLabel="起床時" value="88" />
         </Group>
       </Paper>
     </Shimmer>

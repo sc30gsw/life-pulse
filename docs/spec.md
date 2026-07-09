@@ -121,12 +121,7 @@ export default defineSchema({
       v.literal("completed"),
       v.literal("abandoned"),
     ),
-    category: v.union(
-      v.literal("eikaiwa"),
-      v.literal("toeic"),
-      v.literal("reading"),
-      v.literal("other"),
-    ),
+    categoryId: v.id("studyCategories"),
     startedAt: v.number(), // epoch ms
     lastResumedAt: v.optional(v.number()), // activeのとき必須
     accumulatedMs: v.number(), // pause/complete時に加算確定した分
@@ -138,7 +133,8 @@ export default defineSchema({
     dateJst: v.string(), // "YYYY-MM-DD"(JST) 集計用
   })
     .index("by_user_status", ["userId", "status"])
-    .index("by_user_date", ["userId", "dateJst"]),
+    .index("by_user_date", ["userId", "dateJst"])
+    .index("by_categoryId", ["categoryId"]),
 
   // FR-2.4 中断ログ
   interruptions: defineTable({
@@ -154,7 +150,7 @@ export default defineSchema({
     dateJst: v.string(),
     startHm: v.string(), // "06:00"
     endHm: v.string(),
-    category: v.string(),
+    categoryId: v.id("studyCategories"),
     plannedMinutes: v.number(),
     status: v.union(
       v.literal("planned"),
@@ -173,7 +169,17 @@ export default defineSchema({
     ),
     rescheduledToId: v.optional(v.id("studyBlocks")), // リスケ先リンク(FR-3.3)
     source: v.union(v.literal("manual"), v.literal("suggested")), // FR-3.5
-  }).index("by_user_date", ["userId", "dateJst"]),
+  })
+    .index("by_user_date", ["userId", "dateJst"])
+    .index("by_categoryId", ["categoryId"]),
+
+  // FR-2/FR-3 学習カテゴリ(ユーザーごとの表示名・並び順・状態の SSoT)
+  studyCategories: defineTable({
+    userId: v.id("appUsers"),
+    name: v.string(),
+    sortOrder: v.number(),
+    archivedAt: v.optional(v.number()),
+  }).index("by_user", ["userId"]),
 
   // FR-4 断食ウィンドウ(ステートマシン)
   fastingWindows: defineTable({
@@ -267,7 +273,7 @@ export default defineSchema({
 ### 4.1 studySessions(FR-2)
 
 ```
-(なし) --start(category, planned?, blockId?)--> active
+(なし) --start(categoryId, planned?, blockId?)--> active
 active --pause(reason)--> paused        [interruptions に1行作成、accumulatedMs += now-lastResumedAt]
 paused --resume()--> active             [interruption.resumedAt 記録、lastResumedAt=now]
 active|paused --complete()--> completed [accumulated確定、blockId あれば block.status=done]
@@ -396,7 +402,7 @@ eroded --decline()--> declined --undoDecline()--> eroded (FR-3.7, 確認ダイ�
 - **規約本体は `convex-rules.md`(CVX-01〜20)。** 本節は本プロジェクト固有の適用ポイントの再掲のみ。
 - W1のscaffold時点でESLintを導入する(CVX-18): `@convex-dev` ルール(`no-filter-in-query`, `require-argument-validators`, `explicit-table-ids`)+ typescript-eslint `no-floating-promises`(CVX-17)。`npm run lint` をコミット前チェックにする。
 - `ctx.db.get/patch/replace/delete` は必ずテーブル名第1引数の形式(CVX-13)。
-- 共有enumは `lib/validators.ts` に `categoryValidator` / `dogEventKindValidator` / `presenceStateValidator` 等として定義し、`Infer` で型を導出。フロントの選択肢UIもこの型から生成する(CVX-16)。
+- 学習カテゴリは固定 enum ではなく `studyCategories` が SSoT。セッション/学習枠は `categoryId` を保持し、表示名・並び順・非表示状態はユーザーごとのカテゴリ行から導出する。
 - テスト(CVX-19): `convex-test` + `convexTest(schema)` + `t.withIdentity(...)`。最低限の対象: ①二重start拒否(sessions/fasting) ②ended後の `advancePhase` が無視されること ③`model/` の純粋関数(経過時間導出、リスケ候補、ピアソン相関、乱数ウォーク)。
 - レビュー時は `convex-rules.md` 末尾のチェックリストを使う。
 

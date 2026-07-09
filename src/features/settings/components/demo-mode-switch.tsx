@@ -15,6 +15,7 @@ export function DemoModeSwitch() {
     <Stack gap="xs">
       <Switch
         checked={settings.demoMode}
+        className="transition hover:brightness-110 active:brightness-95"
         disabled={setDemoMode.isPending}
         label="デモモード"
         onChange={(event) => {
@@ -47,7 +48,10 @@ export function DemoModeSwitchFallback() {
   return (
     <Shimmer loading>
       <Stack gap="xs">
-        <Switch label="デモモード" />
+        <Switch
+          className="transition hover:brightness-110 active:brightness-95"
+          label="デモモード"
+        />
       </Stack>
     </Shimmer>
   );

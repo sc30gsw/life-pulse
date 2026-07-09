@@ -1,6 +1,8 @@
 # 要件定義書 — Life Pulse(仮称): 家庭ライブハブ / パーソナルOS
 
-- 版: v1.10(2026-07-08: FR-7.2 に補足を追加。`CompositeChart`(bar+area/line、`@mantine/charts`)採用検討は FR-7 実装時に限定する旨を明記)
+- 版: v1.12(2026-07-08: グローバルヘッダーの JST 時計を秒表示に変更。BoardHeader は `HH:mm:ss` を 1 秒 tick で表示)
+- 旧版: v1.11(2026-07-08: FR-7.2 補足に `CompositeChart` 採用確定を追記。FR-7.1/7.2/7.3 完了)
+- 旧版: v1.10(2026-07-08: FR-7.2 に補足を追加。`CompositeChart`(bar+area/line、`@mantine/charts`)採用検討は FR-7 実装時に限定する旨を明記)
 - 旧版: v1.9(2026-07-07: 全 FR/AC にチェックボックスを追加。チェック状態は `phases.md` と同期運用 — 更新は phases.md 側の完了時に両方行う)
 - 旧版: v1.8(2026-07-07: FR-4.5 `/fasting` 専用ページ(断食の現在状態・履歴閲覧)を新規追加)
 - 旧版: v1.7(2026-07-07: FR-6.3 の採用ライブラリを `garmin-connect-sdk` に変更。旧 `garmin-connect` はメンテ停滞+Garmin の MFA 強制により非推奨と判断)
@@ -75,11 +77,12 @@
 - [x] FR-1.4 犬カード: 今日のケア項目(朝散歩/朝ごはん/昼ごはん/薬/夕散歩/夜ごはん/歯磨き 等)の済・未と、実施者・時刻。
 - [x] FR-1.5 ボードは self / partner どちらのアカウントでも同一内容を閲覧可能(視点によるカード並び替えは任意)。
 - [x] FR-1.6 デモ要件: 2端末で並べたとき、一方の操作がもう一方に体感即時(<1s)で反映されること。⏳ 実装済み。2 ブラウザ実機検証は AC-1 ゲートで実施
+- [x] FR-1.7 グローバルヘッダーの JST 時計は秒まで表示する(`HH:mm:ss`)。表示専用の 1 秒 tick とし、セッション/断食等の基準値は引き続きサーバ保存値から導出する。
 
 ### FR-2 学習ライブセッション【P0】
 
 - [x] FR-2.1 セッションはサーバ側ドキュメントとして状態を持つステートマシン(idle → active ⇄ paused → completed / abandoned)。
-- [x] FR-2.2 開始時にカテゴリ(英会話/TOEIC/読書 等)と任意の目標分数を指定できる。宣言済みの学習枠(FR-3)に紐づけ可能。
+- [x] FR-2.2 開始時にユーザー管理の学習カテゴリと任意の目標分数を指定できる。宣言済みの学習枠(FR-3)に紐づけ可能。
 - [x] FR-2.3 経過時間はクライアントのローカルタイマーではなく、サーバ保存の `startedAt / accumulatedMs / lastResumedAt` から導出する(全デバイスで同一値になる)。
 - [x] FR-2.4 中断はワンタップで理由(仕事/犬/家事/その他)を記録。中断・再開・完了はどのデバイスからでも操作でき、他デバイスへ即時反映。
 - [x] FR-2.5 アクティブなセッションは同時に1つまで。既存アクティブがある状態での開始は拒否またはそのセッションへ誘導。
@@ -89,7 +92,8 @@
 
 ### FR-3 学習枠の宣言と防衛(Lv2)【P0】
 
-- [x] FR-3.1 日単位で学習枠(開始・終了時刻、カテゴリ、予定分数)を複数宣言できる。
+- [x] FR-3.1 日単位で学習枠(開始・終了時刻、ユーザー管理カテゴリ、予定分数)を複数宣言できる。
+- [x] FR-3.8 学習カテゴリはユーザーごとに追加・更新・非表示・復元・削除・並び替えできる。デフォルト値は作らず、カテゴリが0件の場合は `/study` とダッシュボードの学習カードから登録を促す。
 - [x] FR-3.2 枠は planned → done(セッション実績と紐づけ) / eroded(侵食: 理由=仕事/疲労/割り込み/その他) / rescheduled / declined のいずれかに遷移。
 - [x] FR-3.3 侵食時、当日の残り時間帯からリスケ候補を提示し、選択で新枠を生成(元枠とのリンクを保持)。
 - [x] FR-3.4 「宣言 vs 実績」の当日サマリがライブボードに出る(パートナーからも見える=緩い社会的コミットメント)。
@@ -122,9 +126,9 @@
 
 ### FR-7 相関ビュー(リアクティブjoin)【P1】
 
-- [ ] FR-7.1 直近N日(既定28日)について「睡眠スコア×当日学習分数」「Body Battery×学習分数」「HIIT実施翌日のBody Battery」を散布図/バーで表示。
-- [ ] FR-7.2 集計はConvexクエリ内で複数テーブルをjoinして導出し、**元データの追加・変更で自動再計算・再描画**されること(発表のコード解説パートの題材)。**補足(v1.10)**: 健康指標(睡眠/Body Battery等)を area/line で重ねる表示、および内訳の PieChart 表示はこの FR-7(`/insights`)のスコープとする。`/health` の `HiitTrend`(FR-6.5)側では実装せず、kind別(hiit/walk/other)の stacked `BarChart` に留める。`CompositeChart`(bar+area/line、`@mantine/charts`)の採用可否は本 FR-7 実装時に検討する。
-- [ ] FR-7.3 統計的厳密性は不要。単純な散布図+相関係数程度で良い。
+- [x] FR-7.1 直近N日(既定28日)について「睡眠スコア×当日学習分数」「Body Battery×学習分数」「HIIT実施翌日のBody Battery」を散布図/バーで表示。
+- [x] FR-7.2 集計はConvexクエリ内で複数テーブルをjoinして導出し、**元データの追加・変更で自動再計算・再描画**されること(発表のコード解説パートの題材)。**補足(v1.10)**: 健康指標(睡眠/Body Battery等)を area/line で重ねる表示、および内訳の PieChart 表示はこの FR-7(`/insights`)のスコープとする。`/health` の `HiitTrend`(FR-6.5)側では実装せず、kind別(hiit/walk/other)の stacked `BarChart` に留める。`CompositeChart`(bar+area/line、`@mantine/charts`)の採用可否は本 FR-7 実装時に検討する。**補足(v1.11)**: `CompositeChart` 採用を確定。`@mantine/charts@9.4.1` は `ScatterChart`/`CompositeChart`/`PieChart` を全て提供しており置き換え不要だった。`convex/queries/insights/correlations.ts`(+ `convex/services/insights/{correlations,pearson}.ts`)の join クエリと、`/insights` route(`src/features/insights/`)の散布図2種・HIIT用 `BarChart`・`daily-composite-chart.tsx`(bar=学習分数/line=睡眠スコア+Body Battery)・`workout-kind-pie-chart.tsx` として実装済み。
+- [x] FR-7.3 統計的厳密性は不要。単純な散布図+相関係数程度で良い。
 
 ### FR-8 パートナーステータス【P0】
 
@@ -139,6 +143,16 @@
 - [x] FR-9.2 全Convex関数はサーバ側で認証を検証する(クライアント側ガードだけに依存しない)。
 - [x] FR-9.3 サインアップ(`/signup`)を開放する。email+パスワード(12文字以上・英大小・数字、確認入力あり)+表示名+ロール(self/partner の自己選択)で登録し、即時有効。パスワードリセット・メール検証はスコープ外。
 - [x] FR-9.4 認可: self専用ページ(`/health` `/insights` `/settings`)へ partner ロールがアクセスした場合は `/` へリダイレクトし通知を表示する。対応するサーバ関数も role を検証する(requireSelf)。
+
+### FR-10 プロフィール & 犬管理ページ【P1】
+
+- [x] FR-10.1 `/profile`(各ユーザーが自分自身の情報のみ編集。self/partner 両ロール共通、ロールによるアクセス制限なし): 表示名、アバター画像(Convex File Storage / `avatarStorageId`)、メールアドレス変更、パスワード変更。
+- [x] FR-10.2 `/dog`(self/partner **両ロール編集可**): 犬情報(`dogs.name`)+ 犬タスク管理。設定ページから移設。
+- [x] FR-10.3 犬タスク動的化: `dogTasks`(`name` / `sortOrder` / `archivedAt`)。`DOG_CARE_KINDS` / `DOG_EVENT_LABELS` のハードコード全廃、`dogTasks` を順序・ラベルの SSoT にする。絵文字フィールドは持たない(name のみ)。
+- [x] FR-10.4 並び替えは上下移動ボタン(dnd 依存追加なし)。削除は `archivedAt` ソフトデリート(過去の完了履歴・連続記録の参照切れを防ぐ)。一覧クエリは `archivedAt === undefined` フィルタ。
+- [x] FR-10.5 `dogEvents.kind` 廃止 → `taskId: v.id("dogTasks")`(required)。既存 dogEvents は demo データのため wipe し、段階デプロイなしの一発デプロイ。
+- [x] FR-10.6 導線: ユーザーメニューに「プロフィール」「愛犬の管理」の両リンク + 犬カードヘッダーに歯車アイコン → `/dog`。
+- [x] FR-10.7 `/settings` に残すのは `demoMode` + `fastingDefaultMinutes` のみ。
 
 ## 5. 非機能要件
 

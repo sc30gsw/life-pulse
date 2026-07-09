@@ -58,6 +58,12 @@ export default defineConfig({
           "react-doctor/only-export-components": "off",
         },
       },
+      {
+        files: ["convex/actions/garmin/syncDaily.ts"],
+        rules: {
+          "react-doctor/async-await-in-loop": "off",
+        },
+      },
     ],
     plugins: ["react", "react-perf", "import", "jsx-a11y", "promise"],
     rules: {

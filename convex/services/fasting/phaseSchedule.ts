@@ -1,9 +1,18 @@
+import type { Doc } from "../../_generated/dataModel";
+import { FASTING_FATBURN_MINUTES } from "../../lib/domain";
+
+type ScheduledFastingPhase = Exclude<Doc<"fastingWindows">["phase"], "early">;
+type PhaseScheduleEntry = {
+  afterMinutes: Doc<"fastingWindows">["targetMinutes"];
+  to: ScheduledFastingPhase;
+};
+
 export function phaseSchedule(
-  targetMinutes: number,
-): Array<{ to: "fatburn" | "goal"; afterMinutes: number }> {
-  if (targetMinutes >= 720) {
+  targetMinutes: Doc<"fastingWindows">["targetMinutes"],
+): PhaseScheduleEntry[] {
+  if (targetMinutes >= FASTING_FATBURN_MINUTES) {
     return [
-      { afterMinutes: 720, to: "fatburn" },
+      { afterMinutes: FASTING_FATBURN_MINUTES, to: "fatburn" },
       { afterMinutes: targetMinutes, to: "goal" },
     ];
   }

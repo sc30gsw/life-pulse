@@ -10,6 +10,7 @@
 // SDK's bundle statically imports `node:fs/promises` and `node:path` for its
 // (unused, here) FileTokenStorage class, so the whole module requires the Node.js
 // runtime to load at all (see node_modules/garmin-connect-sdk/dist/index.js:1525-1534).
+import { Result } from "better-result";
 import {
   type BodyBattery,
   type DailySleep,
@@ -19,6 +20,8 @@ import {
   type HrvStatus,
   type TokenStorage,
 } from "garmin-connect-sdk";
+
+import type { DateJst } from "../../lib/dateRange";
 
 // Raw per-day responses from the four Garmin Connect read endpoints this app needs.
 // Deliberately untransformed — convex/services/garmin/mapDailyMetrics.ts (plan Step 4)
@@ -47,8 +50,8 @@ export type GarminRawDailyStepsEntry = Awaited<
 
 // Thin abstraction the rest of convex/ codes against instead of the SDK directly.
 export type GarminClient = {
-  fetchDailyMetrics(dateJst: string): Promise<GarminRawDailyMetrics>;
-  fetchDailySteps(startJst: string, endJst: string): Promise<GarminRawDailyStepsEntry[]>;
+  fetchDailyMetrics(dateJst: DateJst): Promise<GarminRawDailyMetrics>;
+  fetchDailySteps(startJst: DateJst, endJst: DateJst): Promise<GarminRawDailyStepsEntry[]>;
 };
 
 // Restores a session from a token JSON the user produced once via
@@ -88,16 +91,21 @@ function parseGarminTokensEnv(): GarminTokens {
     );
   }
 
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(raw);
-  } catch (cause) {
-    throw new Error(
-      "GARMIN_TOKENS_JSON is not valid JSON. Re-run scripts/garmin-login.ts and reset it with " +
-        "`npx convex env set GARMIN_TOKENS_JSON`.",
-      { cause },
-    );
+  const parsedResult = Result.try({
+    catch: (cause) =>
+      new Error(
+        "GARMIN_TOKENS_JSON is not valid JSON. Re-run scripts/garmin-login.ts and reset it with " +
+          "`npx convex env set GARMIN_TOKENS_JSON`.",
+        { cause },
+      ),
+    try: () => JSON.parse(raw) as unknown,
+  });
+
+  if (Result.isError(parsedResult)) {
+    throw parsedResult.error;
   }
+
+  const parsed = parsedResult.value;
 
   if (
     typeof parsed !== "object" ||

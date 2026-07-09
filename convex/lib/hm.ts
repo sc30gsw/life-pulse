@@ -12,7 +12,7 @@ export function hmToMinutes(hm: Doc<"studyBlocks">["startHm"] | Doc<"studyBlocks
   return Number(hours) * 60 + Number(minutes);
 }
 
-export function minutesToHm(totalMinutes: number) {
+export function minutesToHm(totalMinutes: number): Doc<"studyBlocks">["startHm"] {
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
 

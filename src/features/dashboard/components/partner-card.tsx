@@ -5,7 +5,7 @@ import { useDashboardViewer } from "~/features/dashboard/hooks/use-dashboard-vie
 const FALLBACK_TITLE = "パートナー";
 
 export function PartnerCard() {
-  const { onSetPresence, partner, partnerFlash, partnerUpdatedRelativeLabel } =
+  const { onSetPresence, partner, partnerFlashRef, partnerUpdatedRelativeLabel } =
     useDashboardPresence();
   const viewer = useDashboardViewer();
   const title = viewer.role === "partner" ? "本人" : "パートナー";
@@ -13,7 +13,7 @@ export function PartnerCard() {
   return (
     <PresenceCard
       editable={viewer.role === "partner"}
-      flash={partnerFlash}
+      flashRef={partnerFlashRef}
       onSetPresence={onSetPresence}
       presence={partner}
       title={title}
