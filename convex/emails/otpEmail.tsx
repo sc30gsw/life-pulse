@@ -22,10 +22,10 @@ export function OtpEmail({ code, expiresInMinutes }: OtpEmailProps) {
     <Html dir="ltr" lang="ja">
       <Tailwind config={{ presets: [pixelBasedPreset] }}>
         <Head />
-        <Body className="bg-[#0b0f14] font-sans" dir="ltr" lang="ja">
+        <Body className="m-0 bg-[#0b0f14] px-4 py-6 font-sans" dir="ltr" lang="ja">
           <Preview>Life Pulse の確認コード: {code}</Preview>
           <Container
-            className="mx-auto my-8 w-[560px] rounded-lg border border-solid border-[#2a3340] bg-[#111820] p-7"
+            className="mx-auto box-border w-full max-w-[520px] rounded-lg border border-solid border-[#2a3340] bg-[#111820] p-6"
             dir="ltr"
             lang="ja"
           >
@@ -33,8 +33,8 @@ export function OtpEmail({ code, expiresInMinutes }: OtpEmailProps) {
             <Text className="text-[15px] leading-6 text-[#e8edf2]">
               サインインを完了するには、以下の6桁コードを入力してください。
             </Text>
-            <Section className="my-6 rounded-lg border border-solid border-[#5dd6b1] bg-[#07110f] py-[18px] text-center">
-              <Text className="m-0 font-mono text-[32px] font-bold tracking-[6px] text-[#5dd6b1]">
+            <Section className="my-6 rounded-lg border border-solid border-[#5dd6b1] bg-[#07110f] px-3 py-[18px] text-center">
+              <Text className="m-0 font-mono text-[30px] font-bold tracking-[4px] text-[#5dd6b1]">
                 {code}
               </Text>
             </Section>

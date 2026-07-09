@@ -1,19 +1,39 @@
 // @vitest-environment happy-dom
 import userEvent from "@testing-library/user-event";
-import type { ComponentProps } from "react";
+import { ConvexError } from "convex/values";
+import type { ButtonHTMLAttributes, ComponentProps, ReactNode } from "react";
 import { beforeEach, expect, test, vi } from "vite-plus/test";
 
 import { VerifyOtpForm } from "~/features/auth/components/verify-otp-form";
 import { renderWithMantine } from "~/test-utils";
 
-const { navigateMock, notificationsShowMock, sendOtpMock, useActionMock, verifyOtpMock } =
-  vi.hoisted(() => ({
-    navigateMock: vi.fn().mockResolvedValue(undefined),
-    notificationsShowMock: vi.fn(),
-    sendOtpMock: vi.fn().mockResolvedValue(undefined),
-    useActionMock: vi.fn(),
-    verifyOtpMock: vi.fn().mockResolvedValue(undefined),
-  }));
+const {
+  navigateMock,
+  notificationsShowMock,
+  secondFactorStatusState,
+  sendOtpMock,
+  useActionMock,
+  verifyOtpMock,
+} = vi.hoisted(() => ({
+  navigateMock: vi.fn().mockResolvedValue(undefined),
+  notificationsShowMock: vi.fn(),
+  secondFactorStatusState: {
+    value: {
+      required: true,
+      resendAvailableAt: Date.now() + 60_000,
+      verified: false,
+    } as
+      | {
+          required: boolean;
+          resendAvailableAt: number | null;
+          verified: boolean;
+        }
+      | undefined,
+  },
+  sendOtpMock: vi.fn().mockResolvedValue(undefined),
+  useActionMock: vi.fn(),
+  verifyOtpMock: vi.fn().mockResolvedValue(undefined),
+}));
 
 vi.mock("@mantine/notifications", () => ({
   notifications: { show: notificationsShowMock },
@@ -22,10 +42,26 @@ vi.mock("@mantine/notifications", () => ({
 vi.mock("@mantine/core", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@mantine/core")>();
 
+  type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+    leftSection?: ReactNode;
+    loading?: boolean;
+  };
+  type GroupProps = { children?: ReactNode };
+  type MantineProviderProps = ComponentProps<typeof actual.MantineProvider> & {
+    children?: ReactNode;
+  };
   type PinInputProps = ComponentProps<typeof actual.PinInput>;
 
   return {
     ...actual,
+    Button: ({ children, disabled, leftSection, loading, onClick, type }: ButtonProps) => (
+      <button disabled={disabled || loading} type={type} onClick={onClick}>
+        {leftSection}
+        {children}
+      </button>
+    ),
+    Group: ({ children }: GroupProps) => <div>{children}</div>,
+    MantineProvider: ({ children }: MantineProviderProps) => <>{children}</>,
     PinInput: ({
       "aria-label": ariaLabel,
       disabled,
@@ -50,6 +86,7 @@ vi.mock("@tanstack/react-router", () => ({
 
 vi.mock("convex/react", () => ({
   useAction: useActionMock,
+  useQuery: () => secondFactorStatusState.value,
 }));
 
 beforeEach(() => {
@@ -57,8 +94,15 @@ beforeEach(() => {
 
   navigateMock.mockClear();
   notificationsShowMock.mockClear();
+  secondFactorStatusState.value = {
+    required: true,
+    resendAvailableAt: Date.now() + 60_000,
+    verified: false,
+  };
   sendOtpMock.mockClear();
+  sendOtpMock.mockResolvedValue(undefined);
   verifyOtpMock.mockClear();
+  verifyOtpMock.mockResolvedValue(undefined);
   useActionMock.mockImplementation(() => {
     const action = actionIndex % 2 === 0 ? verifyOtpMock : sendOtpMock;
     actionIndex += 1;
@@ -97,9 +141,51 @@ test("does not submit an incomplete OTP code", async () => {
 
 test("resends the OTP code", async () => {
   const user = userEvent.setup();
+  secondFactorStatusState.value = undefined;
   const { getByRole } = renderWithMantine(<VerifyOtpForm />);
 
   await user.click(getByRole("button", { name: "再送" }));
+
+  await vi.waitFor(() => {
+    expect(sendOtpMock).toHaveBeenCalledWith({});
+  });
+  await vi.waitFor(() => {
+    expect(notificationsShowMock).toHaveBeenCalledWith({
+      color: "green",
+      message: "確認コードを送信しました",
+      title: "OTP送信",
+    });
+  });
+});
+
+test("disables resend while the active challenge is cooling down", () => {
+  const { getByRole } = renderWithMantine(<VerifyOtpForm />);
+  const resendButton = getByRole("button", { name: "再送 (60s)" }) as HTMLButtonElement;
+
+  expect(resendButton.disabled).toBe(true);
+});
+
+test("shows resend wait errors as cooldown feedback", async () => {
+  const user = userEvent.setup();
+  secondFactorStatusState.value = undefined;
+  sendOtpMock.mockRejectedValueOnce(new ConvexError("OTP_RESEND_WAIT"));
+  const { getByRole } = renderWithMantine(<VerifyOtpForm />);
+
+  await user.click(getByRole("button", { name: "再送" }));
+
+  await vi.waitFor(() => {
+    expect(notificationsShowMock).toHaveBeenCalledWith({
+      color: "yellow",
+      message: "確認コードはまだ再送できません。少し待ってから再送してください",
+      title: "再送待機中",
+    });
+  });
+});
+
+test("sends an OTP when the form opens without an active challenge", async () => {
+  secondFactorStatusState.value = { required: true, resendAvailableAt: null, verified: false };
+
+  renderWithMantine(<VerifyOtpForm />);
 
   await vi.waitFor(() => {
     expect(sendOtpMock).toHaveBeenCalledWith({});

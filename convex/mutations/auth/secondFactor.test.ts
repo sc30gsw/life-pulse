@@ -90,7 +90,33 @@ test("verifySecondFactorChallenge records verified state for the auth session", 
 
   await expect(
     asSession.query(api.queries.auth.secondFactorStatus.secondFactorStatus, {}),
-  ).resolves.toEqual({ required: true, verified: true });
+  ).resolves.toEqual({ required: true, resendAvailableAt: null, verified: true });
+});
+
+test("secondFactorStatus returns the resend availability from the active challenge", async () => {
+  const t = convexTest(schema, testModules);
+  const { authUserId, sessionId } = await seedAuthSession(t);
+  const asSession = t.withIdentity({ subject: `${authUserId}|${sessionId}` });
+
+  await t.mutation(
+    internal.mutations.auth.createSecondFactorChallenge.createSecondFactorChallenge,
+    {
+      authUserId,
+      codeHash: "correct",
+      email: EMAIL,
+      now: NOW,
+      purpose: AUTH_SECOND_FACTOR_SIGNIN_PURPOSE,
+      sessionId,
+    },
+  );
+
+  await expect(
+    asSession.query(api.queries.auth.secondFactorStatus.secondFactorStatus, {}),
+  ).resolves.toEqual({
+    required: true,
+    resendAvailableAt: NOW + SECOND_FACTOR_RESEND_COOLDOWN_MS,
+    verified: false,
+  });
 });
 
 test("verifySecondFactorChallenge caps invalid attempts", async () => {

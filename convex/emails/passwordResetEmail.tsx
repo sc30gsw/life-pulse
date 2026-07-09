@@ -22,10 +22,10 @@ export function PasswordResetEmail({ expiresInMinutes, resetUrl }: PasswordReset
     <Html dir="ltr" lang="ja">
       <Tailwind config={{ presets: [pixelBasedPreset] }}>
         <Head />
-        <Body className="bg-[#0b0f14] font-sans" dir="ltr" lang="ja">
+        <Body className="m-0 bg-[#0b0f14] px-4 py-6 font-sans" dir="ltr" lang="ja">
           <Preview>Life Pulse のパスワード再設定リンク</Preview>
           <Container
-            className="mx-auto my-8 w-[560px] rounded-lg border border-solid border-[#2a3340] bg-[#111820] p-7"
+            className="mx-auto box-border w-full max-w-[520px] rounded-lg border border-solid border-[#2a3340] bg-[#111820] p-6"
             dir="ltr"
             lang="ja"
           >
