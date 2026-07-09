@@ -116,7 +116,7 @@ export function DogImageUploader() {
     <Stack gap="md">
       <Group align="center" gap="md" wrap="nowrap">
         <Avatar name={dog.name} radius="md" size={76} src={dog.imageUrl} />
-        <Stack gap={4} className="min-w-0">
+        <Group gap="xs" className="min-w-0" wrap="wrap">
           <FileButton accept="image/*" onChange={onFileSelect}>
             {(props) => (
               <Button
@@ -133,18 +133,18 @@ export function DogImageUploader() {
           {hasDogImage ? (
             <Button
               aria-label="犬の写真を削除"
-              className="self-start transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+              className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
               color="red"
-              leftSection={<IconTrash size={14} />}
+              leftSection={<IconTrash size={16} />}
               loading={removeDogImage.isPending}
               onClick={onRemove}
-              size="xs"
-              variant="subtle"
+              size="sm"
+              variant="outline"
             >
               削除
             </Button>
           ) : null}
-        </Stack>
+        </Group>
       </Group>
 
       {imageSrc !== null ? (
