@@ -2,6 +2,7 @@ import { v } from "convex/values";
 
 import { mutation } from "../../_generated/server";
 import { requireUser } from "../../lib/auth";
+import { unwrapConvexResult } from "../../lib/result";
 import { dogTaskFieldValidators } from "../../lib/validators";
 import { create as createDogTask } from "../../services/dogTasks/create";
 
@@ -11,6 +12,6 @@ export const create = mutation({
   handler: async (ctx, args) => {
     await requireUser(ctx);
 
-    return await createDogTask(ctx, args);
+    return unwrapConvexResult(await createDogTask(ctx, args));
   },
 });

@@ -2,6 +2,7 @@ import { v } from "convex/values";
 
 import { mutation } from "../../_generated/server";
 import { requireUser } from "../../lib/auth";
+import { unwrapConvexResult } from "../../lib/result";
 import { dogFieldValidators } from "../../lib/validators";
 import { update as updateDog } from "../../services/dogs/update";
 
@@ -10,7 +11,7 @@ export const update = mutation({
   returns: v.null(),
   handler: async (ctx, args) => {
     await requireUser(ctx);
-    await updateDog(ctx, args);
+    unwrapConvexResult(await updateDog(ctx, args));
 
     return null;
   },

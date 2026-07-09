@@ -366,7 +366,12 @@ function StudyCategoryRow({ category }: StudyCategoryRowProps) {
         {isArchived ? (
           <ActionIcon
             aria-label="復元"
-            className="border-bd bg-inset text-tx hover:bg-panel-2 focus-visible:outline-blue transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:brightness-95"
+            className={cn(
+              ACCENT_CLASSES.good.border,
+              ACCENT_CLASSES.good.bg,
+              ACCENT_CLASSES.good.text,
+              "focus-visible:outline-good transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100",
+            )}
             onClick={onRestore}
             variant="default"
           >
