@@ -1,13 +1,26 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { ConvexError } from "convex/values";
+import { Result, TaggedError, type Result as ResultType } from "better-result";
 
+import type { Doc } from "../_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "../_generated/server";
+import { unwrapConvexResult } from "./result";
 
-export async function requireUser(ctx: QueryCtx | MutationCtx) {
+class AuthGuardError extends TaggedError("AuthGuardError")<{
+  code: "FORBIDDEN" | "UNAUTHENTICATED";
+  message: string;
+}>() {
+  constructor(code: "FORBIDDEN" | "UNAUTHENTICATED") {
+    super({ code, message: code });
+  }
+}
+
+export async function requireUserResult(
+  ctx: QueryCtx | MutationCtx,
+): Promise<ResultType<Doc<"appUsers">, AuthGuardError>> {
   const authSubject = await getAuthUserId(ctx);
 
   if (authSubject === null) {
-    throw new ConvexError("UNAUTHENTICATED");
+    return Result.err(new AuthGuardError("UNAUTHENTICATED"));
   }
 
   const user = await ctx.db
@@ -16,18 +29,34 @@ export async function requireUser(ctx: QueryCtx | MutationCtx) {
     .unique();
 
   if (user === null) {
-    throw new ConvexError("UNAUTHENTICATED");
+    return Result.err(new AuthGuardError("UNAUTHENTICATED"));
   }
 
-  return user;
+  return Result.ok(user);
+}
+
+export async function requireUser(ctx: QueryCtx | MutationCtx) {
+  return unwrapConvexResult(await requireUserResult(ctx));
+}
+
+export async function requireSelfResult(
+  ctx: QueryCtx | MutationCtx,
+): Promise<ResultType<Doc<"appUsers">, AuthGuardError>> {
+  const userResult = await requireUserResult(ctx);
+
+  if (Result.isError(userResult)) {
+    return Result.err(userResult.error);
+  }
+
+  const user = userResult.value;
+
+  if (user.role !== "self") {
+    return Result.err(new AuthGuardError("FORBIDDEN"));
+  }
+
+  return Result.ok(user);
 }
 
 export async function requireSelf(ctx: QueryCtx | MutationCtx) {
-  const user = await requireUser(ctx);
-
-  if (user.role !== "self") {
-    throw new ConvexError("FORBIDDEN");
-  }
-
-  return user;
+  return unwrapConvexResult(await requireSelfResult(ctx));
 }

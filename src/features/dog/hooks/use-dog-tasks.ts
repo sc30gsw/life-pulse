@@ -1,12 +1,14 @@
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { Result } from "better-result";
 
 import type { Doc } from "~/../convex/_generated/dataModel";
 import { dogTasksQuery } from "~/features/dog/api/dog-tasks-query";
 import { useArchiveDogTask } from "~/features/dog/hooks/use-archive-dog-task";
 import { useMoveDogTask } from "~/features/dog/hooks/use-move-dog-task";
 import { useRenameDogTask } from "~/features/dog/hooks/use-rename-dog-task";
+import { ClientOperationError } from "~/utils/client-operation-error";
 
 function showError(message: string) {
   notifications.show({ color: "red", message, title: "エラー" });
@@ -74,9 +76,12 @@ export function useDogTasks() {
       return;
     }
 
-    try {
-      await moveDogTask.mutateAsync({ targetTaskId, taskId });
-    } catch {
+    const reorderResult = await Result.tryPromise({
+      catch: (cause) => new ClientOperationError({ cause, code: "DOG_TASK_REORDER_FAILED" }),
+      try: () => moveDogTask.mutateAsync({ targetTaskId, taskId }),
+    });
+
+    if (Result.isError(reorderResult)) {
       showError("並び替えに失敗しました");
     }
   }

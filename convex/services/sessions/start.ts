@@ -36,12 +36,12 @@ export async function start(
 
     const categoryResult = await assertCategoryBelongsToUser(ctx, user, args.categoryId);
     if (Result.isError(categoryResult)) {
-      return categoryResult;
+      return Result.err(categoryResult.error);
     }
   } else {
     const categoryResult = await assertCategoryIsActive(ctx, user, args.categoryId);
     if (Result.isError(categoryResult)) {
-      return categoryResult;
+      return Result.err(categoryResult.error);
     }
   }
 

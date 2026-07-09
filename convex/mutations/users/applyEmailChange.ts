@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 
 import { internalMutation } from "../../_generated/server";
+import { unwrapConvexResult } from "../../lib/result";
 import { applyEmailChange as applyEmailChangeService } from "../../services/users/applyEmailChange";
 
 // internalMutation: only called from within the updateEmail action
@@ -10,7 +11,7 @@ export const applyEmailChange = internalMutation({
   args: { authUserId: v.id("users"), newEmail: v.string() },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await applyEmailChangeService(ctx, args);
+    unwrapConvexResult(await applyEmailChangeService(ctx, args));
 
     return null;
   },

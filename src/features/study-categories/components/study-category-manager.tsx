@@ -28,6 +28,7 @@ import {
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
+import { Result } from "better-result";
 import { cn } from "cnfast";
 import { useState } from "react";
 
@@ -41,6 +42,7 @@ import { useRestoreStudyCategory } from "~/features/study-categories/hooks/use-r
 import { useStudyCategoriesQuery } from "~/features/study-categories/hooks/use-study-categories-query";
 import { StudyCategoryNameSchema } from "~/features/study-categories/schemas/study-category-name-schema";
 import { ACCENT_CLASSES, ACCENT_SOLID_STYLE } from "~/types/dashboard";
+import { ClientOperationError } from "~/utils/client-operation-error";
 
 function showError(message: string) {
   notifications.show({ color: "red", message, title: "エラー" });
@@ -73,9 +75,12 @@ export function StudyCategoryManager() {
       return;
     }
 
-    try {
-      await moveCategory.mutateAsync({ categoryId, targetCategoryId });
-    } catch {
+    const reorderResult = await Result.tryPromise({
+      catch: (cause) => new ClientOperationError({ cause, code: "STUDY_CATEGORY_REORDER_FAILED" }),
+      try: () => moveCategory.mutateAsync({ categoryId, targetCategoryId }),
+    });
+
+    if (Result.isError(reorderResult)) {
       showError("並び替えに失敗しました");
     }
   }

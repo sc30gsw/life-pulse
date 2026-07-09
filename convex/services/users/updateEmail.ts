@@ -1,9 +1,10 @@
 import { getAuthUserId, retrieveAccount } from "@convex-dev/auth/server";
-import { ConvexError } from "convex/values";
+import { Result, type Result as ResultType } from "better-result";
 
 import { internal } from "../../_generated/api";
 import type { Doc } from "../../_generated/dataModel";
 import type { ActionCtx } from "../../_generated/server";
+import { UserError } from "./errors";
 
 type UpdateEmailArgs = {
   currentPassword: NonNullable<Doc<"authAccounts">["secret"]>;
@@ -14,11 +15,14 @@ type UpdateEmailArgs = {
 // rationale): retrieveAccount below requires a GenericActionCtx — it is not
 // callable from a mutation — so this whole flow is an action, not a
 // mutation, even though it only exists to gate a DB write.
-export async function updateEmail(ctx: ActionCtx, args: UpdateEmailArgs) {
+export async function updateEmail(
+  ctx: ActionCtx,
+  args: UpdateEmailArgs,
+): Promise<ResultType<void, UserError>> {
   const authUserId = await getAuthUserId(ctx);
 
   if (authUserId === null) {
-    throw new ConvexError("UNAUTHENTICATED");
+    return Result.err(new UserError({ code: "UNAUTHENTICATED" }));
   }
 
   // requireUser-equivalent (CVX-04) + resolve the caller's OWN current email
@@ -31,17 +35,23 @@ export async function updateEmail(ctx: ActionCtx, args: UpdateEmailArgs) {
     },
   );
 
-  try {
-    await retrieveAccount(ctx, {
-      provider: "password",
-      account: { id: currentEmail, secret: args.currentPassword },
-    });
-  } catch {
-    throw new ConvexError("INVALID_PASSWORD");
+  const accountResult = await Result.tryPromise({
+    catch: (cause) => new UserError({ cause, code: "INVALID_PASSWORD" }),
+    try: () =>
+      retrieveAccount(ctx, {
+        provider: "password",
+        account: { id: currentEmail, secret: args.currentPassword },
+      }),
+  });
+
+  if (Result.isError(accountResult)) {
+    return Result.err(accountResult.error);
   }
 
   await ctx.runMutation(internal.mutations.users.applyEmailChange.applyEmailChange, {
     authUserId,
     newEmail: args.newEmail,
   });
+
+  return Result.ok();
 }

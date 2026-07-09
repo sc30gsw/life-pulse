@@ -38,7 +38,7 @@ export async function remove(
   if (await hasCategoryUsage(ctx, args.categoryId)) {
     const archiveResult = await archive(ctx, user, args);
     if (Result.isError(archiveResult)) {
-      return archiveResult;
+      return Result.err(archiveResult.error);
     }
 
     return Result.ok("archived");

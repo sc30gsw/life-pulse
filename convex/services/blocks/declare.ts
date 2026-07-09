@@ -32,7 +32,7 @@ export async function declare(
 
   const categoryResult = await assertCategoryIsActive(ctx, user, args.categoryId);
   if (Result.isError(categoryResult)) {
-    return categoryResult;
+    return Result.err(categoryResult.error);
   }
 
   // plannedMinutes is derived server-side from the time range so the two can

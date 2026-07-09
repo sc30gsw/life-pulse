@@ -7,7 +7,10 @@ import { SettingsError } from "./errors";
 
 type UpdateArgs = Partial<Pick<Doc<"appSettings">, "fastingDefaultMinutes">>;
 
-export async function update(ctx: MutationCtx, args: UpdateArgs): Promise<ResultType<void, SettingsError>> {
+export async function update(
+  ctx: MutationCtx,
+  args: UpdateArgs,
+): Promise<ResultType<void, SettingsError>> {
   if (
     args.fastingDefaultMinutes !== undefined &&
     (!Number.isInteger(args.fastingDefaultMinutes) || args.fastingDefaultMinutes <= 0)

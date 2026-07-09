@@ -18,6 +18,7 @@
 // failure, etc.) is caught, recorded via recordSyncFailure, and swallowed so a
 // failed sync never crashes or blocks tomorrow's cron run (CVX-17: every
 // scheduler / runMutation call below is awaited).
+import { Result, TaggedError } from "better-result";
 import { v } from "convex/values";
 import { filter, isNonNullish, map, pipe } from "remeda";
 
@@ -33,75 +34,91 @@ import { createGarminClient } from "./client";
 // time budget, and irrelevant for the 2-day cron path.
 const PER_DAY_DELAY_MS = 500;
 
+class GarminSyncError extends TaggedError("GarminSyncError")<{
+  cause: unknown;
+  dateJst?: DateJst;
+  message: string;
+}>() {
+  constructor(args: { cause: unknown; dateJst?: DateJst; message?: string }) {
+    super({ ...args, message: args.message ?? String(args.cause) });
+  }
+}
+
 async function syncRange(ctx: ActionCtx, fromJst: DateJst, toJst: DateJst) {
-  try {
-    const client = createGarminClient();
+  const syncResult = await Result.tryPromise({
+    catch: (cause) => new GarminSyncError({ cause }),
+    try: async () => {
+      const client = createGarminClient();
 
-    // One request returns a per-day entry for the whole range (patched
-    // endpoint, client.ts NOTE) — keyed by calendarDate for the loop below.
-    const stepsByDate = new Map(
-      pipe(
-        await client.fetchDailySteps(fromJst, toJst),
-        map((entry) =>
-          typeof entry.calendarDate === "string" ? ([entry.calendarDate, entry] as const) : null,
-        ),
-        filter(isNonNullish),
-      ),
-    );
-
-    const days = [];
-    const failedDates: DateJst[] = [];
-    let firstDayError: unknown;
-    let first = true;
-
-    for (let dateJst = fromJst; dateJst <= toJst; dateJst = addDaysJst(dateJst, 1)) {
-      if (!first) {
-        await new Promise((resolve) => setTimeout(resolve, PER_DAY_DELAY_MS));
-      }
-
-      first = false;
-
-      // One bad day must not abort the whole range: Garmin's per-day payloads
-      // for older dates can fail the SDK's zod validation
-      // (GarminValidationError — observed aborting a 28-day backfill after
-      // writing nothing). Skip that day, keep the rest, and report the skipped
-      // dates through recordSyncFailure below.
-      let raw: Awaited<ReturnType<typeof client.fetchDailyMetrics>>;
-
-      try {
-        raw = await client.fetchDailyMetrics(dateJst);
-      } catch (error) {
-        failedDates.push(dateJst);
-        firstDayError ??= error;
-        continue;
-      }
-
-      // The SDK's zod `.passthrough()` schemas type unlisted fields (e.g.
-      // `restingHeartRate`, `sleepScores`, `hrvSummary`'s contents) as an
-      // unknown-keyed catchall, which doesn't structurally satisfy
-      // mapDailyMetrics's intentionally SDK-independent RawGarminDailyMetrics
-      // mirror (see that file's header comment) even though the runtime shape
-      // matches. Bridge the two at this one SDK boundary.
-      days.push(
-        mapDailyMetrics(
-          { ...raw, dailySteps: stepsByDate.get(dateJst) } as RawGarminDailyMetrics,
-          dateJst,
+      // One request returns a per-day entry for the whole range (patched
+      // endpoint, client.ts NOTE) — keyed by calendarDate for the loop below.
+      const stepsByDate = new Map(
+        pipe(
+          await client.fetchDailySteps(fromJst, toJst),
+          map((entry) =>
+            typeof entry.calendarDate === "string" ? ([entry.calendarDate, entry] as const) : null,
+          ),
+          filter(isNonNullish),
         ),
       );
-    }
 
-    if (days.length > 0) {
-      await ctx.runMutation(internal.mutations.health.upsertFromSync.upsertFromSync, { days });
-    }
+      const days = [];
+      const failedDates: DateJst[] = [];
+      let firstDayError: unknown;
+      let first = true;
 
-    if (failedDates.length > 0) {
-      await ctx.runMutation(internal.mutations.health.recordSyncFailure.recordSyncFailure, {
-        message: `${failedDates.length} day(s) skipped [${failedDates.join(", ")}]: ${String(firstDayError)}`,
-      });
-    }
-  } catch (error) {
+      for (let dateJst = fromJst; dateJst <= toJst; dateJst = addDaysJst(dateJst, 1)) {
+        if (!first) {
+          await new Promise((resolve) => setTimeout(resolve, PER_DAY_DELAY_MS));
+        }
+
+        first = false;
+
+        // One bad day must not abort the whole range: Garmin's per-day payloads
+        // for older dates can fail the SDK's zod validation
+        // (GarminValidationError — observed aborting a 28-day backfill after
+        // writing nothing). Skip that day, keep the rest, and report the skipped
+        // dates through recordSyncFailure below.
+        const rawResult = await Result.tryPromise({
+          catch: (cause) => new GarminSyncError({ cause, dateJst }),
+          try: () => client.fetchDailyMetrics(dateJst),
+        });
+
+        if (Result.isError(rawResult)) {
+          failedDates.push(dateJst);
+          firstDayError ??= rawResult.error.cause;
+          continue;
+        }
+
+        // The SDK's zod `.passthrough()` schemas type unlisted fields (e.g.
+        // `restingHeartRate`, `sleepScores`, `hrvSummary`'s contents) as an
+        // unknown-keyed catchall, which doesn't structurally satisfy
+        // mapDailyMetrics's intentionally SDK-independent RawGarminDailyMetrics
+        // mirror (see that file's header comment) even though the runtime shape
+        // matches. Bridge the two at this one SDK boundary.
+        days.push(
+          mapDailyMetrics(
+            { ...rawResult.value, dailySteps: stepsByDate.get(dateJst) } as RawGarminDailyMetrics,
+            dateJst,
+          ),
+        );
+      }
+
+      if (days.length > 0) {
+        await ctx.runMutation(internal.mutations.health.upsertFromSync.upsertFromSync, { days });
+      }
+
+      if (failedDates.length > 0) {
+        await ctx.runMutation(internal.mutations.health.recordSyncFailure.recordSyncFailure, {
+          message: `${failedDates.length} day(s) skipped [${failedDates.join(", ")}]: ${String(firstDayError)}`,
+        });
+      }
+    },
+  });
+
+  if (Result.isError(syncResult)) {
     await ctx.runMutation(internal.mutations.health.recordSyncFailure.recordSyncFailure, {
-      message: String(error),
+      message: syncResult.error.message,
     });
   }
 

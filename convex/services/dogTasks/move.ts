@@ -12,7 +12,10 @@ type MoveArgs = {
   taskId: Doc<"dogTasks">["_id"];
 };
 
-export async function move(ctx: MutationCtx, args: MoveArgs): Promise<ResultType<void, DogTaskError>> {
+export async function move(
+  ctx: MutationCtx,
+  args: MoveArgs,
+): Promise<ResultType<void, DogTaskError>> {
   const activeTasks = await listActiveDogTasks(ctx);
   const index = activeTasks.findIndex((task) => task._id === args.taskId);
 

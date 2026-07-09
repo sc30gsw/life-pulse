@@ -181,6 +181,7 @@ import type * as services_studyCategories_restore from "../services/studyCategor
 import type * as services_studyCategories_validate from "../services/studyCategories/validate.js";
 import type * as services_users_applyEmailChange from "../services/users/applyEmailChange.js";
 import type * as services_users_ensureUser from "../services/users/ensureUser.js";
+import type * as services_users_errors from "../services/users/errors.js";
 import type * as services_users_getEmailForCaller from "../services/users/getEmailForCaller.js";
 import type * as services_users_removeAvatar from "../services/users/removeAvatar.js";
 import type * as services_users_setAvatar from "../services/users/setAvatar.js";
@@ -370,6 +371,7 @@ declare const fullApi: ApiFromModules<{
   "services/studyCategories/validate": typeof services_studyCategories_validate;
   "services/users/applyEmailChange": typeof services_users_applyEmailChange;
   "services/users/ensureUser": typeof services_users_ensureUser;
+  "services/users/errors": typeof services_users_errors;
   "services/users/getEmailForCaller": typeof services_users_getEmailForCaller;
   "services/users/removeAvatar": typeof services_users_removeAvatar;
   "services/users/setAvatar": typeof services_users_setAvatar;

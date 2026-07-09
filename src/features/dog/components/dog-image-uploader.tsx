@@ -3,6 +3,7 @@ import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { Shimmer } from "@shimmer-from-structure/react";
 import { IconPhotoUp, IconTrash } from "@tabler/icons-react";
+import { Result } from "better-result";
 import { useRef, useState } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 
@@ -14,6 +15,7 @@ import {
 } from "~/features/dog/hooks/use-update-dog";
 import { cropImageToAvatarBlob } from "~/features/profile/utils/crop-image";
 import { ACCENT_SOLID_STYLE } from "~/types/dashboard";
+import { ClientOperationError } from "~/utils/client-operation-error";
 import { uploadBlobToConvexStorage } from "~/utils/convex-storage-upload";
 
 export function DogImageUploader() {
@@ -46,20 +48,28 @@ export function DogImageUploader() {
       return;
     }
 
-    try {
-      await Promise.all([
-        generateUploadUrl.mutateAsync({}),
-        cropImageToAvatarBlob(imageSrc, croppedAreaPixels),
-      ])
-        .then(([uploadUrl, blob]) => uploadBlobToConvexStorage(uploadUrl, blob, "image/jpeg"))
-        .then((storageId) => setDogImage.mutateAsync({ storageId }));
+    const saveResult = await Result.tryPromise({
+      catch: (cause) => new ClientOperationError({ cause, code: "DOG_IMAGE_SAVE_FAILED" }),
+      try: () =>
+        Promise.all([
+          generateUploadUrl.mutateAsync({}),
+          cropImageToAvatarBlob(imageSrc, croppedAreaPixels),
+        ])
+          .then(([uploadUrl, blob]) => uploadBlobToConvexStorage(uploadUrl, blob, "image/jpeg"))
+          .then((storageId) => setDogImage.mutateAsync({ storageId })),
+    });
+
+    if (Result.isOk(saveResult)) {
       setImageSrc(null);
       notifications.show({
         color: "green",
         message: "犬の写真を保存しました",
         title: "保存しました",
       });
-    } catch {
+      return;
+    }
+
+    if (Result.isError(saveResult)) {
       notifications.show({
         color: "red",
         message: "犬の写真の保存に失敗しました",

@@ -2,7 +2,11 @@ import { TaggedError } from "better-result";
 
 import type { Id } from "../../_generated/dataModel";
 
-type SessionErrorCode = "BLOCK_NOT_FOUND" | "NO_ACTIVE_SESSION" | "NO_PAUSED_SESSION" | "SESSION_EXISTS";
+type SessionErrorCode =
+  | "BLOCK_NOT_FOUND"
+  | "NO_ACTIVE_SESSION"
+  | "NO_PAUSED_SESSION"
+  | "SESSION_EXISTS";
 
 export class SessionError extends TaggedError("SessionError")<{
   blockId?: Id<"studyBlocks">;

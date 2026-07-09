@@ -17,7 +17,7 @@ export async function logWorkout(
 ): Promise<ResultType<Doc<"workouts">["_id"], HealthError>> {
   const workoutAtResult = assertWorkoutAtIsNotFuture(args.at);
   if (Result.isError(workoutAtResult)) {
-    return workoutAtResult;
+    return Result.err(workoutAtResult.error);
   }
 
   return Result.ok(

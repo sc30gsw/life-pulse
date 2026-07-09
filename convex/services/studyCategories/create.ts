@@ -20,7 +20,7 @@ export async function create(
 
   const availableResult = await assertCategoryNameAvailable(ctx, user, name);
   if (Result.isError(availableResult)) {
-    return availableResult;
+    return Result.err(availableResult.error);
   }
 
   const categories = await ctx.db

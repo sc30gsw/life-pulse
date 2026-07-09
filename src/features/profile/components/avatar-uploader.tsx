@@ -2,6 +2,7 @@ import { Avatar, Button, EmptyState, FileButton, Group, Slider, Stack, Text } fr
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { IconTrash, IconUpload } from "@tabler/icons-react";
+import { Result } from "better-result";
 import { useRef, useState } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 
@@ -13,6 +14,7 @@ import {
 } from "~/features/profile/hooks/use-profile-actions";
 import { cropImageToAvatarBlob } from "~/features/profile/utils/crop-image";
 import { ACCENT_SOLID_STYLE } from "~/types/dashboard";
+import { ClientOperationError } from "~/utils/client-operation-error";
 import { uploadBlobToConvexStorage } from "~/utils/convex-storage-upload";
 
 export function AvatarUploader() {
@@ -45,14 +47,18 @@ export function AvatarUploader() {
       return;
     }
 
-    try {
-      await Promise.all([
-        generateUploadUrl.mutateAsync({}),
-        cropImageToAvatarBlob(imageSrc, croppedAreaPixels),
-      ])
-        .then(([uploadUrl, blob]) => uploadBlobToConvexStorage(uploadUrl, blob, "image/jpeg"))
-        .then((storageId) => setAvatar.mutateAsync({ storageId }));
+    const saveResult = await Result.tryPromise({
+      catch: (cause) => new ClientOperationError({ cause, code: "AVATAR_SAVE_FAILED" }),
+      try: () =>
+        Promise.all([
+          generateUploadUrl.mutateAsync({}),
+          cropImageToAvatarBlob(imageSrc, croppedAreaPixels),
+        ])
+          .then(([uploadUrl, blob]) => uploadBlobToConvexStorage(uploadUrl, blob, "image/jpeg"))
+          .then((storageId) => setAvatar.mutateAsync({ storageId })),
+    });
 
+    if (Result.isOk(saveResult)) {
       setImageSrc(null);
 
       notifications.show({
@@ -60,7 +66,10 @@ export function AvatarUploader() {
         message: "アバターを保存しました",
         title: "保存しました",
       });
-    } catch {
+      return;
+    }
+
+    if (Result.isError(saveResult)) {
       notifications.show({
         color: "red",
         message: "アバターの保存に失敗しました",

@@ -10,6 +10,7 @@
 // SDK's bundle statically imports `node:fs/promises` and `node:path` for its
 // (unused, here) FileTokenStorage class, so the whole module requires the Node.js
 // runtime to load at all (see node_modules/garmin-connect-sdk/dist/index.js:1525-1534).
+import { Result } from "better-result";
 import {
   type BodyBattery,
   type DailySleep,
@@ -90,16 +91,21 @@ function parseGarminTokensEnv(): GarminTokens {
     );
   }
 
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(raw);
-  } catch (cause) {
-    throw new Error(
-      "GARMIN_TOKENS_JSON is not valid JSON. Re-run scripts/garmin-login.ts and reset it with " +
-        "`npx convex env set GARMIN_TOKENS_JSON`.",
-      { cause },
-    );
+  const parsedResult = Result.try({
+    catch: (cause) =>
+      new Error(
+        "GARMIN_TOKENS_JSON is not valid JSON. Re-run scripts/garmin-login.ts and reset it with " +
+          "`npx convex env set GARMIN_TOKENS_JSON`.",
+        { cause },
+      ),
+    try: () => JSON.parse(raw) as unknown,
+  });
+
+  if (Result.isError(parsedResult)) {
+    throw parsedResult.error;
   }
+
+  const parsed = parsedResult.value;
 
   if (
     typeof parsed !== "object" ||

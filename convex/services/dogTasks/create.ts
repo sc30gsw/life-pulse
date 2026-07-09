@@ -23,9 +23,9 @@ export async function create(
 
   return Result.ok(
     await ctx.db.insert("dogTasks", {
-    archivedAt: undefined,
-    name,
-    sortOrder: maxSortOrder + 1,
+      archivedAt: undefined,
+      name,
+      sortOrder: maxSortOrder + 1,
     }),
   );
 }

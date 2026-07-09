@@ -1,7 +1,8 @@
-import { ConvexError } from "convex/values";
+import { Result, type Result as ResultType } from "better-result";
 
 import type { Doc, Id } from "../../_generated/dataModel";
 import type { MutationCtx } from "../../_generated/server";
+import { UserError } from "./errors";
 
 type ApplyEmailChangeArgs = { authUserId: Id<"users">; newEmail: Doc<"users">["email"] };
 
@@ -16,7 +17,10 @@ type ApplyEmailChangeArgs = { authUserId: Id<"users">; newEmail: Doc<"users">["e
 // This only touches the identifying field, never `authAccounts.secret` (the
 // hashed password) — rotating that goes exclusively through the library's
 // own modifyAccountCredentials (see services/users/updatePassword.ts).
-export async function applyEmailChange(ctx: MutationCtx, args: ApplyEmailChangeArgs) {
+export async function applyEmailChange(
+  ctx: MutationCtx,
+  args: ApplyEmailChangeArgs,
+): Promise<ResultType<void, UserError>> {
   const account = await ctx.db
     .query("authAccounts")
     .withIndex("userIdAndProvider", (q) =>
@@ -25,9 +29,11 @@ export async function applyEmailChange(ctx: MutationCtx, args: ApplyEmailChangeA
     .unique();
 
   if (account === null) {
-    throw new ConvexError("ACCOUNT_NOT_FOUND");
+    return Result.err(new UserError({ code: "ACCOUNT_NOT_FOUND" }));
   }
 
   await ctx.db.patch("users", args.authUserId, { email: args.newEmail });
   await ctx.db.patch("authAccounts", account._id, { providerAccountId: args.newEmail });
+
+  return Result.ok();
 }

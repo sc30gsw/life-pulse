@@ -2,6 +2,7 @@ import { v } from "convex/values";
 
 import { mutation } from "../../_generated/server";
 import { requireUser } from "../../lib/auth";
+import { unwrapConvexResult } from "../../lib/result";
 import { updateDisplayName as updateDisplayNameService } from "../../services/users/updateDisplayName";
 
 export const updateDisplayName = mutation({
@@ -11,7 +12,7 @@ export const updateDisplayName = mutation({
     // requireUser (not requireSelf): each user edits their OWN display name.
     const user = await requireUser(ctx);
 
-    await updateDisplayNameService(ctx, user, args.displayName);
+    unwrapConvexResult(await updateDisplayNameService(ctx, user, args.displayName));
 
     return null;
   },

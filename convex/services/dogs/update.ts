@@ -7,7 +7,10 @@ import { get as getDog } from "./get";
 
 type UpdateArgs = Pick<Doc<"dogs">, "name">;
 
-export async function update(ctx: MutationCtx, args: UpdateArgs): Promise<ResultType<void, DogError>> {
+export async function update(
+  ctx: MutationCtx,
+  args: UpdateArgs,
+): Promise<ResultType<void, DogError>> {
   const name = args.name.trim();
 
   if (name.length === 0) {

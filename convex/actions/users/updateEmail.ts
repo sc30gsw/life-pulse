@@ -3,6 +3,7 @@
 import { v } from "convex/values";
 
 import { action } from "../../_generated/server";
+import { unwrapConvexResult } from "../../lib/result";
 import { updateEmail as updateEmailService } from "../../services/users/updateEmail";
 
 // DEVIATION FROM THE ORIGINAL PLAN (documented, not a silent change): this is
@@ -18,7 +19,7 @@ export const updateEmail = action({
   args: { currentPassword: v.string(), newEmail: v.string() },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await updateEmailService(ctx, args);
+    unwrapConvexResult(await updateEmailService(ctx, args));
 
     return null;
   },

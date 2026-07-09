@@ -1,7 +1,8 @@
-import { ConvexError } from "convex/values";
+import { Result, type Result as ResultType } from "better-result";
 
 import type { Id } from "../../_generated/dataModel";
 import type { QueryCtx } from "../../_generated/server";
+import { UserError } from "./errors";
 
 // requireUser-equivalent for an action-context caller (retrieveAccount /
 // modifyAccountCredentials from @convex-dev/auth/server require a
@@ -10,21 +11,24 @@ import type { QueryCtx } from "../../_generated/server";
 // have). Confirms the authSubject has a registered appUsers row (same
 // UNAUTHENTICATED guard as requireUser), then resolves the current login
 // email from the framework `users` table.
-export async function getEmailForCaller(ctx: QueryCtx, authUserId: Id<"users">) {
+export async function getEmailForCaller(
+  ctx: QueryCtx,
+  authUserId: Id<"users">,
+): Promise<ResultType<string, UserError>> {
   const appUser = await ctx.db
     .query("appUsers")
     .withIndex("by_subject", (q) => q.eq("authSubject", authUserId))
     .unique();
 
   if (appUser === null) {
-    throw new ConvexError("UNAUTHENTICATED");
+    return Result.err(new UserError({ code: "UNAUTHENTICATED" }));
   }
 
   const authUser = await ctx.db.get("users", authUserId);
 
   if (authUser?.email === undefined) {
-    throw new ConvexError("UNAUTHENTICATED");
+    return Result.err(new UserError({ code: "UNAUTHENTICATED" }));
   }
 
-  return authUser.email;
+  return Result.ok(authUser.email);
 }

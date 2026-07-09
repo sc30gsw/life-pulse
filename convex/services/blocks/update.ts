@@ -41,7 +41,7 @@ export async function update(
 
   const categoryResult = await assertCategoryIsActive(ctx, user, args.categoryId);
   if (Result.isError(categoryResult)) {
-    return categoryResult;
+    return Result.err(categoryResult.error);
   }
 
   await ctx.db.patch("studyBlocks", block._id, {

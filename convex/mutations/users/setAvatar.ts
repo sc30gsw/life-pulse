@@ -2,6 +2,7 @@ import { v } from "convex/values";
 
 import { mutation } from "../../_generated/server";
 import { requireUser } from "../../lib/auth";
+import { unwrapConvexResult } from "../../lib/result";
 import { setAvatar as setAvatarService } from "../../services/users/setAvatar";
 
 export const setAvatar = mutation({
@@ -12,7 +13,7 @@ export const setAvatar = mutation({
     // self and partner both operate on their own appUsers row.
     const user = await requireUser(ctx);
 
-    await setAvatarService(ctx, user, args.storageId);
+    unwrapConvexResult(await setAvatarService(ctx, user, args.storageId));
 
     return null;
   },
