@@ -2,7 +2,7 @@
 import { DndContext } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
 import userEvent from "@testing-library/user-event";
-import { expect, test, vi } from "vite-plus/test";
+import { beforeEach, expect, test, vi } from "vite-plus/test";
 
 import type { Doc, Id } from "~/../convex/_generated/dataModel";
 import { AddDogTaskForm } from "~/features/dog/components/add-dog-task-form";
@@ -27,6 +27,8 @@ const state = vi.hoisted(() => ({
   onMoveTask: vi.fn(),
   onRenameTask: vi.fn(),
   onReorderTask: vi.fn(),
+  openConfirmModal: vi.fn(),
+  removeDogImage: { isPending: false, mutate: vi.fn() },
   setDogImage: { isPending: false, mutateAsync: vi.fn() },
   uploadUrl: { isPending: false, mutateAsync: vi.fn() },
   updateDogMutate: vi.fn(),
@@ -51,6 +53,10 @@ vi.mock("@mantine/notifications", () => ({
   notifications: { show: state.notificationShow },
 }));
 
+vi.mock("@mantine/modals", () => ({
+  modals: { openConfirmModal: state.openConfirmModal },
+}));
+
 vi.mock("~/features/dog/hooks/use-create-dog-task", () => ({
   useCreateDogTask: () => ({ mutate: state.createMutate }),
 }));
@@ -61,6 +67,7 @@ vi.mock("~/features/dog/hooks/use-dog", () => ({
 
 vi.mock("~/features/dog/hooks/use-update-dog", () => ({
   useGenerateDogImageUploadUrl: () => state.uploadUrl,
+  useRemoveDogImage: () => state.removeDogImage,
   useSetDogImage: () => state.setDogImage,
   useUpdateDog: () => ({ mutate: state.updateDogMutate }),
 }));
@@ -84,6 +91,22 @@ function buildTask(name: string, id: string, sortOrder: number): Doc<"dogTasks">
     sortOrder,
   };
 }
+
+beforeEach(() => {
+  state.dog = {
+    _creationTime: 0,
+    _id: "dog_1",
+    imageStorageId: undefined,
+    imageUrl: null,
+    name: "ハマロ",
+  };
+  state.dogTasks = [];
+  state.notificationShow.mockClear();
+  state.openConfirmModal.mockClear();
+  state.removeDogImage.mutate.mockClear();
+  state.setDogImage.mutateAsync.mockClear();
+  state.uploadUrl.mutateAsync.mockClear();
+});
 
 test("AddDogTaskForm submits a trimmed task name and shows success notification", async () => {
   state.createMutate.mockClear();
@@ -177,6 +200,57 @@ test("DogImageUploader uploads a cropped dog image and stores its storage id", a
 
   expect(state.uploadUrl.mutateAsync).toHaveBeenCalledWith({});
   expect(state.setDogImage.mutateAsync).toHaveBeenCalledWith({ storageId: "storage_1" });
+});
+
+test("DogImageUploader confirms before removing the current dog image", async () => {
+  state.dog = {
+    _creationTime: 0,
+    _id: "dog_1",
+    imageStorageId: "storage_dog",
+    imageUrl: "https://example.com/dog.jpg",
+    name: "ハマロ",
+  };
+  state.removeDogImage.mutate.mockImplementation((_input, callbacks) => {
+    callbacks.onSuccess();
+  });
+  const user = userEvent.setup();
+  const { getByRole } = renderWithMantine(<DogImageUploader />);
+
+  await user.click(getByRole("button", { name: "削除" }));
+
+  expect(state.removeDogImage.mutate).not.toHaveBeenCalled();
+  expect(state.openConfirmModal).toHaveBeenCalledWith(
+    expect.objectContaining({
+      labels: { cancel: "キャンセル", confirm: "削除する" },
+      title: "犬の写真を削除しますか？",
+    }),
+  );
+
+  const modal = state.openConfirmModal.mock.calls[0]?.[0] as { onConfirm: () => void };
+  modal.onConfirm();
+
+  expect(state.removeDogImage.mutate).toHaveBeenCalledWith(
+    {},
+    expect.objectContaining({ onError: expect.any(Function), onSuccess: expect.any(Function) }),
+  );
+  expect(state.notificationShow).toHaveBeenCalledWith({
+    color: "green",
+    message: "犬の写真を削除しました",
+    title: "削除しました",
+  });
+});
+
+test("DogImageUploader hides the remove button when no dog image is stored", () => {
+  state.dog = {
+    _creationTime: 0,
+    _id: "dog_1",
+    imageStorageId: undefined,
+    imageUrl: null,
+    name: "ハマロ",
+  };
+  const { queryByRole } = renderWithMantine(<DogImageUploader />);
+
+  expect(queryByRole("button", { name: "削除" })).toBeNull();
 });
 
 test("DogTaskList renders an empty message and fallback rows", () => {

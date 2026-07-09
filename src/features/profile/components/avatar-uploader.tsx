@@ -1,12 +1,14 @@
 import { Avatar, Button, EmptyState, FileButton, Group, Slider, Stack, Text } from "@mantine/core";
+import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
-import { IconUpload } from "@tabler/icons-react";
+import { IconTrash, IconUpload } from "@tabler/icons-react";
 import { useRef, useState } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 
 import { useViewer } from "~/features/auth/hooks/use-viewer";
 import {
   useGenerateAvatarUploadUrl,
+  useRemoveAvatar,
   useSetAvatar,
 } from "~/features/profile/hooks/use-profile-actions";
 import { cropImageToAvatarBlob } from "~/features/profile/utils/crop-image";
@@ -16,6 +18,7 @@ import { uploadBlobToConvexStorage } from "~/utils/convex-storage-upload";
 export function AvatarUploader() {
   const { data: viewer } = useViewer();
   const generateUploadUrl = useGenerateAvatarUploadUrl();
+  const removeAvatar = useRemoveAvatar();
   const setAvatar = useSetAvatar();
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -66,6 +69,50 @@ export function AvatarUploader() {
     }
   }
 
+  function onRemove() {
+    modals.openConfirmModal({
+      cancelProps: { variant: "subtle" },
+      centered: true,
+      children: <Text size="sm">現在のアバター画像を削除します。元に戻せません。</Text>,
+      confirmProps: { color: "red" },
+      labels: { cancel: "キャンセル", confirm: "削除する" },
+      onConfirm: () => {
+        removeAvatar.mutate(
+          {},
+          {
+            onError: () => {
+              notifications.show({
+                color: "red",
+                message: "アバターの削除に失敗しました",
+                title: "エラー",
+              });
+            },
+            onSuccess: () => {
+              notifications.show({
+                color: "green",
+                message: "アバターを削除しました",
+                title: "削除しました",
+              });
+            },
+          },
+        );
+      },
+      styles: {
+        body: { color: "var(--tx)" },
+        content: {
+          backgroundColor: "var(--panel)",
+          border: "1px solid var(--bd2)",
+          color: "var(--tx)",
+        },
+        header: { backgroundColor: "var(--panel)", color: "var(--tx)" },
+        title: { color: "var(--tx)", fontWeight: 700 },
+      },
+      title: "アバター画像を削除しますか？",
+    });
+  }
+
+  const hasAvatar = viewer.avatarStorageId !== undefined;
+
   return (
     <Stack gap="md">
       <Group align="center">
@@ -82,6 +129,18 @@ export function AvatarUploader() {
             </Button>
           )}
         </FileButton>
+        {hasAvatar ? (
+          <Button
+            className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+            color="red"
+            leftSection={<IconTrash size={16} />}
+            loading={removeAvatar.isPending}
+            onClick={onRemove}
+            variant="outline"
+          >
+            削除
+          </Button>
+        ) : null}
       </Group>
 
       {imageSrc !== null ? (

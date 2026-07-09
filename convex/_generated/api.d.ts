@@ -39,6 +39,7 @@ import type * as mutations_dogTasks_move from "../mutations/dogTasks/move.js";
 import type * as mutations_dogTasks_rename from "../mutations/dogTasks/rename.js";
 import type * as mutations_dogTasks_seed from "../mutations/dogTasks/seed.js";
 import type * as mutations_dogs_generateImageUploadUrl from "../mutations/dogs/generateImageUploadUrl.js";
+import type * as mutations_dogs_removeImage from "../mutations/dogs/removeImage.js";
 import type * as mutations_dogs_setImage from "../mutations/dogs/setImage.js";
 import type * as mutations_dogs_update from "../mutations/dogs/update.js";
 import type * as mutations_fasting_advancePhase from "../mutations/fasting/advancePhase.js";
@@ -66,6 +67,7 @@ import type * as mutations_studyCategories_rename from "../mutations/studyCatego
 import type * as mutations_studyCategories_restore from "../mutations/studyCategories/restore.js";
 import type * as mutations_users_applyEmailChange from "../mutations/users/applyEmailChange.js";
 import type * as mutations_users_generateAvatarUploadUrl from "../mutations/users/generateAvatarUploadUrl.js";
+import type * as mutations_users_removeAvatar from "../mutations/users/removeAvatar.js";
 import type * as mutations_users_setAvatar from "../mutations/users/setAvatar.js";
 import type * as mutations_users_updateDisplayName from "../mutations/users/updateDisplayName.js";
 import type * as queries_blocks_todayWithSuggestions from "../queries/blocks/todayWithSuggestions.js";
@@ -124,6 +126,7 @@ import type * as services_dogTasks_list from "../services/dogTasks/list.js";
 import type * as services_dogTasks_move from "../services/dogTasks/move.js";
 import type * as services_dogTasks_rename from "../services/dogTasks/rename.js";
 import type * as services_dogs_get from "../services/dogs/get.js";
+import type * as services_dogs_removeImage from "../services/dogs/removeImage.js";
 import type * as services_dogs_setImage from "../services/dogs/setImage.js";
 import type * as services_dogs_update from "../services/dogs/update.js";
 import type * as services_fasting_advancePhase from "../services/fasting/advancePhase.js";
@@ -169,6 +172,7 @@ import type * as services_studyCategories_validate from "../services/studyCatego
 import type * as services_users_applyEmailChange from "../services/users/applyEmailChange.js";
 import type * as services_users_ensureUser from "../services/users/ensureUser.js";
 import type * as services_users_getEmailForCaller from "../services/users/getEmailForCaller.js";
+import type * as services_users_removeAvatar from "../services/users/removeAvatar.js";
 import type * as services_users_setAvatar from "../services/users/setAvatar.js";
 import type * as services_users_updateDisplayName from "../services/users/updateDisplayName.js";
 import type * as services_users_updateEmail from "../services/users/updateEmail.js";
@@ -214,6 +218,7 @@ declare const fullApi: ApiFromModules<{
   "mutations/dogTasks/rename": typeof mutations_dogTasks_rename;
   "mutations/dogTasks/seed": typeof mutations_dogTasks_seed;
   "mutations/dogs/generateImageUploadUrl": typeof mutations_dogs_generateImageUploadUrl;
+  "mutations/dogs/removeImage": typeof mutations_dogs_removeImage;
   "mutations/dogs/setImage": typeof mutations_dogs_setImage;
   "mutations/dogs/update": typeof mutations_dogs_update;
   "mutations/fasting/advancePhase": typeof mutations_fasting_advancePhase;
@@ -241,6 +246,7 @@ declare const fullApi: ApiFromModules<{
   "mutations/studyCategories/restore": typeof mutations_studyCategories_restore;
   "mutations/users/applyEmailChange": typeof mutations_users_applyEmailChange;
   "mutations/users/generateAvatarUploadUrl": typeof mutations_users_generateAvatarUploadUrl;
+  "mutations/users/removeAvatar": typeof mutations_users_removeAvatar;
   "mutations/users/setAvatar": typeof mutations_users_setAvatar;
   "mutations/users/updateDisplayName": typeof mutations_users_updateDisplayName;
   "queries/blocks/todayWithSuggestions": typeof queries_blocks_todayWithSuggestions;
@@ -299,6 +305,7 @@ declare const fullApi: ApiFromModules<{
   "services/dogTasks/move": typeof services_dogTasks_move;
   "services/dogTasks/rename": typeof services_dogTasks_rename;
   "services/dogs/get": typeof services_dogs_get;
+  "services/dogs/removeImage": typeof services_dogs_removeImage;
   "services/dogs/setImage": typeof services_dogs_setImage;
   "services/dogs/update": typeof services_dogs_update;
   "services/fasting/advancePhase": typeof services_fasting_advancePhase;
@@ -344,6 +351,7 @@ declare const fullApi: ApiFromModules<{
   "services/users/applyEmailChange": typeof services_users_applyEmailChange;
   "services/users/ensureUser": typeof services_users_ensureUser;
   "services/users/getEmailForCaller": typeof services_users_getEmailForCaller;
+  "services/users/removeAvatar": typeof services_users_removeAvatar;
   "services/users/setAvatar": typeof services_users_setAvatar;
   "services/users/updateDisplayName": typeof services_users_updateDisplayName;
   "services/users/updateEmail": typeof services_users_updateEmail;

@@ -1,12 +1,17 @@
 import { Avatar, Button, EmptyState, FileButton, Group, Slider, Stack, Text } from "@mantine/core";
+import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { Shimmer } from "@shimmer-from-structure/react";
-import { IconPhotoUp } from "@tabler/icons-react";
+import { IconPhotoUp, IconTrash } from "@tabler/icons-react";
 import { useRef, useState } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 
 import { useDog } from "~/features/dog/hooks/use-dog";
-import { useGenerateDogImageUploadUrl, useSetDogImage } from "~/features/dog/hooks/use-update-dog";
+import {
+  useGenerateDogImageUploadUrl,
+  useRemoveDogImage,
+  useSetDogImage,
+} from "~/features/dog/hooks/use-update-dog";
 import { cropImageToAvatarBlob } from "~/features/profile/utils/crop-image";
 import { ACCENT_SOLID_STYLE } from "~/types/dashboard";
 import { uploadBlobToConvexStorage } from "~/utils/convex-storage-upload";
@@ -14,6 +19,7 @@ import { uploadBlobToConvexStorage } from "~/utils/convex-storage-upload";
 export function DogImageUploader() {
   const { data: dog } = useDog();
   const generateUploadUrl = useGenerateDogImageUploadUrl();
+  const removeDogImage = useRemoveDogImage();
   const setDogImage = useSetDogImage();
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -62,6 +68,50 @@ export function DogImageUploader() {
     }
   }
 
+  function onRemove() {
+    modals.openConfirmModal({
+      cancelProps: { variant: "subtle" },
+      centered: true,
+      children: <Text size="sm">現在の犬の写真を削除します。元に戻せません。</Text>,
+      confirmProps: { color: "red" },
+      labels: { cancel: "キャンセル", confirm: "削除する" },
+      onConfirm: () => {
+        removeDogImage.mutate(
+          {},
+          {
+            onError: () => {
+              notifications.show({
+                color: "red",
+                message: "犬の写真の削除に失敗しました",
+                title: "エラー",
+              });
+            },
+            onSuccess: () => {
+              notifications.show({
+                color: "green",
+                message: "犬の写真を削除しました",
+                title: "削除しました",
+              });
+            },
+          },
+        );
+      },
+      styles: {
+        body: { color: "var(--tx)" },
+        content: {
+          backgroundColor: "var(--panel)",
+          border: "1px solid var(--bd2)",
+          color: "var(--tx)",
+        },
+        header: { backgroundColor: "var(--panel)", color: "var(--tx)" },
+        title: { color: "var(--tx)", fontWeight: 700 },
+      },
+      title: "犬の写真を削除しますか？",
+    });
+  }
+
+  const hasDogImage = dog.imageStorageId !== undefined;
+
   return (
     <Stack gap="md">
       <Group align="center">
@@ -78,6 +128,18 @@ export function DogImageUploader() {
             </Button>
           )}
         </FileButton>
+        {hasDogImage ? (
+          <Button
+            className="transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
+            color="red"
+            leftSection={<IconTrash size={16} />}
+            loading={removeDogImage.isPending}
+            onClick={onRemove}
+            variant="outline"
+          >
+            削除
+          </Button>
+        ) : null}
       </Group>
 
       {imageSrc !== null ? (

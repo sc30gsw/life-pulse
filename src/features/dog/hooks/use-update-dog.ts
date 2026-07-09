@@ -12,3 +12,7 @@ export function useGenerateDogImageUploadUrl() {
 export function useSetDogImage() {
   return useConvexMutation(api.mutations.dogs.setImage.setImage);
 }
+
+export function useRemoveDogImage() {
+  return useConvexMutation(api.mutations.dogs.removeImage.removeImage);
+}

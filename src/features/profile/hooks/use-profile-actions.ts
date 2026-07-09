@@ -16,6 +16,10 @@ export function useSetAvatar() {
   return useConvexMutation(api.mutations.users.setAvatar.setAvatar);
 }
 
+export function useRemoveAvatar() {
+  return useConvexMutation(api.mutations.users.removeAvatar.removeAvatar);
+}
+
 export function useUpdateEmail() {
   const updateEmail = useAction(api.actions.users.updateEmail.updateEmail);
   return useMutation({ mutationFn: updateEmail });
