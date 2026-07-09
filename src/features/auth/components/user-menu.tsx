@@ -95,7 +95,7 @@ export function UserMenu() {
           leftSection={<IconDog size={iconSize} />}
           to="/dog"
         >
-          犬の管理
+          愛犬の管理
         </Menu.Item>
         <Menu.Item
           className={menuItemClassName}

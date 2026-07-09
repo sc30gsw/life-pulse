@@ -31,7 +31,7 @@ export function DogCard() {
               犬プロフィール未作成
             </Text>
           }
-          description="犬の管理画面でプロフィールを作成してください。"
+          description="愛犬の管理画面でプロフィールを作成してください。"
         >
           <EmptyState.Actions>
             <Button
@@ -40,7 +40,7 @@ export function DogCard() {
               to="/dog"
               style={ACCENT_SOLID_STYLE.coral}
             >
-              犬の管理へ
+              愛犬の管理へ
             </Button>
           </EmptyState.Actions>
         </EmptyState>
@@ -90,7 +90,7 @@ export function DogCard() {
           </Badge>
           <DogHistoryButton />
           <Button
-            aria-label="犬の管理"
+            aria-label="愛犬の管理"
             className="border-bd-2 text-tx transition hover:brightness-110 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100"
             component={Link}
             leftSection={<IconSettings size={14} />}

@@ -55,7 +55,7 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 ### FR-2 学習ライブセッション【P0】
 
 - [x] FR-2.1 サーバ側ステートマシン(idle → active ⇄ paused → completed / abandoned)
-- [x] FR-2.2 開始時にカテゴリ+任意目標分数を指定、宣言済み枠(FR-3)へ紐づけ可能(`/study` の「この枠で開始」で blockId 連携)
+- [x] FR-2.2 開始時にユーザー管理カテゴリ+任意目標分数を指定、宣言済み枠(FR-3)へ紐づけ可能(`/study` の「この枠で開始」で blockId 連携)
 - [x] FR-2.3 経過時間は `startedAt / accumulatedMs / lastResumedAt` からサーバ値で導出(全デバイス同一値)
 - [x] FR-2.4 ワンタップ中断(理由: 仕事/犬/家事/その他)+どのデバイスからも操作・即時反映
 - [x] FR-2.5 アクティブ同時 1 つ制約(既存アクティブ時の start 拒否/誘導、`SESSION_EXISTS`)
@@ -65,7 +65,7 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 
 ### FR-3 学習枠の宣言と防衛(Lv2)【P0】
 
-- [x] FR-3.1 日単位で枠(開始・終了時刻、カテゴリ、予定分数)を複数宣言(blocks.declare、plannedMinutes はサーバ導出)
+- [x] FR-3.1 日単位で枠(開始・終了時刻、ユーザー管理カテゴリ、予定分数)を複数宣言(blocks.declare、plannedMinutes はサーバ導出)
 - [x] FR-3.2 planned → done / eroded(理由付き) / rescheduled / declined の遷移(done はセッション complete 連動)
 - [x] FR-3.3 侵食時に当日残り時間帯からリスケ候補提示→選択で新枠生成(元枠リンク保持、suggestRescheduleSlots 純関数)
 - [x] FR-3.4 「宣言 vs 実績」当日サマリがライブボードに表示(FR-1.2 の学習分を解消)
@@ -77,7 +77,8 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 ### UI 配線
 
 - [x] `/study` ルート(枠宣言 UI・予定一覧・予定編集/キャンセル・侵食→リスケ・セッション履歴。導線は UserMenu の「学習管理」)
-- [x] ライブボードのセッション操作ボタン配線(開始/中断/再開/完了、Mantine modal でカテゴリ+目標分入力)
+- [x] ライブボードのセッション操作ボタン配線(開始/中断/再開/完了、Mantine modal でユーザー管理カテゴリ+目標分入力)
+- [x] 学習カテゴリ管理(追加/更新/非表示/復元/未使用削除/並び替え、0件時の `/study` 導線)
 
 ## W3 — 断食 + 健康データ + デモモード(FR-4 / FR-6.2 / FR-6.4 / FR-6.5)
 
@@ -163,7 +164,7 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 ### Phase 3 — 動的化・導線・整理
 
 - [x] `DOG_CARE_KINDS` / `DOG_EVENT_LABELS` 全廃 → 犬カード・履歴モーダルを `dogTasks` 駆動に
-- [x] ユーザーメニューに「プロフィール」「犬の管理」リンク、犬カードヘッダーに歯車 → `/dog`
+- [x] ユーザーメニューに「プロフィール」「愛犬の管理」リンク、犬カードヘッダーに歯車 → `/dog`
 - [x] `/settings` を `demoMode` + `fastingDefaultMinutes` のみに縮小
 - [x] テスト: dogTasks CRUD 権限(両ロール)、ソフトデリート後の履歴参照、sortOrder swap
 

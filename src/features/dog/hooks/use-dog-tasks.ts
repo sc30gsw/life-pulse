@@ -66,6 +66,21 @@ export function useDogTasks() {
     );
   }
 
+  async function onReorder(taskId: Doc<"dogTasks">["_id"], targetTaskId: Doc<"dogTasks">["_id"]) {
+    const fromIndex = tasks.findIndex((task) => task._id === taskId);
+    const toIndex = tasks.findIndex((task) => task._id === targetTaskId);
+
+    if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) {
+      return;
+    }
+
+    try {
+      await moveDogTask.mutateAsync({ targetTaskId, taskId });
+    } catch {
+      showError("並び替えに失敗しました");
+    }
+  }
+
   function onRename(taskId: Doc<"dogTasks">["_id"], name: Doc<"dogTasks">["name"]) {
     renameDogTask.mutate(
       { name, taskId },
@@ -80,5 +95,5 @@ export function useDogTasks() {
     );
   }
 
-  return { onArchive, onMove, onRename, tasks } as const;
+  return { onArchive, onMove, onRename, onReorder, tasks } as const;
 }

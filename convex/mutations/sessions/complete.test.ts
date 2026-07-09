@@ -4,6 +4,7 @@ import { expect, test, vi } from "vite-plus/test";
 import { api } from "../../_generated/api";
 import schema from "../../schema";
 import { testModules } from "../../test.setup";
+import { insertAppUserWithStudyCategory } from "../../test/fixtures";
 
 test("completes an active session, finalizing accumulatedMs and endedAt", async () => {
   vi.useFakeTimers();
@@ -11,12 +12,16 @@ test("completes an active session, finalizing accumulatedMs and endedAt", async 
 
   const t = convexTest(schema, testModules);
   const asSelf = t.withIdentity({ subject: "user_1" });
-  await t.run((ctx) =>
-    ctx.db.insert("appUsers", { authSubject: "user_1", displayName: "本人", role: "self" }),
+  const { categoryId } = await t.run((ctx) =>
+    insertAppUserWithStudyCategory(ctx, {
+      authSubject: "user_1",
+      displayName: "本人",
+      role: "self",
+    }),
   );
 
   const sessionId = await asSelf.mutation(api.mutations.sessions.start.start, {
-    category: "toeic",
+    categoryId,
     dateJst: "2026-07-07",
   });
 
@@ -37,12 +42,16 @@ test("completes a paused session using the already-accumulated time", async () =
 
   const t = convexTest(schema, testModules);
   const asSelf = t.withIdentity({ subject: "user_1" });
-  await t.run((ctx) =>
-    ctx.db.insert("appUsers", { authSubject: "user_1", displayName: "本人", role: "self" }),
+  const { categoryId } = await t.run((ctx) =>
+    insertAppUserWithStudyCategory(ctx, {
+      authSubject: "user_1",
+      displayName: "本人",
+      role: "self",
+    }),
   );
 
   const sessionId = await asSelf.mutation(api.mutations.sessions.start.start, {
-    category: "toeic",
+    categoryId,
     dateJst: "2026-07-07",
   });
 
@@ -62,12 +71,16 @@ test("completes a paused session using the already-accumulated time", async () =
 test("cancels the scheduled autoAbandon job and marks the linked block done", async () => {
   const t = convexTest(schema, testModules);
   const asSelf = t.withIdentity({ subject: "user_1" });
-  const userId = await t.run((ctx) =>
-    ctx.db.insert("appUsers", { authSubject: "user_1", displayName: "本人", role: "self" }),
+  const { categoryId, userId } = await t.run((ctx) =>
+    insertAppUserWithStudyCategory(ctx, {
+      authSubject: "user_1",
+      displayName: "本人",
+      role: "self",
+    }),
   );
   const blockId = await t.run((ctx) =>
     ctx.db.insert("studyBlocks", {
-      category: "toeic",
+      categoryId,
       dateJst: "2026-07-07",
       endHm: "07:00",
       plannedMinutes: 60,
@@ -80,7 +93,7 @@ test("cancels the scheduled autoAbandon job and marks the linked block done", as
 
   const sessionId = await asSelf.mutation(api.mutations.sessions.start.start, {
     blockId,
-    category: "toeic",
+    categoryId,
     dateJst: "2026-07-07",
   });
 

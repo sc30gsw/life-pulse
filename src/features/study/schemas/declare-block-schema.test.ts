@@ -5,14 +5,14 @@ import { DeclareBlockSchema } from "~/features/study/schemas/declare-block-schem
 
 test("derives a block declaration from valid same-day datetimes", () => {
   const result = v.safeParse(DeclareBlockSchema, {
-    category: "toeic",
+    categoryId: "category_toeic",
     endAt: "2099-01-01 07:00:00",
     startAt: "2099-01-01 06:00:00",
   });
 
   expect(result.success).toBe(true);
   expect(result.output).toEqual({
-    category: "toeic",
+    categoryId: "category_toeic",
     dateJst: "2099-01-01",
     endHm: "07:00",
     startHm: "06:00",
@@ -21,7 +21,7 @@ test("derives a block declaration from valid same-day datetimes", () => {
 
 test("rejects missing endpoints", () => {
   const result = v.safeParse(DeclareBlockSchema, {
-    category: "toeic",
+    categoryId: "category_toeic",
     endAt: null,
     startAt: "2099-01-01 06:00:00",
   });
@@ -31,7 +31,7 @@ test("rejects missing endpoints", () => {
 
 test("rejects a range that crosses a date boundary", () => {
   const result = v.safeParse(DeclareBlockSchema, {
-    category: "toeic",
+    categoryId: "category_toeic",
     endAt: "2099-01-02 00:30:00",
     startAt: "2099-01-01 23:30:00",
   });
@@ -41,13 +41,13 @@ test("rejects a range that crosses a date boundary", () => {
 
 test("rejects an end datetime at or before the start datetime", () => {
   const inverted = v.safeParse(DeclareBlockSchema, {
-    category: "toeic",
+    categoryId: "category_toeic",
     endAt: "2099-01-01 06:00:00",
     startAt: "2099-01-01 07:00:00",
   });
 
   const equal = v.safeParse(DeclareBlockSchema, {
-    category: "toeic",
+    categoryId: "category_toeic",
     endAt: "2099-01-01 06:00:00",
     startAt: "2099-01-01 06:00:00",
   });
@@ -58,7 +58,7 @@ test("rejects an end datetime at or before the start datetime", () => {
 
 test("rejects a past date", () => {
   const result = v.safeParse(DeclareBlockSchema, {
-    category: "toeic",
+    categoryId: "category_toeic",
     endAt: "2000-01-01 07:00:00",
     startAt: "2000-01-01 06:00:00",
   });
@@ -66,9 +66,9 @@ test("rejects a past date", () => {
   expect(result.success).toBe(false);
 });
 
-test("rejects an unknown category", () => {
+test("rejects a missing category", () => {
   const result = v.safeParse(DeclareBlockSchema, {
-    category: "piano",
+    categoryId: "",
     endAt: "2099-01-01 07:00:00",
     startAt: "2099-01-01 06:00:00",
   });

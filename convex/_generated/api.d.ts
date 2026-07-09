@@ -60,7 +60,6 @@ import type * as mutations_sessions_start from "../mutations/sessions/start.js";
 import type * as mutations_settings_update from "../mutations/settings/update.js";
 import type * as mutations_studyCategories_archive from "../mutations/studyCategories/archive.js";
 import type * as mutations_studyCategories_create from "../mutations/studyCategories/create.js";
-import type * as mutations_studyCategories_migrateFromCategoryStrings from "../mutations/studyCategories/migrateFromCategoryStrings.js";
 import type * as mutations_studyCategories_move from "../mutations/studyCategories/move.js";
 import type * as mutations_studyCategories_remove from "../mutations/studyCategories/remove.js";
 import type * as mutations_studyCategories_rename from "../mutations/studyCategories/rename.js";
@@ -85,6 +84,7 @@ import type * as queries_dogs_get from "../queries/dogs/get.js";
 import type * as queries_fasting_history from "../queries/fasting/history.js";
 import type * as queries_health_lastSync from "../queries/health/lastSync.js";
 import type * as queries_health_range from "../queries/health/range.js";
+import type * as queries_health_workoutList from "../queries/health/workoutList.js";
 import type * as queries_health_workouts from "../queries/health/workouts.js";
 import type * as queries_insights_correlations from "../queries/insights/correlations.js";
 import type * as queries_sessions_history from "../queries/sessions/history.js";
@@ -144,6 +144,7 @@ import type * as services_health_updateWorkout from "../services/health/updateWo
 import type * as services_health_upsertFromSync from "../services/health/upsertFromSync.js";
 import type * as services_health_upsertManual from "../services/health/upsertManual.js";
 import type * as services_health_validateWorkoutAt from "../services/health/validateWorkoutAt.js";
+import type * as services_health_workoutList from "../services/health/workoutList.js";
 import type * as services_health_workouts from "../services/health/workouts.js";
 import type * as services_insights_correlations from "../services/insights/correlations.js";
 import type * as services_insights_pearson from "../services/insights/pearson.js";
@@ -163,7 +164,6 @@ import type * as services_studyCategories_list from "../services/studyCategories
 import type * as services_studyCategories_move from "../services/studyCategories/move.js";
 import type * as services_studyCategories_remove from "../services/studyCategories/remove.js";
 import type * as services_studyCategories_rename from "../services/studyCategories/rename.js";
-import type * as services_studyCategories_resolveForWrite from "../services/studyCategories/resolveForWrite.js";
 import type * as services_studyCategories_restore from "../services/studyCategories/restore.js";
 import type * as services_studyCategories_validate from "../services/studyCategories/validate.js";
 import type * as services_users_applyEmailChange from "../services/users/applyEmailChange.js";
@@ -235,7 +235,6 @@ declare const fullApi: ApiFromModules<{
   "mutations/settings/update": typeof mutations_settings_update;
   "mutations/studyCategories/archive": typeof mutations_studyCategories_archive;
   "mutations/studyCategories/create": typeof mutations_studyCategories_create;
-  "mutations/studyCategories/migrateFromCategoryStrings": typeof mutations_studyCategories_migrateFromCategoryStrings;
   "mutations/studyCategories/move": typeof mutations_studyCategories_move;
   "mutations/studyCategories/remove": typeof mutations_studyCategories_remove;
   "mutations/studyCategories/rename": typeof mutations_studyCategories_rename;
@@ -260,6 +259,7 @@ declare const fullApi: ApiFromModules<{
   "queries/fasting/history": typeof queries_fasting_history;
   "queries/health/lastSync": typeof queries_health_lastSync;
   "queries/health/range": typeof queries_health_range;
+  "queries/health/workoutList": typeof queries_health_workoutList;
   "queries/health/workouts": typeof queries_health_workouts;
   "queries/insights/correlations": typeof queries_insights_correlations;
   "queries/sessions/history": typeof queries_sessions_history;
@@ -319,6 +319,7 @@ declare const fullApi: ApiFromModules<{
   "services/health/upsertFromSync": typeof services_health_upsertFromSync;
   "services/health/upsertManual": typeof services_health_upsertManual;
   "services/health/validateWorkoutAt": typeof services_health_validateWorkoutAt;
+  "services/health/workoutList": typeof services_health_workoutList;
   "services/health/workouts": typeof services_health_workouts;
   "services/insights/correlations": typeof services_insights_correlations;
   "services/insights/pearson": typeof services_insights_pearson;
@@ -338,7 +339,6 @@ declare const fullApi: ApiFromModules<{
   "services/studyCategories/move": typeof services_studyCategories_move;
   "services/studyCategories/remove": typeof services_studyCategories_remove;
   "services/studyCategories/rename": typeof services_studyCategories_rename;
-  "services/studyCategories/resolveForWrite": typeof services_studyCategories_resolveForWrite;
   "services/studyCategories/restore": typeof services_studyCategories_restore;
   "services/studyCategories/validate": typeof services_studyCategories_validate;
   "services/users/applyEmailChange": typeof services_users_applyEmailChange;

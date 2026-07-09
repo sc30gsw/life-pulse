@@ -5,7 +5,11 @@ import type { MutationCtx } from "../../_generated/server";
 import { listActiveDogTasks } from "./list";
 
 type MoveDirection = "down" | "up";
-type MoveArgs = { direction: MoveDirection; taskId: Doc<"dogTasks">["_id"] };
+type MoveArgs = {
+  direction?: MoveDirection;
+  targetTaskId?: Doc<"dogTasks">["_id"];
+  taskId: Doc<"dogTasks">["_id"];
+};
 
 export async function move(ctx: MutationCtx, args: MoveArgs) {
   const activeTasks = await listActiveDogTasks(ctx);
@@ -13,6 +17,40 @@ export async function move(ctx: MutationCtx, args: MoveArgs) {
 
   if (index === -1) {
     throw new ConvexError("TASK_NOT_FOUND");
+  }
+
+  if (args.targetTaskId !== undefined) {
+    const targetIndex = activeTasks.findIndex((task) => task._id === args.targetTaskId);
+
+    if (targetIndex === -1) {
+      throw new ConvexError("TASK_NOT_FOUND");
+    }
+
+    if (targetIndex === index) {
+      return;
+    }
+
+    const [current] = activeTasks.splice(index, 1);
+
+    if (current === undefined) {
+      throw new ConvexError("TASK_NOT_FOUND");
+    }
+
+    const adjustedTargetIndex = activeTasks.findIndex((task) => task._id === args.targetTaskId);
+    activeTasks.splice(
+      index < targetIndex ? adjustedTargetIndex + 1 : adjustedTargetIndex,
+      0,
+      current,
+    );
+
+    await Promise.all(
+      activeTasks.map((task, sortOrder) => ctx.db.patch("dogTasks", task._id, { sortOrder })),
+    );
+    return;
+  }
+
+  if (args.direction === undefined) {
+    throw new ConvexError("MOVE_TARGET_REQUIRED");
   }
 
   const swapIndex = args.direction === "up" ? index - 1 : index + 1;

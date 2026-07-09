@@ -4,6 +4,7 @@ import { expect, test } from "vite-plus/test";
 import { api } from "../../_generated/api";
 import schema from "../../schema";
 import { testModules } from "../../test.setup";
+import { insertAppUserWithStudyCategory, insertStudyCategory } from "../../test/fixtures";
 
 const DATE_JST = "2026-07-07";
 
@@ -17,8 +18,15 @@ test("aggregates session, fasting, blocks, dog events, health, and partner prese
   const t = convexTest(schema, testModules);
   const asSelf = t.withIdentity({ subject: "self_1" });
 
-  const selfId = await t.run((ctx) =>
-    ctx.db.insert("appUsers", { authSubject: "self_1", displayName: "本人", role: "self" }),
+  const { categoryId: eikaiwaCategoryId, userId: selfId } = await t.run((ctx) =>
+    insertAppUserWithStudyCategory(
+      ctx,
+      { authSubject: "self_1", displayName: "本人", role: "self" },
+      "英会話",
+    ),
+  );
+  const toeicCategoryId = await t.run((ctx) =>
+    insertStudyCategory(ctx, selfId, "TOEIC", { sortOrder: 1 }),
   );
   const partnerId = await t.run((ctx) =>
     ctx.db.insert("appUsers", {
@@ -31,7 +39,7 @@ test("aggregates session, fasting, blocks, dog events, health, and partner prese
   const sessionId = await t.run((ctx) =>
     ctx.db.insert("studySessions", {
       accumulatedMs: 0,
-      category: "eikaiwa",
+      categoryId: eikaiwaCategoryId,
       dateJst: DATE_JST,
       interruptionCount: 0,
       lastResumedAt: Date.now(),
@@ -54,7 +62,7 @@ test("aggregates session, fasting, blocks, dog events, health, and partner prese
 
   await t.run((ctx) =>
     ctx.db.insert("studyBlocks", {
-      category: "eikaiwa",
+      categoryId: eikaiwaCategoryId,
       dateJst: DATE_JST,
       endHm: "06:30",
       plannedMinutes: 30,
@@ -66,7 +74,7 @@ test("aggregates session, fasting, blocks, dog events, health, and partner prese
   );
   await t.run((ctx) =>
     ctx.db.insert("studyBlocks", {
-      category: "toeic",
+      categoryId: toeicCategoryId,
       dateJst: DATE_JST,
       endHm: "20:30",
       plannedMinutes: 30,

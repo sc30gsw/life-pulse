@@ -39,7 +39,7 @@ function DogPage() {
       <Group component="header" wrap="wrap" gap="md" align="center" mb="lg">
         <Stack gap={0} mr="auto">
           <Text className="lp-brandtext" component="h1" fw={700} size="lg" m={0}>
-            犬の管理
+            愛犬の管理
           </Text>
           <Text
             size="10.5px"

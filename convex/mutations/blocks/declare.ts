@@ -4,12 +4,10 @@ import { mutation } from "../../_generated/server";
 import { requireUser } from "../../lib/auth";
 import { studyBlockFieldValidators } from "../../lib/validators";
 import { declare as declareBlock } from "../../services/blocks/declare";
-import { resolveCategoryIdForWrite } from "../../services/studyCategories/resolveForWrite";
 
 export const declare = mutation({
   args: {
-    category: studyBlockFieldValidators.category,
-    categoryId: studyBlockFieldValidators.categoryId,
+    categoryId: v.id("studyCategories"),
     dateJst: studyBlockFieldValidators.dateJst,
     endHm: studyBlockFieldValidators.endHm,
     startHm: studyBlockFieldValidators.startHm,
@@ -17,8 +15,7 @@ export const declare = mutation({
   returns: v.id("studyBlocks"),
   handler: async (ctx, args) => {
     const user = await requireUser(ctx);
-    const categoryId = await resolveCategoryIdForWrite(ctx, user, args);
 
-    return await declareBlock(ctx, user, { ...args, categoryId });
+    return await declareBlock(ctx, user, args);
   },
 });

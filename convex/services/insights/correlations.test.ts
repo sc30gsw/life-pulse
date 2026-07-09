@@ -4,22 +4,27 @@ import { expect, test } from "vite-plus/test";
 import { api } from "../../_generated/api";
 import schema from "../../schema";
 import { testModules } from "../../test.setup";
+import { insertAppUserWithStudyCategory } from "../../test/fixtures";
 
 const FROM = "2026-06-10";
 const TO = "2026-06-12";
 
 async function seedSelf(t: ReturnType<typeof convexTest>) {
   const asSelf = t.withIdentity({ subject: "self_1" });
-  const selfId = await t.run((ctx) =>
-    ctx.db.insert("appUsers", { authSubject: "self_1", displayName: "本人", role: "self" }),
+  const { categoryId, userId: selfId } = await t.run((ctx) =>
+    insertAppUserWithStudyCategory(
+      ctx,
+      { authSubject: "self_1", displayName: "本人", role: "self" },
+      "読書",
+    ),
   );
 
-  return { asSelf, selfId };
+  return { asSelf, categoryId, selfId };
 }
 
 test("joins health, study minutes, and hiitPrevDay per day in range", async () => {
   const t = convexTest(schema, testModules);
-  const { asSelf, selfId } = await seedSelf(t);
+  const { asSelf, categoryId, selfId } = await seedSelf(t);
 
   await t.run((ctx) =>
     ctx.db.insert("healthMetrics", {
@@ -33,7 +38,7 @@ test("joins health, study minutes, and hiitPrevDay per day in range", async () =
   await t.run((ctx) =>
     ctx.db.insert("studySessions", {
       accumulatedMs: 1_800_000,
-      category: "reading",
+      categoryId,
       dateJst: "2026-06-10",
       interruptionCount: 0,
       status: "completed",
@@ -45,7 +50,7 @@ test("joins health, study minutes, and hiitPrevDay per day in range", async () =
   await t.run((ctx) =>
     ctx.db.insert("studySessions", {
       accumulatedMs: 0,
-      category: "reading",
+      categoryId,
       dateJst: "2026-06-10",
       interruptionCount: 0,
       status: "active",
@@ -84,7 +89,7 @@ test("joins health, study minutes, and hiitPrevDay per day in range", async () =
 
 test("excludes a day from the pairwise correlation when sleepScore is missing", async () => {
   const t = convexTest(schema, testModules);
-  const { asSelf, selfId } = await seedSelf(t);
+  const { asSelf, categoryId, selfId } = await seedSelf(t);
 
   await t.run((ctx) =>
     ctx.db.insert("healthMetrics", {
@@ -107,7 +112,7 @@ test("excludes a day from the pairwise correlation when sleepScore is missing", 
     await t.run((ctx) =>
       ctx.db.insert("studySessions", {
         accumulatedMs: 600_000,
-        category: "reading",
+        categoryId,
         dateJst,
         interruptionCount: 0,
         status: "completed",

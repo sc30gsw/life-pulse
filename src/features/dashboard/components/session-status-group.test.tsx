@@ -2,7 +2,7 @@
 import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vite-plus/test";
 
-import type { Doc } from "~/../convex/_generated/dataModel";
+import type { Doc, Id } from "~/../convex/_generated/dataModel";
 import {
   SessionStatusGroup,
   SessionStatusGroupFallback,
@@ -10,6 +10,7 @@ import {
 import { renderWithMantine } from "~/test-utils";
 
 const hookState = vi.hoisted(() => ({
+  toeicCategoryId: "category_toeic" as Id<"studyCategories">,
   onCompleteSession: vi.fn(),
   onPauseSession: vi.fn(),
   onResumeSession: vi.fn(),
@@ -31,14 +32,31 @@ vi.mock("~/features/dashboard/components/session-start-modal", () => ({
     onStart,
     opened,
   }: {
-    onStart: (category: "toeic", plannedMinutes: number) => void;
+    onStart: (categoryId: Id<"studyCategories">, plannedMinutes: number) => void;
     opened: boolean;
   }) =>
     opened ? (
-      <button onClick={() => onStart("toeic", 25)} type="button">
+      <button onClick={() => onStart(hookState.toeicCategoryId, 25)} type="button">
         mock start
       </button>
     ) : null,
+}));
+
+vi.mock("~/features/study-categories/hooks/use-study-categories-query", () => ({
+  useStudyCategoriesQuery: () => ({
+    activeCategories: [
+      {
+        _creationTime: 0,
+        _id: hookState.toeicCategoryId,
+        archivedAt: undefined,
+        name: "TOEIC",
+        sortOrder: 0,
+        userId: "user_1" as Id<"appUsers">,
+      },
+    ],
+    categoryName: (categoryId: Id<"studyCategories"> | undefined) =>
+      categoryId === hookState.toeicCategoryId ? "TOEIC" : "カテゴリ未設定",
+  }),
 }));
 
 vi.mock("~/features/dashboard/hooks/use-dashboard-study", () => ({
@@ -64,7 +82,7 @@ function buildSession(overrides: Partial<Doc<"studySessions">> = {}): Doc<"study
     _creationTime: 0,
     _id: "session_1",
     accumulatedMs: 0,
-    category: "toeic",
+    categoryId: hookState.toeicCategoryId,
     dateJst: "2026-07-07",
     interruptionCount: 0,
     startedAt: 0,
@@ -87,7 +105,7 @@ test("renders idle state and starts a session through the modal", async () => {
   await user.click(getByRole("button", { name: "セッション開始" }));
   await user.click(getByRole("button", { name: "mock start" }));
 
-  expect(hookState.onStartSession).toHaveBeenCalledWith("toeic", 25);
+  expect(hookState.onStartSession).toHaveBeenCalledWith(hookState.toeicCategoryId, 25);
 });
 
 test("active session controls complete and pause with a reason", async () => {

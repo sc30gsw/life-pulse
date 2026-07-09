@@ -1,9 +1,11 @@
 // @vitest-environment happy-dom
 import { expect, test, vi } from "vite-plus/test";
 
-import type { Doc } from "~/../convex/_generated/dataModel";
+import type { Doc, Id } from "~/../convex/_generated/dataModel";
 import { EditBlockModal } from "~/features/study/components/edit-block-modal";
 import { renderWithMantine } from "~/test-utils";
+
+const CATEGORY_ID = "category_toeic" as Id<"studyCategories">;
 
 const formState = vi.hoisted(() => ({
   props: [] as { block: Pick<Doc<"studyBlocks">, "_id">; onDone: () => void }[],
@@ -21,7 +23,7 @@ function buildBlock(): Doc<"studyBlocks"> {
   return {
     _creationTime: 1,
     _id: "block_1" as Doc<"studyBlocks">["_id"],
-    category: "toeic",
+    categoryId: CATEGORY_ID,
     dateJst: "2099-01-01",
     endHm: "07:00",
     plannedMinutes: 60,

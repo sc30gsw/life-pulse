@@ -4,6 +4,7 @@ import { expect, test, vi } from "vite-plus/test";
 import { api } from "../../_generated/api";
 import schema from "../../schema";
 import { testModules } from "../../test.setup";
+import { insertAppUserWithStudyCategory } from "../../test/fixtures";
 
 test("resumes a paused session, updating lastResumedAt and the open interruption", async () => {
   vi.useFakeTimers();
@@ -11,12 +12,16 @@ test("resumes a paused session, updating lastResumedAt and the open interruption
 
   const t = convexTest(schema, testModules);
   const asSelf = t.withIdentity({ subject: "user_1" });
-  await t.run((ctx) =>
-    ctx.db.insert("appUsers", { authSubject: "user_1", displayName: "本人", role: "self" }),
+  const { categoryId } = await t.run((ctx) =>
+    insertAppUserWithStudyCategory(ctx, {
+      authSubject: "user_1",
+      displayName: "本人",
+      role: "self",
+    }),
   );
 
   const sessionId = await asSelf.mutation(api.mutations.sessions.start.start, {
-    category: "toeic",
+    categoryId,
     dateJst: "2026-07-07",
   });
 

@@ -65,10 +65,7 @@ export const studySessionFieldValidators = {
   abandonJobId: v.optional(v.id("_scheduled_functions")),
   accumulatedMs: v.number(),
   blockId: v.optional(v.id("studyBlocks")),
-  // Deprecated migration-only field. Category display/order now belongs to
-  // studyCategories and new writes must use categoryId.
-  category: v.optional(v.string()),
-  categoryId: v.optional(v.id("studyCategories")),
+  categoryId: v.id("studyCategories"),
   dateJst: v.string(),
   endedAt: v.optional(v.number()),
   interruptionCount: v.number(),
@@ -93,10 +90,7 @@ export const interruptionFieldValidators = {
 };
 
 export const studyBlockFieldValidators = {
-  // Deprecated migration-only field. Category display/order now belongs to
-  // studyCategories and new writes must use categoryId.
-  category: v.optional(v.string()),
-  categoryId: v.optional(v.id("studyCategories")),
+  categoryId: v.id("studyCategories"),
   dateJst: v.string(),
   endHm: v.string(),
   erosionReason: v.optional(erosionReasonValidator),

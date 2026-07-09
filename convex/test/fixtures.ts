@@ -1,4 +1,5 @@
-import type { Doc } from "../_generated/dataModel";
+import type { Doc, Id } from "../_generated/dataModel";
+import type { MutationCtx } from "../_generated/server";
 import { DEFAULT_FASTING_MINUTES } from "../lib/domain";
 
 export const SELF_AUTH_SUBJECT = "self_1";
@@ -43,4 +44,34 @@ export function appSettings(overrides: Partial<AppSettingsFixture> = {}): AppSet
     fastingDefaultMinutes: DEFAULT_FASTING_MINUTES,
     ...overrides,
   };
+}
+
+export async function insertAppUser(ctx: MutationCtx, user: AppUserFixture = selfUser()) {
+  return await ctx.db.insert("appUsers", user);
+}
+
+export async function insertStudyCategory(
+  ctx: MutationCtx,
+  userId: Id<"appUsers">,
+  name = "TOEIC",
+  overrides: Partial<Pick<Doc<"studyCategories">, "archivedAt" | "sortOrder">> = {},
+) {
+  return await ctx.db.insert("studyCategories", {
+    archivedAt: undefined,
+    name,
+    sortOrder: 0,
+    userId,
+    ...overrides,
+  });
+}
+
+export async function insertAppUserWithStudyCategory(
+  ctx: MutationCtx,
+  user: AppUserFixture = selfUser(),
+  categoryName = "TOEIC",
+) {
+  const userId = await insertAppUser(ctx, user);
+  const categoryId = await insertStudyCategory(ctx, userId, categoryName);
+
+  return { categoryId, userId };
 }

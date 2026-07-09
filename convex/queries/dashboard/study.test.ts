@@ -4,6 +4,7 @@ import { expect, test } from "vite-plus/test";
 import { api } from "../../_generated/api";
 import schema from "../../schema";
 import { testModules } from "../../test.setup";
+import { insertAppUserWithStudyCategory, insertStudyCategory } from "../../test/fixtures";
 
 const DATE_JST = "2026-07-07";
 
@@ -17,14 +18,21 @@ test("study returns self-scoped session, blocks, and completed minutes", async (
   const t = convexTest(schema, testModules);
   const asSelf = t.withIdentity({ subject: "self_1" });
 
-  const selfId = await t.run((ctx) =>
-    ctx.db.insert("appUsers", { authSubject: "self_1", displayName: "本人", role: "self" }),
+  const { categoryId: toeicCategoryId, userId: selfId } = await t.run((ctx) =>
+    insertAppUserWithStudyCategory(ctx, {
+      authSubject: "self_1",
+      displayName: "本人",
+      role: "self",
+    }),
+  );
+  const readingCategoryId = await t.run((ctx) =>
+    insertStudyCategory(ctx, selfId, "読書", { sortOrder: 1 }),
   );
 
   const sessionId = await t.run((ctx) =>
     ctx.db.insert("studySessions", {
       accumulatedMs: 0,
-      category: "toeic",
+      categoryId: toeicCategoryId,
       dateJst: DATE_JST,
       interruptionCount: 0,
       lastResumedAt: 1000,
@@ -36,7 +44,7 @@ test("study returns self-scoped session, blocks, and completed minutes", async (
   await t.run((ctx) =>
     ctx.db.insert("studySessions", {
       accumulatedMs: 1_800_000,
-      category: "reading",
+      categoryId: readingCategoryId,
       dateJst: DATE_JST,
       endedAt: 2000,
       interruptionCount: 0,
@@ -47,7 +55,7 @@ test("study returns self-scoped session, blocks, and completed minutes", async (
   );
   await t.run((ctx) =>
     ctx.db.insert("studyBlocks", {
-      category: "toeic",
+      categoryId: toeicCategoryId,
       dateJst: DATE_JST,
       endHm: "06:30",
       plannedMinutes: 30,

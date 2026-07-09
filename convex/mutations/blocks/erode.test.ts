@@ -5,6 +5,7 @@ import { api } from "../../_generated/api";
 import { addDaysJst, todayJst } from "../../lib/dateRange";
 import schema from "../../schema";
 import { testModules } from "../../test.setup";
+import { insertAppUserWithStudyCategory } from "../../test/fixtures";
 
 function tomorrowJst() {
   return addDaysJst(todayJst(), 1);
@@ -13,12 +14,16 @@ function tomorrowJst() {
 test("erodes a planned block with the given reason", async () => {
   const t = convexTest(schema, testModules);
   const asSelf = t.withIdentity({ subject: "user_1" });
-  await t.run((ctx) =>
-    ctx.db.insert("appUsers", { authSubject: "user_1", displayName: "本人", role: "self" }),
+  const { categoryId } = await t.run((ctx) =>
+    insertAppUserWithStudyCategory(ctx, {
+      authSubject: "user_1",
+      displayName: "本人",
+      role: "self",
+    }),
   );
 
   const blockId = await asSelf.mutation(api.mutations.blocks.declare.declare, {
-    category: "toeic",
+    categoryId,
     dateJst: tomorrowJst(),
     endHm: "07:00",
     startHm: "06:00",
@@ -34,12 +39,16 @@ test("erodes a planned block with the given reason", async () => {
 test("rejects eroding a block that is not planned", async () => {
   const t = convexTest(schema, testModules);
   const asSelf = t.withIdentity({ subject: "user_1" });
-  await t.run((ctx) =>
-    ctx.db.insert("appUsers", { authSubject: "user_1", displayName: "本人", role: "self" }),
+  const { categoryId } = await t.run((ctx) =>
+    insertAppUserWithStudyCategory(ctx, {
+      authSubject: "user_1",
+      displayName: "本人",
+      role: "self",
+    }),
   );
 
   const blockId = await asSelf.mutation(api.mutations.blocks.declare.declare, {
-    category: "toeic",
+    categoryId,
     dateJst: tomorrowJst(),
     endHm: "07:00",
     startHm: "06:00",
@@ -55,8 +64,12 @@ test("rejects eroding another user's block", async () => {
   const t = convexTest(schema, testModules);
   const asSelf = t.withIdentity({ subject: "user_1" });
   const asPartner = t.withIdentity({ subject: "user_2" });
-  await t.run((ctx) =>
-    ctx.db.insert("appUsers", { authSubject: "user_1", displayName: "本人", role: "self" }),
+  const { categoryId } = await t.run((ctx) =>
+    insertAppUserWithStudyCategory(ctx, {
+      authSubject: "user_1",
+      displayName: "本人",
+      role: "self",
+    }),
   );
   await t.run((ctx) =>
     ctx.db.insert("appUsers", {
@@ -67,7 +80,7 @@ test("rejects eroding another user's block", async () => {
   );
 
   const blockId = await asSelf.mutation(api.mutations.blocks.declare.declare, {
-    category: "toeic",
+    categoryId,
     dateJst: tomorrowJst(),
     endHm: "07:00",
     startHm: "06:00",

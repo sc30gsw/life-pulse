@@ -5,16 +5,18 @@ import { api } from "../../_generated/api";
 import type { Id } from "../../_generated/dataModel";
 import schema from "../../schema";
 import { testModules } from "../../test.setup";
+import { insertAppUserWithStudyCategory } from "../../test/fixtures";
 
 async function seedSession(
   t: ReturnType<typeof convexTest>,
   userId: Id<"appUsers">,
+  categoryId: Id<"studyCategories">,
   overrides: { accumulatedMs?: number; dateJst: string; startedAt?: number },
 ) {
   return await t.run((ctx) =>
     ctx.db.insert("studySessions", {
       accumulatedMs: overrides.accumulatedMs ?? 1_800_000,
-      category: "toeic",
+      categoryId,
       dateJst: overrides.dateJst,
       endedAt: overrides.startedAt ?? 0,
       interruptionCount: 1,
@@ -39,18 +41,22 @@ test("rejects an unauthenticated call", async () => {
 test("groups the caller's sessions by date, newest first", async () => {
   const t = convexTest(schema, testModules);
   const asSelf = t.withIdentity({ subject: "user_1" });
-  const userId = await t.run((ctx) =>
-    ctx.db.insert("appUsers", { authSubject: "user_1", displayName: "本人", role: "self" }),
+  const { categoryId, userId } = await t.run((ctx) =>
+    insertAppUserWithStudyCategory(ctx, {
+      authSubject: "user_1",
+      displayName: "本人",
+      role: "self",
+    }),
   );
-  await seedSession(t, userId, { dateJst: "2026-07-05", startedAt: 2_000 });
-  const earlySessionId = await seedSession(t, userId, {
+  await seedSession(t, userId, categoryId, { dateJst: "2026-07-05", startedAt: 2_000 });
+  const earlySessionId = await seedSession(t, userId, categoryId, {
     accumulatedMs: 600_000,
     dateJst: "2026-07-05",
     startedAt: 1_000,
   });
-  await seedSession(t, userId, { dateJst: "2026-07-03" });
+  await seedSession(t, userId, categoryId, { dateJst: "2026-07-03" });
   // Outside the requested range — must not appear.
-  await seedSession(t, userId, { dateJst: "2026-06-01" });
+  await seedSession(t, userId, categoryId, { dateJst: "2026-06-01" });
 
   // FR-2.8: interruption reasons are joined per session, ordered by pausedAt.
   await t.run((ctx) =>
@@ -78,16 +84,20 @@ test("does not include another user's sessions", async () => {
   const t = convexTest(schema, testModules);
   const asSelf = t.withIdentity({ subject: "user_1" });
   await t.run((ctx) =>
-    ctx.db.insert("appUsers", { authSubject: "user_1", displayName: "本人", role: "self" }),
+    insertAppUserWithStudyCategory(ctx, {
+      authSubject: "user_1",
+      displayName: "本人",
+      role: "self",
+    }),
   );
-  const partnerId = await t.run((ctx) =>
-    ctx.db.insert("appUsers", {
+  const { categoryId: partnerCategoryId, userId: partnerId } = await t.run((ctx) =>
+    insertAppUserWithStudyCategory(ctx, {
       authSubject: "user_2",
       displayName: "パートナー",
       role: "partner",
     }),
   );
-  await seedSession(t, partnerId, { dateJst: "2026-07-05" });
+  await seedSession(t, partnerId, partnerCategoryId, { dateJst: "2026-07-05" });
 
   const result = await asSelf.query(api.queries.sessions.history.history, {
     fromDateJst: "2026-07-01",

@@ -4,6 +4,7 @@ import { expect, test, vi } from "vite-plus/test";
 import { api, internal } from "../../_generated/api";
 import schema from "../../schema";
 import { testModules } from "../../test.setup";
+import { insertAppUserWithStudyCategory } from "../../test/fixtures";
 
 const SIX_HOURS_MS = 6 * 60 * 60 * 1000;
 
@@ -13,12 +14,16 @@ test("the scheduled job abandons a session left active for 6 hours", async () =>
 
   const t = convexTest(schema, testModules);
   const asSelf = t.withIdentity({ subject: "user_1" });
-  await t.run((ctx) =>
-    ctx.db.insert("appUsers", { authSubject: "user_1", displayName: "本人", role: "self" }),
+  const { categoryId } = await t.run((ctx) =>
+    insertAppUserWithStudyCategory(ctx, {
+      authSubject: "user_1",
+      displayName: "本人",
+      role: "self",
+    }),
   );
 
   const sessionId = await asSelf.mutation(api.mutations.sessions.start.start, {
-    category: "toeic",
+    categoryId,
     dateJst: "2026-07-07",
   });
 
@@ -33,13 +38,17 @@ test("the scheduled job abandons a session left active for 6 hours", async () =>
 
 test("is a no-op when the session is already completed", async () => {
   const t = convexTest(schema, testModules);
-  const userId = await t.run((ctx) =>
-    ctx.db.insert("appUsers", { authSubject: "user_1", displayName: "本人", role: "self" }),
+  const { categoryId, userId } = await t.run((ctx) =>
+    insertAppUserWithStudyCategory(ctx, {
+      authSubject: "user_1",
+      displayName: "本人",
+      role: "self",
+    }),
   );
   const sessionId = await t.run((ctx) =>
     ctx.db.insert("studySessions", {
       accumulatedMs: 1_000,
-      category: "toeic",
+      categoryId,
       dateJst: "2026-07-07",
       endedAt: 1_000,
       interruptionCount: 0,
@@ -58,13 +67,17 @@ test("is a no-op when the session is already completed", async () => {
 
 test("is a no-op when the session no longer exists", async () => {
   const t = convexTest(schema, testModules);
-  const userId = await t.run((ctx) =>
-    ctx.db.insert("appUsers", { authSubject: "user_1", displayName: "本人", role: "self" }),
+  const { categoryId, userId } = await t.run((ctx) =>
+    insertAppUserWithStudyCategory(ctx, {
+      authSubject: "user_1",
+      displayName: "本人",
+      role: "self",
+    }),
   );
   const sessionId = await t.run((ctx) =>
     ctx.db.insert("studySessions", {
       accumulatedMs: 0,
-      category: "toeic",
+      categoryId,
       dateJst: "2026-07-07",
       interruptionCount: 0,
       startedAt: 0,

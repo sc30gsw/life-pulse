@@ -14,12 +14,15 @@ import {
   toDogCareItems,
 } from "~/features/dashboard/utils/format";
 
+const TOEIC_CATEGORY_ID = "category_toeic" as Id<"studyCategories">;
+const READING_CATEGORY_ID = "category_reading" as Id<"studyCategories">;
+
 function buildStudySession(overrides: Partial<Doc<"studySessions">> = {}): Doc<"studySessions"> {
   return {
     _creationTime: 0,
     _id: "session_1",
     accumulatedMs: 0,
-    category: "toeic",
+    categoryId: TOEIC_CATEGORY_ID,
     dateJst: "2026-07-07",
     interruptionCount: 0,
     startedAt: 1_000,
@@ -33,7 +36,7 @@ function buildStudyBlock(overrides: Partial<Doc<"studyBlocks">> = {}): Doc<"stud
   return {
     _creationTime: 0,
     _id: "block_1",
-    category: "toeic",
+    categoryId: TOEIC_CATEGORY_ID,
     dateJst: "2026-07-07",
     endHm: "07:00",
     plannedMinutes: 30,
@@ -136,9 +139,14 @@ test("toDeclarationItems maps an empty array to an empty array", () => {
 
 test("toDeclarationItems maps blocks through, applying the category cast", () => {
   const blocks = [
-    buildStudyBlock({ category: "toeic", plannedMinutes: 30, startHm: "06:00", status: "planned" }),
     buildStudyBlock({
-      category: "reading",
+      categoryId: TOEIC_CATEGORY_ID,
+      plannedMinutes: 30,
+      startHm: "06:00",
+      status: "planned",
+    }),
+    buildStudyBlock({
+      categoryId: READING_CATEGORY_ID,
       plannedMinutes: 20,
       startHm: "21:00",
       status: "rescheduled",
@@ -146,8 +154,13 @@ test("toDeclarationItems maps blocks through, applying the category cast", () =>
   ];
 
   expect(toDeclarationItems(blocks)).toEqual([
-    { category: "toeic", plannedMinutes: 30, startHm: "06:00", status: "planned" },
-    { category: "reading", plannedMinutes: 20, startHm: "21:00", status: "rescheduled" },
+    { categoryId: TOEIC_CATEGORY_ID, plannedMinutes: 30, startHm: "06:00", status: "planned" },
+    {
+      categoryId: READING_CATEGORY_ID,
+      plannedMinutes: 20,
+      startHm: "21:00",
+      status: "rescheduled",
+    },
   ]);
 });
 

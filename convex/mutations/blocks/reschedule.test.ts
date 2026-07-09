@@ -5,6 +5,7 @@ import { api } from "../../_generated/api";
 import { addDaysJst, todayJst } from "../../lib/dateRange";
 import schema from "../../schema";
 import { testModules } from "../../test.setup";
+import { insertAppUserWithStudyCategory } from "../../test/fixtures";
 
 function tomorrowJst() {
   return addDaysJst(todayJst(), 1);
@@ -12,24 +13,28 @@ function tomorrowJst() {
 
 async function seedErodedBlock(t: ReturnType<typeof convexTest>) {
   const asSelf = t.withIdentity({ subject: "user_1" });
-  await t.run((ctx) =>
-    ctx.db.insert("appUsers", { authSubject: "user_1", displayName: "本人", role: "self" }),
+  const { categoryId } = await t.run((ctx) =>
+    insertAppUserWithStudyCategory(ctx, {
+      authSubject: "user_1",
+      displayName: "本人",
+      role: "self",
+    }),
   );
 
   const blockId = await asSelf.mutation(api.mutations.blocks.declare.declare, {
-    category: "toeic",
+    categoryId,
     dateJst: tomorrowJst(),
     endHm: "07:00",
     startHm: "06:00",
   });
   await asSelf.mutation(api.mutations.blocks.erode.erode, { blockId, reason: "work" });
 
-  return { asSelf, blockId };
+  return { asSelf, blockId, categoryId };
 }
 
 test("reschedules an eroded block into a new linked planned block", async () => {
   const t = convexTest(schema, testModules);
-  const { asSelf, blockId } = await seedErodedBlock(t);
+  const { asSelf, blockId, categoryId } = await seedErodedBlock(t);
 
   const newBlockId = await asSelf.mutation(api.mutations.blocks.reschedule.reschedule, {
     blockId,
@@ -43,7 +48,7 @@ test("reschedules an eroded block into a new linked planned block", async () => 
   expect(original?.status).toBe("rescheduled");
   expect(original?.rescheduledToId).toBe(newBlockId);
   expect(replacement?.status).toBe("planned");
-  expect(replacement?.category).toBe("toeic");
+  expect(replacement?.categoryId).toBe(categoryId);
   expect(replacement?.plannedMinutes).toBe(60);
   expect(replacement?.source).toBe("manual");
 });

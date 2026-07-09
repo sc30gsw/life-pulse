@@ -2,8 +2,48 @@
 import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vite-plus/test";
 
+import type { Doc, Id } from "~/../convex/_generated/dataModel";
 import { SessionStartModal } from "~/features/dashboard/components/session-start-modal";
 import { renderWithMantine } from "~/test-utils";
+
+const categoryState = vi.hoisted(() => ({
+  eikaiwaCategoryId: "category_eikaiwa" as Id<"studyCategories">,
+  readingCategoryId: "category_reading" as Id<"studyCategories">,
+  toeicCategoryId: "category_toeic" as Id<"studyCategories">,
+}));
+
+vi.mock("~/features/study-categories/hooks/use-study-categories-query", () => ({
+  useStudyCategoriesQuery: () => {
+    const categories = [
+      {
+        _creationTime: 0,
+        _id: categoryState.toeicCategoryId,
+        archivedAt: undefined,
+        name: "TOEIC",
+        sortOrder: 0,
+        userId: "user_1" as Id<"appUsers">,
+      },
+      {
+        _creationTime: 0,
+        _id: categoryState.eikaiwaCategoryId,
+        archivedAt: undefined,
+        name: "英会話",
+        sortOrder: 1,
+        userId: "user_1" as Id<"appUsers">,
+      },
+      {
+        _creationTime: 0,
+        _id: categoryState.readingCategoryId,
+        archivedAt: undefined,
+        name: "読書",
+        sortOrder: 2,
+        userId: "user_1" as Id<"appUsers">,
+      },
+    ] as Doc<"studyCategories">[];
+
+    return { activeCategories: categories };
+  },
+}));
 
 test("renders nothing visible when closed", () => {
   const { queryByText } = renderWithMantine(
@@ -22,7 +62,7 @@ test("submits the default category and planned minutes when opened", async () =>
 
   await user.click(getByRole("button", { name: "開始する" }));
 
-  expect(onStart).toHaveBeenCalledWith("toeic", 60);
+  expect(onStart).toHaveBeenCalledWith(categoryState.toeicCategoryId, 60);
 });
 
 test("submits the category selected via the category pills", async () => {
@@ -35,7 +75,7 @@ test("submits the category selected via the category pills", async () => {
   await user.click(getByRole("button", { name: "英会話" }));
   await user.click(getByRole("button", { name: "開始する" }));
 
-  expect(onStart).toHaveBeenCalledWith("eikaiwa", 60);
+  expect(onStart).toHaveBeenCalledWith(categoryState.eikaiwaCategoryId, 60);
 });
 
 test("marks only the selected category pill as pressed", async () => {
@@ -62,7 +102,7 @@ test("submits undefined planned minutes when the field is cleared", async () => 
   await user.clear(getByLabelText("目標分数(任意)"));
   await user.click(getByRole("button", { name: "開始する" }));
 
-  expect(onStart).toHaveBeenCalledWith("toeic", undefined);
+  expect(onStart).toHaveBeenCalledWith(categoryState.toeicCategoryId, undefined);
 });
 
 test("submits a custom planned minutes value", async () => {
@@ -76,7 +116,7 @@ test("submits a custom planned minutes value", async () => {
   await user.type(getByLabelText("目標分数(任意)"), "90");
   await user.click(getByRole("button", { name: "開始する" }));
 
-  expect(onStart).toHaveBeenCalledWith("toeic", 90);
+  expect(onStart).toHaveBeenCalledWith(categoryState.toeicCategoryId, 90);
 });
 
 test("calls onClose when the modal is dismissed via escape", async () => {

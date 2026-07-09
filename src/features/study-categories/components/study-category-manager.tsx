@@ -1,3 +1,19 @@
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  type DragEndEvent,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Field, Form, reset, useForm } from "@formisch/react";
 import { ActionIcon, Badge, Button, Group, Stack, Text, TextInput } from "@mantine/core";
 import { modals } from "@mantine/modals";
@@ -6,8 +22,7 @@ import {
   IconArchive,
   IconArrowBackUp,
   IconCheck,
-  IconChevronDown,
-  IconChevronUp,
+  IconGripVertical,
   IconPencil,
   IconPlus,
   IconTrash,
@@ -39,12 +54,42 @@ export function StudyCategoryManager() {
   const { activeCategories, categories } = useStudyCategoriesQuery();
   const createCategory = useCreateStudyCategory();
   const moveCategory = useMoveStudyCategory();
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
   const createForm = useForm({ initialInput: { name: "" }, schema: StudyCategoryNameSchema });
 
-  function onMove(categoryId: Doc<"studyCategories">["_id"], direction: "down" | "up") {
-    moveCategory.mutate(
-      { categoryId, direction },
-      { onError: () => showError("並び替えに失敗しました") },
+  async function onReorder(
+    categoryId: Doc<"studyCategories">["_id"],
+    targetCategoryId: Doc<"studyCategories">["_id"],
+  ) {
+    const fromIndex = activeCategories.findIndex((category) => category._id === categoryId);
+    const toIndex = activeCategories.findIndex((category) => category._id === targetCategoryId);
+
+    if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) {
+      return;
+    }
+
+    try {
+      await moveCategory.mutateAsync({ categoryId, targetCategoryId });
+    } catch {
+      showError("並び替えに失敗しました");
+    }
+  }
+
+  function onDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    if (over === null || active.id === over.id) {
+      return;
+    }
+
+    void onReorder(
+      String(active.id) as Doc<"studyCategories">["_id"],
+      String(over.id) as Doc<"studyCategories">["_id"],
     );
   }
 
@@ -94,30 +139,28 @@ export function StudyCategoryManager() {
           カテゴリがありません。上のフォームから追加してください。
         </Text>
       ) : (
-        <Stack gap={8}>
-          {categories.map((category) => (
-            <StudyCategoryRow
-              activeIndex={activeCategories.findIndex((active) => active._id === category._id)}
-              activeLength={activeCategories.length}
-              category={category}
-              key={category._id}
-              onMove={onMove}
-            />
-          ))}
-        </Stack>
+        <DndContext collisionDetection={closestCenter} onDragEnd={onDragEnd} sensors={sensors}>
+          <SortableContext
+            items={categories.map((category) => category._id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <Stack className="m-0 list-none p-0" component="ul" gap={8}>
+              {categories.map((category) => (
+                <StudyCategoryRow category={category} key={category._id} />
+              ))}
+            </Stack>
+          </SortableContext>
+        </DndContext>
       )}
     </Stack>
   );
 }
 
 type StudyCategoryRowProps = {
-  activeIndex: number;
-  activeLength: number;
   category: Doc<"studyCategories">;
-  onMove: (categoryId: Doc<"studyCategories">["_id"], direction: "down" | "up") => void;
 };
 
-function StudyCategoryRow({ activeIndex, activeLength, category, onMove }: StudyCategoryRowProps) {
+function StudyCategoryRow({ category }: StudyCategoryRowProps) {
   const [isEditing, setIsEditing] = useState(false);
   const archiveCategory = useArchiveStudyCategory();
   const removeCategory = useRemoveStudyCategory();
@@ -128,6 +171,20 @@ function StudyCategoryRow({ activeIndex, activeLength, category, onMove }: Study
     schema: StudyCategoryNameSchema,
   });
   const isArchived = category.archivedAt !== undefined;
+  const isDraggable = !isArchived;
+  const {
+    attributes,
+    isDragging,
+    listeners,
+    setActivatorNodeRef,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ disabled: !isDraggable, id: category._id });
+  const sortableStyle = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
 
   function onArchive() {
     archiveCategory.mutate(
@@ -189,61 +246,88 @@ function StudyCategoryRow({ activeIndex, activeLength, category, onMove }: Study
 
   if (isEditing) {
     return (
-      <Form
-        of={renameForm}
-        onSubmit={(output) => {
-          renameCategory.mutate(
-            { categoryId: category._id, name: output.name },
-            {
-              onError: () => showError("カテゴリ名の更新に失敗しました"),
-              onSuccess: () => showSuccess("更新しました", "カテゴリ名を更新しました"),
-            },
-          );
-          setIsEditing(false);
-        }}
-      >
-        <Group className="border-bd bg-panel-2 rounded-xl border px-3.5 py-2.5" gap={8}>
-          <Field of={renameForm} path={["name"]}>
-            {(field) => (
-              <TextInput
-                {...field.props}
-                aria-label="カテゴリ名"
-                className="flex-1"
-                error={field.errors?.[0]}
-                onKeyDown={(event) => {
-                  if (event.key === "Escape") {
-                    setIsEditing(false);
-                  }
-                }}
-                size="sm"
-                value={field.input}
-              />
-            )}
-          </Field>
-          <ActionIcon
-            aria-label="保存"
-            className="border-bd bg-inset"
-            type="submit"
-            variant="default"
-          >
-            <IconCheck size={16} />
-          </ActionIcon>
-          <ActionIcon
-            aria-label="キャンセル"
-            className="border-bd bg-inset"
-            onClick={() => setIsEditing(false)}
-            type="button"
-            variant="default"
-          >
-            <IconX size={16} />
-          </ActionIcon>
-        </Group>
-      </Form>
+      <li className="list-none">
+        <Form
+          of={renameForm}
+          onSubmit={(output) => {
+            renameCategory.mutate(
+              { categoryId: category._id, name: output.name },
+              {
+                onError: () => showError("カテゴリ名の更新に失敗しました"),
+                onSuccess: () => showSuccess("更新しました", "カテゴリ名を更新しました"),
+              },
+            );
+            setIsEditing(false);
+          }}
+        >
+          <Group className="border-bd bg-panel-2 rounded-xl border px-3.5 py-2.5" gap={8}>
+            <Field of={renameForm} path={["name"]}>
+              {(field) => (
+                <TextInput
+                  {...field.props}
+                  aria-label="カテゴリ名"
+                  className="flex-1"
+                  error={field.errors?.[0]}
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape") {
+                      setIsEditing(false);
+                    }
+                  }}
+                  size="sm"
+                  value={field.input}
+                />
+              )}
+            </Field>
+            <ActionIcon
+              aria-label="保存"
+              className="border-bd bg-inset"
+              type="submit"
+              variant="default"
+            >
+              <IconCheck size={16} />
+            </ActionIcon>
+            <ActionIcon
+              aria-label="キャンセル"
+              className="border-bd bg-inset"
+              onClick={() => setIsEditing(false)}
+              type="button"
+              variant="default"
+            >
+              <IconX size={16} />
+            </ActionIcon>
+          </Group>
+        </Form>
+      </li>
     );
   }
 
   return (
-    <Group className="border-bd bg-panel-2 rounded-xl border px-3.5 py-2.5" gap={12} wrap="nowrap">
+    <Group
+      ref={setNodeRef}
+      className={cn(
+        "border-bd bg-panel-2 rounded-xl border px-3.5 py-2.5 transition",
+        isArchived ? "opacity-70" : null,
+        isDragging ? "border-good bg-good/16 shadow-card opacity-70" : null,
+      )}
+      component="li"
+      gap={12}
+      style={sortableStyle}
+      wrap="nowrap"
+    >
+      <button
+        {...attributes}
+        {...listeners}
+        aria-label={`${category.name} をドラッグして並び替え`}
+        className={cn(
+          "text-faint hover:text-tx focus-visible:outline-blue flex h-8 w-8 shrink-0 items-center justify-center rounded-md transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
+          isDraggable ? "cursor-grab active:cursor-grabbing" : "cursor-not-allowed opacity-45",
+        )}
+        disabled={!isDraggable}
+        ref={setActivatorNodeRef}
+        type="button"
+      >
+        <IconGripVertical size={18} />
+      </button>
       <Text className="text-tx flex-1" fw={500} size="sm">
         {category.name}
       </Text>
@@ -257,26 +341,8 @@ function StudyCategoryRow({ activeIndex, activeLength, category, onMove }: Study
       ) : null}
       <Group gap={4} wrap="nowrap">
         <ActionIcon
-          aria-label="上へ移動"
-          className="border-bd bg-inset"
-          disabled={isArchived || activeIndex <= 0}
-          onClick={() => onMove(category._id, "up")}
-          variant="default"
-        >
-          <IconChevronUp size={16} />
-        </ActionIcon>
-        <ActionIcon
-          aria-label="下へ移動"
-          className="border-bd bg-inset"
-          disabled={isArchived || activeIndex === -1 || activeIndex >= activeLength - 1}
-          onClick={() => onMove(category._id, "down")}
-          variant="default"
-        >
-          <IconChevronDown size={16} />
-        </ActionIcon>
-        <ActionIcon
           aria-label="名前を変更"
-          className="border-bd bg-inset"
+          className="border-bd bg-inset text-tx hover:bg-panel-2 focus-visible:outline-blue transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:brightness-95"
           onClick={() => setIsEditing(true)}
           variant="default"
         >
@@ -285,7 +351,7 @@ function StudyCategoryRow({ activeIndex, activeLength, category, onMove }: Study
         {isArchived ? (
           <ActionIcon
             aria-label="復元"
-            className="border-bd bg-inset"
+            className="border-bd bg-inset text-tx hover:bg-panel-2 focus-visible:outline-blue transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:brightness-95"
             onClick={onRestore}
             variant="default"
           >
@@ -294,7 +360,7 @@ function StudyCategoryRow({ activeIndex, activeLength, category, onMove }: Study
         ) : (
           <ActionIcon
             aria-label="非表示"
-            className="border-bd bg-inset"
+            className="border-bd bg-inset text-tx hover:bg-panel-2 focus-visible:outline-blue transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:brightness-95"
             onClick={onArchive}
             variant="default"
           >

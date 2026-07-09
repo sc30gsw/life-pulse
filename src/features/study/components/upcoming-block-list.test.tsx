@@ -2,12 +2,16 @@
 import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vite-plus/test";
 
-import type { Doc } from "~/../convex/_generated/dataModel";
+import type { Doc, Id } from "~/../convex/_generated/dataModel";
 import {
   UpcomingBlockList,
   UpcomingBlockListFallback,
 } from "~/features/study/components/upcoming-block-list";
 import { renderWithMantine } from "~/test-utils";
+
+const categoryState = vi.hoisted(() => ({
+  toeicCategoryId: "category_toeic" as Id<"studyCategories">,
+}));
 
 const hookState = vi.hoisted(() => ({
   blocks: [] as Partial<Doc<"studyBlocks">>[],
@@ -18,6 +22,13 @@ vi.mock("~/features/study/hooks/use-upcoming-blocks", () => ({
   useUpcomingBlocks: () => hookState,
 }));
 
+vi.mock("~/features/study-categories/hooks/use-study-categories-query", () => ({
+  useStudyCategoriesQuery: () => ({
+    categoryName: (categoryId: Id<"studyCategories"> | undefined) =>
+      categoryId === categoryState.toeicCategoryId ? "TOEIC" : "カテゴリ未設定",
+  }),
+}));
+
 vi.mock("~/features/study/components/edit-block-modal", () => ({
   EditBlockModal: ({ block }: { block: Doc<"studyBlocks"> | null }) =>
     block === null ? null : <div>編集中: {block.startHm}</div>,
@@ -26,7 +37,7 @@ vi.mock("~/features/study/components/edit-block-modal", () => ({
 function buildBlock(overrides: Partial<Doc<"studyBlocks">> = {}): Partial<Doc<"studyBlocks">> {
   return {
     _id: "block_1" as Doc<"studyBlocks">["_id"],
-    category: "toeic",
+    categoryId: categoryState.toeicCategoryId,
     dateJst: "2026-01-01",
     endHm: "07:00",
     plannedMinutes: 60,

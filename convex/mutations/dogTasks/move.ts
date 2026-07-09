@@ -6,7 +6,11 @@ import { dogTaskMoveDirectionValidator } from "../../lib/validators";
 import { move as moveDogTask } from "../../services/dogTasks/move";
 
 export const move = mutation({
-  args: { direction: dogTaskMoveDirectionValidator, taskId: v.id("dogTasks") },
+  args: {
+    direction: v.optional(dogTaskMoveDirectionValidator),
+    targetTaskId: v.optional(v.id("dogTasks")),
+    taskId: v.id("dogTasks"),
+  },
   returns: v.null(),
   handler: async (ctx, args) => {
     await requireUser(ctx);

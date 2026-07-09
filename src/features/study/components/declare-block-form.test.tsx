@@ -3,9 +3,11 @@ import { notifications } from "@mantine/notifications";
 import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vite-plus/test";
 
-import type { Doc } from "~/../convex/_generated/dataModel";
+import type { Doc, Id } from "~/../convex/_generated/dataModel";
 import { DeclareBlockForm } from "~/features/study/components/declare-block-form";
 import { renderWithMantine } from "~/test-utils";
+
+const READING_CATEGORY_ID = "category_reading" as Id<"studyCategories">;
 
 const mutationState = vi.hoisted(() => ({
   declareMutate: vi.fn(),
@@ -39,6 +41,30 @@ vi.mock("~/features/study/hooks/use-declare-block", () => ({
 
 vi.mock("~/features/study/hooks/use-update-block", () => ({
   useUpdateBlock: () => ({ mutate: mutationState.updateMutate }),
+}));
+
+vi.mock("~/features/study-categories/hooks/use-study-categories-query", () => ({
+  useStudyCategoriesQuery: () => {
+    const categories = [
+      {
+        _creationTime: 0,
+        _id: READING_CATEGORY_ID,
+        archivedAt: undefined,
+        name: "読書",
+        sortOrder: 0,
+        userId: "user_1" as Id<"appUsers">,
+      },
+    ] as Doc<"studyCategories">[];
+
+    return {
+      activeCategories: categories,
+      categories,
+      categoriesById: new Map(categories.map((category) => [category._id, category])),
+      categoryName: (categoryId: Id<"studyCategories"> | undefined) =>
+        categories.find((category) => category._id === categoryId)?.name ?? "カテゴリ未設定",
+      categoryOptions: () => categories,
+    };
+  },
 }));
 
 vi.mock("@mantine/notifications", () => ({
@@ -105,10 +131,10 @@ vi.mock("@mantine/dates", () => ({
 
 function buildBlock(
   overrides: Partial<Doc<"studyBlocks">> = {},
-): Pick<Doc<"studyBlocks">, "_id" | "category" | "dateJst" | "endHm" | "startHm"> {
+): Pick<Doc<"studyBlocks">, "_id" | "categoryId" | "dateJst" | "endHm" | "startHm"> {
   return {
     _id: "block_1" as Doc<"studyBlocks">["_id"],
-    category: "reading",
+    categoryId: READING_CATEGORY_ID,
     dateJst: "2099-01-02",
     endHm: "08:00",
     startHm: "07:00",
@@ -130,7 +156,7 @@ test("declares a block from the selected date time range", async () => {
 
   expect(mutationState.declareMutate).toHaveBeenCalledWith(
     {
-      category: "reading",
+      categoryId: READING_CATEGORY_ID,
       dateJst: "2099-01-01",
       endHm: "07:30",
       startHm: "06:00",
@@ -225,7 +251,7 @@ test("updates an existing block with the block id", async () => {
   expect(mutationState.updateMutate).toHaveBeenCalledWith(
     {
       blockId: "block_1",
-      category: "reading",
+      categoryId: READING_CATEGORY_ID,
       dateJst: "2099-01-01",
       endHm: "07:30",
       startHm: "06:00",

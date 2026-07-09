@@ -2,18 +2,22 @@
 import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vite-plus/test";
 
-import type { Doc } from "~/../convex/_generated/dataModel";
+import type { Doc, Id } from "~/../convex/_generated/dataModel";
 import { WorkoutList, WorkoutListFallback } from "~/features/health/components/workout-list";
 import { renderWithMantine } from "~/test-utils";
 
 const hookState = vi.hoisted(() => ({
   deleteMutate: vi.fn(),
   openConfirmModal: vi.fn(),
-  workouts: [] as Doc<"workouts">[],
+  workoutList: {
+    hasMore: false,
+    hiddenWorkouts: [] as Doc<"workouts">[],
+    visibleWorkouts: [] as Doc<"workouts">[],
+  },
 }));
 
-vi.mock("~/features/health/hooks/use-workouts", () => ({
-  useWorkouts: () => ({ data: hookState.workouts }),
+vi.mock("~/features/health/hooks/use-workout-list", () => ({
+  useWorkoutList: () => ({ data: hookState.workoutList }),
 }));
 
 vi.mock("~/features/health/hooks/use-delete-workout", () => ({
@@ -38,7 +42,7 @@ function buildWorkout(overrides: Partial<Doc<"workouts">> = {}): Doc<"workouts">
 }
 
 test("shows an empty state when there are no workouts", () => {
-  hookState.workouts = [];
+  hookState.workoutList = { hasMore: false, hiddenWorkouts: [], visibleWorkouts: [] };
 
   const { getByText } = renderWithMantine(<WorkoutList onEdit={vi.fn()} />);
 
@@ -46,7 +50,11 @@ test("shows an empty state when there are no workouts", () => {
 });
 
 test("opens a confirm dialog before deleting, and confirming calls the delete mutation", async () => {
-  hookState.workouts = [buildWorkout()];
+  hookState.workoutList = {
+    hasMore: false,
+    hiddenWorkouts: [],
+    visibleWorkouts: [buildWorkout()],
+  };
   hookState.openConfirmModal.mockClear();
   hookState.deleteMutate.mockClear();
   const user = userEvent.setup();
@@ -68,7 +76,11 @@ test("opens a confirm dialog before deleting, and confirming calls the delete mu
 
 test("calls onEdit with the workout when 編集 is clicked", async () => {
   const workout = buildWorkout();
-  hookState.workouts = [workout];
+  hookState.workoutList = {
+    hasMore: false,
+    hiddenWorkouts: [],
+    visibleWorkouts: [workout],
+  };
   const onEdit = vi.fn();
   const user = userEvent.setup();
 
@@ -80,13 +92,38 @@ test("calls onEdit with the workout when 編集 is clicked", async () => {
 });
 
 test("renders workout details without intensity when it is not set", () => {
-  hookState.workouts = [buildWorkout({ perceivedIntensity: undefined })];
+  hookState.workoutList = {
+    hasMore: false,
+    hiddenWorkouts: [],
+    visibleWorkouts: [buildWorkout({ perceivedIntensity: undefined })],
+  };
 
   const { getByText, queryByText } = renderWithMantine(<WorkoutList onEdit={vi.fn()} />);
 
   expect(getByText("HIIT")).toBeDefined();
   expect(getByText("30分")).toBeDefined();
   expect(queryByText(/強度/)).toBeNull();
+});
+
+test("shows a collapse toggle when there are hidden workouts and reveals them on click", async () => {
+  hookState.workoutList = {
+    hasMore: false,
+    hiddenWorkouts: [
+      buildWorkout({ _id: "workout_2" as Id<"workouts">, at: Date.UTC(2026, 6, 8, 10, 0, 0) }),
+    ],
+    visibleWorkouts: [buildWorkout()],
+  };
+  const user = userEvent.setup();
+
+  const { getByRole, getByText } = renderWithMantine(<WorkoutList onEdit={vi.fn()} />);
+
+  expect(getByRole("button", { name: "さらに表示" })).toBeDefined();
+  expect(getByText("7/8 20:00")).toBeDefined();
+  expect(getByText("7/8 19:00")).toBeDefined();
+
+  await user.click(getByRole("button", { name: "さらに表示" }));
+
+  expect(getByRole("button", { name: "閉じる" })).toBeDefined();
 });
 
 test("renders fallback skeleton rows", () => {

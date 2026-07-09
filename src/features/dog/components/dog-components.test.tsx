@@ -1,4 +1,6 @@
 // @vitest-environment happy-dom
+import { DndContext } from "@dnd-kit/core";
+import { SortableContext } from "@dnd-kit/sortable";
 import userEvent from "@testing-library/user-event";
 import { expect, test, vi } from "vite-plus/test";
 
@@ -21,6 +23,10 @@ const state = vi.hoisted(() => ({
   },
   dogTasks: [] as Doc<"dogTasks">[],
   notificationShow: vi.fn(),
+  onArchiveTask: vi.fn(),
+  onMoveTask: vi.fn(),
+  onRenameTask: vi.fn(),
+  onReorderTask: vi.fn(),
   setDogImage: { isPending: false, mutateAsync: vi.fn() },
   uploadUrl: { isPending: false, mutateAsync: vi.fn() },
   updateDogMutate: vi.fn(),
@@ -61,9 +67,10 @@ vi.mock("~/features/dog/hooks/use-update-dog", () => ({
 
 vi.mock("~/features/dog/hooks/use-dog-tasks", () => ({
   useDogTasks: () => ({
-    onArchive: vi.fn(),
-    onMove: vi.fn(),
-    onRename: vi.fn(),
+    onArchive: state.onArchiveTask,
+    onMove: state.onMoveTask,
+    onRename: state.onRenameTask,
+    onReorder: state.onReorderTask,
     tasks: state.dogTasks,
   }),
 }));
@@ -185,39 +192,31 @@ test("DogTaskList renders an empty message and fallback rows", () => {
   expect(fallback.getByText("朝ごはん")).toBeDefined();
 });
 
-test("DogTaskList renders task rows with boundary move buttons", () => {
+test("DogTaskList renders task rows as draggable list items", () => {
   state.dogTasks = [buildTask("朝散歩", "task_1", 0), buildTask("夜ごはん", "task_2", 1)];
-  const { getAllByLabelText, getByText } = renderWithMantine(<DogTaskList />);
+  const { getByRole, getByText } = renderWithMantine(<DogTaskList />);
 
   expect(getByText("朝散歩")).toBeDefined();
   expect(getByText("夜ごはん")).toBeDefined();
-  expect((getAllByLabelText("上へ移動")[0] as HTMLButtonElement).disabled).toBe(true);
-  expect((getAllByLabelText("下へ移動")[1] as HTMLButtonElement).disabled).toBe(true);
+  expect(getByRole("button", { name: "朝散歩 をドラッグして並び替え" })).toBeDefined();
+  expect(getByRole("button", { name: "夜ごはん をドラッグして並び替え" })).toBeDefined();
 });
 
-test("DogTaskRow moves, archives, and renames a task", async () => {
+test("DogTaskRow archives and renames a task", async () => {
   const onArchive = vi.fn();
-  const onMove = vi.fn();
   const onRename = vi.fn();
   const task = buildTask("朝散歩", "task_1", 0);
   const user = userEvent.setup();
   const { getByLabelText, getByRole } = renderWithMantine(
-    <DogTaskRow
-      isFirst={false}
-      isLast={false}
-      onArchive={onArchive}
-      onMove={onMove}
-      onRename={onRename}
-      task={task}
-    />,
+    <DndContext>
+      <SortableContext items={[task._id]}>
+        <DogTaskRow onArchive={onArchive} onRename={onRename} task={task} />
+      </SortableContext>
+    </DndContext>,
   );
 
-  await user.click(getByLabelText("上へ移動"));
-  await user.click(getByLabelText("下へ移動"));
   await user.click(getByLabelText("削除"));
 
-  expect(onMove).toHaveBeenCalledWith(task._id, "up");
-  expect(onMove).toHaveBeenCalledWith(task._id, "down");
   expect(onArchive).toHaveBeenCalledWith(task);
 
   await user.click(getByLabelText("名前を変更"));
