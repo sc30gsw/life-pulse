@@ -1,12 +1,13 @@
 import { Field, Form, useForm } from "@formisch/react";
 import { Button, Group, PinInput } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
+import { Shimmer } from "@shimmer-from-structure/react";
 import { IconMail, IconShieldCheck } from "@tabler/icons-react";
 import { useNavigate } from "@tanstack/react-router";
 import { Result } from "better-result";
 import { useAction, useQuery } from "convex/react";
 import { ConvexError } from "convex/values";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as v from "valibot";
 
 import { api } from "~/../convex/_generated/api";
@@ -17,20 +18,21 @@ import {
 import { AuthError } from "~/features/auth/types/auth-error";
 
 const OTP_RESEND_WAIT_MESSAGE = "確認コードはまだ再送できません。少し待ってから再送してください";
-const INITIAL_OTP_AUTH_RETRY_DELAY_MS = 1_000;
-const INITIAL_OTP_AUTH_RETRY_LIMIT = 3;
+const OTP_SEND_MESSAGES = {
+  errorMessage: "確認コードの送信に失敗しました",
+  errorTitle: "OTP送信エラー",
+} as const satisfies Record<string, string>;
+const OTP_VERIFY_MESSAGES = {
+  errorMessage: "確認コードが正しくありません",
+  errorTitle: "OTPエラー",
+} as const satisfies Record<string, string>;
+
+type PendingAction = "resend" | "verify" | null;
 
 function isOtpResendWait(cause: unknown) {
   return (
     (cause instanceof ConvexError && cause.data === "OTP_RESEND_WAIT") ||
     (cause instanceof Error && cause.message.includes("OTP_RESEND_WAIT"))
-  );
-}
-
-function isUnauthenticated(cause: unknown) {
-  return (
-    (cause instanceof ConvexError && cause.data === "UNAUTHENTICATED") ||
-    (cause instanceof Error && cause.message.includes("UNAUTHENTICATED"))
   );
 }
 
@@ -42,6 +44,57 @@ function authErrorMessage(cause: unknown, fallback: string) {
   return cause instanceof Error ? cause.message : fallback;
 }
 
+async function runOtpAction({
+  action,
+  messages,
+  pending,
+  setPendingAction,
+}: {
+  action: () => Promise<null>;
+  messages: typeof OTP_SEND_MESSAGES | typeof OTP_VERIFY_MESSAGES;
+  pending: PendingAction;
+  setPendingAction?: (pending: PendingAction) => void;
+}) {
+  if (pending !== null) {
+    setPendingAction?.(pending);
+  }
+
+  const result = await Result.tryPromise({
+    catch: (cause) =>
+      new AuthError({
+        cause,
+        message: authErrorMessage(cause, messages.errorMessage),
+      }),
+    try: action,
+  });
+
+  if (pending !== null) {
+    setPendingAction?.(null);
+  }
+
+  if (Result.isError(result)) {
+    const isResendWait = isOtpResendWait(result.error.cause);
+
+    notifications.show({
+      color: isResendWait ? "yellow" : "red",
+      message: result.error.message,
+      title: isResendWait ? "再送待機中" : messages.errorTitle,
+    });
+
+    return false;
+  }
+
+  return true;
+}
+
+function showOtpSentNotification() {
+  notifications.show({
+    color: "green",
+    message: "確認コードを送信しました",
+    title: "OTP送信",
+  });
+}
+
 export function VerifyOtpForm() {
   const navigate = useNavigate();
 
@@ -50,10 +103,10 @@ export function VerifyOtpForm() {
     api.actions.auth.verifySecondFactorOtp.verifySecondFactorOtp,
   );
   const sendSecondFactorOtp = useAction(api.actions.auth.sendSecondFactorOtp.sendSecondFactorOtp);
-  const [pendingAction, setPendingAction] = useState<"resend" | "verify" | null>(null);
-  const [isTransitionPending, startTransition] = useTransition();
+  const [pendingAction, setPendingAction] = useState<PendingAction>(null);
+  const [isInitialOtpSending, setIsInitialOtpSending] = useState(false);
   const [now, setNow] = useState(() => Date.now());
-  const hasRequestedInitialOtp = useRef(false);
+  const isInitialOtpRequested = useRef(false);
 
   const form = useForm({
     initialInput: { code: "" },
@@ -66,68 +119,37 @@ export function VerifyOtpForm() {
   const resendWaitSeconds =
     resendAvailableAt === null ? 0 : Math.max(0, Math.ceil((resendAvailableAt - now) / 1000));
   const isResendCoolingDown = resendWaitSeconds > 0;
-  const isPending = isTransitionPending || pendingAction !== null || form.isSubmitting;
+  const isPending = isInitialOtpSending || pendingAction !== null || form.isSubmitting;
 
-  function submitOtp(output: VerifyOtpSchemaType) {
-    setPendingAction("verify");
+  async function submitOtp(output: VerifyOtpSchemaType) {
+    const result = await runOtpAction({
+      action: () => verifySecondFactorOtp(output),
+      messages: OTP_VERIFY_MESSAGES,
+      pending: "verify",
+      setPendingAction,
+    });
 
-    startTransition(async () => {
-      const result = await Result.tryPromise({
-        catch: (cause) =>
-          new AuthError({
-            cause,
-            message: authErrorMessage(cause, "確認コードが正しくありません"),
-          }),
-        try: () => verifySecondFactorOtp(output),
-      });
-
-      if (Result.isError(result)) {
-        notifications.show({
-          color: "red",
-          message: result.error.message,
-          title: "OTPエラー",
-        });
-
-        setPendingAction(null);
-
-        return;
-      }
-
+    if (result) {
       notifications.show({ color: "green", message: "確認が完了しました", title: "OTP確認" });
       void navigate({ to: "/" });
-      setPendingAction(null);
-    });
+    }
   }
 
-  function resendCode() {
-    setPendingAction("resend");
+  async function resendCode() {
+    await sendOtp("manual");
+  }
 
-    startTransition(async () => {
-      const result = await Result.tryPromise({
-        catch: (cause) =>
-          new AuthError({
-            cause,
-            message: authErrorMessage(cause, "確認コードの送信に失敗しました"),
-          }),
-        try: () => sendSecondFactorOtp({}),
-      });
-
-      if (Result.isError(result)) {
-        const isResendWait = isOtpResendWait(result.error.cause);
-
-        notifications.show({
-          color: isResendWait ? "yellow" : "red",
-          message: result.error.message,
-          title: isResendWait ? "再送待機中" : "OTP送信エラー",
-        });
-
-        setPendingAction(null);
-        return;
-      }
-
-      notifications.show({ color: "green", message: "確認コードを送信しました", title: "OTP送信" });
-      setPendingAction(null);
+  async function sendOtp(mode: "initial" | "manual") {
+    const result = await runOtpAction({
+      action: () => sendSecondFactorOtp({}),
+      messages: OTP_SEND_MESSAGES,
+      pending: mode === "manual" ? "resend" : null,
+      setPendingAction,
     });
+
+    if (result) {
+      showOtpSentNotification();
+    }
   }
 
   useEffect(() => {
@@ -146,75 +168,25 @@ export function VerifyOtpForm() {
       !secondFactorStatus.required ||
       secondFactorStatus.verified ||
       secondFactorStatus.resendAvailableAt !== null ||
-      hasRequestedInitialOtp.current
+      isInitialOtpRequested.current
     ) {
       return;
     }
 
-    hasRequestedInitialOtp.current = true;
-    setPendingAction("resend");
-    let cancelled = false;
-    let retryTimerId: number | null = null;
+    isInitialOtpRequested.current = true;
+    setIsInitialOtpSending(true);
+    void runOtpAction({
+      action: () => sendSecondFactorOtp({}),
+      messages: OTP_SEND_MESSAGES,
+      pending: null,
+    }).then((result) => {
+      setIsInitialOtpSending(false);
 
-    startTransition(async () => {
-      async function sendInitialOtp(attempt: number): Promise<void> {
-        const result = await Result.tryPromise({
-          catch: (cause) =>
-            new AuthError({
-              cause,
-              message: authErrorMessage(cause, "確認コードの送信に失敗しました"),
-            }),
-          try: () => sendSecondFactorOtp({}),
-        });
-
-        if (cancelled) {
-          return;
-        }
-
-        if (!Result.isError(result)) {
-          notifications.show({
-            color: "green",
-            message: "確認コードを送信しました",
-            title: "OTP送信",
-          });
-          setPendingAction(null);
-          return;
-        }
-
-        const isResendWait = isOtpResendWait(result.error.cause);
-
-        if (isUnauthenticated(result.error.cause) && attempt < INITIAL_OTP_AUTH_RETRY_LIMIT) {
-          await new Promise<void>((resolve) => {
-            retryTimerId = window.setTimeout(resolve, INITIAL_OTP_AUTH_RETRY_DELAY_MS);
-          });
-
-          if (cancelled) {
-            return;
-          }
-
-          return await sendInitialOtp(attempt + 1);
-        }
-
-        notifications.show({
-          color: isResendWait ? "yellow" : "red",
-          message: result.error.message,
-          title: isResendWait ? "再送待機中" : "OTP送信エラー",
-        });
-        setPendingAction(null);
-        return;
+      if (result) {
+        showOtpSentNotification();
       }
-
-      await sendInitialOtp(0);
     });
-
-    return () => {
-      cancelled = true;
-
-      if (retryTimerId !== null) {
-        window.clearTimeout(retryTimerId);
-      }
-    };
-  }, [secondFactorStatus, sendSecondFactorOtp, startTransition]);
+  }, [secondFactorStatus, sendSecondFactorOtp]);
 
   function submitCode(code: VerifyOtpSchemaType["code"]) {
     const result = v.safeParse(VerifyOtpSchema, { code });
@@ -224,7 +196,7 @@ export function VerifyOtpForm() {
     }
   }
 
-  return (
+  const formElement = (
     <Form of={form} onSubmit={submitOtp}>
       <Field of={form} path={["code"]}>
         {(field) => (
@@ -266,5 +238,18 @@ export function VerifyOtpForm() {
         )}
       </Field>
     </Form>
+  );
+
+  return isInitialOtpSending ? (
+    <Shimmer
+      loading
+      backgroundColor="rgba(255,255,255,0.08)"
+      fallbackBorderRadius={6}
+      shimmerColor="rgba(255,255,255,0.16)"
+    >
+      {formElement}
+    </Shimmer>
+  ) : (
+    formElement
   );
 }

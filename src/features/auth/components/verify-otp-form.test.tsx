@@ -59,7 +59,12 @@ vi.mock("@mantine/core", async (importOriginal) => {
   return {
     ...actual,
     Button: ({ children, disabled, leftSection, loading, onClick, type }: ButtonProps) => (
-      <button disabled={disabled || loading} type={type} onClick={onClick}>
+      <button
+        aria-busy={loading ? "true" : undefined}
+        disabled={disabled || loading}
+        type={type}
+        onClick={onClick}
+      >
         {leftSection}
         {children}
       </button>
@@ -207,28 +212,16 @@ test("sends an OTP when the form opens without an active challenge", async () =>
   });
 });
 
-test("retries the initial OTP send when auth is still refreshing", async () => {
-  vi.useFakeTimers();
+test("shows a structural shimmer while the initial OTP send is pending", async () => {
   secondFactorStatusState.value = { required: true, resendAvailableAt: null, verified: false };
-  sendOtpMock.mockRejectedValueOnce(new ConvexError("UNAUTHENTICATED"));
+  sendOtpMock.mockReturnValueOnce(new Promise(() => {}));
 
-  renderWithMantine(<VerifyOtpForm />);
+  const { queryByRole } = renderWithMantine(<VerifyOtpForm />);
 
   await vi.waitFor(() => {
-    expect(sendOtpMock).toHaveBeenCalledTimes(1);
+    expect(sendOtpMock).toHaveBeenCalledWith({});
   });
+
+  expect(queryByRole("button", { name: "再送" })).toBeNull();
   expect(notificationsShowMock).not.toHaveBeenCalled();
-
-  await vi.advanceTimersByTimeAsync(1_000);
-
-  await vi.waitFor(() => {
-    expect(sendOtpMock).toHaveBeenCalledTimes(2);
-  });
-  await vi.waitFor(() => {
-    expect(notificationsShowMock).toHaveBeenCalledWith({
-      color: "green",
-      message: "確認コードを送信しました",
-      title: "OTP送信",
-    });
-  });
 });
