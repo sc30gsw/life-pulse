@@ -10,7 +10,7 @@ export default {
     files: ["convex/_generated/**"],
     overrides: [
       {
-        files: ["convex/auth.config.ts"],
+        files: ["convex/auth.config.ts", "convex/convex.config.ts"],
         rules: ["deslop/unused-export"],
       },
     ],
