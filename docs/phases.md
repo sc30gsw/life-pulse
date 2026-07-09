@@ -102,16 +102,16 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 
 - [x] ライブボードの断食操作ボタン配線(開始/終了)
 
-### FR-6 健康データ流入(手動+デモ)【P0】(PR2)
+### FR-6 健康データ流入(手動+Garmin)【P0】(PR2)
 
 - [x] FR-6.1 日次メトリクス(睡眠スコア/睡眠時間/Body Battery/HRV/安静時心拍/歩数、本人のみ)のスキーマ・表示
 - [x] FR-6.2 手動入力 UI(health.upsertManual + `/health` ルート、source="manual"、`_self.tsx` role ガード同時追加 — spec §2 注意書き)。同日再入力は upsert、全項目任意入力(v1.2 補足)
-- [x] FR-6.4 デモモード(demo.setDemoMode + tick 自己再帰、source="demo" 分離、間隔 20 秒 = NFR-5 の ≥15s を満たす)。OFF で自動的にジョブ cancel + demo データ一括削除(専用削除ボタンなし、v1.2 補足)
+- [x] FR-6.4 デモモードは廃止。既存の legacy `source="demo"` 行は表示クエリで無視する。
 - [x] FR-6.5 HIIT 記録(health.logWorkout、種別・時刻・時間・主観強度。時刻は既定で現在時刻、後から編集可)
 
 ### FR-6 UI 配線(PR2)
 
-- [x] `/settings`(デモモードトグル・断食目標・犬の名前)(`_self/settings.tsx` + `features/settings/` の DemoModeSwitch / SettingsForm、テスト込み)
+- [x] `/settings`(断食目標)(`_self/settings.tsx` + `features/settings/` の SettingsForm、テスト込み)
 
 ## W4 — 外部連携 + 相関 + 磨き込み(FR-6.3 / FR-7)
 
@@ -168,7 +168,7 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 
 - [x] `DOG_CARE_KINDS` / `DOG_EVENT_LABELS` 全廃 → 犬カード・履歴モーダルを `dogTasks` 駆動に
 - [x] ユーザーメニューに「プロフィール」「愛犬の管理」リンク、犬カードヘッダーに歯車 → `/dog`
-- [x] `/settings` を `demoMode` + `fastingDefaultMinutes` のみに縮小
+- [x] `/settings` を `fastingDefaultMinutes` のみに縮小
 - [x] テスト: dogTasks CRUD 権限(両ロール)、ソフトデリート後の履歴参照、sortOrder swap
 
 ## 受け入れ基準ゲート(requirements.md §8 — 発表可能の定義)

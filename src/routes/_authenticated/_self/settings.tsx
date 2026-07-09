@@ -3,10 +3,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 
 import { GlowCard } from "~/components/glow-card";
-import {
-  DemoModeSwitch,
-  DemoModeSwitchFallback,
-} from "~/features/settings/components/demo-mode-switch";
 import { SettingsForm, SettingsFormFallback } from "~/features/settings/components/settings-form";
 import { ACCENT_VARS } from "~/types/dashboard";
 
@@ -52,17 +48,6 @@ function SettingsPage() {
       </Group>
 
       <main className="flex flex-col gap-4">
-        <GlowCard
-          className="bg-panel border-bd shadow-card relative overflow-hidden border"
-          p="lg"
-          radius={18}
-        >
-          <SectionLabel label="デモモード" />
-          <Suspense fallback={<DemoModeSwitchFallback />}>
-            <DemoModeSwitch />
-          </Suspense>
-        </GlowCard>
-
         <GlowCard
           className="bg-panel border-bd shadow-card relative overflow-hidden border"
           p="lg"

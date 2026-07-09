@@ -26,7 +26,6 @@ import type * as emails_passwordResetEmail from "../emails/passwordResetEmail.js
 import type * as http from "../http.js";
 import type * as lib_auth from "../lib/auth.js";
 import type * as lib_dateRange from "../lib/dateRange.js";
-import type * as lib_demoConstants from "../lib/demoConstants.js";
 import type * as lib_domain from "../lib/domain.js";
 import type * as lib_hm from "../lib/hm.js";
 import type * as lib_passwordRequirements from "../lib/passwordRequirements.js";
@@ -45,8 +44,6 @@ import type * as mutations_blocks_remove from "../mutations/blocks/remove.js";
 import type * as mutations_blocks_reschedule from "../mutations/blocks/reschedule.js";
 import type * as mutations_blocks_undoDecline from "../mutations/blocks/undoDecline.js";
 import type * as mutations_blocks_update from "../mutations/blocks/update.js";
-import type * as mutations_demo_setDemoMode from "../mutations/demo/setDemoMode.js";
-import type * as mutations_demo_tick from "../mutations/demo/tick.js";
 import type * as mutations_dog_logEvent from "../mutations/dog/logEvent.js";
 import type * as mutations_dog_undoEvent from "../mutations/dog/undoEvent.js";
 import type * as mutations_dogTasks_archive from "../mutations/dogTasks/archive.js";
@@ -141,10 +138,6 @@ import type * as services_dashboard_presence from "../services/dashboard/presenc
 import type * as services_dashboard_selfPresence from "../services/dashboard/selfPresence.js";
 import type * as services_dashboard_study from "../services/dashboard/study.js";
 import type * as services_dashboard_viewer from "../services/dashboard/viewer.js";
-import type * as services_demo_nextDemoMetric from "../services/demo/nextDemoMetric.js";
-import type * as services_demo_seedMetrics from "../services/demo/seedMetrics.js";
-import type * as services_demo_setDemoMode from "../services/demo/setDemoMode.js";
-import type * as services_demo_tick from "../services/demo/tick.js";
 import type * as services_dog_errors from "../services/dog/errors.js";
 import type * as services_dog_history from "../services/dog/history.js";
 import type * as services_dog_logEvent from "../services/dog/logEvent.js";
@@ -243,7 +236,6 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   "lib/auth": typeof lib_auth;
   "lib/dateRange": typeof lib_dateRange;
-  "lib/demoConstants": typeof lib_demoConstants;
   "lib/domain": typeof lib_domain;
   "lib/hm": typeof lib_hm;
   "lib/passwordRequirements": typeof lib_passwordRequirements;
@@ -262,8 +254,6 @@ declare const fullApi: ApiFromModules<{
   "mutations/blocks/reschedule": typeof mutations_blocks_reschedule;
   "mutations/blocks/undoDecline": typeof mutations_blocks_undoDecline;
   "mutations/blocks/update": typeof mutations_blocks_update;
-  "mutations/demo/setDemoMode": typeof mutations_demo_setDemoMode;
-  "mutations/demo/tick": typeof mutations_demo_tick;
   "mutations/dog/logEvent": typeof mutations_dog_logEvent;
   "mutations/dog/undoEvent": typeof mutations_dog_undoEvent;
   "mutations/dogTasks/archive": typeof mutations_dogTasks_archive;
@@ -358,10 +348,6 @@ declare const fullApi: ApiFromModules<{
   "services/dashboard/selfPresence": typeof services_dashboard_selfPresence;
   "services/dashboard/study": typeof services_dashboard_study;
   "services/dashboard/viewer": typeof services_dashboard_viewer;
-  "services/demo/nextDemoMetric": typeof services_demo_nextDemoMetric;
-  "services/demo/seedMetrics": typeof services_demo_seedMetrics;
-  "services/demo/setDemoMode": typeof services_demo_setDemoMode;
-  "services/demo/tick": typeof services_demo_tick;
   "services/dog/errors": typeof services_dog_errors;
   "services/dog/history": typeof services_dog_history;
   "services/dog/logEvent": typeof services_dog_logEvent;

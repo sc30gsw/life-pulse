@@ -155,7 +155,7 @@
 - [x] FR-10.4 並び替えは上下移動ボタン(dnd 依存追加なし)。削除は `archivedAt` ソフトデリート(過去の完了履歴・連続記録の参照切れを防ぐ)。一覧クエリは `archivedAt === undefined` フィルタ。
 - [x] FR-10.5 `dogEvents.kind` 廃止 → `taskId: v.id("dogTasks")`(required)。既存 dogEvents は demo データのため wipe し、段階デプロイなしの一発デプロイ。
 - [x] FR-10.6 導線: ユーザーメニューに「プロフィール」「愛犬の管理」の両リンク + 犬カードヘッダーに歯車アイコン → `/dog`。
-- [x] FR-10.7 `/settings` に残すのは `demoMode` + `fastingDefaultMinutes` のみ。
+- [x] FR-10.7 `/settings` に残すのは `fastingDefaultMinutes` のみ。
 
 ## 5. 非機能要件
 

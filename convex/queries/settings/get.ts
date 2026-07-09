@@ -8,7 +8,6 @@ import { get as getSettings } from "../../services/settings/get";
 export const get = query({
   args: {},
   returns: v.object({
-    demoMode: appSettingsFieldValidators.demoMode,
     fastingDefaultMinutes: appSettingsFieldValidators.fastingDefaultMinutes,
   }),
   handler: async (ctx) => {

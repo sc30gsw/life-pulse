@@ -27,7 +27,6 @@ test("returns defaults when no appSettings row exists", async () => {
   const settings = await asSelf.query(api.queries.settings.get.get, {});
 
   expect(settings).toEqual({
-    demoMode: false,
     fastingDefaultMinutes: DEFAULT_FASTING_MINUTES,
   });
 });
@@ -35,14 +34,11 @@ test("returns defaults when no appSettings row exists", async () => {
 test("returns the actual row when one exists", async () => {
   const t = convexTest(schema, testModules);
   const asSelf = await seedSelf(t);
-  await t.run((ctx) =>
-    ctx.db.insert("appSettings", appSettings({ demoMode: true, fastingDefaultMinutes: 600 })),
-  );
+  await t.run((ctx) => ctx.db.insert("appSettings", appSettings({ fastingDefaultMinutes: 600 })));
 
   const settings = await asSelf.query(api.queries.settings.get.get, {});
 
   expect(settings).toEqual({
-    demoMode: true,
     fastingDefaultMinutes: 600,
   });
 });

@@ -31,7 +31,6 @@ test("uses appSettings.fastingDefaultMinutes when a row exists", async () => {
   const asSelf = await seedSelf(t);
   await t.run((ctx) =>
     ctx.db.insert("appSettings", {
-      demoMode: false,
       fastingDefaultMinutes: 600,
     }),
   );
@@ -47,7 +46,6 @@ test("an explicit targetMinutes argument overrides both defaults", async () => {
   const asSelf = await seedSelf(t);
   await t.run((ctx) =>
     ctx.db.insert("appSettings", {
-      demoMode: false,
       fastingDefaultMinutes: 600,
     }),
   );

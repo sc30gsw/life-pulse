@@ -277,7 +277,5 @@ export const syncLogDocumentValidator = v.object({
 });
 
 export const appSettingsFieldValidators = {
-  demoJobId: v.optional(v.id("_scheduled_functions")),
-  demoMode: v.boolean(),
   fastingDefaultMinutes: v.number(),
 };

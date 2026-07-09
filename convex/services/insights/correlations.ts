@@ -25,7 +25,7 @@ type Day = {
 const MINUTE_MS = 60_000;
 
 // §4 join spec (docs/plans/2026-07-08_06-insights.md): health (mergeByDate,
-// demoMode-aware) × self study minutes (same "completed accumulatedMs"
+// legacy demo rows ignored) × self study minutes (same "completed accumulatedMs"
 // aggregation rule as services/dashboard/study.ts) × HIIT-previous-day flag
 // (workouts fetched one extra day early so the range's first day can still
 // see the prior day's HIIT), joined per dateJst over [fromDateJst, toDateJst].
@@ -34,14 +34,13 @@ export async function correlations(ctx: QueryCtx, user: Doc<"appUsers">, args: C
 
   const prevDayDateJst = addDaysJst(args.fromDateJst, -1);
 
-  const [healthRows, settings, sessions, workoutRows] = await Promise.all([
+  const [healthRows, sessions, workoutRows] = await Promise.all([
     ctx.db
       .query("healthMetrics")
       .withIndex("by_date", (q) =>
         q.gte("dateJst", args.fromDateJst).lte("dateJst", args.toDateJst),
       )
       .collect(),
-    ctx.db.query("appSettings").first(),
     ctx.db
       .query("studySessions")
       .withIndex("by_user_date", (q) =>
@@ -54,9 +53,7 @@ export async function correlations(ctx: QueryCtx, user: Doc<"appUsers">, args: C
       .collect(),
   ]);
 
-  const healthByDate = new Map(
-    mergeByDate(healthRows, settings?.demoMode ?? false).map((row) => [row.dateJst, row]),
-  );
+  const healthByDate = new Map(mergeByDate(healthRows).map((row) => [row.dateJst, row]));
   const studyMinutesByDate = aggregateStudyMinutesByDate(sessions);
   const hiitDates = new Set<Doc<"workouts">["dateJst"]>();
 

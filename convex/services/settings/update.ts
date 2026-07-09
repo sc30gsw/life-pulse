@@ -22,7 +22,6 @@ export async function update(
 
   if (settings === null) {
     await ctx.db.insert("appSettings", {
-      demoMode: false,
       fastingDefaultMinutes: args.fastingDefaultMinutes ?? DEFAULT_FASTING_MINUTES,
     });
     return Result.ok();

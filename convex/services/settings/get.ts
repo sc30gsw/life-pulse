@@ -6,13 +6,11 @@ export async function get(ctx: QueryCtx) {
 
   if (settings === null) {
     return {
-      demoMode: false,
       fastingDefaultMinutes: DEFAULT_FASTING_MINUTES,
     };
   }
 
   return {
-    demoMode: settings.demoMode,
     fastingDefaultMinutes: settings.fastingDefaultMinutes,
   };
 }

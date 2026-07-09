@@ -44,7 +44,7 @@ test("shows an empty state when no health rows exist", () => {
   const { getByText } = renderWithMantine(<MetricsTrend />);
 
   expect(getByText("健康メトリクスの記録はまだありません")).toBeDefined();
-  expect(getByText("手動入力するかデモモードを有効にすると表示されます")).toBeDefined();
+  expect(getByText("Garmin同期または手動入力を行うと表示されます")).toBeDefined();
 });
 
 test("renders line and bar charts with mapped health rows", () => {

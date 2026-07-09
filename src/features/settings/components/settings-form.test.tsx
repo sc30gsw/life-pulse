@@ -18,7 +18,6 @@ vi.mock("@mantine/notifications", () => ({
 vi.mock("~/features/settings/api/settings-query", () => ({
   useSettings: () => ({
     data: {
-      demoMode: false,
       fastingDefaultMinutes: hookState.fastingDefaultMinutes,
     },
   }),

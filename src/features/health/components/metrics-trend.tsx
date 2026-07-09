@@ -27,7 +27,7 @@ export function MetricsTrend() {
   if (rows.length === 0) {
     return (
       <EmptyState
-        description="手動入力するかデモモードを有効にすると表示されます"
+        description="Garmin同期または手動入力を行うと表示されます"
         icon={<IconChartLine size={48} />}
         title={
           <Text c="blue" fw={600} size="xl">

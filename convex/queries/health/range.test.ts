@@ -14,7 +14,7 @@ async function seedSelf(t: ReturnType<typeof convexTest>) {
   return asSelf;
 }
 
-test("returns rows across a date range sorted ascending, excluding demo rows by default", async () => {
+test("returns rows across a date range sorted ascending, excluding legacy demo rows", async () => {
   const t = convexTest(schema, testModules);
   const asSelf = await seedSelf(t);
   await t.run((ctx) =>
@@ -48,74 +48,46 @@ test("returns rows across a date range sorted ascending, excluding demo rows by 
   });
 
   expect(rows.map((row) => row.dateJst)).toEqual(["2026-07-01", "2026-07-02"]);
-  expect(rows[0]?.source).toBe("manual"); // no appSettings row → demoMode defaults to false
-  expect(rows[0]?.sleepScore).toBe(60);
-});
-
-test("prefers the demo row for a date when demoMode is on", async () => {
-  const t = convexTest(schema, testModules);
-  const asSelf = await seedSelf(t);
-  await t.run((ctx) =>
-    ctx.db.insert("appSettings", { demoMode: true, fastingDefaultMinutes: 960 }),
-  );
-  await t.run((ctx) =>
-    ctx.db.insert("healthMetrics", {
-      dateJst: "2026-07-01",
-      sleepScore: 60,
-      source: "manual",
-      syncedAt: 0,
-    }),
-  );
-  await t.run((ctx) =>
-    ctx.db.insert("healthMetrics", {
-      dateJst: "2026-07-01",
-      sleepScore: 90,
-      source: "demo",
-      syncedAt: 1,
-    }),
-  );
-
-  const rows = await asSelf.query(api.queries.health.range.range, {
-    fromDateJst: "2026-07-01",
-    toDateJst: "2026-07-01",
-  });
-
-  expect(rows).toHaveLength(1);
-  expect(rows[0]?.source).toBe("demo");
-  expect(rows[0]?.sleepScore).toBe(90);
-});
-
-test("excludes the demo row for a date when demoMode is off, preferring the manual row", async () => {
-  const t = convexTest(schema, testModules);
-  const asSelf = await seedSelf(t);
-  await t.run((ctx) =>
-    ctx.db.insert("appSettings", { demoMode: false, fastingDefaultMinutes: 960 }),
-  );
-  await t.run((ctx) =>
-    ctx.db.insert("healthMetrics", {
-      dateJst: "2026-07-01",
-      sleepScore: 60,
-      source: "manual",
-      syncedAt: 0,
-    }),
-  );
-  await t.run((ctx) =>
-    ctx.db.insert("healthMetrics", {
-      dateJst: "2026-07-01",
-      sleepScore: 90,
-      source: "demo",
-      syncedAt: 1,
-    }),
-  );
-
-  const rows = await asSelf.query(api.queries.health.range.range, {
-    fromDateJst: "2026-07-01",
-    toDateJst: "2026-07-01",
-  });
-
-  expect(rows).toHaveLength(1);
   expect(rows[0]?.source).toBe("manual");
   expect(rows[0]?.sleepScore).toBe(60);
+});
+
+test("prefers garmin over manual while ignoring legacy demo rows", async () => {
+  const t = convexTest(schema, testModules);
+  const asSelf = await seedSelf(t);
+  await t.run((ctx) =>
+    ctx.db.insert("healthMetrics", {
+      dateJst: "2026-07-01",
+      sleepScore: 60,
+      source: "manual",
+      syncedAt: 0,
+    }),
+  );
+  await t.run((ctx) =>
+    ctx.db.insert("healthMetrics", {
+      dateJst: "2026-07-01",
+      sleepScore: 90,
+      source: "demo",
+      syncedAt: 1,
+    }),
+  );
+  await t.run((ctx) =>
+    ctx.db.insert("healthMetrics", {
+      dateJst: "2026-07-01",
+      sleepScore: 80,
+      source: "garmin",
+      syncedAt: 2,
+    }),
+  );
+
+  const rows = await asSelf.query(api.queries.health.range.range, {
+    fromDateJst: "2026-07-01",
+    toDateJst: "2026-07-01",
+  });
+
+  expect(rows).toHaveLength(1);
+  expect(rows[0]?.source).toBe("garmin");
+  expect(rows[0]?.sleepScore).toBe(80);
 });
 
 test("rejects a partner (non-self) caller", async () => {

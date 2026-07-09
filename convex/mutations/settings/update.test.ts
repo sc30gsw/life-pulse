@@ -26,27 +26,17 @@ test("lazy-creates the appSettings row on first call with partial input", async 
   await asSelf.mutation(api.mutations.settings.update.update, { fastingDefaultMinutes: 600 });
 
   const settings = await t.run((ctx) => ctx.db.query("appSettings").first());
-  expect(settings?.demoMode).toBe(false);
   expect(settings?.fastingDefaultMinutes).toBe(600);
 });
 
-test("patches an existing row without touching demoMode or demoJobId", async () => {
+test("patches an existing row", async () => {
   const t = convexTest(schema, testModules);
   const asSelf = await seedSelf(t);
-  await t.run((ctx) =>
-    ctx.db.insert(
-      "appSettings",
-      appSettings({
-        demoJobId: undefined,
-        demoMode: true,
-      }),
-    ),
-  );
+  await t.run((ctx) => ctx.db.insert("appSettings", appSettings()));
 
   await asSelf.mutation(api.mutations.settings.update.update, { fastingDefaultMinutes: 600 });
 
   const settings = await t.run((ctx) => ctx.db.query("appSettings").first());
-  expect(settings?.demoMode).toBe(true);
   expect(settings?.fastingDefaultMinutes).toBe(600);
 });
 

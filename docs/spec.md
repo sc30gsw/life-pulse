@@ -61,13 +61,11 @@
 │   │   ├── fasting/{start,end}.ts                     # FR-4
 │   │   ├── dog/{logEvent,undoEvent}.ts                # FR-5
 │   │   ├── health/{upsertManual,logWorkout,upsertFromSync}.ts  # FR-6
-│   │   ├── demo/setDemoMode.ts    # FR-6.4
 │   │   └── partnerStatus/setStatus.ts  # FR-8
 │   ├── actions/              # action。1関数1ファイル(CVX-20)
 │   │   ├── garmin/syncDaily.ts    # FR-6.3 "use node"(Nodeランタイムはこのファイルに隔離, CVX-06)
 │   │   ├── fasting/advancePhase.ts  # §4.2 scheduler専用internalMutation
-│   │   ├── sessions/autoAbandon.ts  # FR-2.7 internalMutation
-│   │   └── demo/tick.ts             # FR-6.4 internalMutation自己再帰
+│   │   └── sessions/autoAbandon.ts  # FR-2.7 internalMutation
 │   ├── services/              # ビジネスロジック層(ctx第1引数, CVX-02)+ 純粋関数(CVX-09)。1関数1ファイル
 │   │   ├── users/{ensureUser,viewer}.ts
 │   │   ├── sessions/{start,pause,resume,complete,elapsed}.ts  # elapsedは純粋関数
@@ -260,8 +258,6 @@ export default defineSchema({
 
   // 設定(単一ドキュメント運用)
   appSettings: defineTable({
-    demoMode: v.boolean(),
-    demoJobId: v.optional(v.id("_scheduled_functions")),
     dogName: v.string(),
     fastingDefaultMinutes: v.number(),
   }),
@@ -333,8 +329,6 @@ eroded --decline()--> declined --undoDecline()--> eroded (FR-3.7, 確認ダイ�
 | garmin        | syncDaily                         | ia("use node") | `garmin-connect-sdk`(`convex/actions/garmin/client.ts`)で前日+当日の2日分を取得 → `mapDailyMetrics`(純粋関数, CVX-09)で変換 → **`internal.mutations.health.upsertFromSync.upsertFromSync` を1回だけ呼び、複数日分は配列で渡す(CVX-07)**。失敗時はcatchして`recordSyncFailure`を呼び、例外は握りつぶす(cronを止めない)。client露出しない                     |
 | health        | upsertFromSync                    | im             | actionからの一括書き込み口(配列引数)。日ごとに非demo行へGarminが返した**definedフィールドのみ**merge patch(`source: "garmin"`, `syncedAt`)またはinsert。**同一トランザクションで** `syncLogs` に `{ok: true}` を1件insert(CVX-07/15)                                                                                                                        |
 | health        | recordSyncFailure                 | im             | 同期失敗時に `syncLogs` へ `{ok: false, message}` 行をinsert                                                                                                                                                                                                                                                                                                |
-| demo          | setDemoMode                       | m              | ON: scheduler.runAfter(0, internal.demo.tick) を起動しjobId保存 / OFF: cancel+demoデータ削除                                                                                                                                                                                                                                                                |
-| demo          | tick                              | im             | 疑似メトリクス1件書き込み(乱数ウォークは services/demo/nextDemoMetric.ts の純粋関数)→ demoMode継続中なら runAfter(20s, tick) で自己再帰(AC-3)                                                                                                                                                                                                               |
 | partnerStatus | setStatus                         | m              | presence を upsert                                                                                                                                                                                                                                                                                                                                          |
 | correlations  | sleepVsStudy                      | q              | **args: { fromDateJst, toDateJst }(既定28日ぶんをクライアントが指定, CVX-14)**。healthMetrics × studySessions(dateJst join)→ {date, sleepScore, bodyBattery, studyMinutes, hiit}[] とピアソン相関係数(純粋関数)。クエリ内joinのため元データ変更で自動再計算(FR-7.2)。取得はすべて `by_user_date` / `by_date` の範囲index条件(CVX-10/11)                     |
 | crons.ts      | —                                 | crons          | ①garmin日次同期: JST6:30 = UTC21:30(前日)で `crons.daily`。②abandonedの掃除等は不要(scheduler個別予約で足りる)                                                                                                                                                                                                                                              |
