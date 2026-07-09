@@ -10,6 +10,3 @@ export const UpdateSettingsSchema = v.object({
     v.maxValue(MAX_FASTING_TARGET_MINUTES, "16時間以下で入力してください"),
   ),
 });
-
-export type UpdateSettingsInput = v.InferOutput<typeof UpdateSettingsSchema>;
-export type UpdateSettingsFormInput = v.InferInput<typeof UpdateSettingsSchema>;

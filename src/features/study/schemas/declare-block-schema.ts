@@ -55,5 +55,4 @@ export const DeclareBlockSchema = v.pipe(
   })),
 );
 
-export type DeclareBlockInput = v.InferOutput<typeof DeclareBlockSchema>;
 export type DeclareBlockFormInput = v.InferInput<typeof DeclareBlockSchema>;

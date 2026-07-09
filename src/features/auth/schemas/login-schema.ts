@@ -4,5 +4,3 @@ export const LoginSchema = v.object({
   email: v.pipe(v.string(), v.email("有効なメールアドレスを入力してください")),
   password: v.pipe(v.string(), v.minLength(1, "パスワードを入力してください")),
 });
-
-export type LoginInput = v.InferOutput<typeof LoginSchema>;

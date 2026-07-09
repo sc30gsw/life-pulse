@@ -32,5 +32,4 @@ export const LogWorkoutSchema = v.pipe(
   })),
 );
 
-export type LogWorkoutInput = v.InferOutput<typeof LogWorkoutSchema>;
 export type LogWorkoutFormInput = v.InferInput<typeof LogWorkoutSchema>;

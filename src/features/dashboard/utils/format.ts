@@ -58,15 +58,6 @@ export function deriveSessionElapsedMs(session: Doc<"studySessions"> | null, now
   return session.accumulatedMs + Math.max(0, nowMs - (session.lastResumedAt ?? session.startedAt));
 }
 
-export function deriveFastingElapsedMinutes(
-  fastingStartedAt: NonNullable<
-    FunctionReturnType<typeof api.queries.dashboard.fasting.fasting>
-  >["startedAt"],
-  nowMs: number,
-) {
-  return Math.max(0, (nowMs - fastingStartedAt) / TIME_CONSTANTS.MINUTE_MS);
-}
-
 export function toDeclarationItems(blocks: Doc<"studyBlocks">[]) {
   return blocks.map((block) => ({
     categoryId: block.categoryId,

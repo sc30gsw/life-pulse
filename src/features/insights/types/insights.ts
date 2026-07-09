@@ -7,6 +7,4 @@ import type { api } from "~/../convex/_generated/api";
 export type InsightsCorrelations = FunctionReturnType<
   typeof api.queries.insights.correlations.correlations
 >;
-
-export type InsightsDay = InsightsCorrelations["days"][number];
 export type InsightsCorrelation = InsightsCorrelations["bbVsStudy"];

@@ -21,6 +21,3 @@ export const UpsertManualSchema = v.pipe(
     ["dateJst"],
   ),
 );
-
-export type UpsertManualInput = v.InferOutput<typeof UpsertManualSchema>;
-export type UpsertManualFormInput = v.InferInput<typeof UpsertManualSchema>;

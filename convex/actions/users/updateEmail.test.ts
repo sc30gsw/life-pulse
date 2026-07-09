@@ -8,6 +8,8 @@ import type { Doc } from "../../_generated/dataModel";
 import schema from "../../schema";
 import { testModules } from "../../test.setup";
 
+const AUTH_ROUND_TRIP_TIMEOUT_MS = 60_000;
+
 // Mirrors convex/auth.ts's SignUpProfile: `email` lives on the auth `users`
 // table, while `displayName`/`role` belong to `appUsers` only — createAccount's
 // own type only allows `users` fields, but createOrUpdateUser's callback (see
@@ -80,71 +82,89 @@ async function seedAccount(
   return user._id;
 }
 
-test("updateEmail changes the caller's own email and login credential together", async () => {
-  const t = convexTest(schema, testModules);
-  const selfId = await seedAccount(t, SELF_EMAIL, SELF_PASSWORD, "本人", "self");
-  const asSelf = t.withIdentity({ subject: selfId });
+test(
+  "updateEmail changes the caller's own email and login credential together",
+  async () => {
+    const t = convexTest(schema, testModules);
+    const selfId = await seedAccount(t, SELF_EMAIL, SELF_PASSWORD, "本人", "self");
+    const asSelf = t.withIdentity({ subject: selfId });
 
-  await asSelf.action(api.actions.users.updateEmail.updateEmail, {
-    currentPassword: SELF_PASSWORD,
-    newEmail: "new-self@example.com",
-  });
-
-  const updatedUser = await t.run((ctx) => ctx.db.get("users", selfId));
-  expect(updatedUser?.email).toBe("new-self@example.com");
-
-  // New email + same password now authenticates...
-  await expect(
-    t.action((ctx) =>
-      retrieveByEmail(
-        ctx as unknown as Parameters<typeof retrieveByEmail>[0],
-        "new-self@example.com",
-        SELF_PASSWORD,
-      ),
-    ),
-  ).resolves.toBeDefined();
-
-  // ...and the OLD email no longer resolves to any account at all.
-  await expect(
-    t.action((ctx) =>
-      retrieveByEmail(
-        ctx as unknown as Parameters<typeof retrieveByEmail>[0],
-        SELF_EMAIL,
-        SELF_PASSWORD,
-      ),
-    ),
-  ).rejects.toThrow();
-});
-
-test("rejects an incorrect currentPassword and leaves the account untouched", async () => {
-  const t = convexTest(schema, testModules);
-  const selfId = await seedAccount(t, SELF_EMAIL, SELF_PASSWORD, "本人", "self");
-  const asSelf = t.withIdentity({ subject: selfId });
-
-  await expect(
-    asSelf.action(api.actions.users.updateEmail.updateEmail, {
-      currentPassword: "totally-wrong-password",
+    await asSelf.action(api.actions.users.updateEmail.updateEmail, {
+      currentPassword: SELF_PASSWORD,
       newEmail: "new-self@example.com",
-    }),
-  ).rejects.toThrow();
+    });
 
-  const untouchedUser = await t.run((ctx) => ctx.db.get("users", selfId));
-  expect(untouchedUser?.email).toBe(SELF_EMAIL);
-});
+    const updatedUser = await t.run((ctx) => ctx.db.get("users", selfId));
+    expect(updatedUser?.email).toBe("new-self@example.com");
 
-test("acting as the partner never changes another user's email", async () => {
-  const t = convexTest(schema, testModules);
-  const selfId = await seedAccount(t, SELF_EMAIL, SELF_PASSWORD, "本人", "self");
-  const partnerId = await seedAccount(t, PARTNER_EMAIL, PARTNER_PASSWORD, "パートナー", "partner");
-  const asPartner = t.withIdentity({ subject: partnerId });
+    // New email + same password now authenticates...
+    await expect(
+      t.action((ctx) =>
+        retrieveByEmail(
+          ctx as unknown as Parameters<typeof retrieveByEmail>[0],
+          "new-self@example.com",
+          SELF_PASSWORD,
+        ),
+      ),
+    ).resolves.toBeDefined();
 
-  await asPartner.action(api.actions.users.updateEmail.updateEmail, {
-    currentPassword: PARTNER_PASSWORD,
-    newEmail: "new-partner@example.com",
-  });
+    // ...and the OLD email no longer resolves to any account at all.
+    await expect(
+      t.action((ctx) =>
+        retrieveByEmail(
+          ctx as unknown as Parameters<typeof retrieveByEmail>[0],
+          SELF_EMAIL,
+          SELF_PASSWORD,
+        ),
+      ),
+    ).rejects.toThrow();
+  },
+  AUTH_ROUND_TRIP_TIMEOUT_MS,
+);
 
-  const selfUser = await t.run((ctx) => ctx.db.get("users", selfId));
-  const partnerUser = await t.run((ctx) => ctx.db.get("users", partnerId));
-  expect(selfUser?.email).toBe(SELF_EMAIL);
-  expect(partnerUser?.email).toBe("new-partner@example.com");
-});
+test(
+  "rejects an incorrect currentPassword and leaves the account untouched",
+  async () => {
+    const t = convexTest(schema, testModules);
+    const selfId = await seedAccount(t, SELF_EMAIL, SELF_PASSWORD, "本人", "self");
+    const asSelf = t.withIdentity({ subject: selfId });
+
+    await expect(
+      asSelf.action(api.actions.users.updateEmail.updateEmail, {
+        currentPassword: "totally-wrong-password",
+        newEmail: "new-self@example.com",
+      }),
+    ).rejects.toThrow();
+
+    const untouchedUser = await t.run((ctx) => ctx.db.get("users", selfId));
+    expect(untouchedUser?.email).toBe(SELF_EMAIL);
+  },
+  AUTH_ROUND_TRIP_TIMEOUT_MS,
+);
+
+test(
+  "acting as the partner never changes another user's email",
+  async () => {
+    const t = convexTest(schema, testModules);
+    const selfId = await seedAccount(t, SELF_EMAIL, SELF_PASSWORD, "本人", "self");
+    const partnerId = await seedAccount(
+      t,
+      PARTNER_EMAIL,
+      PARTNER_PASSWORD,
+      "パートナー",
+      "partner",
+    );
+    const asPartner = t.withIdentity({ subject: partnerId });
+
+    await asPartner.action(api.actions.users.updateEmail.updateEmail, {
+      currentPassword: PARTNER_PASSWORD,
+      newEmail: "new-partner@example.com",
+    });
+
+    const selfUser = await t.run((ctx) => ctx.db.get("users", selfId));
+    const partnerUser = await t.run((ctx) => ctx.db.get("users", partnerId));
+    expect(selfUser?.email).toBe(SELF_EMAIL);
+    expect(partnerUser?.email).toBe("new-partner@example.com");
+  },
+  AUTH_ROUND_TRIP_TIMEOUT_MS,
+);

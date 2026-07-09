@@ -2,7 +2,6 @@ import { expect, test } from "vite-plus/test";
 
 import type { Doc, Id } from "~/../convex/_generated/dataModel";
 import {
-  deriveFastingElapsedMinutes,
   deriveSessionElapsedMs,
   formatClockDate,
   formatClockDateCompact,
@@ -127,10 +126,6 @@ test("deriveSessionElapsedMs adds now-minus-lastResumedAt only while active", ()
 test("deriveSessionElapsedMs falls back lastResumedAt to startedAt when absent", () => {
   const session = buildStudySession({ accumulatedMs: 0, startedAt: 3_000, status: "active" });
   expect(deriveSessionElapsedMs(session, 9_000)).toBe(Math.max(0, 9_000 - 3_000));
-});
-
-test("deriveFastingElapsedMinutes derives elapsed minutes from start to now", () => {
-  expect(deriveFastingElapsedMinutes(0, 5 * 60_000)).toBe(5);
 });
 
 test("toDeclarationItems maps an empty array to an empty array", () => {

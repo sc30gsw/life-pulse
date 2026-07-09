@@ -9,5 +9,3 @@ export const StartFastingSchema = v.object({
     ),
   ),
 });
-
-export type StartFastingInput = v.InferOutput<typeof StartFastingSchema>;
