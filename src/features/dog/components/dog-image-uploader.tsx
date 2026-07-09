@@ -23,9 +23,11 @@ export function DogImageUploader() {
   const generateUploadUrl = useGenerateDogImageUploadUrl();
   const removeDogImage = useRemoveDogImage();
   const setDogImage = useSetDogImage();
+
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
+
   const croppedAreaPixelsRef = useRef<Area | null>(null);
 
   if (dog === null) {
@@ -44,6 +46,7 @@ export function DogImageUploader() {
 
   async function onSave() {
     const croppedAreaPixels = croppedAreaPixelsRef.current;
+
     if (imageSrc === null || croppedAreaPixels === null) {
       return;
     }
