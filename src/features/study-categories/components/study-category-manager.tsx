@@ -280,7 +280,12 @@ function StudyCategoryRow({ category }: StudyCategoryRowProps) {
             </Field>
             <ActionIcon
               aria-label="保存"
-              className="border-bd bg-inset"
+              className={cn(
+                ACCENT_CLASSES.good.border,
+                ACCENT_CLASSES.good.bg,
+                ACCENT_CLASSES.good.text,
+                "focus-visible:outline-good transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100",
+              )}
               type="submit"
               variant="default"
             >
@@ -288,7 +293,12 @@ function StudyCategoryRow({ category }: StudyCategoryRowProps) {
             </ActionIcon>
             <ActionIcon
               aria-label="キャンセル"
-              className="border-bd bg-inset"
+              className={cn(
+                ACCENT_CLASSES.coral.border,
+                ACCENT_CLASSES.coral.bg,
+                ACCENT_CLASSES.coral.text,
+                "focus-visible:outline-coral transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:brightness-95 disabled:hover:brightness-100 disabled:active:brightness-100",
+              )}
               onClick={() => setIsEditing(false)}
               type="button"
               variant="default"
@@ -342,7 +352,12 @@ function StudyCategoryRow({ category }: StudyCategoryRowProps) {
       <Group gap={4} wrap="nowrap">
         <ActionIcon
           aria-label="名前を変更"
-          className="border-bd bg-inset text-tx hover:bg-panel-2 focus-visible:outline-blue transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:brightness-95"
+          className={cn(
+            ACCENT_CLASSES.blue.border,
+            ACCENT_CLASSES.blue.bg,
+            ACCENT_CLASSES.blue.text,
+            "focus-visible:outline-blue transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:brightness-95",
+          )}
           onClick={() => setIsEditing(true)}
           variant="default"
         >
