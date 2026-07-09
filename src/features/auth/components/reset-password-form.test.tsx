@@ -6,11 +6,14 @@ import { beforeEach, expect, test, vi } from "vite-plus/test";
 import { ResetPasswordForm } from "~/features/auth/components/reset-password-form";
 import { renderWithMantine } from "~/test-utils";
 
-const { notificationsShowMock, resetPasswordMock, routeSearchState } = vi.hoisted(() => ({
-  notificationsShowMock: vi.fn(),
-  resetPasswordMock: vi.fn().mockResolvedValue(null),
-  routeSearchState: { value: { token: "reset-token" } },
-}));
+const { navigateMock, notificationsShowMock, resetPasswordMock, routeSearchState } = vi.hoisted(
+  () => ({
+    navigateMock: vi.fn(),
+    notificationsShowMock: vi.fn(),
+    resetPasswordMock: vi.fn().mockResolvedValue(null),
+    routeSearchState: { value: { token: "reset-token" } },
+  }),
+);
 
 vi.mock("@mantine/notifications", () => ({
   notifications: { show: notificationsShowMock },
@@ -24,9 +27,11 @@ vi.mock("@tanstack/react-router", () => ({
   getRouteApi: () => ({
     useSearch: () => routeSearchState.value,
   }),
+  useNavigate: () => navigateMock,
 }));
 
 beforeEach(() => {
+  navigateMock.mockClear();
   notificationsShowMock.mockClear();
   resetPasswordMock.mockClear();
   resetPasswordMock.mockResolvedValue(null);
@@ -68,6 +73,7 @@ test("ResetPasswordForm updates the password and resets the form", async () => {
     message: "パスワードを更新しました",
     title: "更新完了",
   });
+  expect(navigateMock).toHaveBeenCalledWith({ to: "/login" });
 });
 
 test("ResetPasswordForm reports update errors", async () => {

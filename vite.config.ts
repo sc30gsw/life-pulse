@@ -2,6 +2,7 @@ import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
+import { nitro } from "nitro/vite";
 import { RECOMMENDED_RULES, TANSTACK_START_RULES } from "oxlint-plugin-react-doctor";
 import { defineConfig } from "vite-plus";
 
@@ -85,6 +86,7 @@ export default defineConfig({
     // react's vite plugin must come after start's vite plugin
     react(),
     babel({ presets: [reactCompilerPreset()] }),
+    nitro(),
   ],
   test: {
     include: ["src/**/*.test.ts", "src/**/*.test.tsx", "convex/**/*.test.ts"],

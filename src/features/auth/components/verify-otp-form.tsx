@@ -1,13 +1,13 @@
 import { Field, Form, useForm } from "@formisch/react";
-import { Button, Group, PinInput } from "@mantine/core";
+import { Button, Group, PinInput, Tooltip } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { Shimmer } from "@shimmer-from-structure/react";
-import { IconMail, IconShieldCheck } from "@tabler/icons-react";
+import { IconClock, IconMail, IconShieldCheck } from "@tabler/icons-react";
 import { useNavigate } from "@tanstack/react-router";
 import { Result } from "better-result";
 import { useAction, useQuery } from "convex/react";
 import { ConvexError } from "convex/values";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ComponentProps } from "react";
 import * as v from "valibot";
 
 import { api } from "~/../convex/_generated/api";
@@ -26,6 +26,14 @@ const OTP_VERIFY_MESSAGES = {
   errorMessage: "確認コードが正しくありません",
   errorTitle: "OTPエラー",
 } as const satisfies Record<string, string>;
+const TOOLTIP_STYLES = {
+  tooltip: {
+    backgroundColor: "var(--panel2)",
+    border: "1px solid var(--bd2)",
+    color: "var(--tx)",
+    fontSize: "11px",
+  },
+} as const satisfies ComponentProps<typeof Tooltip>["styles"];
 
 type PendingAction = "resend" | "verify" | null;
 
@@ -120,6 +128,9 @@ export function VerifyOtpForm() {
     resendAvailableAt === null ? 0 : Math.max(0, Math.ceil((resendAvailableAt - now) / 1000));
   const isResendCoolingDown = resendWaitSeconds > 0;
   const isPending = isInitialOtpSending || pendingAction !== null || form.isSubmitting;
+  const resendTooltipLabel = isResendCoolingDown
+    ? `あと ${resendWaitSeconds} 秒で再送できます`
+    : "確認コードを再送します";
 
   async function submitOtp(output: VerifyOtpSchemaType) {
     const result = await runOtpAction({
@@ -219,16 +230,22 @@ export function VerifyOtpForm() {
               >
                 確認
               </Button>
-              <Button
-                variant="light"
-                leftSection={<IconMail size={18} />}
-                loading={pendingAction === "resend"}
-                disabled={isPending || isResendCoolingDown}
-                type="button"
-                onClick={resendCode}
-              >
-                {isResendCoolingDown ? `再送 （${resendWaitSeconds}s）` : "再送"}
-              </Button>
+              <Tooltip label={resendTooltipLabel} styles={TOOLTIP_STYLES}>
+                <span style={{ display: "block", width: "100%" }}>
+                  <Button
+                    fullWidth
+                    variant="light"
+                    leftSection={
+                      isResendCoolingDown ? <IconClock size={18} /> : <IconMail size={18} />
+                    }
+                    disabled={isPending || isResendCoolingDown}
+                    type="button"
+                    onClick={resendCode}
+                  >
+                    {isResendCoolingDown ? `再送 (${resendWaitSeconds}s)` : "再送"}
+                  </Button>
+                </span>
+              </Tooltip>
             </Group>
           </>
         )}

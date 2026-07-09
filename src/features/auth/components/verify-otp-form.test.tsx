@@ -55,6 +55,9 @@ vi.mock("@mantine/core", async (importOriginal) => {
     children?: ReactNode;
   };
   type PinInputProps = ComponentProps<typeof actual.PinInput>;
+  type TooltipProps = ComponentProps<typeof actual.Tooltip> & {
+    children?: ReactNode;
+  };
 
   return {
     ...actual,
@@ -86,6 +89,7 @@ vi.mock("@mantine/core", async (importOriginal) => {
         onBlur={() => onComplete?.(String(value ?? ""))}
       />
     ),
+    Tooltip: ({ children, label }: TooltipProps) => <span title={String(label)}>{children}</span>,
   };
 });
 
