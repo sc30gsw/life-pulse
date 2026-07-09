@@ -450,24 +450,19 @@ body {
   inset: 0;
   z-index: 1;
   border-radius: inherit;
-  padding: 1.3px;
-  background: conic-gradient(
-    from var(--angle, 0deg),
-    transparent 0deg,
-    var(--streak) 42deg,
-    transparent 96deg,
-    transparent 210deg,
-    var(--streak) 244deg,
-    transparent 296deg
-  );
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
+  border: 1.3px solid transparent;
+  background:
+    linear-gradient(165deg, var(--panel), var(--panel2)) padding-box,
+    conic-gradient(
+        from var(--angle, 0deg),
+        transparent 0deg,
+        var(--streak) 42deg,
+        transparent 96deg,
+        transparent 210deg,
+        var(--streak) 244deg,
+        transparent 296deg
+      )
+      border-box;
   opacity: 0.6;
   pointer-events: none;
   animation: lp-rotate 6s linear infinite;
@@ -494,20 +489,11 @@ body {
   inset: 0;
   z-index: 3;
   border-radius: inherit;
-  padding: 1.3px;
-  background: radial-gradient(
-    300px circle at var(--mx, 50%) var(--my, 50%),
-    var(--glow),
-    transparent 62%
-  );
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
+  border: 1.3px solid transparent;
+  background:
+    linear-gradient(165deg, var(--panel), var(--panel2)) padding-box,
+    radial-gradient(300px circle at var(--mx, 50%) var(--my, 50%), var(--glow), transparent 62%)
+      border-box;
   opacity: var(--gop, 0);
   transition: opacity 0.4s ease;
   pointer-events: none;
