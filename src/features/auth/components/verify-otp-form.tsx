@@ -80,7 +80,7 @@ export function VerifyOtpForm() {
     });
   }
 
-  function submitCode(code: string) {
+  function submitCode(code: VerifyOtpSchemaType["code"]) {
     const result = v.safeParse(VerifyOtpSchema, { code });
 
     if (result.success) {
@@ -105,7 +105,7 @@ export function VerifyOtpForm() {
               onChange={field.onChange}
               onComplete={submitCode}
             />
-            <Group grow w="100%">
+            <Group grow w="100%" mt="md">
               <Button
                 leftSection={<IconShieldCheck size={18} />}
                 loading={isPending || form.isSubmitting}
