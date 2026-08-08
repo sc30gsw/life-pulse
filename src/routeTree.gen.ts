@@ -12,8 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as VerifyOtpRouteImport } from './routes/verify-otp'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as PresentationRouteImport } from './routes/presentation'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as ConvexBestPracticesRouteImport } from './routes/convex-best-practices'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedStudyRouteImport } from './routes/_authenticated/study'
@@ -40,6 +42,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PresentationRoute = PresentationRouteImport.update({
+  id: '/presentation',
+  path: '/presentation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -48,6 +55,11 @@ const LoginRoute = LoginRouteImport.update({
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConvexBestPracticesRoute = ConvexBestPracticesRouteImport.update({
+  id: '/convex-best-practices',
+  path: '/convex-best-practices',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -103,8 +115,10 @@ const AuthenticatedSelfHealthRoute = AuthenticatedSelfHealthRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
+  '/convex-best-practices': typeof ConvexBestPracticesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/presentation': typeof PresentationRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/verify-otp': typeof VerifyOtpRoute
@@ -117,8 +131,10 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSelfSettingsRoute
 }
 export interface FileRoutesByTo {
+  '/convex-best-practices': typeof ConvexBestPracticesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/presentation': typeof PresentationRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/verify-otp': typeof VerifyOtpRoute
@@ -134,8 +150,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/convex-best-practices': typeof ConvexBestPracticesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/presentation': typeof PresentationRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/verify-otp': typeof VerifyOtpRoute
@@ -153,8 +171,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/convex-best-practices'
     | '/forgot-password'
     | '/login'
+    | '/presentation'
     | '/reset-password'
     | '/signup'
     | '/verify-otp'
@@ -167,8 +187,10 @@ export interface FileRouteTypes {
     | '/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/convex-best-practices'
     | '/forgot-password'
     | '/login'
+    | '/presentation'
     | '/reset-password'
     | '/signup'
     | '/verify-otp'
@@ -183,8 +205,10 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_authenticated'
+    | '/convex-best-practices'
     | '/forgot-password'
     | '/login'
+    | '/presentation'
     | '/reset-password'
     | '/signup'
     | '/verify-otp'
@@ -201,8 +225,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  ConvexBestPracticesRoute: typeof ConvexBestPracticesRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
+  PresentationRoute: typeof PresentationRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   VerifyOtpRoute: typeof VerifyOtpRoute
@@ -231,6 +257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/presentation': {
+      id: '/presentation'
+      path: '/presentation'
+      fullPath: '/presentation'
+      preLoaderRoute: typeof PresentationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -243,6 +276,13 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/convex-best-practices': {
+      id: '/convex-best-practices'
+      path: '/convex-best-practices'
+      fullPath: '/convex-best-practices'
+      preLoaderRoute: typeof ConvexBestPracticesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -357,8 +397,10 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  ConvexBestPracticesRoute: ConvexBestPracticesRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
+  PresentationRoute: PresentationRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   VerifyOtpRoute: VerifyOtpRoute,

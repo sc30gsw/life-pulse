@@ -610,6 +610,34 @@ body {
   border-color: var(--bd2) !important;
 }
 
+/* Presentation surfaces echo the ruled, highly navigable Convex docs layout
+   while staying inside the Live Board token system. */
+.presentation-grid {
+  background-image:
+    linear-gradient(var(--bd) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bd) 1px, transparent 1px),
+    radial-gradient(
+      circle at 78% 18%,
+      color-mix(in oklab, var(--good) 8%, transparent),
+      transparent 34%
+    );
+  background-size:
+    32px 32px,
+    32px 32px,
+    100% 100%;
+}
+
+[data-presentation-stage]:fullscreen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+}
+
+[data-presentation-stage]:fullscreen > section {
+  width: min(100vw, 177.778vh);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lp-pulse,
   .lp-flash,

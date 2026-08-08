@@ -89,10 +89,11 @@ OpenDesign用プレゼンテーション設計。調査基準日は2026-08-08（
 
 **投影**
 
+- connection setup不要。最初の`insert`でtableが生まれる
 - JSON-like document
 - `Id<"table">` で別tableを参照
 - `_id` / `_creationTime` は自動
-- 公式の呼称は **document-relational**
+- SQL / ORMなしで使える **document-relational** database
 
 ```ts
 export default defineSchema({
@@ -117,6 +118,8 @@ export default defineSchema({
 ### Slide 04 — Schemaは型宣言ではなく実データの境界
 
 **投影**
+
+> Schema is optional. Runtime contract is not.
 
 `schema.ts` → runtime validation → generated `Doc` / `Id` → function refs → client types
 
@@ -323,6 +326,8 @@ return convexQuery(api.queries.dashboard.live.live, { dateJst });
 
 `mutation commit` → `dependency invalidation` → `query rerun/cache update` → `WebSocket push` → `consistent client snapshot`
 
+- 全client subscriptionを同じlogical snapshotへ同時に更新
+
 **図解**: 5段timeline。変更event payloadではなくquery resultが届くことを強調。
 
 **Speaker notes**
@@ -336,7 +341,7 @@ return convexQuery(api.queries.dashboard.live.live, { dateJst });
 
 **投影**
 
-- Server cache: same query + args、dependencyでinvalidated
+- Server cache: dependencyで自動更新。cached readはdatabase bandwidthを消費しない
 - Client optimistic update: authoritative resultまで一時的に書き換え
 - Server error: rollbackしてserver resultへ置換
 
@@ -345,7 +350,7 @@ return convexQuery(api.queries.dashboard.live.live, { dateJst });
 **Speaker notes**
 
 - optimistic updaterはpureにする。query data更新時に再適用され得る。
-- cached readのdatabase bandwidth課金については発表直前にpricing docsを確認。
+- cached readのdatabase bandwidth非課金はRealtime公式ページの現在の記載。発表直前にも変更がないか確認する。
 
 **Evidence**: [Optimistic Updates](https://docs.convex.dev/client/react/optimistic-updates), [Realtime](https://docs.convex.dev/realtime)
 
