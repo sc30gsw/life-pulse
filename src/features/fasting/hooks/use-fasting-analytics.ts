@@ -1,13 +1,13 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 
-import { healthWorkoutsQuery } from "~/features/health/api/health-workouts-query";
+import { fastingAnalyticsQuery } from "~/features/fasting/api/fasting-analytics-query";
 import {
   analyticsRangeJst,
   type AnalyticsPeriodDays,
 } from "~/features/insights/utils/analytics-range";
 
-export function useWorkouts(days: AnalyticsPeriodDays = 28) {
+export function useFastingAnalytics(days: AnalyticsPeriodDays = 28) {
   const { fromDateJst, toDateJst } = analyticsRangeJst(days);
 
-  return useSuspenseQuery(healthWorkoutsQuery(fromDateJst, toDateJst));
+  return useSuspenseQuery(fastingAnalyticsQuery(fromDateJst, toDateJst));
 }

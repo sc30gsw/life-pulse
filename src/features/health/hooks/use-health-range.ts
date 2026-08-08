@@ -1,10 +1,13 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 
-import { healthRangeQuery } from "~/features/health/api/health-range-query";
-import { metricsRangeJst } from "~/features/health/utils/metrics-range";
+import { healthAnalyticsQuery } from "~/features/health/api/health-analytics-query";
+import {
+  analyticsRangeJst,
+  type AnalyticsPeriodDays,
+} from "~/features/insights/utils/analytics-range";
 
-export function useHealthRange() {
-  const { fromDateJst, toDateJst } = metricsRangeJst();
+export function useHealthRange(days: AnalyticsPeriodDays = 28) {
+  const { fromDateJst, toDateJst } = analyticsRangeJst(days);
 
-  return useSuspenseQuery(healthRangeQuery(fromDateJst, toDateJst));
+  return useSuspenseQuery(healthAnalyticsQuery(fromDateJst, toDateJst));
 }

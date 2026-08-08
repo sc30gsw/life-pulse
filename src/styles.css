@@ -1,7 +1,6 @@
 @import "tailwind-preset-mantine";
 
 @import "@mantine/dates/styles.layer.css";
-@import "@mantine/charts/styles.layer.css";
 
 /* Live Board design tokens — source of truth: docs/design/live-board.md */
 :root {
@@ -77,11 +76,6 @@ body {
   transition:
     background 0.35s ease,
     color 0.35s ease;
-}
-
-.lp-chart-legend-item:hover .lp-chart-legend-item-name,
-.lp-chart-legend-item:active .lp-chart-legend-item-name {
-  color: var(--panel) !important;
 }
 
 .lp-dtp-calendar-level,

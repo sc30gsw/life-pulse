@@ -128,9 +128,9 @@ plan: [2026-07-07_02-study-sessions.md](./plans/2026-07-07_02-study-sessions.md)
 
 ### FR-7 相関ビュー【P1】
 
-- [x] FR-7.1 直近 28 日の「睡眠×学習分数」「Body Battery×学習分数」「HIIT 翌日 Body Battery」表示。実装: `convex/queries/insights/correlations.ts`(`requireSelf` + `services/insights/correlations.ts` の index-range join)、`src/routes/_authenticated/_self/insights.tsx`、`src/features/insights/components/{sleep-vs-study-scatter,body-battery-vs-study-scatter,hiit-body-battery-bar-chart}.tsx`(`@mantine/charts` の `ScatterChart`/`BarChart`)
+- [x] FR-7.1 直近 28 日の「睡眠×学習分数」「Body Battery×学習分数」「HIIT 翌日 Body Battery」表示。実装: `convex/queries/insights/correlations.ts`(`requireSelf` + `services/insights/correlations.ts` の index-range join)、`src/routes/_authenticated/_self/insights.tsx`、`src/features/insights/components/{sleep-vs-study-scatter,body-battery-vs-study-scatter,hiit-body-battery-bar-chart}.tsx`(TanStack Charts の `dot`/`barY`)
 - [x] FR-7.2 Convex クエリ内 join で導出、元データ変更で自動再計算・再描画(`/insights`、pearson 純関数)。実装: `convex/services/insights/pearson.ts`(純関数、`pearson.test.ts` 6件)+ `convex/services/insights/correlations.test.ts`(convex-test 11件、pairwise除外・demoモード・HIIT翌日境界・partner拒否等)。フロントは `useSuspenseQuery(convexQuery(...))` でリアクティブ購読(`src/features/insights/hooks/use-insights-correlations.ts`)
-- [x] 決定(2026-07-08): `/health` の HIIT トレンドチャート(`HiitTrend`)へ健康指標(睡眠/Body Battery 等)を area/line で重ねる案、および PieChart 追加案は本 FR-7 のスコープとし、`/health` 側では実装しない。`HiitTrend` は kind 別(hiit/walk/other)の stacked `BarChart` のみに留める。FR-7 実装時に `CompositeChart`(bar+area/line、`@mantine/charts`)採用を検討する。→ **確定(2026-07-08)**: `@mantine/charts@9.4.1` は `CompositeChart`/`PieChart` とも提供済みで置き換え不要と判明し、採用。`src/features/insights/components/daily-composite-chart.tsx`(bar=学習分数/line=睡眠スコア+Body Battery、28日分)と `workout-kind-pie-chart.tsx`(`HiitTrend` と同じ hiit/walk/other→coral/blue/faint 配色)として実装済み
+- [x] 決定(2026-08-08): `/health` の HIIT トレンドは kind 別の stacked `barY` を維持し、健康指標を重ねる日次ビューは TanStack Charts の `barY`+`lineY` aligned marks として `/insights` に実装。種別内訳は polar `pie`/`radialArc` で表示し、すべてのビューに共有 tooltip/凡例・aria ラベル・データ表を付与した。
 
 ### 磨き込み・発表準備
 

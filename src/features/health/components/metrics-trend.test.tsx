@@ -13,24 +13,9 @@ vi.mock("~/features/health/hooks/use-health-range", () => ({
   useHealthRange: () => ({ data: hookState.rows }),
 }));
 
-vi.mock("@mantine/charts", () => ({
-  BarChart: ({ data, series }: { data: unknown[]; series: Array<{ name: string }> }) => (
-    <div
-      data-first-row={JSON.stringify(data[0])}
-      data-series={series.map((item) => item.name).join(",")}
-      data-testid="bar-chart"
-    >
-      rows:{data.length}
-    </div>
-  ),
-  LineChart: ({ data, series }: { data: unknown[]; series: Array<{ label: string }> }) => (
-    <div
-      data-first-row={JSON.stringify(data[0])}
-      data-series={series.map((item) => item.label).join(",")}
-      data-testid="line-chart"
-    >
-      rows:{data.length}
-    </div>
+vi.mock("~/components/charts/tanstack-chart", () => ({
+  TanStackChart: ({ ariaLabel }: { ariaLabel: string }) => (
+    <div data-label={ariaLabel} data-testid="tanstack-chart" />
   ),
 }));
 
@@ -59,18 +44,16 @@ test("renders line and bar charts with mapped health rows", () => {
     },
   ];
 
-  const { getAllByTestId, getByTestId, getByText } = renderWithMantine(<MetricsTrend />);
-  const lineCharts = getAllByTestId("line-chart");
+  const { getAllByTestId, getByText } = renderWithMantine(<MetricsTrend />);
+  const charts = getAllByTestId("tanstack-chart");
 
   expect(getByText("睡眠スコア / Body Battery")).toBeDefined();
   expect(getByText("HRV / 安静時心拍")).toBeDefined();
   expect(getByText("歩数")).toBeDefined();
-  expect(lineCharts).toHaveLength(2);
-  expect(lineCharts[0]?.getAttribute("data-series")).toBe("睡眠スコア,Body Battery");
-  expect(lineCharts[1]?.getAttribute("data-series")).toBe("HRV,安静時心拍");
-  expect(lineCharts[0]?.getAttribute("data-first-row")).toContain('"date":"7/8"');
-  expect(getByTestId("bar-chart").getAttribute("data-series")).toBe("steps");
-  expect(getByTestId("bar-chart").getAttribute("data-first-row")).toContain('"steps":12345');
+  expect(charts).toHaveLength(3);
+  expect(charts[0]?.getAttribute("data-label")).toBe("睡眠スコアと Body Battery の推移");
+  expect(charts[1]?.getAttribute("data-label")).toBe("HRV と安静時心拍の推移");
+  expect(charts[2]?.getAttribute("data-label")).toBe("歩数の推移");
 });
 
 test("renders chart fallback placeholders", () => {

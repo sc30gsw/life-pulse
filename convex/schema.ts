@@ -63,10 +63,9 @@ export default defineSchema({
   studyCategories: defineTable(studyCategoryFieldValidators).index("by_user", ["userId"]),
 
   // FR-4 断食ウィンドウ(ステートマシン)
-  fastingWindows: defineTable(fastingWindowFieldValidators).index("by_user_status", [
-    "userId",
-    "status",
-  ]),
+  fastingWindows: defineTable(fastingWindowFieldValidators)
+    .index("by_user_status", ["userId", "status"])
+    .index("by_user_status_and_startedAt", ["userId", "status", "startedAt"]),
 
   // FR-10 犬プロフィール(1件運用)
   dogs: defineTable(dogFieldValidators),

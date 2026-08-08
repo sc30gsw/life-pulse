@@ -1,18 +1,21 @@
-import { PieChart } from "@mantine/charts";
 import { Box, EmptyState, Text } from "@mantine/core";
 import { Shimmer } from "@shimmer-from-structure/react";
 import { IconChartPie } from "@tabler/icons-react";
+import { defineChart } from "@tanstack/charts";
+import { pie, polar, radialArc, radialText } from "@tanstack/charts/polar";
+import { tooltip } from "@tanstack/charts/tooltip";
 
-import { CHART_LEGEND_CLASS_NAMES } from "~/components/chart-legend-style";
+import { CHART_COLORS, CHART_THEME, chartLegend } from "~/components/charts/chart-theme";
+import { TanStackChart } from "~/components/charts/tanstack-chart";
 import { useInsightsCorrelations } from "~/features/insights/hooks/use-insights-correlations";
-import { ACCENT_VARS, type WorkoutKind } from "~/types/dashboard";
+import { type WorkoutKind } from "~/types/dashboard";
 
 const CHART_SIZE = 140;
 
 const WORKOUT_KIND_COLORS = {
-  hiit: ACCENT_VARS.coral,
-  other: ACCENT_VARS.faint,
-  walk: ACCENT_VARS.blue,
+  hiit: CHART_COLORS.coral,
+  other: CHART_COLORS.faint,
+  walk: CHART_COLORS.blue,
 } as const satisfies Record<WorkoutKind, string>;
 
 function workoutKindLabel(kind: WorkoutKind) {
@@ -46,23 +49,47 @@ export function WorkoutKindPieChart() {
   }
 
   const chartData = data.workoutKindBreakdown.map((row) => ({
-    color: WORKOUT_KIND_COLORS[row.kind],
     key: row.kind,
     name: workoutKindLabel(row.kind),
     value: row.count,
   }));
+  const slices = pie(chartData, { value: "value" });
+  const definition = defineChart({
+    marks: [
+      polar({
+        radiusRatio: 0.84,
+        marks: [
+          radialArc(slices, { color: "key", key: "key", outerRadius: ({ radius }) => radius }),
+          radialText(slices, {
+            anchor: "middle",
+            fontSize: 12,
+            radius: 0.62,
+            text: "value",
+          }),
+        ],
+      }),
+    ],
+    color: {
+      domain: ["hiit", "walk", "other"],
+      legend: chartLegend,
+      range: [WORKOUT_KIND_COLORS.hiit, WORKOUT_KIND_COLORS.walk, WORKOUT_KIND_COLORS.other],
+    },
+    theme: CHART_THEME,
+    tooltip,
+  });
 
   return (
     <Box>
       <Text c="dimmed" fw={600} mb="xs" size="xs">
         トレーニング種別内訳(直近28日)
       </Text>
-      <PieChart
-        classNames={CHART_LEGEND_CLASS_NAMES}
-        data={chartData}
-        size={CHART_SIZE}
-        withLabels
-        withLegend
+      <TanStackChart
+        ariaDescription="HIIT、ウォーキング、その他のトレーニング件数。各扇形の中央に件数を表示しています。"
+        ariaLabel="トレーニング種別の件数内訳"
+        definition={definition}
+        height={CHART_SIZE}
+        initialWidth={CHART_SIZE}
+        style={{ maxWidth: CHART_SIZE }}
       />
     </Box>
   );

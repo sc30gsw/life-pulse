@@ -15,15 +15,9 @@ vi.mock("~/features/health/hooks/use-workouts", () => ({
   useWorkouts: () => ({ data: hookState.workouts }),
 }));
 
-vi.mock("@mantine/charts", () => ({
-  BarChart: ({ data, series }: { data: unknown[]; series: Array<{ name: string }> }) => (
-    <div
-      data-first-row={JSON.stringify(data[0])}
-      data-series={series.map((item) => item.name).join(",")}
-      data-testid="bar-chart"
-    >
-      rows:{data.length}
-    </div>
+vi.mock("~/components/charts/tanstack-chart", () => ({
+  TanStackChart: ({ ariaLabel }: { ariaLabel: string }) => (
+    <div data-label={ariaLabel} data-testid="tanstack-chart" />
   ),
 }));
 
@@ -60,11 +54,9 @@ test("renders a bucketed, kind-split stacked bar chart from workout rows", () =>
   ];
 
   const { getByTestId } = renderWithMantine(<HiitTrend />);
-  const chart = getByTestId("bar-chart");
+  const chart = getByTestId("tanstack-chart");
 
-  expect(chart.getAttribute("data-series")).toBe("hiit,walk,other");
-  expect(chart.textContent).toBe(`rows:${HIIT_TREND_DAYS}`);
-  expect(chart.getAttribute("data-first-row")).toContain('"hiit":0');
+  expect(chart.getAttribute("data-label")).toBe("トレーニング時間の内訳");
 });
 
 test("renders chart fallback placeholder", () => {

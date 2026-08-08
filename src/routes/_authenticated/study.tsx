@@ -12,6 +12,14 @@ import {
   SessionHistoryListFallback,
 } from "~/features/study/components/session-history-list";
 import {
+  StudyDefenseChart,
+  StudyDefenseChartFallback,
+} from "~/features/study/components/study-defense-chart";
+import {
+  StudyInterruptionHeatmap,
+  StudyInterruptionHeatmapFallback,
+} from "~/features/study/components/study-interruption-heatmap";
+import {
   UpcomingBlockList,
   UpcomingBlockListFallback,
 } from "~/features/study/components/upcoming-block-list";
@@ -123,6 +131,26 @@ function StudyPage() {
             <SectionLabel label="予定" />
             <Suspense fallback={<UpcomingBlockListFallback />}>
               <UpcomingBlockList />
+            </Suspense>
+          </GlowCard>
+          <GlowCard
+            className="bg-panel border-bd shadow-card relative overflow-hidden border"
+            p="lg"
+            radius={18}
+          >
+            <SectionLabel label="学習枠の防衛率" />
+            <Suspense fallback={<StudyDefenseChartFallback />}>
+              <StudyDefenseChart />
+            </Suspense>
+          </GlowCard>
+          <GlowCard
+            className="bg-panel border-bd shadow-card relative overflow-hidden border"
+            p="lg"
+            radius={18}
+          >
+            <SectionLabel label="学習中断ドライバー" />
+            <Suspense fallback={<StudyInterruptionHeatmapFallback />}>
+              <StudyInterruptionHeatmap />
             </Suspense>
           </GlowCard>
         </section>

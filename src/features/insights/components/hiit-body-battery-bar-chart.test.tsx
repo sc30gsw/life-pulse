@@ -17,9 +17,9 @@ vi.mock("~/features/insights/hooks/use-insights-correlations", () => ({
   useInsightsCorrelations: () => ({ data: hookState.data }),
 }));
 
-vi.mock("@mantine/charts", () => ({
-  BarChart: ({ data }: { data: Array<{ avg: number; group: string }> }) => (
-    <div data-rows={JSON.stringify(data)} data-testid="bar-chart" />
+vi.mock("~/components/charts/tanstack-chart", () => ({
+  TanStackChart: ({ ariaLabel }: { ariaLabel: string }) => (
+    <div data-label={ariaLabel} data-testid="bar-chart" />
   ),
 }));
 
@@ -60,8 +60,7 @@ test("renders a 2-group bar chart with n annotated per group", () => {
   const { getByTestId } = renderWithMantine(<HiitBodyBatteryBarChart />);
   const chart = getByTestId("bar-chart");
 
-  expect(chart.getAttribute("data-rows")).toContain("前日HIITあり(n=4)");
-  expect(chart.getAttribute("data-rows")).toContain("前日HIITなし(n=20)");
+  expect(chart.getAttribute("data-label")).toBe("前日 HIIT 有無別の翌日 Body Battery 平均");
 });
 
 test("renders chart fallback placeholder", () => {

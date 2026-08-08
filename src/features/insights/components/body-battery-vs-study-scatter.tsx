@@ -1,13 +1,14 @@
-import { ScatterChart } from "@mantine/charts";
 import { Box } from "@mantine/core";
 import { Shimmer } from "@shimmer-from-structure/react";
+import { defineChart, dot } from "@tanstack/charts";
+import { scaleLinear } from "@tanstack/charts-scales/linear";
+import { tooltip } from "@tanstack/charts/tooltip";
 
+import { CHART_COLORS, CHART_THEME } from "~/components/charts/chart-theme";
+import { TanStackChart } from "~/components/charts/tanstack-chart";
 import { CorrelationChartHeader } from "~/features/insights/components/correlation-chart-header";
 import { useInsightsCorrelations } from "~/features/insights/hooks/use-insights-correlations";
-import { ACCENT_VARS } from "~/types/dashboard";
 
-const CHART_GRID_COLOR = "var(--bd2)";
-const CHART_TEXT_COLOR = "var(--dim)";
 const CHART_HEIGHT = 220;
 
 export function BodyBatteryVsStudyScatter() {
@@ -18,17 +19,22 @@ export function BodyBatteryVsStudyScatter() {
       ? []
       : [{ bodyBattery: day.bodyBattery, studyMinutes: day.studyMinutes }],
   );
+  const definition = defineChart({
+    marks: [dot(points, { fill: CHART_COLORS.good, r: 4, x: "bodyBattery", y: "studyMinutes" })],
+    x: { axis: { label: "Body Battery" }, scale: scaleLinear },
+    y: { axis: { label: "学習分数(分)" }, grid: true, nice: true, scale: scaleLinear },
+    theme: CHART_THEME,
+    tooltip,
+  });
 
   return (
     <Box>
       <CorrelationChartHeader correlation={data.bbVsStudy} label="Body Battery × 当日学習分数" />
-      <ScatterChart
-        data={[{ color: ACCENT_VARS.good, data: points, name: "Body Battery × 学習分数" }]}
-        dataKey={{ x: "bodyBattery", y: "studyMinutes" }}
-        gridColor={CHART_GRID_COLOR}
-        h={CHART_HEIGHT}
-        labels={{ x: "Body Battery", y: "学習分数(分)" }}
-        textColor={CHART_TEXT_COLOR}
+      <TanStackChart
+        ariaDescription="Body Battery と当日学習分数の相関。点を選択すると値を確認できます。"
+        ariaLabel="Body Battery と当日学習分数の散布図"
+        definition={definition}
+        height={CHART_HEIGHT}
       />
     </Box>
   );

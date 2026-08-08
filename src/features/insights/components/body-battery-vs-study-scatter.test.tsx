@@ -17,9 +17,9 @@ vi.mock("~/features/insights/hooks/use-insights-correlations", () => ({
   useInsightsCorrelations: () => ({ data: hookState.data }),
 }));
 
-vi.mock("@mantine/charts", () => ({
-  ScatterChart: ({ data }: { data: Array<{ data: unknown[] }> }) => (
-    <div data-points={data[0]?.data.length ?? 0} data-testid="scatter-chart" />
+vi.mock("~/components/charts/tanstack-chart", () => ({
+  TanStackChart: ({ ariaLabel }: { ariaLabel: string }) => (
+    <div data-label={ariaLabel} data-testid="scatter-chart" />
   ),
 }));
 

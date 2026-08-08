@@ -7,6 +7,7 @@ import { DATE_JST_PATTERN } from "./domain";
 import { unwrapConvexResult } from "./result";
 
 export const MAX_HISTORY_RANGE_DAYS = 31;
+export const MAX_ANALYTICS_RANGE_DAYS = 90;
 
 export type DateJst = Doc<"healthMetrics">["dateJst"];
 
@@ -74,6 +75,33 @@ export function validateHistoryRange(
 
 export function assertHistoryRange(fromDateJst: DateJst, toDateJst: DateJst) {
   return unwrapConvexResult(validateHistoryRange(fromDateJst, toDateJst));
+}
+
+/** Analysis queries may opt into a bounded 90-day window without weakening the
+ * 31-day guard used by ordinary history endpoints. */
+export function validateAnalyticsRange(
+  fromDateJst: DateJst,
+  toDateJst: DateJst,
+): ResultType<void, DateRangeError> {
+  const fromResult = validateDateJst(fromDateJst);
+  if (Result.isError(fromResult)) {
+    return fromResult;
+  }
+
+  const toResult = validateDateJst(toDateJst);
+  if (Result.isError(toResult)) {
+    return toResult;
+  }
+
+  if (fromDateJst > toDateJst || rangeDays(fromDateJst, toDateJst) > MAX_ANALYTICS_RANGE_DAYS) {
+    return Result.err(new DateRangeError("RANGE_TOO_WIDE"));
+  }
+
+  return Result.ok();
+}
+
+export function assertAnalyticsRange(fromDateJst: DateJst, toDateJst: DateJst) {
+  return unwrapConvexResult(validateAnalyticsRange(fromDateJst, toDateJst));
 }
 
 function rangeDays(fromDateJst: DateJst, toDateJst: DateJst) {

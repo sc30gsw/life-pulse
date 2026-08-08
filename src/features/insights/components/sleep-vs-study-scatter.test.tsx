@@ -17,9 +17,9 @@ vi.mock("~/features/insights/hooks/use-insights-correlations", () => ({
   useInsightsCorrelations: () => ({ data: hookState.data }),
 }));
 
-vi.mock("@mantine/charts", () => ({
-  ScatterChart: ({ data }: { data: Array<{ data: unknown[] }> }) => (
-    <div data-points={data[0]?.data.length ?? 0} data-testid="scatter-chart" />
+vi.mock("~/components/charts/tanstack-chart", () => ({
+  TanStackChart: ({ ariaLabel }: { ariaLabel: string }) => (
+    <div data-label={ariaLabel} data-testid="scatter-chart" />
   ),
 }));
 
@@ -68,7 +68,9 @@ test("only passes days with a defined sleepScore as scatter points", () => {
 
   const { getByTestId } = renderWithMantine(<SleepVsStudyScatter />);
 
-  expect(getByTestId("scatter-chart").getAttribute("data-points")).toBe("1");
+  expect(getByTestId("scatter-chart").getAttribute("data-label")).toBe(
+    "睡眠スコアと当日学習分数の散布図",
+  );
 });
 
 test("renders chart fallback placeholder", () => {

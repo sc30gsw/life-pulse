@@ -17,9 +17,9 @@ vi.mock("~/features/insights/hooks/use-insights-correlations", () => ({
   useInsightsCorrelations: () => ({ data: hookState.data }),
 }));
 
-vi.mock("@mantine/charts", () => ({
-  PieChart: ({ data }: { data: Array<{ name: string; value: number }> }) => (
-    <div data-rows={JSON.stringify(data)} data-testid="pie-chart" />
+vi.mock("~/components/charts/tanstack-chart", () => ({
+  TanStackChart: ({ ariaLabel }: { ariaLabel: string }) => (
+    <div data-label={ariaLabel} data-testid="pie-chart" />
   ),
 }));
 
@@ -60,8 +60,7 @@ test("maps workout kind breakdown rows to labeled pie chart cells", () => {
   const { getByTestId } = renderWithMantine(<WorkoutKindPieChart />);
   const chart = getByTestId("pie-chart");
 
-  expect(chart.getAttribute("data-rows")).toContain('"name":"HIIT","value":5');
-  expect(chart.getAttribute("data-rows")).toContain('"name":"ウォーキング","value":2');
+  expect(chart.getAttribute("data-label")).toBe("トレーニング種別の件数内訳");
 });
 
 test("renders chart fallback placeholder", () => {

@@ -1,15 +1,17 @@
-import { BarChart } from "@mantine/charts";
 import { Box, EmptyState, Text } from "@mantine/core";
 import { Shimmer } from "@shimmer-from-structure/react";
 import { IconChartBar } from "@tabler/icons-react";
+import { barY, defineChart, stack } from "@tanstack/charts";
+import { scaleBand } from "@tanstack/charts-scales/band";
+import { scaleLinear } from "@tanstack/charts-scales/linear";
+import { scaleOrdinal } from "@tanstack/charts-scales/ordinal";
+import { tooltip } from "@tanstack/charts/tooltip";
 
-import { CHART_LEGEND_CLASS_NAMES } from "~/components/chart-legend-style";
+import { CHART_COLORS, CHART_THEME, chartLegend } from "~/components/charts/chart-theme";
+import { TanStackChart } from "~/components/charts/tanstack-chart";
 import { useWorkouts } from "~/features/health/hooks/use-workouts";
 import { HIIT_TREND_DAYS, bucketDailyDuration } from "~/features/health/utils/hiit-trend";
-import { ACCENT_VARS } from "~/types/dashboard";
 
-const CHART_GRID_COLOR = "var(--bd2)";
-const CHART_TEXT_COLOR = "var(--dim)";
 const CHART_HEIGHT = 160;
 
 export function HiitTrend() {
@@ -30,26 +32,43 @@ export function HiitTrend() {
   }
 
   const chartData = bucketDailyDuration(workouts);
+  const chartRows = chartData.flatMap((row) => [
+    { date: row.date, series: "HIIT", value: row.hiit },
+    { date: row.date, series: "ウォーキング", value: row.walk },
+    { date: row.date, series: "その他", value: row.other },
+  ]);
+  const definition = defineChart({
+    marks: [
+      barY(chartRows, {
+        color: "series",
+        layout: stack({ order: ["HIIT", "ウォーキング", "その他"] }),
+        x: "date",
+        y: "value",
+      }),
+    ],
+    x: { scale: () => scaleBand<string>().padding(0.16) },
+    y: { grid: true, nice: true, scale: scaleLinear },
+    color: {
+      legend: chartLegend,
+      scale: () =>
+        scaleOrdinal<string, string>()
+          .domain(["HIIT", "ウォーキング", "その他"])
+          .range([CHART_COLORS.coral, CHART_COLORS.blue, CHART_COLORS.faint]),
+    },
+    theme: CHART_THEME,
+    tooltip,
+  });
 
   return (
     <Box mb="md">
       <Text c="dimmed" fw={600} mb="xs" size="xs">
         直近{HIIT_TREND_DAYS}日間のトレーニング時間(分)
       </Text>
-      <BarChart
-        classNames={CHART_LEGEND_CLASS_NAMES}
-        data={chartData}
-        dataKey="date"
-        gridColor={CHART_GRID_COLOR}
-        h={CHART_HEIGHT}
-        series={[
-          { color: ACCENT_VARS.coral, label: "HIIT", name: "hiit" },
-          { color: ACCENT_VARS.blue, label: "ウォーキング", name: "walk" },
-          { color: ACCENT_VARS.faint, label: "その他", name: "other" },
-        ]}
-        textColor={CHART_TEXT_COLOR}
-        type="stacked"
-        withLegend
+      <TanStackChart
+        ariaDescription="日ごとのトレーニング時間を HIIT、ウォーキング、その他に分けた積み上げ棒グラフ。"
+        ariaLabel="トレーニング時間の内訳"
+        definition={definition}
+        height={CHART_HEIGHT}
       />
     </Box>
   );
