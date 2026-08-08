@@ -17,12 +17,6 @@ vi.mock("~/features/insights/hooks/use-insights-correlations", () => ({
   useInsightsCorrelations: () => ({ data: hookState.data }),
 }));
 
-vi.mock("~/components/charts/tanstack-chart", () => ({
-  TanStackChart: ({ ariaLabel }: { ariaLabel: string }) => (
-    <div data-label={ariaLabel} data-testid="pie-chart" />
-  ),
-}));
-
 vi.mock("@shimmer-from-structure/react", () => ({
   Shimmer: ({ children }: { children: ReactNode }) => <div data-testid="shimmer">{children}</div>,
 }));
@@ -49,7 +43,7 @@ test("shows an empty state when there is no workout breakdown", () => {
   expect(getByText("記録はまだありません")).toBeDefined();
 });
 
-test("maps workout kind breakdown rows to labeled pie chart cells", () => {
+test("renders workout kind breakdown without a polar scale error", () => {
   hookState.data = buildData({
     workoutKindBreakdown: [
       { count: 5, kind: "hiit" },
@@ -57,10 +51,9 @@ test("maps workout kind breakdown rows to labeled pie chart cells", () => {
     ],
   });
 
-  const { getByTestId } = renderWithMantine(<WorkoutKindPieChart />);
-  const chart = getByTestId("pie-chart");
+  const { getByRole } = renderWithMantine(<WorkoutKindPieChart />);
 
-  expect(chart.getAttribute("data-label")).toBe("トレーニング種別の件数内訳");
+  expect(getByRole("img", { name: "トレーニング種別の件数内訳" })).toBeDefined();
 });
 
 test("renders chart fallback placeholder", () => {

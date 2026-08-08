@@ -2,6 +2,7 @@ import { Box, EmptyState, Text } from "@mantine/core";
 import { Shimmer } from "@shimmer-from-structure/react";
 import { IconChartPie } from "@tabler/icons-react";
 import { defineChart } from "@tanstack/charts";
+import { scaleLinear } from "@tanstack/charts-scales/linear";
 import { pie, polar, radialArc, radialText } from "@tanstack/charts/polar";
 import { tooltip } from "@tanstack/charts/tooltip";
 
@@ -57,11 +58,14 @@ export function WorkoutKindPieChart() {
   const definition = defineChart({
     marks: [
       polar({
+        angle: { scale: scaleLinear().domain([0, Math.PI * 2]) },
+        radius: { scale: scaleLinear().domain([0, 1]) },
         radiusRatio: 0.84,
         marks: [
           radialArc(slices, { color: "key", key: "key", outerRadius: ({ radius }) => radius }),
           radialText(slices, {
             anchor: "middle",
+            angle: "angle",
             fontSize: 12,
             radius: 0.62,
             text: "value",
