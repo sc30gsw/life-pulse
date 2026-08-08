@@ -10,6 +10,10 @@ import {
 import { HiitSection } from "~/features/health/components/hiit-section";
 import { ManualInputForm } from "~/features/health/components/manual-input-form";
 import { MetricsTrend, MetricsTrendFallback } from "~/features/health/components/metrics-trend";
+import {
+  WorkoutRecoveryBubbleChart,
+  WorkoutRecoveryBubbleChartFallback,
+} from "~/features/health/components/workout-recovery-bubble-chart";
 import { ACCENT_VARS } from "~/types/dashboard";
 
 export const Route = createFileRoute("/_authenticated/_self/health")({
@@ -92,6 +96,16 @@ function HealthPage() {
         >
           <SectionLabel label="HIITトレーニング" />
           <HiitSection />
+        </GlowCard>
+        <GlowCard
+          className="bg-panel border-bd shadow-card relative overflow-hidden border"
+          p="lg"
+          radius={18}
+        >
+          <SectionLabel label="トレーニング量と翌日回復" />
+          <Suspense fallback={<WorkoutRecoveryBubbleChartFallback />}>
+            <WorkoutRecoveryBubbleChart />
+          </Suspense>
         </GlowCard>
       </main>
     </>

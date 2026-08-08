@@ -1,6 +1,6 @@
 # 要件定義書 — Life Pulse(仮称): 家庭ライブハブ / パーソナルOS
 
-- 版: v1.12(2026-07-08: グローバルヘッダーの JST 時計を秒表示に変更。BoardHeader は `HH:mm:ss` を 1 秒 tick で表示)
+- 版: v1.13(2026-08-08: 全チャートを TanStack Charts 0.7.2 へ移行し、アクセシブルなデータ表・28/90日分析・学習防衛率/中断ヒートマップ/断食目標実績/ワークアウト回復の4チャートを追加。`@mantine/charts`/`recharts` を削除)
 - 旧版: v1.11(2026-07-08: FR-7.2 補足に `CompositeChart` 採用確定を追記。FR-7.1/7.2/7.3 完了)
 - 旧版: v1.10(2026-07-08: FR-7.2 に補足を追加。`CompositeChart`(bar+area/line、`@mantine/charts`)採用検討は FR-7 実装時に限定する旨を明記)
 - 旧版: v1.9(2026-07-07: 全 FR/AC にチェックボックスを追加。チェック状態は `phases.md` と同期運用 — 更新は phases.md 側の完了時に両方行う)
@@ -127,7 +127,7 @@
 ### FR-7 相関ビュー(リアクティブjoin)【P1】
 
 - [x] FR-7.1 直近N日(既定28日)について「睡眠スコア×当日学習分数」「Body Battery×学習分数」「HIIT実施翌日のBody Battery」を散布図/バーで表示。
-- [x] FR-7.2 集計はConvexクエリ内で複数テーブルをjoinして導出し、**元データの追加・変更で自動再計算・再描画**されること(発表のコード解説パートの題材)。**補足(v1.10)**: 健康指標(睡眠/Body Battery等)を area/line で重ねる表示、および内訳の PieChart 表示はこの FR-7(`/insights`)のスコープとする。`/health` の `HiitTrend`(FR-6.5)側では実装せず、kind別(hiit/walk/other)の stacked `BarChart` に留める。`CompositeChart`(bar+area/line、`@mantine/charts`)の採用可否は本 FR-7 実装時に検討する。**補足(v1.11)**: `CompositeChart` 採用を確定。`@mantine/charts@9.4.1` は `ScatterChart`/`CompositeChart`/`PieChart` を全て提供しており置き換え不要だった。`convex/queries/insights/correlations.ts`(+ `convex/services/insights/{correlations,pearson}.ts`)の join クエリと、`/insights` route(`src/features/insights/`)の散布図2種・HIIT用 `BarChart`・`daily-composite-chart.tsx`(bar=学習分数/line=睡眠スコア+Body Battery)・`workout-kind-pie-chart.tsx` として実装済み。
+- [x] FR-7.2 集計はConvexクエリ内で複数テーブルをjoinして導出し、**元データの追加・変更で自動再計算・再描画**されること(発表のコード解説パートの題材)。`convex/queries/insights/correlations.ts`(+ `convex/services/insights/{correlations,pearson}.ts`) の join クエリと、`/insights` route の散布図2種・HIIT用棒グラフ・日次複合ビュー・ワークアウト種別円グラフとして実装済み。描画は TanStack Charts 0.7.2 の `dot`/`barY`/`lineY`/polar marks を使用し、28/90日切替とデータ表を提供する。
 - [x] FR-7.3 統計的厳密性は不要。単純な散布図+相関係数程度で良い。
 
 ### FR-8 パートナーステータス【P0】

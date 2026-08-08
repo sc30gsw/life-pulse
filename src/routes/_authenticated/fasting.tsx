@@ -11,6 +11,10 @@ import {
   FastingStatusCard,
   FastingStatusCardFallback,
 } from "~/features/fasting/components/fasting-status-card";
+import {
+  FastingTargetActualChart,
+  FastingTargetActualChartFallback,
+} from "~/features/fasting/components/fasting-target-actual-chart";
 import { ACCENT_VARS } from "~/types/dashboard";
 
 export const Route = createFileRoute("/_authenticated/fasting")({
@@ -74,6 +78,16 @@ function FastingPage() {
           <SectionLabel label="断食履歴(直近30件)" />
           <Suspense fallback={<FastingHistoryListFallback />}>
             <FastingHistoryList />
+          </Suspense>
+        </GlowCard>
+        <GlowCard
+          className="bg-panel border-bd shadow-card relative overflow-hidden border"
+          p="lg"
+          radius={18}
+        >
+          <SectionLabel label="目標対実績" />
+          <Suspense fallback={<FastingTargetActualChartFallback />}>
+            <FastingTargetActualChart />
           </Suspense>
         </GlowCard>
       </main>

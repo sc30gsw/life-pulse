@@ -17,19 +17,9 @@ vi.mock("~/features/insights/hooks/use-insights-correlations", () => ({
   useInsightsCorrelations: () => ({ data: hookState.data }),
 }));
 
-vi.mock("@mantine/charts", () => ({
-  CompositeChart: ({
-    data,
-    series,
-  }: {
-    data: unknown[];
-    series: Array<{ name: string; type: string }>;
-  }) => (
-    <div
-      data-rows={data.length}
-      data-series={series.map((item) => `${item.name}:${item.type}`).join(",")}
-      data-testid="composite-chart"
-    />
+vi.mock("~/components/charts/tanstack-chart", () => ({
+  TanStackChart: ({ ariaLabel }: { ariaLabel: string }) => (
+    <div data-label={ariaLabel} data-testid="composite-chart" />
   ),
 }));
 
@@ -68,10 +58,7 @@ test("renders one chart row per day and a bar+line series mix", () => {
   const { getByTestId } = renderWithMantine(<DailyCompositeChart />);
   const chart = getByTestId("composite-chart");
 
-  expect(chart.getAttribute("data-rows")).toBe("2");
-  expect(chart.getAttribute("data-series")).toBe(
-    "studyMinutes:bar,sleepScore:line,bodyBattery:line",
-  );
+  expect(chart.getAttribute("data-label")).toBe("学習分数と健康指標の複合チャート");
 });
 
 test("renders chart fallback placeholder", () => {

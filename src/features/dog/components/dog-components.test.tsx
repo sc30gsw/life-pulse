@@ -180,7 +180,11 @@ test("DogImageUploader uploads a cropped dog image and stores its storage id", a
   };
   state.uploadUrl.mutateAsync.mockResolvedValue("https://upload.example.com");
   state.setDogImage.mutateAsync.mockResolvedValue(null);
-  vi.stubGlobal("URL", { createObjectURL: vi.fn(() => "blob:dog") });
+  const revokeObjectURL = vi.fn();
+  vi.stubGlobal("URL", {
+    createObjectURL: vi.fn(() => "blob:dog"),
+    revokeObjectURL,
+  });
   vi.stubGlobal(
     "fetch",
     vi.fn(async () => ({
@@ -202,6 +206,7 @@ test("DogImageUploader uploads a cropped dog image and stores its storage id", a
 
   expect(state.uploadUrl.mutateAsync).toHaveBeenCalledWith({});
   expect(state.setDogImage.mutateAsync).toHaveBeenCalledWith({ storageId: "storage_1" });
+  expect(revokeObjectURL).toHaveBeenCalledWith("blob:dog");
 });
 
 test("DogImageUploader confirms before removing the current dog image", async () => {

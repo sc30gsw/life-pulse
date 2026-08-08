@@ -4,7 +4,7 @@ import { notifications } from "@mantine/notifications";
 import { Shimmer } from "@shimmer-from-structure/react";
 import { IconPhotoUp, IconTrash } from "@tabler/icons-react";
 import { Result } from "better-result";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 
 import { useDog } from "~/features/dog/hooks/use-dog";
@@ -30,6 +30,14 @@ export function DogImageUploader() {
 
   const croppedAreaPixelsRef = useRef<Area | null>(null);
 
+  useEffect(() => {
+    if (imageSrc === null) {
+      return;
+    }
+
+    return () => URL.revokeObjectURL(imageSrc);
+  }, [imageSrc]);
+
   if (dog === null) {
     return <MissingDogEmptyState />;
   }
@@ -39,7 +47,8 @@ export function DogImageUploader() {
       return;
     }
 
-    setImageSrc(URL.createObjectURL(file));
+    const objectUrl = URL.createObjectURL(file);
+    setImageSrc(objectUrl);
     setCrop({ x: 0, y: 0 });
     setZoom(1);
   }
