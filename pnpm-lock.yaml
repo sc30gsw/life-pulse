@@ -15,11 +15,11 @@ importers:
   .:
     dependencies:
       '@auth/core':
-        specifier: ^0.41.2
-        version: 0.41.2
+        specifier: ^0.41.3
+        version: 0.41.3
       '@convex-dev/auth':
         specifier: ^0.0.94
-        version: 0.0.94(@auth/core@0.41.2)(convex@1.42.1(react@19.2.7))(react@19.2.7)
+        version: 0.0.94(@auth/core@0.41.3)(convex@1.42.1(react@19.2.7))(react@19.2.7)
       '@convex-dev/react-query':
         specifier: ^0.1.0
         version: 0.1.0(@tanstack/react-query@5.101.2(react@19.2.7))(convex@1.42.1(react@19.2.7))
@@ -172,7 +172,7 @@ importers:
         specifier: ^20.10.6
         version: 20.10.6
       oxlint-plugin-react-doctor:
-        specifier: ^0.9.7
+        specifier: 0.9.7
         version: 0.9.7
       postcss-preset-mantine:
         specifier: ^1.18.0
@@ -181,7 +181,7 @@ importers:
         specifier: ^7.0.1
         version: 7.0.1(postcss@8.5.15)
       react-doctor:
-        specifier: ^0.9.7
+        specifier: 0.9.7
         version: 0.9.7(@voidzero-dev/vite-plus-core@0.2.1(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sugarss@5.0.1(postcss@8.5.15))(tsx@4.23.0)(typescript@6.0.3)(yaml@2.9.0))(eslint@10.4.0(jiti@2.7.0))(oxlint-tsgolint@0.23.0)(vite-plus@0.2.1(@edge-runtime/vm@5.0.0)(@opentelemetry/api@1.9.1)(@types/node@26.1.0)(@vitest/coverage-v8@4.1.9)(@voidzero-dev/vite-plus-core@0.2.1(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(sugarss@5.0.1(postcss@8.5.15))(tsx@4.23.0)(typescript@6.0.3)(yaml@2.9.0))(esbuild@0.28.1)(happy-dom@20.10.6)(jiti@2.7.0)(sugarss@5.0.1(postcss@8.5.15))(tsx@4.23.0)(typescript@6.0.3)(yaml@2.9.0))
       tailwind-preset-mantine:
         specifier: ^4.1.0
@@ -212,12 +212,12 @@ packages:
   '@astrojs/compiler@4.0.0':
     resolution: {integrity: sha512-eouss7G8ygdZqHuke033VMcVw5HTZUu+PXd/h06DGDUg/jt5btPYPqh66ENWw/mU78rBrf/oeC4oqoBwMtDMNA==}
 
-  '@auth/core@0.41.2':
-    resolution: {integrity: sha512-Hx5MNBxN2fJTbJKGUKAA0wca43D0Akl3TvufY54Gn8lop7F+34vU1zA1pn0vQfIoVuLIrpfc2nkyjwIaPJMW7w==}
+  '@auth/core@0.41.3':
+    resolution: {integrity: sha512-sJ3JMHHkXMD3aOjopv7mOBTO1Ocw4b0fAEXJBz6k7YHLpYQI6C40jCUPc5fNvUKxXRXNE1/sRISA15UrwWJBTw==}
     peerDependencies:
       '@simplewebauthn/browser': ^9.0.1
       '@simplewebauthn/server': ^9.0.2
-      nodemailer: ^7.0.7
+      nodemailer: ^7.0.7 || ^8.0.5
     peerDependenciesMeta:
       '@simplewebauthn/browser':
         optional: true
@@ -4510,7 +4510,7 @@ snapshots:
 
   '@astrojs/compiler@4.0.0': {}
 
-  '@auth/core@0.41.2':
+  '@auth/core@0.41.3':
     dependencies:
       '@panva/hkdf': 1.2.1
       jose: 6.2.3
@@ -4714,9 +4714,9 @@ snapshots:
 
   '@blazediff/core@1.9.1': {}
 
-  '@convex-dev/auth@0.0.94(@auth/core@0.41.2)(convex@1.42.1(react@19.2.7))(react@19.2.7)':
+  '@convex-dev/auth@0.0.94(@auth/core@0.41.3)(convex@1.42.1(react@19.2.7))(react@19.2.7)':
     dependencies:
-      '@auth/core': 0.41.2
+      '@auth/core': 0.41.3
       '@oslojs/crypto': 1.0.1
       '@oslojs/encoding': 1.1.0
       convex: 1.42.1(react@19.2.7)
@@ -6003,7 +6003,7 @@ snapshots:
       '@tanstack/router-utils': 1.162.2
       '@tanstack/start-server-core': 1.169.15(crossws@0.4.9(srvx@0.11.17))
       exsolve: 1.0.8
-      lightningcss: 1.32.0
+      lightningcss: 1.33.0
       pathe: 2.0.3
       picomatch: 4.0.4
       seroval: 1.5.4

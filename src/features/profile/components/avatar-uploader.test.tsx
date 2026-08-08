@@ -95,7 +95,11 @@ test("AvatarUploader uploads a cropped avatar and stores its storage id", async 
   } as never;
   state.uploadUrl.mutateAsync.mockResolvedValue("https://upload.example.com");
   state.setAvatar.mutateAsync.mockResolvedValue(null);
-  vi.stubGlobal("URL", { createObjectURL: vi.fn(() => "blob:avatar") });
+  const revokeObjectURL = vi.fn();
+  vi.stubGlobal("URL", {
+    createObjectURL: vi.fn(() => "blob:avatar"),
+    revokeObjectURL,
+  });
   vi.stubGlobal(
     "fetch",
     vi.fn(async () => ({
@@ -117,6 +121,7 @@ test("AvatarUploader uploads a cropped avatar and stores its storage id", async 
 
   expect(state.uploadUrl.mutateAsync).toHaveBeenCalledWith({});
   expect(state.setAvatar.mutateAsync).toHaveBeenCalledWith({ storageId: "storage_1" });
+  expect(revokeObjectURL).toHaveBeenCalledWith("blob:avatar");
 });
 
 test("AvatarUploader confirms before removing the current avatar", async () => {
@@ -166,7 +171,10 @@ test("AvatarUploader reports upload errors", async () => {
   state.uploadUrl.mutateAsync.mockResolvedValue("https://upload.example.com");
   state.setAvatar.mutateAsync.mockClear();
   state.notificationShow.mockClear();
-  vi.stubGlobal("URL", { createObjectURL: vi.fn(() => "blob:avatar") });
+  vi.stubGlobal("URL", {
+    createObjectURL: vi.fn(() => "blob:avatar"),
+    revokeObjectURL: vi.fn(),
+  });
   vi.stubGlobal(
     "fetch",
     vi.fn(async () => ({ ok: false })),

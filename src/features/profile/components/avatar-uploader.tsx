@@ -3,7 +3,7 @@ import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { IconTrash, IconUpload } from "@tabler/icons-react";
 import { Result } from "better-result";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 
 import { useViewer } from "~/features/auth/hooks/use-viewer";
@@ -27,6 +27,14 @@ export function AvatarUploader() {
   const [zoom, setZoom] = useState(1);
   const croppedAreaPixelsRef = useRef<Area | null>(null);
 
+  useEffect(() => {
+    if (imageSrc === null) {
+      return;
+    }
+
+    return () => URL.revokeObjectURL(imageSrc);
+  }, [imageSrc]);
+
   if (viewer === null) {
     return <MissingViewerEmptyState />;
   }
@@ -36,7 +44,8 @@ export function AvatarUploader() {
       return;
     }
 
-    setImageSrc(URL.createObjectURL(file));
+    const objectUrl = URL.createObjectURL(file);
+    setImageSrc(objectUrl);
     setCrop({ x: 0, y: 0 });
     setZoom(1);
   }

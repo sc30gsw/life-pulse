@@ -17,6 +17,16 @@ onlyBuiltDependencies:
 # 公開直後の侵害された可能性のあるリリースを避けるため、公開から1日（1440分）経過したバージョンのみ許可する
 minimumReleaseAge: 1440
 
+# Issue #17 で一次資料・tarball・型定義まで確認した採用版と、CIで利用するReact Doctorの
+# 特定バージョンだけを公開待機期間から除外する。将来版は引き続きminimumReleaseAgeの対象。
+minimumReleaseAgeExclude:
+  - "@tanstack/charts@0.7.2"
+  - "@tanstack/charts-scales@0.7.2"
+  - "@tanstack/react-charts@0.7.2"
+  - "deslop-js@0.9.7"
+  - "oxlint-plugin-react-doctor@0.9.7"
+  - "react-doctor@0.9.7"
+
 allowBuilds:
   esbuild: true
   msgpackr-extract: false

@@ -18,7 +18,7 @@
     "type-check": "vp check --no-lint"
   },
   "dependencies": {
-    "@auth/core": "^0.41.2",
+    "@auth/core": "^0.41.3",
     "@convex-dev/auth": "^0.0.94",
     "@convex-dev/react-query": "^0.1.0",
     "@convex-dev/resend": "^0.2.5",
@@ -72,10 +72,10 @@
     "convex-test": "^0.0.54",
     "fallow": "^2.101.0",
     "happy-dom": "^20.10.6",
-    "oxlint-plugin-react-doctor": "^0.9.7",
+    "oxlint-plugin-react-doctor": "0.9.7",
     "postcss-preset-mantine": "^1.18.0",
     "postcss-simple-vars": "^7.0.1",
-    "react-doctor": "^0.9.7",
+    "react-doctor": "0.9.7",
     "tailwind-preset-mantine": "^4.1.0",
     "tailwindcss": "^4.3.1",
     "vite": "npm:@voidzero-dev/vite-plus-core@0.2.1",
